@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dycove"
+description = "Dynamic vegetation model for coupling with hydromorphodynamic models"
+authors = [
+    {name="N. Tull", email="neltull@lsu.edu"},
+    {name="M. Bruckner", email="mbruckner@lsu.edu"}
+    ]
+maintainers = [{name="N. Tull", email="neltull@lsu.edu"}]
+classifiers = [
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10'
+        'Programming Language :: Python :: 3.11'
+        'Programming Language :: Python :: 3.12'
+]
+requires-python = ">=3.7"
+dependencies = [
+    "numpy",
+    "netCDF4",
+]
+
+[project.optional-dependencies]
+anuga = [
+    "anuga>=3.1",
+]
+dfm = ["bmi-python"]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "coveralls",
+]
+docs = [
+	"sphinx",
+	"m2r2",
+	"ipython",
+	"ipykernel"
+]
+
+[tool.setuptools.packages.find]
+where = [
+    ".",
+]
+include = [
+    "dycove*",
+]
