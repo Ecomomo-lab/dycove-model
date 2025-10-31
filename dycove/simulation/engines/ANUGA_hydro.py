@@ -16,32 +16,57 @@ from anuga import myid, numprocs, finalize, barrier
 
 r = Reporter()
 
-"""
-class that inherits base hydrodynamic simulation class and builds model using ANUGA.
-This class ties the model to ANUGA using AnugaEngine, but is otherwise an empty wrapper for HydroSimulationBase. 
-The base class handles all hydrodynamic processing, referring back to AnugaEngine for model-specific methods.
 
-The ANUGA *domain* object is passed here, rather than developed internally, because ANUGA users will 
-  have existing scripts that develop the domain in python, and we would rather have them keep that 
-  code and only adjust the processes that would occur in the domain.evolve() loop
-"""
 class ANUGA(HydroSimulationBase):
+    """
+    Hydrodynamic simulation wrapper for the ANUGA model.
+
+    This class connects the generic :class:`HydroSimulationBase` interface to
+    the ANUGA hydrodynamic engine :class:`AnugaEngine`.
+
+    Notes
+    -----
+    - The ANUGA `domain` object is expected to be pre-constructed by the user.
+      This preserves the typical ANUGA workflow where domains are created
+      directly in Python scripts.
+    - All higher-level logic that can be abstracted from the engine classes is
+      handled in :class:`HydroSimulationBase`; all low-level model 
+      interactions are delegated to :class:`AnugaEngine`.
+    """
 
     def __init__(self, anuga_domain, vegetation=None):
-
-        # build ANUGA "engine"
+        # build ANUGA engine
         engine = AnugaEngine(anuga_domain, vegetation)
         # pass ANUGA engine to the base class
         super().__init__(engine)
     
 
-""" 
-class that holds the ANUGA domain object, which holds various properties of the model.
-AnugaEngine gets and sets variables directly via python domain object, while DFM uses BMI.
-Check HydroEngineBase for required methods.
-
-"""
 class AnugaEngine(HydroEngineBase):
+    """ 
+    Engine interface for ANUGA hydrodynamic model.
+
+    This engine:
+      • Holds the ANUGA domain object
+      • Reads/writes flow and vegetation state directly through Python objects
+        (unlike BMI-based engine used for Delft3D FM)
+        Contains all methods that are specific to the ANUGA model.
+
+    Notes
+    -----
+    - ANUGA runs in many short `domain.evolve()` loops rather than one long
+      simulation call; the `skip_step` mechanism prevents duplicate first
+      timesteps across loops.
+    - Parallel execution (if enabled) requires merging local vegetation state
+      after simulation; see ``merge_parallel_veg``.
+
+    Parameters
+    ----------
+    anuga_domain : ANUGA Domain object
+        The pre-constructed computational domain.
+    vegetation : optional
+        Vegetation object passed down from the base simulation.
+    """
+
     def __init__(self, anuga_domain, vegetation=None):
         self.domain = anuga_domain.domain
         self.model_dir = self.domain.get_datadir()
@@ -49,12 +74,12 @@ class AnugaEngine(HydroEngineBase):
         # passing vegetation as attribute of the engine
         self.veg = vegetation
 
-        # With ANUGA, we run many consecutive "domain.evolve" loops. 
-        # We don't want to skip the first step for the first loop, but for every other loop, we do.
+        # With DYCOVE-ANUGA, we run many consecutive "domain.evolve" loops, rather than just one big loop.
+        # We don't want to skip the first step for the first of these loops, but for every other loop, we do.
         # Otherwise, we get repeated steps.
         self.skip_step = False
 
-        # interval (seconds) for saving ANUGA output, to be set inside run_simulation
+        # interval (seconds) for saving ANUGA output, to be set inside run_simulation and used as argument to domain.evolve()
         self.save_interval = None
 
 
@@ -65,7 +90,6 @@ class AnugaEngine(HydroEngineBase):
         self.morphology = False
         
     def step(self, seconds):
-        """Advance hydro model by given seconds"""
         # normally, all processes would be performed within this domain.evolve() loop, 
         #   but for consistency across all potential models, we wrap it up here under the "step" method.
         yieldstep = min(seconds, self.save_interval)  # if performing a "big" step, reduce yieldstep so it equals save_interval
@@ -79,7 +103,7 @@ class AnugaEngine(HydroEngineBase):
                 
             # skip initial yieldstep for all future loops, to avoid rerunning yieldsteps at restart
             self.skip_step = True
-        # barrier() enforces a wait time for all cores so that they catch up to each other when this is called
+        # barrier() enforces wait time for all cores so they catch up to each other when this is called (ignored if not parallel)
         barrier()
 
     def cleanup(self):
@@ -94,11 +118,12 @@ class AnugaEngine(HydroEngineBase):
         return myid
 
     def get_cell_count(self):
-        # get number of cells in numerical model grid
+        # get number of cells (not nodes) in numerical model grid
         return len(self.get_elevation())
 
     def get_refdate(self):
-        # hardcoded for now, TODO: fix or remove
+        # hardcoded for now, because DFM requires this in input file
+        # TODO: fix or remove
         return datetime(2001, 1, 1)     
 
     def get_elevation(self):
@@ -118,6 +143,7 @@ class AnugaEngine(HydroEngineBase):
         return velocity, depth
 
     def get_vegetation(self):
+        # pull directly from Baptist operator
         stemdensity = self.Baptist.veg_density.centroid_values
         stemdiameter = self.Baptist.veg_diameter.centroid_values
         stemheight = self.Baptist.veg_height.centroid_values
@@ -136,6 +162,12 @@ class AnugaEngine(HydroEngineBase):
         return True if numprocs > 1 else False
     
     def merge_parallel_veg(self, OutputManager):
+        """
+        Merge vegetation output files from parallel ANUGA runs into single files per cohort.
+        This involves reading local-to-global index mapping from each ANUGA subdomain's sww file,
+        then using that mapping to merge local vegetation arrays into global arrays.
+        Finally, save merged arrays using OutputManager and delete local files.
+        """
         outputdir = OutputManager.veg_dir
 
         sww_name = self.domain.get_name()  # this is the specific name for myid 0, so it has suffix "_0"

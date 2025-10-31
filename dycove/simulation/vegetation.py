@@ -287,14 +287,12 @@ class VegetationSpecies(SharedVegMethods):
             # TODO: verify that this works the same regardless of the number of species
             c.applied_mort_total = c.applied_mort_flood + c.applied_mort_desic + c.applied_mort_uproot + \
                                    c.applied_mort_burial + c.applied_mort_scour
-            fractions_left = np.maximum(c.fraction - c.applied_mort_total, 0)
+            fractions_left = c.fraction - c.applied_mort_total
+            fractions_left = np.maximum(fractions_left, 0)  # no negative fractions
 
             # update fractions in cohort
             # for fractions that decay slowly over time, round down to zero when they get small enough
             c.fraction = np.where(fractions_left > 0.025, fractions_left, 0.)
-
-        # remove cohorts that have disappeared
-        #self.clean_out_old_fractions()
 
 
     @staticmethod

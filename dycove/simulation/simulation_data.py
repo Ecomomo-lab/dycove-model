@@ -11,7 +11,38 @@ r = Reporter()
 
 @dataclass
 class SimulationTimeState:
-    """ Handles all attributes related to simulation time """
+    """
+    Tracks and manages simulation time state variables.
+
+    This class handles both the hydrodynamic and eco-morphodynamic 
+    time scales, including conversions between them.
+
+    Attributes:
+        eco_year (int): Current ecological year in the simulation.
+        ets (int): Current ecological time step.
+        sim_time (float): Simulation time in units given by `sim_time_unit`.
+        sim_time_unit (str): Unit of `sim_time`. 
+            Must be either 'hydrodynamic days' or 'eco-morphodynamic years'.
+        n_ets (int): Number of ecological time steps per year.
+        veg_interval (int): Time interval (in seconds) between vegetation updates.
+        hydro_interval (int): Time interval (in seconds) between hydrodynamic updates 
+            (updates to HydrodynamicStats class).
+        morfac (int): Morphological acceleration factor from morphodynamic model.
+        vegfac (Optional[int]): Vegetation acceleration factor. If None, it is computed.
+        refdate (datetime): Reference start date of the simulation.
+        hydrotime_seconds (int): Accumulated hydrodynamic simulation time in seconds.
+
+    Computed Attributes (set in __post_init__):
+        days_per_year (float): Implied number of days per ecological year.
+        hydro_sim_days (float): Total hydrodynamic days elapsed in simulation.
+        veg_sim_years (float): Total eco-morphodynamic years elapsed.
+        time_0 (float): Wall-clock timestamp of simulation start.
+        times_elapsed (list): List of elapsed wall-clock times at updates.
+        n_veg_steps (int): Total number of eco steps in simulation.
+        n_hydro_steps (int): Total number of hydrodynamic steps per eco step.
+        hydrotime_date (datetime): Current simulation date based on hydrodynamic time.
+    """
+    
     eco_year: int
     ets: int
     sim_time: float
@@ -28,10 +59,10 @@ class SimulationTimeState:
     days_per_year: float = field(init=False)
     hydro_sim_days: float = field(init=False)
     veg_sim_years: float = field(init=False)
+    time_0: float = field(init=False)
     times_elapsed: list = field(init=False)
     n_veg_steps: int = field(init=False)
     n_hydro_steps: int = field(init=False)
-    time_0: float = field(init=False)
     hydrotime_date: dt.datetime = field(init=False)
 
     def __post_init__(self):
@@ -69,7 +100,7 @@ class SimulationTimeState:
     def compute_vegfac(self):
         """
         Determine vegetation acceleration factor, 
-        prioritizing: model morfac > input value > derived value.
+          prioritizing: model morfac > input value > derived value.
         """
         # Check that input vegfac matches morfac if morphology is on
         if self.vegfac is not None:
@@ -130,7 +161,30 @@ class SimulationTimeState:
 
 @dataclass
 class HydrodynamicStats:
-    """ Handles all values pulled from hydrodynamic model that are used for computing vegetation changes """
+    """
+    Stores hydrodynamic model outputs used to compute vegetation responses.
+
+    Tracks water depths, velocities, and flood statistics across the computational grid.
+
+    Attributes:
+        fl_dr (float): Flooding threshold (depth above which a cell is considered flooded).
+        h_min (np.ndarray): Minimum water depth observed in each cell during hydro_interval.
+        h_max (np.ndarray): Maximum water depth observed in each cell during hydro_interval.
+        v_max (np.ndarray): Maximum velocity observed in each cell during hydro_interval.
+        flood_counts (np.ndarray): Number of timesteps each cell was flooded during hydro_interval.
+        bedlevel_0 (np.ndarray): Bed elevations per cell before hydro_interval.
+        bedlevel_f (np.ndarray): Bed elevations per cell after hydro_interval.
+
+    Properties:
+        bedlevel_diff (np.ndarray): Change in bed elevation (bedlevel_f - bedlevel_0).
+
+    Methods:
+        flood_frac(n_substeps): Fraction of time each cell was flooded over `n_substeps`.
+        dry_frac(n_substeps): Fraction of time each cell was dry over `n_substeps`.
+        reset(n_cells): Initialize/reset all arrays for `n_cells` grid cells.
+        update(vel, depth): Update min/max values and flood counts from new hydrodynamic step.
+    """
+    
     fl_dr: float
     h_min: Optional[np.ndarray] = None
     h_max: Optional[np.ndarray] = None

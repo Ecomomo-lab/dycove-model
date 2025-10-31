@@ -14,12 +14,21 @@ from dycove.utils.log import Reporter
 
 r = Reporter()
 
-"""
-class that inherits base hydrodynamic simulation class and builds model using Delft3D FM engine.
-This class ties the model to DFM using DfmEngine, but is otherwise an empty wrapper for HydroSimulationBase. 
-The base class handles all hydrodynamic processing, referring back to DfmEngine for model-specific methods.
-"""
+
 class DFM(HydroSimulationBase):
+    """
+    Hydrodynamic simulation wrapper for the Delft3D FM model.
+
+    Connects :class:`HydroSimulationBase` to :class:`DFMEngine`, providing a
+    consistent Python interface for running D-Flow FM through its BMI and
+    DIMR interfaces.
+
+    Notes
+    -----
+    All higher-level logic that can be abstracted from the engine classes is
+    handled in :class:`HydroSimulationBase`; all low-level model interactions 
+    are delegated to :class:`DFMEngine`.
+    """
 
     def __init__(self, dfm_path, config_path, mdu_path, vegetation=None):
 
@@ -29,16 +38,41 @@ class DFM(HydroSimulationBase):
         super().__init__(engine)
     
 
-""" 
-class for handling interface between python, BMI, and DFM.
-Check HydroEngineBase for required methods.
-"""
 class DFMEngine(HydroEngineBase):
+    """
+    Engine interface for DFM hydro-morphodynamic model.
+
+    This engine:
+      • Loads and initializes DFM executables (DIMR + D-Flow FM BMI)
+      • Manages exchange of hydrodynamic and vegetation state variables though
+        DFM-specific BMI-python wrapper
+      • Ensures that required input files are present and are consistent 
+        with simulation settings
+
+    Notes
+    -----
+    - Vegetation files (.xyz) required by DFM vegetation module are auto-created 
+      if missing.
+    - Parallel mode is not currently implemented.
+
+    Parameters
+    ----------
+    dfm_path : Path or str
+        Path to the root Delft3D-FM installation directory. Might look like this:
+        'C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/plugins/DeltaShell.Dimr/kernels/x64'
+    config_path : Path or str
+        Path to DIMR configuration file 'dimr_config.xml'
+    mdu_path : Path or str
+        Path to DFM MDU file.
+    vegetation : optional
+        Vegetation object passed down from the base simulation.
+    """
+
     def __init__(self, dfm_path, config_path, mdu_path, vegetation=None):
         # paths to Delft3D FM dll files
-        self.dflowfm_path = dfm_path / Path("dflowfm/bin/dflowfm.dll")
-        self.dimr_path    = dfm_path / Path("dimr/bin/dimr_dll.dll")
-        self.mdu_path     = mdu_path  # location of MDU file that contains model directions/inputs
+        self.dflowfm_path = Path(dfm_path) / ("dflowfm/bin/dflowfm.dll")
+        self.dimr_path    = Path(dfm_path) / ("dimr/bin/dimr_dll.dll")
+        self.mdu_path     = Path(mdu_path)  # location of MDU file that contains model directions/inputs
         self.model_dir    = mdu_path.parent  # model directory containing MDU and other model files
         self.config_path  = config_path  # location of config file used for running DFM using dimr
 
@@ -49,7 +83,7 @@ class DFMEngine(HydroEngineBase):
 
         # add DLL paths to env before calling BMI
         # NOTE: for versions of python 3.7 and earlier, you will need to set the env variables differently:
-        #   os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" + os.path.join(D3D_HOME, 'dflowfm', 'bin') + ...
+        #   os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" + os.path.join(dfm_path, 'dflowfm', 'bin') + ...
         os.add_dll_directory(dfm_path / Path("dflowfm/bin"))
         os.add_dll_directory(dfm_path / Path("dimr/bin"))
         os.add_dll_directory(dfm_path / Path("share/bin"))
@@ -74,12 +108,15 @@ class DFMEngine(HydroEngineBase):
         self.dimr.initialize()
 
     def step(self, seconds):
+        # advance model by specified number of seconds
         self.dimr.update(seconds)
 
     def cleanup(self):
+        # finalize/cleanup DFM dimr wrapper
         self.dimr.finalize()
 
     def get_rank(self):
+        # TODO: implement parallel processing for DFM
         raise NotImplementedError("Parallel mode not currently implemented for Delft3D FM")
 
     def get_cell_count(self):
@@ -88,7 +125,7 @@ class DFMEngine(HydroEngineBase):
 
     def get_refdate(self):
         # dependent on input file string format
-        # this is an input for Delft3D, but most other models probably don't care what the date is and we can just hardcode the date
+        # this input has a line in the MDU file, but most other models probably don't care what the date is and we can just hardcode the date
         refdatestr = self.mdu_vars["RefDate"]
         return datetime(int(refdatestr[:4]), int(refdatestr[4:6]), int(refdatestr[6:]))
     
@@ -100,7 +137,7 @@ class DFMEngine(HydroEngineBase):
 
     def get_velocity_and_depth(self):
         # get "accumulators" for time-varying quantities
-        # the BMI uses this roundabout way of getting time-varying quantities (pull sums of values, divide by time interval)
+        # the BMI/DIMR uses this roundabout way of getting time-varying quantities (pull sums of values, divide by time interval)
         is_dtint     = self.dflowfm.get_var("is_dtint")
         is_sumvalsnd = self.dflowfm.get_var("is_sumvalsnd")        
         vel_full     = np.array(is_sumvalsnd[:, 1]/is_dtint)
@@ -114,6 +151,7 @@ class DFMEngine(HydroEngineBase):
         return velocity, depth
 
     def get_vegetation(self):
+        # convert to numpy arrays because DFM returns pointers and we don't want to accidentally modify them
         stemdensity = np.array(self.dflowfm.get_var("rnveg"))
         stemdiameter = np.array(self.dflowfm.get_var("diaveg"))
         stemheight = np.array(self.dflowfm.get_var("stemheight"))
@@ -176,7 +214,7 @@ class DFMEngine(HydroEngineBase):
             req_veg_files = ["stemdensity.xyz", "stemdiameter.xyz", "stemheight.xyz"]
             if not ext_force_file.exists():
                 msg = ("An *.ext file for external forcing (old format) must be specified next to 'ExtForceFile' in the MDU file, "
-                    "and that file must exist in the model folder (at the same level as the MDU file)")
+                       "and that file must exist in the model folder (at the same level as the MDU file)")
                 r.report(msg, level="ERROR")
                 raise FileNotFoundError(msg)
             with open(ext_force_file, "r") as f:
@@ -189,8 +227,9 @@ class DFMEngine(HydroEngineBase):
                                 f.write("")
 
     def check_simulation_inputs(self, simstate):
-        # all MDU files (DFM models) will have a simulation time specifed, but this vegetation module will run DFM for a period of time
-        #   based on how many morphodynamic years we want to simulate. Basically, the time specified in the MDU needs to be arbitrarily
+        # All MDU files (DFM models) will have a simulation time specifed, but this vegetation module will run DFM for a period of time
+        #   based on how many veg years we want to simulate. 
+        # Basically, the time specified in the MDU needs to be arbitrarily
         #   large enough so that we never run into the issue of the model stopping prematurely
         if simstate.hydro_sim_days*86400 > int(self.mdu_vars["TStop"]):
             msg = (f"Model simulation time specified in MDU file (TStop = {self.mdu_vars['TStop']}) not long enough based on "
@@ -200,6 +239,7 @@ class DFMEngine(HydroEngineBase):
             raise ValueError(msg)
 
     def is_parallel(self):
+        # DFM not currently set up for parallel processing in this model, but setting this up for future use
         try:
             from mpi4py import MPI
             comm = MPI.COMM_WORLD

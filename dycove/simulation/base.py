@@ -13,14 +13,27 @@ from dycove.utils.log import Reporter
 
 r = Reporter()
 
-"""
-A base class for creating and running hydrodynamic simulations. The class is model-agnostic; all model-specific
-methods are called via the respective model "engine" (for which the base class is also included in this file)
-"""
 class HydroSimulationBase(ABC):
+    """
+    Base class for running hydrodynamic simulations.
+
+    This class is model-agnostic: it is a high-level wrapper that manages the time stepping logic,
+    both for the hydrodynamic and vegetation components.
+    
+    Model-specific computations are delegated to the appropriate `engine` object.
+    Tracking of simulation time state variables is delegated to the `SimulationTimeState` dataclass.
+    Calculation of hydrodynamic statistics relevant for vegetation processes is delegated to the `HydrodynamicStats` dataclass.
+    Coupling logic between vegetation and hydrodynamic models is handled by the `VegetationCoupler` class.
+    Writing of output files is handled by the `OutputManager` class.
+
+    Subclasses should implement the engine-specific methods called
+    here, such as `step` and `get_velocity_and_depth`.
+    """
 
     def __init__(self, engine):
+        # Initialize the simulation with a hydrodynamic engine
         self.engine = engine
+        # Initialize coupler and output manager
         self.veg_coupler = VegetationCoupler(engine) if engine.veg else None
         self.outputs = OutputManager(engine)
 
@@ -34,22 +47,33 @@ class HydroSimulationBase(ABC):
                        vegfac=None,
                        fl_dr=0.15):
         """
-        sim_time      : how long to run the simulation, in days if sim_time_units='hydrodynamic days', or years if 
-                        sim_time_units='eco-morphodynamic years'
-        sim_time_unit : 'hydrodynamic days' or 'eco-morphodynamic years', where eco time is equal to hydro time times morfac/vegfac.
-                        Note that if morphology is turned on, vegfac must equal morfac (there is a check for this).
-        n_ets         : no. eco timesteps per veg year
-        veg_interval  : seconds between eco timesteps. Default is one half day, ~ 1 tidal cycle
-        hydro_interval: seconds between internal hydrodynamic timesteps, needed for capturing representative water levels 
-                        within eco timesteps so the min water level per eco timestep can be calculated. Also for 
-                        calculating average velocities at every hydro_interval, the maximum of which is used for uprooting
-                        calculations. So the interval needs to be small enough so that high velocities can be detected.
-        save_interval : interval in seconds for writing output to files. This value is not used in DFM because the map
-                        output parameter in the MDU file is used by the model internally
-        vegfac        : vegetation time factor, i.e. how much faster vegetation processes occur relative to hydrodynamics.
-                        Equivalent to morfac when morphology is turned on. Default is None, but will be set to morfac if morfac
-                        exists, and if not, will be computed from veg_interval and n_ets inputs.
-        fl_dr         : wet/dry threshold (meters) to avoid issue where cells maintain thin film and never dry
+        Run a full simulation over the specified time period.
+
+        This method handles the main simulation loop, including:
+        - Initializing the engine
+        - Creating simulation state and hydrodynamic stats objects
+        - Running vegetation and hydrodynamic loops
+        - Saving outputs
+
+        Args:
+            sim_time (float): Simulation duration in `sim_time_unit`.
+
+            sim_time_unit (str): 'hydrodynamic days' or 'eco-morphodynamic years'. 
+                Determines interpretation of `sim_time`.
+
+            n_ets (int): Number of ecological time steps per vegetation year.
+
+            veg_interval (int): Seconds between vegetation updates. Default is 43200 (12 hours).
+
+            hydro_interval (int): Seconds between hydrodynamic substeps.
+
+            save_interval (int): Interval in seconds for writing outputs.
+
+            vegfac (int): Vegetation 'acceleration factor' relative to hydrodynamics.
+                Must equal MORFAC if Delft3D morphology is enabled. If None, it is computed.
+
+            fl_dr (float): Wet/dry threshold in meters; cells below this
+                depth are considered dry to avoid thin-film issues.
         """
 
         # initialize model
@@ -64,7 +88,7 @@ class HydroSimulationBase(ABC):
                                             n_ets=n_ets, veg_interval=veg_interval, hydro_interval=hydro_interval,
                                             morfac=int(self.engine.morph_vars["MorFac"]) if self.engine.morphology else None,
                                             vegfac=vegfac,
-                                            refdate=self.engine.get_refdate(),
+                                            refdate=self.engine.get_refdate()
                                             )
 
         # define object to hold all hydrodynamic statistics relevant for vegetation processes
@@ -74,7 +98,7 @@ class HydroSimulationBase(ABC):
         self.engine.check_simulation_inputs(self.simstate)
         print_model_time_info(self.simstate)
 
-        # loop over vegetation time steps
+        # loop over all vegetation time steps
         for vts in range(self.simstate.n_veg_steps):
             # print runtime stats to the screen
             print_runtime_updates(self.simstate, vts)
@@ -94,10 +118,20 @@ class HydroSimulationBase(ABC):
         r.report("Simulation complete!")
 
     def loop_hydrodynamics(self):
-        """Advance hydrodynamics by a number of sub-iterations to get finer-scale hydrodynamic statistics"""
+        """
+        Advance hydrodynamics over all substeps within the current vegetation step.
+
+        Computes min/max water depths, maximum velocities, and flooding
+        statistics required for vegetation updates.
+
+        Updates:
+            self.hydrostats: HydrodynamicStats object with updated values.
+        """
+                
         # add empty placeholders for hydro stats like hmin, vmax, etc
         self.hydrostats.reset(self.engine.get_cell_count())
-        # get bed level before hydro loop (TODO: morphodynamic simulations only, right now is irrelevent if mor=0)
+        # get bed level before hydro loop 
+        # (TODO: morphodynamic simulations only, right now is irrelevent if mor=0)
         self.hydrostats.bedlevel_0 = self.engine.get_elevation()
 
         # do inner loop of smaller hydrodynamic intervals
@@ -119,42 +153,46 @@ class HydroSimulationBase(ABC):
         self.simstate.advance_time(seconds)
 
 
-"""Abstract interface for hydrodynamic engines."""
 class HydroEngineBase(ABC):
-    #DAYS_PER_YEAR = 350
+    """
+    Abstract interface for hydrodynamic engines.
+    
+    All hydrodynamic models must implement this interface to be compatible with the base 
+    hydrodynamic simulation class.
+    """
 
     @abstractmethod
     def initialize(self):
-        """Prepare engine to run (allocate memory, print start, etc.)."""
+        """Prepare engine to run (allocate memory, print start, etc.)"""
         pass
 
     @abstractmethod
     def step(self, seconds: int):
         """
         Advance the hydrodynamic model forward by a given number of seconds.
-        ANUGA might implement this by looping internally with evolve(),
-        while DFM can call dimr.update().
+        ANUGA implements this by looping with domain.evolve(),
+        while DFM calls dimr.update().
         """
         pass
 
     @abstractmethod
     def cleanup(self):
-        """Clean up resources."""
+        """Clean up resources"""
         pass
 
     @abstractmethod
     def get_rank(self):
-        """Get current parallel processor/rank."""
+        """Get current parallel processor/rank"""
         pass
 
     @abstractmethod
     def get_cell_count(self) -> int:
-        """Return number of active grid cells in the model."""
+        """Return number of active grid cells in the model"""
         pass
 
     @abstractmethod
     def get_elevation(self) -> np.ndarray:
-        """Return static bed elevation array (cell-centered)."""
+        """Return static bed elevation array (cell-centered)"""
         pass
 
     @abstractmethod
@@ -167,12 +205,12 @@ class HydroEngineBase(ABC):
 
     @abstractmethod
     def get_vegetation(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Return stem density, diameter, and height arrays."""
+        """Return stem density, diameter, and height arrays"""
         pass
 
     @abstractmethod
     def set_vegetation(self, stemdens, stemdiam, stemheight):
-        """Push vegetation arrays back into the hydro model."""
+        """Push vegetation arrays back into the hydro model"""
         pass
 
     @abstractmethod
@@ -187,5 +225,5 @@ class HydroEngineBase(ABC):
 
     @abstractmethod
     def merge_parallel_veg(self, OutputManager):
-        """Merge vegetation output files across MPI subdomains into single files."""
+        """Merge vegetation output files across MPI subdomains into single files"""
         pass

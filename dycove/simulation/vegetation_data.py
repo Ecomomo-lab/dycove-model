@@ -5,7 +5,15 @@ from dataclasses import dataclass, field
 
 @dataclass
 class VegetationAttributes:
-    """ Holds all vegetation attributes pulled from input text file """
+    """
+    Container for vegetation trait parameters and life-cycle settings.
+
+    This class stores all vegetation input attributes and computes
+    linear growth rates for height, stem diameter, and root length
+    across life stages. Values are typically read from the vegetation
+    configuration text file used by the eco-morphodynamic model.
+    """
+
     age_max: int  # max age
     seed_dispersal: int  # amount of ets seed dispersal
     col_method: int  # colonisation method (1 = on bare substrate between max and min water levels, 2 = on bare substrate with mud content
@@ -50,11 +58,10 @@ class VegetationAttributes:
 
     def compute_growth_rates(self):
         """
-        Compute linear growth rates from colonization to winter time for each life stage.
-        
-        Growth rates are calculated differently for:
-        - Life stage 0: Growth from initial colonization values
-        - Life stage n>0: Growth from previous stage's winter values
+        Compute seasonal linear growth rates for each life stage.
+
+        Stage 0 grows from initial colonization values.
+        Later stages grow from previous winter values.
         """
         self.ht_growth_rates = []
         self.diam_growth_rates = []
@@ -71,7 +78,10 @@ class VegetationAttributes:
             self.root_growth_rates.append(rates['root'])
 
     def _compute_stage_0_rates(self) -> dict:
-        """Compute growth rates for initial colonization stage (stage 0)"""
+        """
+        Compute growth rates for first life stage starting from
+        colonization geometry (height, diameter, roots).
+        """
         # TODO: verify we want all 3 growth rates based on start_growth_ets ,
         #       which was technically described initially as being for shoot growth.
         #       I think it makes sense: shoot growth -> diameter/root growth.
@@ -83,11 +93,8 @@ class VegetationAttributes:
 
     def _compute_stage_n_rates(self, n: int) -> dict:
         """
-        Compute growth rates for stage n (n > 0).
-        Starting from previous winter values:
-        - Height: grows from lower winter value
-        - Diameter: continues from where it left off (no drop-off)
-        - Root    : continues from where it left off (no drop-off)
+        Compute growth rates for life stage `n` using previous
+        winter geometry as starting point.
         """
         return {
             'height': (self.ht_max[n] - self.ht_winter_max[n-1]) / (self.end_growth_ets - self.start_growth_ets),
@@ -96,20 +103,47 @@ class VegetationAttributes:
         }
 
 
-@dataclass
-class MortalityRecord:
-    """ Tracks mortality causes for vegetation cohorts """
-    flood: Optional[np.ndarray] = None
-    desic: Optional[np.ndarray] = None
-    uproot: Optional[np.ndarray] = None
-    burial: Optional[np.ndarray] = None
-    scour: Optional[np.ndarray] = None
-    total: Optional[np.ndarray] = None
+# @dataclass
+# class MortalityRecord:
+#     """ Tracks mortality causes for vegetation cohorts """
+#     flood: Optional[np.ndarray] = None
+#     desic: Optional[np.ndarray] = None
+#     uproot: Optional[np.ndarray] = None
+#     burial: Optional[np.ndarray] = None
+#     scour: Optional[np.ndarray] = None
+#     total: Optional[np.ndarray] = None
     
 
 @dataclass
 class VegCohort:
-    """ Tracks vegetation characteristics for a single cohort/colonization as they evolve over time """
+    """
+    Represents a vegetation cohort (single colonization event) tracked through time.
+
+    A cohort stores plant geometry, density, life-stage progression, and
+    mortality contributions across the model domain.
+
+    Attributes
+    ----------
+    fraction : ndarray
+        Vegetation fractional cover per cell (0–1).
+    density : float
+        Stem density (stems/m²).
+    diameter, height, rootlength : float
+        Plant geometry (m).
+    lifestage : int
+        Current life-stage index (0 .. nls-1).
+    lifestage_year : int
+        Years elapsed in the current life stage.
+
+    potential_mort_* : ndarray
+        Mortality potential based solely on environmental stress.
+        Represents vulnerability prior to application to vegetated fraction.
+
+    applied_mort_* : ndarray
+        Mortality applied to vegetation fraction.
+        Represents actual loss per cell.
+    """
+
     fraction: np.ndarray  # array, length = n_cells
     density: float        # stems/m²
     diameter: float       # m
