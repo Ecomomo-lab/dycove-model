@@ -51,7 +51,7 @@ class VegetationSpecies(SharedVegMethods):
                  species_name="veg1",
                  mor=0,
                  rand_seed_frac=1.0,
-                 rand_seed_method="random",
+                 rand_seed_method="deterministic",
                  ):
         """
         input_veg_filename: text file containing vegetation attributes

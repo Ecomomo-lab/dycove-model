@@ -4,31 +4,34 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dycove"
+version = "0.1.0"
 description = "Dynamic vegetation model for coupling with hydromorphodynamic models"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
 authors = [
     {name="N. Tull", email="neltull@lsu.edu"},
     {name="M. Bruckner", email="mbruckner@lsu.edu"}
     ]
-maintainers = [{name="N. Tull", email="neltull@lsu.edu"}]
+
+keywords = ["vegetation", "hydrodynamics", "morphodynamics", "ANUGA", "Delft3D"]
+
 classifiers = [
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10'
-        'Programming Language :: Python :: 3.11'
-        'Programming Language :: Python :: 3.12'
-]
-requires-python = ">=3.7"
-dependencies = [
-    "numpy",
-    "netCDF4",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
+dependencies = ["numpy"]
+
 [project.optional-dependencies]
-anuga = [
-    "anuga>=3.1",
-]
-dfm = ["bmi-python"]
+anuga = ["anuga>=3.1"]
+dfm = [
+    "bmi-python",
+    "netCDF4"
+    ]
 dev = [
     "pytest",
     "pytest-cov",
@@ -40,6 +43,11 @@ docs = [
 	"ipython",
 	"ipykernel"
 ]
+
+[project.urls]
+Homepage = "https://github.com/Ecomomo-lab/dycove-model"
+Repository = "https://github.com/Ecomomo-lab/dycove-model"
+Issues = "https://github.com/Ecomomo-lab/dycove-model/issues"
 
 [tool.setuptools.packages.find]
 where = [
