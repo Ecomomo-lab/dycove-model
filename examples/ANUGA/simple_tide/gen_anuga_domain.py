@@ -32,8 +32,6 @@ class RectangSlopeDomainGenerator:
         self.tide = tide_props
         self.WL_0 = WL_0
 
-        self.plotting = True
-
         self.create_anuga_domain()
         self.set_initial_quantities()
         self.set_boundary_conditions()
@@ -64,7 +62,7 @@ class RectangSlopeDomainGenerator:
         r.report("Assigning elevation and friction data to mesh...\n")
 
         def topography(x, y):
-            return -self.min_z + x*self.slope  # linear bed slope between -0.5 and 0.5
+            return self.min_z + x*self.slope  # linear bed slope between -0.5 and 0.5
 
         self.domain.set_quantity('elevation', topography)
         self.domain.set_quantity('friction', self.friction)
@@ -73,7 +71,7 @@ class RectangSlopeDomainGenerator:
             plt.figure()
             plt.tripcolor(self.dplotter.triang, 
                           facecolors = self.dplotter.elev,
-                          vmin=-1, vmax=1,
+                          vmin=-0.5, vmax=0.5,
                           cmap='bone')
 
             cbar = plt.colorbar()
@@ -97,8 +95,7 @@ class RectangSlopeDomainGenerator:
                 t, 
                 A=self.tide["amplitude"], 
                 T=self.tide["period"], 
-                # phase to be specifed in degrees, converted to radians below
-                phase=self.tide["phase"] if "phase" in self.tide else 0,
+                phase=self.tide["phase"] if "phase" in self.tide else 0, # phase specifed in deg, converted to rad below
                 offset=self.tide["MWL"]
                 ):
             return A*np.sin(2*np.pi * t/T + phase*np.pi/180) + offset

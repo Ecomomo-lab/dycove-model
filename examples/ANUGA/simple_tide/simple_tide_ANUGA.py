@@ -20,15 +20,16 @@ from gen_anuga_domain import RectangSlopeDomainGenerator as RectangDomain
 
 
 HydroDomain = RectangDomain("rectang_beach", 
-                            rectang_dims=(400, 200), 
-                            mesh_spacing=10,
-                            min_elev=-0.5,
+                            rectang_dims=(400,   # length in x-direction (m)
+                                          200),  # length in y-direction (m)
+                            mesh_spacing=20,     # exact mesh spacing (regular triangles) (m)
+                            min_elev=-0.5,       # elevation at tidal boundary (m)
                             slope=0.0025,
                             mannings_n=0.025,
                             tide_props={
-                                'amplitude': 0.5,
+                                'amplitude': 0.3,
                                 'period': 12.*3600,
-                                'MWL': 0.25},
+                                'MWL': 0},
                                 )
 
 
@@ -46,5 +47,5 @@ veg_1 = VegetationSpecies("veg1.txt", "veg1")
 # instantiate ANUGA model
 HydroModel = ANUGA(HydroDomain, vegetation=veg_1)
 
-# start timestepping
+# do timestepping
 HydroModel.run_simulation(sim_time, sim_time_unit=time_unit)

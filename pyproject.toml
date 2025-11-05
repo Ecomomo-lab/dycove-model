@@ -29,9 +29,13 @@ dependencies = ["numpy"]
 [project.optional-dependencies]
 anuga = ["anuga>=3.1"]
 dfm = [
-    "bmi-python",
+    "bmi",
     "netCDF4"
     ]
+plotter = [
+    "tqdm",
+    "imageio"
+]
 dev = [
     "pytest",
     "pytest-cov",

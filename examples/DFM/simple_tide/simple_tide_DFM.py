@@ -1,0 +1,47 @@
+﻿"""
+Simple example script to run a Delft3D-FM hydrodynamic simulation with DYCOVE (no morphology).
+
+Adapted from ANUGA-DYCOVE example "simple_tide_ANUGA.py"
+"""
+
+#------------------------------------------------------------------------------
+# Import necessary modules
+#------------------------------------------------------------------------------
+
+#import faulthandler
+from pathlib import Path
+
+from dycove.sim.vegetation import VegetationSpecies
+from dycove.sim.engines.DFM_hydro import DFM
+
+#faulthandler.enable()
+
+#------------------------------------------------------------------------------
+# Define model file paths
+#------------------------------------------------------------------------------
+
+work_dir = Path(__file__).parent
+config_file = work_dir / 'dimr_config.xml'
+model_dir   = work_dir / 'dflowfm'
+mdu_file    = model_dir / 'FlowFM.mdu'
+
+dfm_dlls = Path('C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/'
+                'plugins/DeltaShell.Dimr/kernels/x64')  # path to the local Delft3D software folder
+
+#------------------------------------------------------------------------------
+# Run Delft3D-FM with DYCOVE
+#------------------------------------------------------------------------------
+
+# define simulation time period
+sim_time = 3
+time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynamic years'
+
+# create vegetation species object
+veg_1 = VegetationSpecies("veg1.txt", "veg1")
+
+# instantiate DFM model
+HydroModel = DFM(dfm_dlls, config_file, mdu_file, 
+                 vegetation=veg_1)
+
+# do timestepping
+HydroModel.run_simulation(sim_time, sim_time_unit=time_unit)

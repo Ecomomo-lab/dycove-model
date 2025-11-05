@@ -101,17 +101,6 @@ class VegetationAttributes:
             'diameter': (self.diam_max[n] - self.diam_max[n-1]) / (self.winter_ets - self.start_growth_ets) / self.years_max[n],
             'root': (self.rootlength_max[n] - self.rootlength_max[n-1]) / (self.winter_ets - self.start_growth_ets) / self.years_max[n]
         }
-
-
-# @dataclass
-# class MortalityRecord:
-#     """ Tracks mortality causes for vegetation cohorts """
-#     flood: Optional[np.ndarray] = None
-#     desic: Optional[np.ndarray] = None
-#     uproot: Optional[np.ndarray] = None
-#     burial: Optional[np.ndarray] = None
-#     scour: Optional[np.ndarray] = None
-#     total: Optional[np.ndarray] = None
     
 
 @dataclass
