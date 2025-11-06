@@ -68,7 +68,7 @@ class AnugaEngine(HydroEngineBase):
     """
 
     def __init__(self, anuga_domain, vegetation=None):
-        self.domain = anuga_domain.domain
+        self.domain = anuga_domain
         self.model_dir = self.domain.get_datadir()
 
         # passing vegetation as attribute of the engine

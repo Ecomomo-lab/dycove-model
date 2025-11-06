@@ -1,47 +1,55 @@
-### ---------- Use this class to plot ANUGA/DFM results ---------- ###
+"""
+Class for plotting various output quantites from DYCOVE-ANUGA/DFM
+"""
 
+from typing import Optional, Any, Union
 import numpy as np
 from pathlib import Path
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from matplotlib.colors import ListedColormap
+from matplotlib.colors import Colormap, ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-from array_math import cell_averaging, sum_product
-from gridding import create_nn_interpFunc
-from model_loader import DFMMapLoader, ANUGAMapLoader
+from dycove.utils.array_math import cell_averaging, sum_product
+from dycove.utils.gridding import create_nn_interpFunc
+from dycove.utils.model_loader import DFMMapLoader, ANUGAMapLoader
 
-
-### ----- PLOTTING METHODS ----- ###
 
 class ModelPlotter:
     def __init__(self, 
                  simdir, 
                  quantity, 
                  plot_times,
-                 mask_bndy_file=None,
-                 extents=None,
                  hydro_plot_label_time='hydrodynamic',
                  veg_plot_label_time='eco-morphodynamic',
                  n_ets_year=14,
                  hr_ets=12,
                  vegfac=None,
-                 plot_interp_vars=None,
-                 plot_specs=None, cmap_lims=None, cmaps=None,
-                 animate=False, delete_static_imgs=False,
+                 plot_interp_vars: Optional[dict[str, int]] = None,
+                 plot_specs: Optional[dict[str, Any]] = None, 
+                 cmap_lims: Optional[dict[str, tuple[float, float]]] = None, 
+                 cmaps: Optional[dict[str, Colormap]] = None,
+                 quantity_units: Optional[dict[str, tuple[str, Union[int, float]]]] = None, 
+                 mask_bndy_file=None,
+                 extents=None,
+                 animate=False, 
+                 delete_static_imgs=False,
                  save_grids=False,
                  ):
         
         self.simdir = Path(simdir)
         self.quantity = quantity
-        self.quantity_name = ' '.join(quantity.split()[:-1])  # removing the unit label from the name
         self.plot_times = plot_times
         self.mask_bndy_file = mask_bndy_file
         self.extents = extents
-        #self.vegfac = vegfac
         self.animate = animate
         self.delete_static_imgs = delete_static_imgs
         self.save_grids = save_grids
+
+        # simplify quantity name if "Mortality"
+        self.full_quantity_name = self.quantity
+        if self.quantity[:9] == "Mortality":
+            self.quantity = "Mortality"
 
         # for restart simulations, some additional temporal inputs
         self.n_ets_year = n_ets_year
@@ -53,35 +61,35 @@ class ModelPlotter:
         # only relevant for ANUGA and DFM, must build an interpolation function for converting 1-D arrays to a grid
         self.interp_func = None
             
-        self.plot_interp_vars = plot_interp_vars or {
-            'plot_cell_size': 10,  # in meters
+        defaults = {
+            'plot_cell_size': 5,  # in meters
             'n_neighbors'   : 1,   # typically 1 or 3
         }
+        self.plot_interp_vars = {**defaults, **(plot_interp_vars or {})}  # merge provided custom values with default values
 
-        self.plot_specs = plot_specs or {
+        defaults = {
             'figsize'       : (6, 6),
             'fontsize'      : 12,
-            'output_dpi'    : 150,
+            'output_dpi'    : 100,
         }
+        self.plot_specs = {**defaults, **(plot_specs or {})}  # merge provided custom values with default values
 
-        self.cmap_lims = cmap_lims or {
-            'Bathymetry'      : (0, 1.5),
-            'WSE'             : (-0.1, 0.1),
+        defaults = {
+            'Bathymetry'      : (0, 1),
+            'WSE'             : (0, 1),
             'Depth'           : (0, 3),
             'Velocity'        : (0, 0.5),
             'Max Shear Stress': (0, 0.1),
-            'Fractions'       : (0, 1.0),
-            'Stem Height'     : (0, 2.0),
+            'Fractions'       : (0, 1),
+            'Stem Height'     : (0, 2),
             'Stem Density'    : (0, 300),
-            'Stem Diameter'   : (0, 0.1),
-            'Stem Face Factor': (0, 15),
-            'Mortality -- Flooding' : (0, 1.0),
-            'Mortality -- Uprooting': (0, 1.0),
-            'Mortality -- Total': (0, 1.0),
+            'Stem Diameter'   : (0, 50),
+            'Mortality'       : (0, 1.0),
         }
+        self.cmap_lims = {**defaults, **(cmap_lims or {})}  # merge provided custom values with default values
 
-        self.cmaps = cmaps or {
-            'Bathymetry'      : ListedColormap((np.linspace(0, 1.0, 256))),
+        defaults = {
+            'Bathymetry'      : ListedColormap(plt.colormaps["Greys_r"](np.linspace(0, 1.0, 256))),
             #'Bathymetry'      : ListedColormap(plt.colormaps["bone"](np.linspace(0, 1.0, 256))),
             'WSE'             : ListedColormap(plt.colormaps["Blues_r"](np.linspace(0.1, 1.0, 256))),
             'Depth'           : ListedColormap(plt.colormaps["Blues_r"](np.linspace(0.1, 1.0, 256))),
@@ -91,43 +99,52 @@ class ModelPlotter:
             'Stem Height'     : ListedColormap(plt.colormaps["Greens"](np.linspace(0.2, 1.0, 256))),
             'Stem Density'    : ListedColormap(plt.colormaps["Greens"](np.linspace(0.2, 1.0, 256))),
             'Stem Diameter'   : ListedColormap(plt.colormaps["Greens"](np.linspace(0.2, 1.0, 256))),
-            'Stem Face Factor': ListedColormap(plt.colormaps["Greens"](np.linspace(0.2, 1.0, 256))),
-            'Mortality -- Flooding' : ListedColormap(plt.colormaps["Oranges"](np.linspace(0.2, 1.0, 256))),
-            'Mortality -- Uprooting': ListedColormap(plt.colormaps["Oranges"](np.linspace(0.2, 1.0, 256))),
-            'Mortality -- Total'    : ListedColormap(plt.colormaps["Oranges"](np.linspace(0.2, 1.0, 256))),
-            }
+            'Mortality' : ListedColormap(plt.colormaps["Oranges"](np.linspace(0.2, 1.0, 256))),
+        }
+        self.cmaps = {**defaults, **(cmaps or {})}  # merge provided custom values with default values
+
+        # units to use for plot title/colorbar, second value is multiplier based on most standard units
+        defaults = {
+            'Bathymetry'      : ('[m]', 1),
+            'WSE'             : ('[m]', 1),
+            'Depth'           : ('[m]', 1),
+            'Velocity'        : ('[m/s]', 1),
+            'Max Shear Stress': ('[N/m$^2$]', 1),
+            'Fractions'       : ('[--]', 1),
+            'Stem Height'     : ('[m]', 1),
+            'Stem Density'    : ('[stems/m$^2$]', 1),
+            'Stem Diameter'   : ('[mm]', 1000),
+            'Mortality'       : ('[%]', 100),
+        }
+        self.quantity_units = {**defaults, **(quantity_units or {})}  # merge provided custom values with default values
 
         # hardcoded, for masking out quantities when they are small enough
-        self.min_depth  = 0.1
-        self.min_tau    = 0.001
+        self.min_depth = 0.01
+        self.min_tau   = 0.001
         self.min_veg_lims = {
-            'Fractions': 0.01,
+            'Fractions'    : 0.01,
             'Stem Height'  : 0.1,
             'Stem Density' : 10,
             'Stem Diameter': 0.01,
-            'Stem Face Factor': 0.025,
-            'Mortality -- Flooding': 0.01,
-            'Mortality -- Uprooting': 0.01,
-            'Mortality -- Total': 0.01, 
+            'Mortality'    : 0.01,
         }
 
-        self.output_plot_dir = self.simdir / 'figures' / self.quantity_name.replace(' ', '')
-        self.model_type, self.many_dirs = self.get_model_type()
+        self.output_plot_dir = self.simdir / 'figures' / self.quantity.replace(' ', '')
+        self.model_type = self.get_model_type()
         self.modeldir = self.get_modeldir()
         self.model_name = self.get_model_name()
-        self.veg_plot = self.quantity_name in ['Fractions', 'Stem Height', 'Stem Density', 'Stem Diameter'] or \
-                            'Mortality' in self.quantity_name
+        self.veg_plot = self.quantity in ['Fractions', 'Stem Height', 'Stem Density', 'Stem Diameter', 'Mortality']
 
         # change how we label time in our plots depending on if we are plotting vegetation (uses vegfac) or hydrodynamics (no morfac/vegfac)
         self.plot_label_time = veg_plot_label_time if self.veg_plot else hydro_plot_label_time
 
         # load model output files using the appropriate loader class
+        args = (self.modeldir, self.model_name, self.full_quantity_name, self.veg_plot, self.n_ets_year)
         if self.model_type == 'DFM': 
-            self.map_loader = DFMMapLoader(self.modeldir, self.model_name, 
-                                           self.quantity_name, self.veg_plot, self.n_ets_year)
+            self.map_loader = DFMMapLoader(*args)
         elif self.model_type == 'ANUGA': 
-            self.map_loader = ANUGAMapLoader(self.modeldir, self.model_name, 
-                                             self.quantity_name, self.veg_plot, self.n_ets_year)
+            self.map_loader = ANUGAMapLoader(*args)
+
         # to save for building animations later
         self.timestrings = []
 
@@ -172,12 +189,7 @@ class ModelPlotter:
 
     def get_time_breakdown(self, i):
         """Returns a dict with time components for formatting titles and filenames."""
-        if self.veg_plot:
-            sim_hours = float(i*self.plotHR_int)
-        elif self.many_dirs:
-            sim_hours = float(self.plotHR_0 + i*self.plotHR_div)
-        else:
-            sim_hours = float(i*self.plotHR_div)
+        sim_hours = float(i*self.plotHR_int if self.veg_plot else i*self.plotHR_div)
         
         veg_years = sim_hours*self.vegfac/24/self.days_per_year
         veg_days_rem = (veg_years % 1)*self.days_per_year  # days after full years
@@ -227,13 +239,11 @@ class ModelPlotter:
 
 
     def get_map_indices(self, i):
-        # how we loop over the model time slices will depend on the directory structure and whether we are plotting hydro or veg quantities
-        # first need to determine the year, ets, and hydro_ind based on the value of i and if this run has many directories and veg plotting
-        # veg_ind will always be i, and will always be a simple sequence of integers starting at 1 (if not veg_plot, then it doesn't matter)
+        # how we loop over the model time slices will depend on whether we are plotting hydro or veg quantities
+        # first need to determine the year, ets, and hydro_ind based on the value of i
+        # hydro_ind is simple counter for hydro quantities, but must be multiplied by hr_ets for veg quantities
         hydro_ind, ets, eco_year = i, None, None
-        # if self.veg_plot and i == 0:
-        #     print("No vegetation at time step 0")
-        # else:
+
         if self.veg_plot:
             ets, eco_year = self.get_veg_eco_times(i)
             hydro_ind = i*self.hr_ets
@@ -245,12 +255,6 @@ class ModelPlotter:
         ets = ((i-1) % self.n_ets_year) + 1
         eco_year = ((i-1) // self.n_ets_year) + 1
         return ets, eco_year
-    
-    # def get_ETS_indices(self, n_ets_year, hr_ets):
-    #     # returning: total number of ETS to plot, total number of eco years to plot (in case it's not all of them)
-    #     ets2plot   = int(math.ceil(self.plot_times['plotHR_f']/hr_ets))
-    #     years2plot = int(math.ceil(ets2plot/n_ets_year))
-    #     return ets2plot, years2plot
 
 
     def get_hydro_eco_times(self, i):
@@ -291,37 +295,37 @@ class ModelPlotter:
             
         # for DFM, z_grid should be recomputed every step in case morphology is turned on. For ANUGA, oh well it's fast enough
         z_grid = self.interp_func(map_vars['Bathymetry'])
-        if self.quantity_name == 'Bathymetry':
+        if self.quantity == 'Bathymetry':
             return z_grid, None
         elif not self.veg_plot:
             depth_grid = self.interp_func(map_vars['Depth'])
-            if self.quantity_name == 'Depth':
+            if self.quantity == 'Depth':
                 return z_grid, np.ma.masked_where(depth_grid < self.min_depth, depth_grid)
-            elif self.quantity_name == 'WSE':
-                wse_grid = self.interp_func(map_vars[self.quantity_name])
+            elif self.quantity == 'WSE':
+                wse_grid = self.interp_func(map_vars[self.quantity])
                 return z_grid, np.ma.masked_where(depth_grid < self.min_depth, wse_grid)
-            elif self.quantity_name == 'Velocity':
-                V_grid = self.interp_func(map_vars[self.quantity_name])
+            elif self.quantity == 'Velocity':
+                V_grid = self.interp_func(map_vars[self.quantity])
                 return z_grid, np.ma.masked_where(depth_grid < self.min_depth, V_grid)
-            elif self.quantity_name == 'Max Shear Stress':
-                tau_grid = self.interp_func(map_vars[self.quantity_name])
+            elif self.quantity == 'Max Shear Stress':
+                tau_grid = self.interp_func(map_vars[self.quantity])
                 return z_grid, np.ma.masked_where(tau_grid < self.min_tau, tau_grid)
             else:
-                raise ValueError(f"Unexpected quantity name: {self.quantity_name}")
+                raise ValueError(f"Unexpected quantity name: {self.quantity}")
         else:
-            if len(map_vars[self.quantity_name]) > 0:
-                if self.quantity_name[:9] in ['Fractions', 'Mortality']:
+            if len(map_vars[self.quantity]) > 0:
+                if self.quantity in ['Fractions', 'Mortality']:
                     fraction_grid_list = []
-                    for frac in map_vars[self.quantity_name]:
+                    for frac in map_vars[self.quantity]:
                         veg_grid = self.interp_func(frac)
-                        fraction_grid_list.append(np.ma.masked_where(veg_grid < self.min_veg_lims[self.quantity_name], veg_grid))
+                        fraction_grid_list.append(np.ma.masked_where(veg_grid < self.min_veg_lims[self.quantity], veg_grid))
                     return z_grid, fraction_grid_list
-                elif self.quantity_name == 'Stem Density':  # sum_product for 'Stem Density'
-                    veg_data = sum_product(map_vars['Fractions'], map_vars[self.quantity_name])
+                elif self.quantity == 'Stem Density':  # sum_product for 'Stem Density'
+                    veg_data = sum_product(map_vars['Fractions'], map_vars[self.quantity])
                 else:  # cell_averaging for 'Stem Diameter', 'Stem Face Factor', and 'Stem Height'
-                    veg_data = cell_averaging(map_vars['Fractions'], map_vars[self.quantity_name])
+                    veg_data = cell_averaging(map_vars['Fractions'], map_vars[self.quantity])
                 veg_grid = self.interp_func(veg_data)
-                return z_grid, np.ma.masked_where(veg_grid < self.min_veg_lims[self.quantity_name], veg_grid)
+                return z_grid, np.ma.masked_where(veg_grid < self.min_veg_lims[self.quantity], veg_grid)
             else:
                 # may not be any veg data at all in this time step, so return an empty grid
                 empty_grid = np.ma.masked_all(z_grid.shape)
@@ -332,26 +336,30 @@ class ModelPlotter:
         if type(main_grid) is list:  # for veg fractions, we plot each fraction separately
             for i, grid in enumerate(main_grid):
                 self._plot_single_quantity(base_grid, grid, 
-                        title=f"{self.quantity_name} -- {self.timestrings[-1][1]} -- i={i}",
-                        fname=f"{self.quantity_name.replace(' ', '')}_{self.timestrings[-1][0]}_i={i}")
+                        title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]} -- i={i}",
+                        fname=f"{self.full_quantity_name.replace(' ', '')}_{self.timestrings[-1][0]}_i={i}")
         else:
             self._plot_single_quantity(base_grid, main_grid, 
-                        title=f"{self.quantity_name} -- {self.timestrings[-1][1]}",
-                        fname=f"{self.quantity_name.replace(' ', '')}_{self.timestrings[-1][0]}")
+                        title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]}",
+                        fname=f"{self.full_quantity_name.replace(' ', '')}_{self.timestrings[-1][0]}")
             
             
     def _plot_single_quantity(self, base_grid, main_grid, title, fname):
+
         fig, ax = plt.subplots(figsize=self.plot_specs['figsize'])
 
+        base_grid *= self.quantity_units['Bathymetry'][1]
         base = ax.imshow(base_grid,
                          cmap=self.cmaps['Bathymetry'],
                          vmin=self.cmap_lims['Bathymetry'][0],
                          vmax=self.cmap_lims['Bathymetry'][1])
+        
         if main_grid is not None:
+            main_grid *= self.quantity_units[self.quantity][1]
             main = ax.imshow(main_grid,
-                            cmap=self.cmaps[self.quantity_name],
-                            vmin=self.cmap_lims[self.quantity_name][0],
-                            vmax=self.cmap_lims[self.quantity_name][1])            
+                             cmap=self.cmaps[self.quantity],
+                             vmin=self.cmap_lims[self.quantity][0],
+                             vmax=self.cmap_lims[self.quantity][1])            
 
         ax.set_title(title, fontsize=self.plot_specs['fontsize'])
         ax.set_xticks([])
@@ -360,8 +368,8 @@ class ModelPlotter:
 
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="3%", pad=0.12)
-        colorbar = plt.colorbar(main if self.quantity_name != 'Bathymetry' else base, cax=cax)
-        colorbar.set_label(self.quantity, rotation=270, labelpad=25, fontsize=self.plot_specs['fontsize'])
+        colorbar = plt.colorbar(main if self.quantity != 'Bathymetry' else base, cax=cax)
+        colorbar.set_label(f"{self.quantity} {self.quantity_units[self.quantity][0]}", rotation=270, labelpad=25, fontsize=self.plot_specs['fontsize'])
         colorbar.ax.tick_params(labelsize=self.plot_specs['fontsize'])
 
         fig.tight_layout()
@@ -378,7 +386,7 @@ class ModelPlotter:
         import imageio.v2 as imageio
         print("Creating animation...")
         fps = 5 if self.veg_plot else 10
-        img_paths = [self.output_plot_dir / f"{self.quantity_name.replace(' ', '')}_{ts[0]}.png" for ts in self.timestrings]
+        img_paths = [self.output_plot_dir / f"{self.full_quantity_name.replace(' ', '')}_{ts[0]}.png" for ts in self.timestrings]
         images = [imageio.imread(p) for p in img_paths]
         gif_path = self.output_plot_dir / 'animation.gif'
         imageio.mimsave(str(gif_path), images, fps=fps, loop=0)  # type: ignore[arg-type]

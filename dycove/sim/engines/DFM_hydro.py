@@ -212,7 +212,7 @@ class DFMEngine(HydroEngineBase):
             # get file names from vegetation boundary file, write blank files to model directory if they don't exist
             ext_force_file = self.model_dir / self.mdu_vars["ExtForceFile"]
             req_veg_files = ["stemdensity.xyz", "stemdiameter.xyz", "stemheight.xyz"]
-            if not ext_force_file.exists():
+            if not ext_force_file.exists() or self.mdu_vars["ExtForceFile"] == "":
                 msg = ("An *.ext file for external forcing (old format) must be specified next to 'ExtForceFile' in the MDU file, "
                        "and that file must exist in the model folder (at the same level as the MDU file)")
                 r.report(msg, level="ERROR")

@@ -220,6 +220,7 @@ _plot/
 # Delft3D-FM output
 output/
 *.err
+*.cache
 
 # DYCOVE output
 veg_output/

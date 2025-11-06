@@ -20,18 +20,21 @@ from gen_anuga_domain import RectangSlopeDomainGenerator as RectangDomain
 
 
 HydroDomain = RectangDomain("rectang_beach", 
-                            rectang_dims=(400,   # length in x-direction (m)
-                                          200),  # length in y-direction (m)
-                            mesh_spacing=20,     # exact mesh spacing (regular triangles) (m)
-                            min_elev=-0.5,       # elevation at tidal boundary (m)
-                            slope=0.0025,
-                            mannings_n=0.025,
+                            rectang_dims=(1000,     # length in x-direction (m)
+                                          600),     # length in y-direction (m)
+                            mesh_spacing=40,        # exact mesh spacing (regular triangles) (m)
+                            min_elev=-0.5,          # elevation at tidal/left boundary (m)
+                            dune_elev=0.5,          # elevation of dune crest (m)
+                            dune_location=0.65,     # location of dune crest as fraction of domain length
+                            channel_bot_elev=0.05,  # bottom elevation of tidal channel
+                            lagoon_bot_elev=-0.5,   # bottom elevation of lagoon
+                            channel_width_frac=0.1, # width of channel as fraction of domain y
                             tide_props={
-                                'amplitude': 0.3,
+                                'amplitude': 0.4,
                                 'period': 12.*3600,
                                 'MWL': 0},
+                            mannings_n=0.025,
                                 )
-
 
 #------------------------------------------------------------------------------
 # Run ANUGA with DYCOVE
@@ -45,7 +48,7 @@ time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynam
 veg_1 = VegetationSpecies("veg1.txt", "veg1")
 
 # instantiate ANUGA model
-HydroModel = ANUGA(HydroDomain, vegetation=veg_1)
+HydroModel = ANUGA(HydroDomain.domain, vegetation=veg_1)
 
 # do timestepping
 HydroModel.run_simulation(sim_time, sim_time_unit=time_unit)

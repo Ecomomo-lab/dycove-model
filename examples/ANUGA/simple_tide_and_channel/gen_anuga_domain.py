@@ -17,27 +17,38 @@ class RectangSlopeDomainGenerator:
                  rectang_dims,
                  mesh_spacing,
                  min_elev,
-                 slope, 
-                 mannings_n,
+                 dune_elev,
+                 dune_location,
+                 channel_bot_elev,
+                 lagoon_bot_elev,
+                 channel_width_frac,
                  tide_props,
                  WL_0=0.0,
+                 mannings_n=0.025,
+                 plotting=False,
                  ):
         
         self.model_name = model_name
         self.dims = rectang_dims
         self.dx = mesh_spacing
         self.min_z = min_elev
-        self.slope = slope
+        self.dune_z = dune_elev
+        self.dune_loc = dune_location
+        self.chan_bot_z = channel_bot_elev
+        self.lago_bot_z = lagoon_bot_elev
+        self.chan_frac = channel_width_frac
         self.friction = mannings_n
         self.tide = tide_props
         self.WL_0 = WL_0
 
-        self.create_anuga_domain()
+        self.plotting = plotting
+
+        self.create_domain()
         self.set_initial_quantities()
         self.set_boundary_conditions()
     
-
-    def create_anuga_domain(self):
+    
+    def create_domain(self):
 
         r.report("Creating ANUGA domain and mesh...")
 
@@ -46,6 +57,8 @@ class RectangSlopeDomainGenerator:
                                                      len1=self.dims[0], len2=self.dims[1])
         self.domain.set_name(self.model_name)  # ANUGA output name
         self.domain.set_low_froude(1)          # always set to 1 for low-froude flows
+        self.domain.set_flow_algorithm('DE1')      # for stable solution, can always try 'DE0' for faster results
+        self.domain.set_minimum_allowed_height(0.01)  # Only store heights > 1 cm
 
         r.report(self.domain.statistics())
 
@@ -61,10 +74,7 @@ class RectangSlopeDomainGenerator:
     def set_initial_quantities(self):        
         r.report("Assigning elevation and friction data to mesh...\n")
 
-        def topography(x, y):
-            return self.min_z + x*self.slope  # linear bed slope between -0.5 and 0.5
-
-        self.domain.set_quantity('elevation', topography)
+        self.domain.set_quantity('elevation', self.topography)
         self.domain.set_quantity('friction', self.friction)
 
         if self.plotting:
@@ -85,8 +95,11 @@ class RectangSlopeDomainGenerator:
     def set_boundary_conditions(self):
         r.report("Setting boundary conditions...\n")
 
-        # set initial stage
-        self.domain.set_quantity("stage", self.WL_0)
+        # set initial stage, but only on the ocean side
+        x = self.domain.quantities['x'].centroid_values
+        topo = self.domain.quantities['elevation'].centroid_values
+        stage = np.where(x < self.dims[0]*self.dune_loc, self.WL_0, topo)
+        self.domain.set_quantity('stage', stage, location='centroids')
 
         Br = anuga.Reflective_boundary(self.domain)  # Solid reflective wall
 
@@ -104,3 +117,32 @@ class RectangSlopeDomainGenerator:
 
         self.domain.set_boundary({'left': Bt, 'right': Br, 'top': Br, 'bottom': Br})
 
+
+    def topography(self, x, y):
+        """
+        Returns bed elevation (z) for a simple sloped beach with a central tidal channel 
+        connecting to a lagoon behind a dune.
+        """
+
+        # position of dune crest
+        x_dune = self.dune_loc * self.dims[0]
+
+        # compute slope
+        beach_slope = (self.dune_z - self.min_z) / x_dune
+        back_slope = beach_slope * 2  # steeper slope behind dune
+        # base profile (1D)
+        z = np.where(
+            x <= x_dune,
+            self.min_z + beach_slope * x,  # beach rising toward dune
+            np.maximum(self.dune_z - back_slope * (x - x_dune), self.lago_bot_z),  # sloping down toward lagoon
+        )
+
+        # define channel depression (Gaussian in y)
+        centerline_y = self.dims[1] / 2.
+        chan_halfwidth = self.chan_frac*self.dims[1] / 2.
+        channel = np.abs(y - centerline_y) <= chan_halfwidth  # boolean mask
+
+        # lower to channel bottom only where terrain is above z_channel
+        z[channel & (z > self.chan_bot_z)] = self.chan_bot_z
+
+        return z
