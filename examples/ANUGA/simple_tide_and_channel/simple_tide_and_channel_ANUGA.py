@@ -18,7 +18,6 @@ from gen_anuga_domain import RectangSlopeDomainGenerator as RectangDomain
 # Create a sloped rectangular ANUGA domain using anuga.rectangular_cross_domain
 #------------------------------------------------------------------------------
 
-
 HydroDomain = RectangDomain("rectang_beach", 
                             rectang_dims=(1000,     # length in x-direction (m)
                                           600),     # length in y-direction (m)

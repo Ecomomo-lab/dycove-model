@@ -4,14 +4,11 @@
 
 from datetime import datetime
 import numpy as np
-from netCDF4 import Dataset
+from netCDF4 import Dataset  # type: ignore
 from pathlib import Path
 import re
 
-from dycove.sim.base import HydroSimulationBase, HydroEngineBase
-from dycove.utils.baptist_operator import Baptist_operator
-from dycove.utils.log import Reporter
-
+from dycove import HydroSimulationBase, HydroEngineBase, Baptist_operator, Reporter
 from anuga import myid, numprocs, finalize, barrier
 
 r = Reporter()
@@ -79,8 +76,9 @@ class AnugaEngine(HydroEngineBase):
         # Otherwise, we get repeated steps.
         self.skip_step = False
 
-        # interval (seconds) for saving ANUGA output, to be set inside run_simulation and used as argument to domain.evolve()
-        self.save_interval = None
+        # interval (seconds) for saving ANUGA output, this is just a placeholder
+        # actual value is set via run_simulation() and used as argument to domain.evolve()
+        self.save_interval = 3600
 
 
     def initialize(self):
@@ -137,8 +135,9 @@ class AnugaEngine(HydroEngineBase):
         xmom = self.domain.quantities["xmomentum"].centroid_values
         ymom = self.domain.quantities["ymomentum"].centroid_values
         with np.errstate(divide="ignore", invalid="ignore"):
-            xvel = xmom/depth
-            yvel = ymom/depth
+            h_lim = self.domain.get_minimum_storable_height()
+            xvel = np.where(depth < h_lim, 0., xmom/depth)
+            yvel = np.where(depth < h_lim, 0., ymom/depth)
         velocity = np.sqrt(xvel**2 + yvel**2)
         return velocity, depth
 

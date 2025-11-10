@@ -5,9 +5,9 @@
 from pathlib import Path
 import numpy as np
 
-from dycove.utils.log import Reporter
-from dycove.utils.array_math import cell_averaging, sum_product, sum_elementwise
-from dycove.sim.vegetation_data import VegetationAttributes, VegCohort
+from dycove import VegetationAttributes, VegCohort
+from dycove import Reporter
+from dycove import cell_averaging, sum_product, sum_elementwise
 
 r = Reporter()
 
@@ -284,7 +284,6 @@ class VegetationSpecies(SharedVegMethods):
             # vegetation fractions lost to erosion
             c.applied_mort_scour  = c.fraction*c.potential_mort_scour
             # subtract all mortality fractions from actual fractions, but maintain minimum fraction of zero
-            # TODO: verify that this works the same regardless of the number of species
             c.applied_mort_total = c.applied_mort_flood + c.applied_mort_desic + c.applied_mort_uproot + \
                                    c.applied_mort_burial + c.applied_mort_scour
             fractions_left = c.fraction - c.applied_mort_total

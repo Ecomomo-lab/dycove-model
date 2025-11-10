@@ -8,12 +8,10 @@ from datetime import datetime
 from pathlib import Path
 import numpy as np
 
+from dycove import HydroSimulationBase, HydroEngineBase, Reporter
 from bmi.wrapper import BMIWrapper
-from dycove.sim.base import HydroSimulationBase, HydroEngineBase
-from dycove.utils.log import Reporter
 
 r = Reporter()
-
 
 class DFM(HydroSimulationBase):
     """
