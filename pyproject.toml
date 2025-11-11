@@ -24,25 +24,34 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 
-dependencies = ["numpy"]
+dependencies = [
+    "numpy"
+]
 
 [project.optional-dependencies]
-anuga = ["anuga>=3.1"]
+# for coupling with ANUGA
+anuga = [
+    "anuga>=3.1"
+]
+# for coupling with Delft3D FM
 dfm = [
     "bmi",
     "netCDF4"
     ]
-plotter = [
+plot = [
     "tqdm",
-    "imageio"
+    "imageio",
+    "netCDF4",
+    "scipy"
 ]
 dev = [
     "pytest",
     "pytest-cov",
-    "coveralls",
+    "coveralls"
 ]
 docs = [
 	"sphinx",
+    "sphinx-rtd-theme",
 	"m2r2",
 	"ipython",
 	"ipykernel"

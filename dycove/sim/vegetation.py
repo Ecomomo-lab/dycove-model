@@ -19,8 +19,11 @@ class SharedVegMethods:
     def compute_veg_model_quantities(self):
         """
         Function to compute weighted area averages of model vegetation variables.
+
         Handles the various fractions that are tracked within each grid cell.
-        This function works the same no matter the number of species, and so it is shared by both classes
+
+        This function works the same no matter the number of species, and so it is shared 
+        by both classes.
         """
 
         # for single species, self.cohorts is a list of VegCohort objects
@@ -88,16 +91,30 @@ class VegetationSpecies(SharedVegMethods):
 
     def colonization(self, ets, min_depths, max_depths, fl_dr, combined_cohorts=None):
         """
-        This function only adds new fractions to cells, effective stem diams, heights are computed elsewhere
+        Do vegetation colonization by adding new fractions to cells.
 
-        min_depths      : array of minimum depths at each cell over the previous period
-        max_depths      : array of maximum depths at each cell over the previous period
-        fl_dr           : scalar threshold [meters] above which a cell is considered wet
-        combined_cohorts: relevant only if multiple species, 
-                          each species needs info on other species taking up room in cells
+        This method only adds new fractions. Effective stem diameters and heights are 
+        computed elsewhere.
+
+        Parameters
+        ----------
+        ets : int
+            Current ecological timestep within current ecological year.
+        min_depths : np.ndarray
+            Array of minimum water depths [m] at each cell over the previous period.
+        max_depths : np.ndarray
+            Array of maximum water depths [m] at each cell over the previous period.
+        fl_dr : float
+            Wet/dry threshold [m]; cells with depth above this value are considered wet.
+        combined_cohorts : list of VegetationSpecies or None, optional
+            Relevant only if multiple species are present. Provides information about
+            other species occupying space in cells. See colonization method of 
+            MultipleVegetationSpecies for the use-case.
         """
+
         if self.attrs.start_col_ets <= ets < self.attrs.end_col_ets:
             r.report(f"Doing colonization for species \"{self.name}\", at eco step {ets}")
+
             # get conditions for colonization
             dry_cond = (min_depths <  fl_dr)
             fld_cond = (max_depths >= fl_dr)
@@ -162,20 +179,32 @@ class VegetationSpecies(SharedVegMethods):
 
 
     def mortality(self, hydro_vars, morpho_vars):
-        """ Delegate to internal methods """
+        """ Delegate to internal methods. """
         self.mortality_hydrodynamic(**hydro_vars)
         self.mortality_morphodynamic(**morpho_vars)
         self.apply_mortality()
 
     def mortality_hydrodynamic(self, fld_frac, dry_frac, vel_max):
         """
-        Compute linear mortality function for hydrodynamic stressors.
-        Hydrodynamic mortality is computed independently from vegetation characteristics like stem height, root length, etc.
-        Mortality parameters can be dependent on life stage though, so we compute mortality for each life stage and apply 
-        to the fractions later (self.apply_mortality).
-        Flooding/dessication generally do not depend on life stage, but we currently have the option to have them vary, so 
-        we treat them here as if they do. TODO: rearrange input variables to remove this choice?
+        Compute linear mortality functions for each hydrodynamic stressor (if activated).
+
+        Hydrodynamic mortality is computed independently from vegetation characteristics
+        like stem height, root length, etc. Mortality parameters can be dependent on life 
+        stage though, so we compute mortality for each life stage and apply to the 
+        fractions later (self.apply_mortality).
+
+        Parameters
+        ----------
+        fld_frac : np.ndarray
+            Array containing fractions of time that each cell was flooded during the 
+            previous period.
+        dry_frac : np.ndarray
+            Array containing fractions of time that each cell was dry during the 
+            previous period.
+        vel_max : np.ndarray
+            Array of maximum water velocities [m/s] at each cell over the previous period.
         """
+
         # these arrays of potential mortality get saved as cohort attributes, along with applied mortality below
         self.potential_mort_flood  = [None]*self.attrs.nls
         self.potential_mort_desic  = [None]*self.attrs.nls
@@ -205,12 +234,26 @@ class VegetationSpecies(SharedVegMethods):
     # TODO: verify that we want the default scour_frac to be 10%, previous codes have just used 100% same as stem burial
     def mortality_morphodynamic(self, bl_diff=None, burial_frac=1.0, scour_frac=0.1):
         """
-        bl_diff    : difference in bed level [m], from beginning to end of ets, where positive values signify scour
-        burial_frac: fraction of shoot length used as threshold for burial
-        scour_frac : fraction of root length used as threshold for scour
+        Compute linear mortality functions for each morphodynamic stressor (if activated).
+
+        Morphodynamic stressors (burial, scour) are not currently functions of life stage,
+        and they are binary (e.g., stem is either buried or not).
+
+        Creates arrays of zeros if using a non-morphology model or with morphology turned 
+        off.
+
+        Parameters
+        ----------
+        bl_diff : np.ndarray
+            Array of cell-wise differences in bed level [m], from beginning to end of the 
+            previous period, where positive values signify scour.
+        burial_frac : float
+            Fraction of stem height above which vegetation is considered buried.
+        scour_frac : float
+            Fraction of root length above which vegetation is considered scoured.
         """
+
         # loop over fractions and their current shoot/root lengths and compare to erosion/sedimentation
-        # morphodynamic mortality modes are not functions of life stage, and they are binary
         for c in self.cohorts:
             # if morphology is off, we still need these zero arrays for calculations in apply_mortality()
             if self.mor == 0:
@@ -222,15 +265,15 @@ class VegetationSpecies(SharedVegMethods):
 
 
     def apply_mortality(self):
-        # multiply potential mortality by vegetation fractions to determine actual mortality, which we track
+        """
+        Multiply potential mortality by vegetation fractions to determine actual mortality.
+
+        Populate mortality-related fields of each active VegCohort object.
+        """
+
         # TODO: we track the fractions lost via each cause, but if all causes yield mortality fractions of 1,
         #       how should we track causes when, for instance, a cell only had a single fraction covering 40%?
         #       Is there an order of operations?
-        # append empty lists (of length n_fractions) to running list of mortality fractions
-        # empty slots will be filled with arrays of mortality fractions corresponding to each fraction that 
-        #   currently exists
-
-        # loop over cohorts, add mortality values/causes as attribute of the cohort (both potential and applied)
         for c in self.cohorts:
             # vegetation fractions lost to flooding
             c.potential_mort_flood = self.potential_mort_flood[c.lifestage-1]
@@ -259,13 +302,20 @@ class VegetationSpecies(SharedVegMethods):
     @staticmethod
     def linear_mortality_func(stressor, th_min, th_max):
         """
-        Hydrodynamic stressor mortality function (linear)
+        Generic, hydrodynamic stressor mortality function (linear).
 
-        stressor: for flooding/dessication, it is 1-D array of fraction of time within ets where cells are wet/dry
-                  for uprooting, it is 1-D array of maximum velocities
-        th_min: stressor value below which there is no mortality
-        th_max: stressor value above which there is total mortality
+        Parameters
+        ----------
+        stressor : np.ndarray
+            Array of relevant stressor magnitude for each cell. For flooding/dessication,
+            it is an array of fraction of time where cells are wet/dry. For uprooting, 
+            it is an array of maximum velocities.
+        th_min : float
+            Stressor value below which there is no mortality. Comes from JSON input file.
+        th_max : float
+            Stressor value above which there is total mortality. Comes from JSON input file.
         """
+
         # compute fractional mortality based on linear interpolation
         mort_frac = (stressor - th_min)/(th_max - th_min)
         
@@ -294,10 +344,7 @@ class VegetationSpecies(SharedVegMethods):
 
       
     def stemheight_growth(self, ets):
-        """
-        Function to compute vegetation height
-        (linear growth, constant during summer, constant during winter at winter value)
-        """
+        """ Computes stem height based on growth functions in VegAttributes. """
         # during first growth ets, height starts at previous winter value, so no need to loop
         if ets > self.attrs.start_growth_ets:
             for c in self.cohorts:
@@ -310,11 +357,7 @@ class VegetationSpecies(SharedVegMethods):
 
 
     def stemdiam_growth(self, ets):
-        """
-        Function to compute vegetation stem diameter growth.
-        Linear growth until winter, then constant, then continued linear growth the following year.
-        Process continues until max diameter is reached.
-        """
+        """ Computes stem diameter based on growth functions in VegAttributes. """
         # during first growth ets, height starts at previous winter value, so no need to loop
         if ets > self.attrs.start_growth_ets:
             for c in self.cohorts:
@@ -323,11 +366,7 @@ class VegetationSpecies(SharedVegMethods):
 
 
     def root_growth(self, ets):  
-        """
-        Function to compute vegetation root growth.
-        Linear growth until winter, then constant, then continued linear growth the following year.
-        Process continues until max root length is reached.
-        """
+        """ Computes root length based on growth functions in VegAttributes. """
         # during first growth ets, height starts at previous winter value, so no need to loop
         if ets > self.attrs.start_growth_ets:
             for c in self.cohorts:
@@ -336,7 +375,15 @@ class VegetationSpecies(SharedVegMethods):
 
 
     def update_lifestage_and_stemdensity(self):
-        """ Function to be called at the end of every eco year """
+        """ 
+        Function to be called at the end of every eco year. 
+
+        Updates the life stage and the year within the life stage for each cohort.
+
+        Stem density update is done here because it only depends on eco year and does not 
+        change during the year.
+        """
+
         cohorts_to_remove = []
         for i, c in enumerate(self.cohorts):
             # if we have reached final year in the life stage
@@ -358,11 +405,12 @@ class VegetationSpecies(SharedVegMethods):
 
 class MultipleVegetationSpecies(SharedVegMethods):
     """
-    - A class for handling multiple vegetation species.
-    - We want to keep the hydrodynamics code clean, avoiding extra if statements regarding the number of species.
-    - This class handles the extra steps required, mostly containing wrappers of functions from VegetationSpecies 
-      that distribute the tasks to each species present.
-    - The functions below are in the order they are called in the hydrodynamics.run_simulation module
+    A class for handling multiple vegetation species.
+
+    We want to keep the hydrodynamics code clean, avoiding extra if statements regarding 
+    the number of species. This class handles the extra steps required, mostly containing 
+    wrappers of functions from VegetationSpecies that distribute the tasks to each species
+    present.
     """
 
     def __init__(self, species_list: list[VegetationSpecies]):

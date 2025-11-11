@@ -1,6 +1,20 @@
 """
-Vegetation operators - downloaded on 04/22/25
+The Baptist_operator class for ANUGA was originally developed by Kyle Wright 
+as part of the following study:
+Wright, K., Passalacqua, P., Simard, M., & Jones, C. E. (2022). Integrating 
+connectivity into hydrodynamic models: An automated open-source method to 
+refine an unstructured mesh using remote sensing. Journal of Advances in 
+Modeling Earth Systems, 14, e2022MS003025.
+https://doi.org/10.1029/2022MS003025
+
+The Baptist_operator used in DYCOVE has been modified in the following ways:
+- Quantity checks have been removed (this class is not part of public API).
+- Logic has been distributed into more self-contained methods.
+- New methods set_vegetation and set_veg_quantity have been added to allow
+  DYCOVE to update vegetation parameters after the Operator has been
+  instantiated.
 """
+
 from __future__ import division, absolute_import, print_function
 import numpy as np
 from numpy import sqrt, minimum, maximum, log
@@ -8,16 +22,6 @@ from numpy import sqrt, minimum, maximum, log
 # from anuga import Domain
 from anuga import Quantity
 from anuga.operators.base_operator import Operator
-
-# from math import sqrt, log
-# from anuga.config import epsilon, g
-
-# import anuga.utilities.log as log
-# from anuga.config import netcdf_mode_r, netcdf_mode_w, netcdf_mode_a, \
-                            # netcdf_float
-
-# import os
-# from scipy.interpolate import NearestNDInterpolator
 
 #===============================================================================
 # Vegetation operator applying drag to the flow
@@ -55,48 +59,46 @@ class Baptist_operator(Operator):
 
         Initialize vegetation characteristics
 
-        **Inputs** :
+        Parameters
+        ----------
 
-            domain : `object`
-                ANUGA domain instance
+        domain : object
+            ANUGA domain instance
 
-            veg_diameter : `float or np.ndarray`
-                Vegetation stem diameters, given in meters. Input can be either
-                one constant value to be applied everywhere, or an array giving
-                one value per cell centroid. If None is given, we check to see
-                if values were previously defined in domain.quantities()
+        veg_diameter : float or np.ndarray
+            Vegetation stem diameters [m]. 
+            Input can be either one constant value applied everywhere, or an array 
+            giving one value per cell centroid.
 
-            veg_density : `float or np.ndarray`
-                Vegetation stem density, given in number per unit area [#/m^2].
-                Input can be either one constant value to be applied everywhere,
-                or an array giving one value per cell centroid. If None is
-                given, we check to see if values were previously defined in
-                domain.quantities()
+        veg_density : float or np.ndarray
+            Vegetation stem density [#/m^2].
+            Input can be either one constant value applied everywhere, or an array 
+            giving one value per cell centroid.
 
-            veg_height : `float or np.ndarray`
-                Vegetation stem height, given in meters. Input can be either
-                one constant value to be applied everywhere, or an array giving
-                one value per cell centroid. If None is given, we check to see
-                if values were previously defined in domain.quantities()
+        veg_height : float or np.ndarray
+            Vegetation stem height [m].
+            Input can be either one constant value applied everywhere, or an array 
+            giving one value per cell centroid.
 
-            bed_friction_const : `float or np.ndarray`, optional
-                Bed friction Chezy coefficient. Default is 65. Input can be either
-                one constant value to be applied everywhere, or an array giving
-                one value per cell centroid.
+        bed_friction_const : float or np.ndarray, optional
+            Bed friction Chezy coefficient. Default is 65.
+            Input can be either one constant value applied everywhere, or an array 
+            giving one value per cell centroid.
 
         """
         super().__init__(domain, description, label, logging, verbose)
 
         #-----------------------------------------------------
         # Pull domain information
-        self.depth = self.stage_c - self.elev_c  # see base Operator constructor for attributes that get transferred from domain
+        # See base Operator constructor for attributes that get transferred from domain
+        self.depth = self.stage_c - self.elev_c
         self.g = self.domain.g  # g value from ANUGA domain/config
 
         #-----------------------------------------------------
         # Set constants
         self.bed_friction = np.ones_like(self.depth, dtype=float)*bed_friction_const
         self.K = 0.41  # von Karman constant
-        self.Cd = 1.0  # drag coefficient
+        self.Cd = 1.0  # drag coefficient. TODO: move this back to being a life stage attribute
 
         #-----------------------------------------------------
         # Initialize vegetation characteristics
@@ -105,7 +107,8 @@ class Baptist_operator(Operator):
 
     def __call__(self):
         """
-        Apply vegetation drag according to veg_diameter and veg_density quantities
+        Get the current water depth and vegetated cell indicies, 
+        then update Chezy values accordingly.
         """
         # Get the timestep for explicit update
         self.dt = self.get_timestep()
@@ -119,9 +122,7 @@ class Baptist_operator(Operator):
 
 
     def set_vegetation(self, veg_diameter=None, veg_density=None, veg_height=None):
-        """
-        Set vegetation characteristics, either for the first time or as an update
-        """
+        """ Set vegetation characteristics, either for the first time or as an update. """
         for name, values in zip(['veg_diameter', 'veg_density', 'veg_height'],
                                  [veg_diameter, veg_density, veg_height]):
             self.set_veg_quantity(name, values)
@@ -130,7 +131,7 @@ class Baptist_operator(Operator):
 
 
     def set_veg_quantity(self, name, values):
-        """Register vegetation quantity and set values in the domain."""
+        """ Register vegetation quantity and set values in the domain. """
         if name not in self.domain.quantities:
             Quantity(self.domain, name=name, register=True)
 
@@ -143,7 +144,7 @@ class Baptist_operator(Operator):
 
 
     def update_coefficients(self):
-        """Recompute coefficients after vegetation update."""
+        """ Recompute Baptist coefficients after vegetation update. """
         vdiam = self.veg_diameter.centroid_values
         vdens = self.veg_density.centroid_values
 
@@ -154,8 +155,7 @@ class Baptist_operator(Operator):
 
     def update_quantities(self):
         """
-        Calculate the drag that vegetation imparts on the flow
-        and update momentum quantities
+        Calculate drag that vegetation imparts on flow, then update momentum quantities.
         """
         if np.any(self.inds):
             # Cut down some variables to just vegetated areas
@@ -183,9 +183,7 @@ class Baptist_operator(Operator):
 
 
     def parallel_safe(self):
-        """If Operator is applied independently on each cell and
-        so is parallel safe.
-        """
+        """ If Operator is applied independently on each cell and so is parallel safe. """
         return True
 
 

@@ -32,6 +32,7 @@ class ANUGA(HydroSimulationBase):
     - All higher-level logic that can be abstracted from the engine classes is
       handled in :class:`HydroSimulationBase`; all low-level model 
       interactions are delegated to :class:`AnugaEngine`.
+
     """
 
     def __init__(self, anuga_domain, vegetation=None):
@@ -46,10 +47,10 @@ class AnugaEngine(HydroEngineBase):
     Engine interface for ANUGA hydrodynamic model.
 
     This engine:
-      • Holds the ANUGA domain object
-      • Reads/writes flow and vegetation state directly through Python objects
-        (unlike BMI-based engine used for Delft3D FM)
-        Contains all methods that are specific to the ANUGA model.
+    - Holds the ANUGA domain object
+    - Reads/writes flow and vegetation state directly through Python objects
+      (unlike BMI-based engine used for Delft3D FM)
+    - Contains all methods that are specific to the ANUGA model.
 
     Notes
     -----

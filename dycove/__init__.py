@@ -31,32 +31,91 @@ try-except statements protect against those kinds of import errors.
 
 """
 
-# ----------------------------------------------------------------
-# Higher-level classes (called by the user in entry-point script)
-# ----------------------------------------------------------------
 
-# called by the user in entry-point script
+# modules called by all entry-point scripts 
 from dycove.sim.vegetation import VegetationSpecies, MultipleVegetationSpecies
+
+# Optional backends
+__all__ = ["VegetationSpecies", "MultipleVegetationSpecies"]
+
+
+def _optional_import(name: str):
+    """ Attempt to import an optional backend when accessed. """
+    import importlib
+    import warnings
+
+    try:
+        return importlib.import_module(f"dycove.sim.engines.{name}_hydro")
+    except ImportError as e:
+        warnings.warn(
+            f"Optional dependency for '{name.upper()}' coupling not found. "
+            f"Install with: pip install dycove[{name}]",
+            ImportWarning,
+            stacklevel=2,
+        )
+        raise e
+
+
+class _LazyEngine:
+    """ Lazy loading of an optional coupling engine when first accessed. """
+
+    def __init__(self, name):
+        self._name = name
+        self._module = None
+
+    def __getattr__(self, attr):
+        if self._module is None:
+            self._module = _optional_import(self._name)
+        return getattr(self._module, attr)
+
+
+# Expose optional engines lazily
+ANUGA = _LazyEngine("ANUGA")
+DFM = _LazyEngine("DFM")
+
+
+
+
+
+
+
+
+
+
+# for coupling with ANUGA engine
 try:
     from dycove.sim.engines.ANUGA_hydro import ANUGA
-except:
-    pass
+    __all__.append("ANUGA")
+except ImportError:
+    import warnings
+    warnings.warn(
+        "Optional dependency for ANUGA coupling not found. "
+        "Install with: pip install dycove[anuga]",
+        ImportWarning,
+        stacklevel=2,
+    )
+
+# for coupling with DFM engine
 try:
     from dycove.sim.engines.DFM_hydro import DFM
-except:
-    pass
+    __all__.append("DFM")
+except ImportError:
+    import warnings
+    warnings.warn(
+        "Optional dependency for Delft3D-FM coupling not found. "
+        "Install with: pip install dycove[dfm]",
+        ImportWarning,
+        stacklevel=2,
+    )
 
-# ----------------------------------------------------------------
-# Lower-level classes (called by other scripts/classes)
-# ----------------------------------------------------------------
-
-# # Base hydrodynamic simulation classes
-# from dycove.sim.base import HydroSimulationBase, HydroEngineBase
-# from dycove.utils.log import Reporter
-# from dycove.sim.coupler import VegetationCoupler
-# from dycove.sim.simulation_data import SimulationTimeState, HydrodynamicStats
-# from dycove.sim.outputs import OutputManager
-# from dycove.utils.simulation_reporting import print_model_time_info, print_runtime_updates
-
-# from dycove.sim.vegetation_data import VegetationAttributes, VegCohort
-# from dycove.utils.array_math import cell_averaging, sum_product, sum_elementwise
+try:
+    from dycove.utils.plotter import ModelPlotter
+    __all__.append("ModelPlotter")
+except ImportError:
+    import warnings
+    warnings.warn(
+        "Optional dependency for plotting module not found. "
+        "Install with: pip install dycove[plot]",
+        ImportWarning,
+        stacklevel=2,
+    )

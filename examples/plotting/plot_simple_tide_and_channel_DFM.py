@@ -1,5 +1,5 @@
 from pathlib import Path
-from dycove.utils.plotter import ModelPlotter
+from dycove import ModelPlotter
 
 
 """
@@ -30,8 +30,8 @@ Vegetation quantites to plot from DYCOVE (use exact names):
 
 plotter = ModelPlotter(
     simdir = Path('../DFM/simple_tide_and_channel'),
-    quantity = 'Velocity',
-    #quantity = 'Stem Height',
+    #quantity = 'Velocity',
+    quantity = 'Stem Height',
     plot_times = {  # times specified here are hydrodynamic time, not eco-morpho time
         # sim hr to start plotting
         'plotHR_0': 0*24.,

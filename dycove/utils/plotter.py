@@ -31,11 +31,13 @@ class ModelPlotter:
         Quantity to plot. Must be one of the supported quantities listed below.
     plot_times : dict[str, int]
         Dictionary of plot timing parameters with the following keys:
-         - `'plotHR_0'`: Sim. hour to start plotting
-         - `'plotHR_f'`: Sim. hour to end plotting
-         - `'mapHR_int'`: Sim. hours between hydrodynamic model outputs
-         - `'plotHR_int'`: Sim. hours between consecutive plots, cannot be less than 
-                           map_output, unused if plotting vegetation
+        
+        - `'plotHR_0'`: Sim. hour to start plotting
+        - `'plotHR_f'`: Sim. hour to end plotting
+        - `'mapHR_int'`: Sim. hours between hydrodynamic model outputs
+        - `'plotHR_int'`: Sim. hours between consecutive plots, cannot be less than 
+          map_output, unused if plotting vegetation.
+
     plot_label_time : str, optional
         Time scale to use in plot titles, either `'eco-morphodynamic'` (default) or
         `'hydrodynamic'`.
@@ -73,30 +75,33 @@ class ModelPlotter:
         If True, saves interpolated grids (`.npz`) alongside figures. Can be helpful for
         external plotting of, say, difference maps, which are not supported here (yet).
 
-    Supported Quantites (use exact names)
+    Supported Quantities (use exact names)
     -------------------------------------
     Numerical model quantities:
-        - `'Bathymetry'`
-        - `'WSE'`
-        - `'Depth'`
-        - `'Velocity'`
-        - `'Max Shear Stress'`
-        DYCOVE quantities:
-        - `'Stem Height'`
-        - `'Stem Diameter'`
-        - `'Stem Density'`
-        - `'Fractions'`
-        - `'Potential Mortality -- Flooding'`
-        - `'Potential Mortality -- Desiccation'`
-        - `'Potential Mortality -- Uprooting'`
-        - `'Potential Mortality -- Burial'`
-        - `'Potential Mortality -- Scour'`
-        - `'Mortality -- Flooding'`
-        - `'Mortality -- Desiccation'`
-        - `'Mortality -- Uprooting'`
-        - `'Mortality -- Burial'`
-        - `'Mortality -- Scour'`
-        - `'Mortality -- Total'`
+
+    - `'Bathymetry'`
+    - `'WSE'`
+    - `'Depth'`
+    - `'Velocity'`
+    - `'Max Shear Stress'`
+
+    DYCOVE quantities:
+
+    - `'Stem Height'`
+    - `'Stem Diameter'`
+    - `'Stem Density'`
+    - `'Fractions'`
+    - `'Potential Mortality -- Flooding'`
+    - `'Potential Mortality -- Desiccation'`
+    - `'Potential Mortality -- Uprooting'`
+    - `'Potential Mortality -- Burial'`
+    - `'Potential Mortality -- Scour'`
+    - `'Mortality -- Flooding'`
+    - `'Mortality -- Desiccation'`
+    - `'Mortality -- Uprooting'`
+    - `'Mortality -- Burial'`
+    - `'Mortality -- Scour'`
+    - `'Mortality -- Total'`
 
     Notes
     -----

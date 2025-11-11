@@ -42,11 +42,16 @@ class OutputManager:
     def reconcile_vegetation_output(self):
         """ 
         Merge vegetation outputs across MPI subdomains into single files.
+
         We want one output file per cohort, per ecological timestep.
+
         This executes on main processor only and can take a while for giant domains.
-        Method is part of engine because it uses domain-specific info to re-map files, 
-          but we should keep this in OutputManager for now because we may add other 
-          similar tasks here later (and b/c it involves I/O and directory access).
+        
+        Method is part of the engine class because it uses domain-specific info to 
+        re-map files, but we should keep this in OutputManager for now because we may 
+        add other similar tasks here later (and b/c it involves I/O and directory 
+        access).
         """
+        
         if self.veg and self.engine.is_parallel() and self.engine.get_rank() == 0:
             self.engine.merge_parallel_veg(self)

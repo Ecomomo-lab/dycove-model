@@ -1,5 +1,5 @@
 from pathlib import Path
-from dycove.utils.plotter import ModelPlotter
+from dycove import ModelPlotter
 
 
 """
@@ -31,14 +31,14 @@ Vegetation quantites to plot from DYCOVE (use exact names):
 plotter = ModelPlotter(
     simdir = Path('../ANUGA/simple_tide_and_channel'),
     #quantity = 'Velocity',
-    #quantity = 'Stem Height',
-    quantity = 'Mortality -- Total',
+    quantity = 'Stem Height',
+    #quantity = 'Mortality -- Total',
     #quantity = 'Fractions',
     plot_times = {  # times specified here are hydrodynamic time, not eco-morpho time
         # sim hr to start plotting
         'plotHR_0': 0*24.,
         # sim hr to stop plotting, not to exceed total sim length.
-        'plotHR_f': 14*24.,  # 21 hydro days ~ 3 eco-morpho years when vegfac ~ 50
+        'plotHR_f': 21*24.,  # 21 hydro days ~ 3 eco-morpho years when vegfac ~ 50
         # sim hrs between map outputs, default for ANUGA, value for DFM given in MDU file
         'mapHR_int': 1,
         # hrs between consecutive plots, cannot be less than map_output, unused if plotting vegetation

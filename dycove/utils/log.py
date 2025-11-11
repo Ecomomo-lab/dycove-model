@@ -1,7 +1,10 @@
 import logging
 
-""" Class that handles all printing of info/warning/errors to the screen """
 class Reporter:
+    """ 
+    Class that handles all printing of info/warning/errors to the screen.
+    """
+
     _instance = None
 
     def __new__(cls):

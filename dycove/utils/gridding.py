@@ -15,8 +15,8 @@ def create_nn_interpFunc(x_coords, y_coords, grid_size, k_nn=1,
     - polygon_csv: Path to csv file containing polygon vertices (columns: x, y). 
                    If provided, values outside the polygon will be masked as NaN.
     - extents: Manual x- and y-extent limits for the interpolation grid.
-                   Example: extents=(10, 50, 20, 80).
-                   If None, this defaults to the min/max of the input coords.
+               Example: extents=(10, 50, 20, 80).
+               If None, this defaults to the min/max of the input coords.
     - tree_inds, weights, inside_mask: Optional precomputed values to speed up repeated calls.
 
     Returns:

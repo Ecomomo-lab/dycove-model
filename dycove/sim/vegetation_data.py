@@ -44,7 +44,7 @@ class VegetationAttributes:
     root_growth_rates: list[float] = field(init=False)
 
     def __post_init__(self):
-        """Initialize computed growth rate attributes"""
+        """ Initialize computed growth rate attributes. """
         self.compute_growth_rates()
 
     def compute_growth_rates(self):
@@ -69,11 +69,7 @@ class VegetationAttributes:
             self.root_growth_rates.append(rates['root'])
 
     def _compute_stage_0_rates(self) -> dict:
-        """
-        Compute growth rates for first life stage starting from
-        colonization geometry (height, diameter, roots).
-        """
-        # TODO: verify we want all 3 growth rates based on start_growth_ets ,
+        # TODO: verify we want all 3 growth rates based on start_growth_ets,
         #       which was technically described initially as being for shoot growth.
         #       I think it makes sense: shoot growth -> diameter/root growth.
         return {
@@ -83,10 +79,6 @@ class VegetationAttributes:
         }
 
     def _compute_stage_n_rates(self, n: int) -> dict:
-        """
-        Compute growth rates for life stage `n` using previous
-        winter geometry as starting point.
-        """
         return {
             'height': (self.ht_max[n] - self.ht_winter_max[n-1]) / (self.end_growth_ets - self.start_growth_ets),
             'diameter': (self.diam_max[n] - self.diam_max[n-1]) / (self.winter_ets - self.start_growth_ets) / self.years_max[n],

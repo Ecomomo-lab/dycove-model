@@ -42,11 +42,11 @@ class DFMEngine(HydroEngineBase):
     Engine interface for DFM hydro-morphodynamic model.
 
     This engine:
-      • Loads and initializes DFM executables (DIMR + D-Flow FM BMI)
-      • Manages exchange of hydrodynamic and vegetation state variables though
-        DFM-specific BMI-python wrapper
-      • Ensures that required input files are present and are consistent 
-        with simulation settings
+    - Loads and initializes DFM executables (DIMR + D-Flow FM BMI)
+    - Manages exchange of hydrodynamic and vegetation state variables though
+      DFM-specific BMI-python wrapper
+    - Ensures that required input files are present and are consistent 
+      with simulation settings
 
     Notes
     -----
@@ -82,7 +82,7 @@ class DFMEngine(HydroEngineBase):
 
         # add DLL paths to env before calling BMI
         # NOTE: for versions of python 3.7 and earlier, you will need to set the env variables differently:
-        #   os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" + os.path.join(dfm_path, 'dflowfm', 'bin') + ...
+        # os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" + os.path.join(dfm_path, 'dflowfm', 'bin') + ...
         os.add_dll_directory(dfm_path / Path("dflowfm/bin"))
         os.add_dll_directory(dfm_path / Path("dimr/bin"))
         os.add_dll_directory(dfm_path / Path("share/bin"))
@@ -200,13 +200,19 @@ class DFMEngine(HydroEngineBase):
 
     def vegetation_file_check(self):
         """
-        If they don't already exist, this function creates empty text files for stem density, stem diameter, and stem height.
-        The filenames are those specified in the vegetation .ext file in the model directory (e.g., "FlowFM_veg.ext").
+        Creates empty text files for stem density, stem diameter, and stem height, if they 
+        don't already exist.
+        
+        The filenames are those specified in the vegetation .ext file in the model directory 
+        (e.g., "FlowFM_veg.ext").
+
         These files can be created beforehand if prior vegetation establishment is desired.
+        
         Otherwise, blank files are required so that DFM stores these variables through time.
-        TODO: make a note in documentation that the user needs to supply a copy of the ext file, 
-              as well as add it manually to the mdu file along with [veg] input block
         """
+
+        # TODO: Make a note in documentation that the user needs to supply a copy of the ext file, 
+        #       as well as add it manually to the mdu file along with [veg] input block
         if self.veg is not None:
             # get file names from vegetation boundary file, write blank files to model directory if they don't exist
             ext_force_file = self.model_dir / self.mdu_vars["ExtForceFile"]
@@ -226,10 +232,15 @@ class DFMEngine(HydroEngineBase):
                                 f.write("")
 
     def check_simulation_inputs(self, simstate):
-        # All MDU files (DFM models) will have a simulation time specifed, but this vegetation module will run DFM for a period of time
-        #   based on how many veg years we want to simulate. 
-        # Basically, the time specified in the MDU needs to be arbitrarily
-        #   large enough so that we never run into the issue of the model stopping prematurely
+        """
+        Compare DYCOVE simulation time to MDU simulation time.
+
+        All MDU files (DFM models) will have a simulation time specifed, but DYCOVE will run
+        DFM for a period of time based on how many veg years we want to simulate. Basically, 
+        the time specified in the MDU needs to be arbitrarily large enough so that we never 
+        run into the issue of the model stopping prematurely.
+        """
+
         if simstate.hydro_sim_days*86400 > int(self.mdu_vars["TStop"]):
             msg = (f"Model simulation time specified in MDU file (TStop = {self.mdu_vars['TStop']}) not long enough based on "
                    "the inputs provided for sim_years, n_ets, and veg_interval, which give simulation length of "

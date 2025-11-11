@@ -23,12 +23,13 @@ class HydroSimulationBase(ABC):
     
     Model-specific computations are delegated to the appropriate `engine` object.
     Tracking of simulation time state variables is delegated to the `SimulationTimeState` dataclass.
-    Calculation of hydrodynamic statistics relevant for vegetation processes is delegated to the `HydrodynamicStats` dataclass.
-    Coupling logic between vegetation and hydrodynamic models is handled by the `VegetationCoupler` class.
-    Writing of output files is handled by the `OutputManager` class.
+    Calculation of hydrodynamic statistics relevant for vegetation processes is delegated to the 
+    `HydrodynamicStats` dataclass. Coupling logic between vegetation and hydrodynamic models is 
+    handled by the `VegetationCoupler` class. Writing of output files is handled by the 
+    `OutputManager` class.
 
-    Subclasses should implement the engine-specific methods called
-    here, such as `step` and `get_velocity_and_depth`.
+    Subclasses should implement the engine-specific methods called here, such as `step` and 
+    `get_velocity_and_depth`.
     """
 
     def __init__(self, engine):
@@ -123,10 +124,7 @@ class HydroSimulationBase(ABC):
         Advance hydrodynamics over all substeps within the current vegetation step.
 
         Computes min/max water depths, maximum velocities, and flooding
-        statistics required for vegetation updates.
-
-        Updates:
-            self.hydrostats: HydrodynamicStats object with updated values.
+        statistics (HydrodynamicStats) required for vegetation updates.
         """
                 
         # add empty placeholders for hydro stats like hmin, vmax, etc
@@ -164,36 +162,36 @@ class HydroEngineBase(ABC):
 
     @abstractmethod
     def initialize(self):
-        """Prepare engine to run (allocate memory, print start, etc.)"""
+        """ Prepare engine to run (allocate memory, print start, etc.). """
         pass
 
     @abstractmethod
     def step(self, seconds: int):
         """
         Advance the hydrodynamic model forward by a given number of seconds.
-        ANUGA implements this by looping with domain.evolve(),
-        while DFM calls dimr.update().
+        
+        ANUGA implements this by looping with domain.evolve(), while DFM calls dimr.update().
         """
         pass
 
     @abstractmethod
     def cleanup(self):
-        """Clean up resources"""
+        """ Clean up resources. """
         pass
 
     @abstractmethod
     def get_rank(self):
-        """Get current parallel processor/rank"""
+        """ Get current parallel processor/rank. """
         pass
 
     @abstractmethod
     def get_cell_count(self) -> int:
-        """Return number of active grid cells in the model"""
+        """ Return number of active grid cells in the model. """
         pass
 
     @abstractmethod
     def get_elevation(self) -> np.ndarray:
-        """Return static bed elevation array (cell-centered)"""
+        """ Return static bed elevation array (cell-centered). """
         pass
 
     @abstractmethod
@@ -206,25 +204,25 @@ class HydroEngineBase(ABC):
 
     @abstractmethod
     def get_vegetation(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Return stem density, diameter, and height arrays"""
+        """ Return stem density, diameter, and height arrays. """
         pass
 
     @abstractmethod
     def set_vegetation(self, stemdens, stemdiam, stemheight):
-        """Push vegetation arrays back into the hydro model"""
+        """ Push vegetation arrays back into the hydro model. """
         pass
 
     @abstractmethod
     def check_simulation_inputs(self, simstate):
-        """Perform checks on simulation time inputs"""
+        """ Perform checks on simulation time inputs. """
         pass
 
     @abstractmethod
     def is_parallel(self):
-        """Return True if model is running in parallel based on number of active processors"""
+        """ Return True if model is running in parallel based on number of active processors. """
         pass
 
     @abstractmethod
     def merge_parallel_veg(self, OutputManager):
-        """Merge vegetation output files across MPI subdomains into single files"""
+        """ Merge vegetation output files across MPI subdomains into single files. """
         pass

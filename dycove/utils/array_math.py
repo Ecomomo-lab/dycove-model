@@ -1,3 +1,8 @@
+"""
+Functions used for cell-area weighted averaging of vegetation quantities when multiple
+fractions are present in the model.
+"""
+
 import numpy as np
 
 def get_min_max(list_of_values):

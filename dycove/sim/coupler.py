@@ -1,8 +1,10 @@
+
 class VegetationCoupler:
     """
-    Handles coupling between hydrodynamic model and vegetation model.
+    Class to handle coupling between hydrodynamic model and vegetation model.
+
     This class orchestrates the vegetation update cycle by coordinating between
-      the hydrodynamic engine and vegetation model at each ecological timestep.
+    the hydrodynamic engine and vegetation model at each ecological timestep.
     """
 
     def __init__(self, engine):
@@ -12,10 +14,12 @@ class VegetationCoupler:
     def update(self, simstate, hydrostats):
         """
         Advance vegetation by one eco timestep.
+
         These are all the steps that need to be performed within one update cycle.
-        Vegetation object (self.veg) may be a VegetationSpecies or a MultipleVegetationSpecies,
-          if it is the latter, the methods below are distrubuted to each individual species under
-          the methods of the MultipleVegetationSpecies class.
+
+        Vegetation object (self.veg) may be a VegetationSpecies or a MultipleVegetationSpecies.
+        If it is the latter, the methods below are distrubuted to each individual species under
+        the methods of the MultipleVegetationSpecies class.
         """
         self.lifestage_update(simstate)
         self.apply_growth(simstate)
@@ -26,25 +30,25 @@ class VegetationCoupler:
 
     def lifestage_update(self, simstate):
         """
-        Update ETS and eco_year counter, then update vegetation life stage and stem density if we started a new eco year.
-        Stem density update is done here because it only depends on eco year and does not change during the year.
+        Update ETS and eco_year counter, then update vegetation life stage and stem density 
+        if we started a new eco year.
         """
         simstate.update_ets()
         if simstate.ets == 1:
             self.veg.update_lifestage_and_stemdensity()
 
     def apply_growth(self, simstate):
-        """Apply precomputed growth rates for stem height, diameter, and root depth"""
+        """ Apply precomputed growth rates for stem height, diameter, and root depth. """
         self.veg.stemheight_growth(simstate.ets)
         self.veg.stemdiam_growth(simstate.ets)
         self.veg.root_growth(simstate.ets)
 
     def do_colonization(self, simstate, hydrostats):
-        """Compute colonization based on hydrodynamic conditions"""
+        """ Compute colonization based on hydrodynamic conditions. """
         self.veg.colonization(simstate.ets, hydrostats.h_min, hydrostats.h_max, hydrostats.fl_dr)
 
     def compute_mortality(self, simstate, hydrostats):
-        """Compute mortality based on hydrodynamic statistics"""
+        """ Compute mortality based on hydrodynamic statistics. """
         n_substeps = simstate.n_hydro_steps
         hydro_vars  = {"fld_frac"   : hydrostats.flood_frac(n_substeps),
                        "dry_frac"   : hydrostats.dry_frac(n_substeps),
@@ -55,16 +59,19 @@ class VegetationCoupler:
         self.veg.mortality(hydro_vars, morpho_vars)
 
     def compute_veg_model_quantities(self):
-        """Compute vegetation quantities (stem density, diameter, height) to be pushed to hydro model as single values at each grid cell"""
+        """ 
+        Compute vegetation quantities (stem density, diameter, height), to be pushed to 
+        hydro model as single values at each grid cell
+        """
         self.veg.compute_veg_model_quantities()
 
     def push_veg_to_hydro(self):
         """
         Inject updated vegetation properties into hydrodynamic model arrays.
-        Replaces the current vegetation arrays in the hydro model with values
-          from the vegetation module. Skips injection if no vegetation exists 
-          (due to delayed colonization, total mortality, or absence on this 
-          subdomain).
+        
+        Replaces the current vegetation arrays in the hydro model with values from the 
+        vegetation module. Skips injection if no vegetation exists (due to delayed 
+        colonization, total mortality, or absence on this subdomain).
         """
         # veg.stemdensity is given a value in compute_veg_model_quantities()
         if self.veg.stemdensity is None:

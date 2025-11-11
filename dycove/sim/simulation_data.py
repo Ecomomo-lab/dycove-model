@@ -66,7 +66,7 @@ class SimulationTimeState:
     hydrotime_date: dt.datetime = field(init=False)
 
     def __post_init__(self):
-        """Initialize computed attributes and validate inputs"""
+        """ Initialize computed attributes and validate inputs. """
         self.time_0 = time.time()
         self.times_elapsed = []
         
@@ -99,8 +99,8 @@ class SimulationTimeState:
 
     def compute_vegfac(self):
         """
-        Determine vegetation acceleration factor, 
-          prioritizing: model morfac > input value > derived value.
+        Determine vegetation acceleration factor, prioritizing: 
+        model morfac > input value > derived value.
         """
         # Check that input vegfac matches morfac if morphology is on
         if self.vegfac is not None:
@@ -129,6 +129,7 @@ class SimulationTimeState:
     def compute_days_per_year(self):
         """
         Compute the implied 'days per year' from vegfac, veg_interval, and n_ets.
+
         Validates that the result is reasonable (350-380 days).
         """
         self.days_per_year = (self.vegfac * self.veg_interval * self.n_ets) / 86400.
@@ -146,7 +147,7 @@ class SimulationTimeState:
             raise ValueError(msg)
     
     def compute_time_conversions(self):
-        """Convert between hydrodynamic days and eco-morphodynamic years"""
+        """ Convert between hydrodynamic days and eco-morphodynamic years. """
         if self.sim_time_unit == 'hydrodynamic days':
             self.hydro_sim_days = self.sim_time
             self.veg_sim_years = self.sim_time * self.vegfac / self.days_per_year
