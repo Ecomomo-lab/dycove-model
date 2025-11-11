@@ -7,9 +7,7 @@ Used for `simple_tide` example.
 import numpy as np
 import matplotlib.pyplot as plt
 import anuga
-from dycove.utils.log import Reporter
 
-r = Reporter()
 
 class RectangSlopeDomainGenerator:
     def __init__(self, 
@@ -50,7 +48,7 @@ class RectangSlopeDomainGenerator:
     
     def create_domain(self):
 
-        r.report("Creating ANUGA domain and mesh...")
+        print("Creating ANUGA domain and mesh...")
 
         # Create a domain with named boundaries "left", "right", "top" and "bottom"
         self.domain = anuga.rectangular_cross_domain(self.dims[0]/self.dx, self.dims[1]/self.dx, 
@@ -60,7 +58,7 @@ class RectangSlopeDomainGenerator:
         self.domain.set_flow_algorithm('DE1')      # for stable solution, can always try 'DE0' for faster results
         self.domain.set_minimum_storable_height(0.01)  # Only store heights > 1 cm
 
-        r.report(self.domain.statistics())
+        print(self.domain.statistics())
 
         if self.plotting:
             plt.figure()
@@ -72,7 +70,7 @@ class RectangSlopeDomainGenerator:
         
         
     def set_initial_quantities(self):        
-        r.report("Assigning elevation and friction data to mesh...\n")
+        print("Assigning elevation and friction data to mesh...\n")
 
         self.domain.set_quantity('elevation', self.topography)
         self.domain.set_quantity('friction', self.friction)
@@ -93,7 +91,7 @@ class RectangSlopeDomainGenerator:
 
             
     def set_boundary_conditions(self):
-        r.report("Setting boundary conditions...\n")
+        print("Setting boundary conditions...\n")
 
         # set initial stage, but only on the ocean side
         x = self.domain.quantities['x'].centroid_values

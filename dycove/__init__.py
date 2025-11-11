@@ -12,9 +12,18 @@ instantiates the model based on these inputs and a simulation time frame
 This file contains the classes that form the basis of the DYCOVE model, and 
 can be imported directly without specifying complete file paths as long 
 import statements. The simple import statement below allows the user to 
-directly import these classes.
+directly import these classes:
 
 >>> import dycove
+
+From a working model script (entry point), ANUGA users looking to model a 
+single species should import these high-level classes to get a MWE running:
+
+>>> from dycove import VegetationSpecies, ANUGA
+
+or, for example, for DFM users looking to model multiple species at once:
+
+>>> from dycove import VegetationSpecies, MultipleVegetationSpecies, DFM
 
 Note that users of one numerical model or another may not have installed the
 requirements for the other model(s). In the higher-level classes below, the 
@@ -27,10 +36,9 @@ try-except statements protect against those kinds of import errors.
 # ----------------------------------------------------------------
 
 # called by the user in entry-point script
-from dycove.sim.vegetation import VegetationSpecies
+from dycove.sim.vegetation import VegetationSpecies, MultipleVegetationSpecies
 try:
     from dycove.sim.engines.ANUGA_hydro import ANUGA
-    from dycove.utils.baptist_operator import Baptist_operator
 except:
     pass
 try:
@@ -42,13 +50,13 @@ except:
 # Lower-level classes (called by other scripts/classes)
 # ----------------------------------------------------------------
 
-# Base hydrodynamic simulation classes
-from dycove.sim.base import HydroSimulationBase, HydroEngineBase
-from dycove.utils.log import Reporter
-from dycove.sim.coupler import VegetationCoupler
-from dycove.sim.simulation_data import SimulationTimeState, HydrodynamicStats
-from dycove.sim.outputs import OutputManager
-from dycove.utils.simulation_reporting import print_model_time_info, print_runtime_updates
+# # Base hydrodynamic simulation classes
+# from dycove.sim.base import HydroSimulationBase, HydroEngineBase
+# from dycove.utils.log import Reporter
+# from dycove.sim.coupler import VegetationCoupler
+# from dycove.sim.simulation_data import SimulationTimeState, HydrodynamicStats
+# from dycove.sim.outputs import OutputManager
+# from dycove.utils.simulation_reporting import print_model_time_info, print_runtime_updates
 
-from dycove.sim.vegetation_data import VegetationAttributes, VegCohort
-from dycove.utils.array_math import cell_averaging, sum_product, sum_elementwise
+# from dycove.sim.vegetation_data import VegetationAttributes, VegCohort
+# from dycove.utils.array_math import cell_averaging, sum_product, sum_elementwise

@@ -5,9 +5,11 @@
 from abc import ABC, abstractmethod
 import numpy as np
 
-from dycove import VegetationCoupler, SimulationTimeState, HydrodynamicStats, OutputManager
-from dycove import Reporter
-from dycove import print_model_time_info, print_runtime_updates
+from dycove.sim.coupler import VegetationCoupler
+from dycove.sim.simulation_data import SimulationTimeState, HydrodynamicStats
+from dycove.sim.outputs import OutputManager
+from dycove.utils.log import Reporter
+from dycove.utils.simulation_reporting import print_model_time_info, print_runtime_updates
 
 
 r = Reporter()

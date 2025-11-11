@@ -11,20 +11,15 @@ class VegetationAttributes:
     This class stores all vegetation input attributes and computes
     linear growth rates for height, stem diameter, and root length
     across life stages. Values are typically read from the vegetation
-    configuration text file used by the eco-morphodynamic model.
+    configuration json file used by DYCOVE.
     """
 
     age_max: int  # max age
-    seed_dispersal: int  # amount of ets seed dispersal
-    col_method: int  # colonisation method (1 = on bare substrate between max and min water levels, 2 = on bare substrate with mud content
-    growth_method: int  # growth method (2 = linear seasonal growth within year; e.g. saltmarsh)
-    veg_formula: int  # vegetation formula (is fixed with Baptiste 2007: 154, for different formula other parameters are required)
-    nls: int  # number of life stages 
+    nls: int  # number of life stages
+    fraction_0: float  # initial colonization fraction (0-1)
     rootlength_0: float  # initial root length in m
     shootlength_0: float  # initial shoot length in m
     stemdiam_0: float  # initial stem diameter in m
-    veg_type: int  # vegetation type (1 = saltmarsh)
-    ### TODO: implement growth strategy 1
     start_growth_ets: int  # ecological timestep start growth shoot (in case of growth method 2)
     end_growth_ets: int  # ecological timestep end growth shoot (in case of growth method 2) 
     winter_ets: int  # ecological timestep  step start winter period
@@ -36,9 +31,6 @@ class VegetationAttributes:
     rootlength_max: list[float]  # max root length [m] at ets "end growth root"
     years_max: list[int]  # max number of years in life-stage
     stemdens: list[float]  # number of stems per m2 
-    fraction_0: float  # initial colonization fraction (0-1)... values are redundant, TODO: move this to gen_veg_attr
-    drag: list[float]  # drag coefficient
-    mud_percent: list[float]  # mud percentage for colonization
     desic_no_mort: list[float]  # dry fraction below which there is no mortality (zero turns dessication mortality off)
     desic_all_mort: list[float]  # dry fraction above which there total mortality
     flood_no_mort: list[float]  # flood fraction below which there is no mortality (zero turns flooding mortality off)
@@ -46,7 +38,6 @@ class VegetationAttributes:
     uproot_no_mort: list[float]  # flow velocity below which there is no mortality (zero turns uprooting mortality off)
     uproot_all_mort: list[float]  # flow velocity above which there is total mortality
     ht_winter_max: list[float]  # max height during winter time
-    ### TODO: implement salinity tolerance
     # computed below, after reading in above attributes
     ht_growth_rates: list[float] = field(init=False)
     diam_growth_rates: list[float] = field(init=False)

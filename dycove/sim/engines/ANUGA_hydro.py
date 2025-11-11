@@ -8,7 +8,10 @@ from netCDF4 import Dataset  # type: ignore
 from pathlib import Path
 import re
 
-from dycove import HydroSimulationBase, HydroEngineBase, Baptist_operator, Reporter
+from dycove.sim.base import HydroSimulationBase, HydroEngineBase
+from dycove.utils.baptist_operator import Baptist_operator
+from dycove.utils.log import Reporter
+
 from anuga import myid, numprocs, finalize, barrier
 
 r = Reporter()

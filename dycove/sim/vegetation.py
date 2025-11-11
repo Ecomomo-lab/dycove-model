@@ -4,10 +4,11 @@
 
 from pathlib import Path
 import numpy as np
+import json
 
-from dycove import VegetationAttributes, VegCohort
-from dycove import Reporter
-from dycove import cell_averaging, sum_product, sum_elementwise
+from dycove.sim.vegetation_data import VegetationAttributes, VegCohort
+from dycove.utils.log import Reporter
+from dycove.utils.array_math import cell_averaging, sum_product, sum_elementwise
 
 r = Reporter()
 
@@ -62,7 +63,7 @@ class VegetationSpecies(SharedVegMethods):
                           'deterministic' will use a seed to evaluate the SAME set of cells for each colonization, 
                           whereas 'random' will be truly random each time
         """
-        self.attrs       = self.parse_input_file(Path(input_veg_filename))
+        self.attrs       = self.load_vegetation_attributes(Path(input_veg_filename))
         self.name        = species_name
         self.mor         = mor
         self.seed_frac   = rand_seed_frac
@@ -72,56 +73,17 @@ class VegetationSpecies(SharedVegMethods):
         self.cohorts: list[VegCohort] = []
 
 
-    # parse vegetation input file and store attributes in a dataclass
     @staticmethod
-    def parse_input_file(filename: Path) -> VegetationAttributes:
-        if not filename.exists():
-            msg = f"Vegetation input file not found: {filename}"
-            r.report(msg, level="ERROR")
-            raise FileNotFoundError(msg)
+    def load_vegetation_attributes(filename: Path) -> VegetationAttributes:
+        """ Parse vegetation input json file and store attributes in a dataclass. """
         with open(filename, "r") as f:
-            lines = f.readlines()[41:]
+            data = json.load(f)
 
-        # get general vegetation attributes, convert to ints and floats
-        gen = [float(v) if "." in v else int(v) for v in lines[0].split()]
-        # get ecological timesteps where colonisation starts and stops
-        start_col, end_col = map(int, lines[1].split())
-        # get vegetation life stage attributes, convert to ints and floats
-        nls = int(gen[5])
-        ls = [[float(v) if "." in v else int(v) for v in lines[n+2].split()] for n in range(nls)]
+        ls_data = data.pop("life_stage_attr")
+        for key in ls_data[0].keys():
+            data[key] = [stage[key] for stage in ls_data]
 
-        return VegetationAttributes(  # wow thats a lot of attributes!
-            age_max=gen[0],
-            seed_dispersal=gen[1],
-            col_method=gen[2],
-            growth_method=gen[3],
-            veg_formula=gen[4],
-            nls=nls,
-            rootlength_0=gen[6],
-            shootlength_0=gen[7],
-            stemdiam_0=gen[8],
-            veg_type=gen[9],
-            start_growth_ets=gen[13],
-            end_growth_ets=gen[14],
-            winter_ets=gen[15],
-            start_col_ets=start_col,
-            end_col_ets=end_col,
-            ht_max=[row[0] for row in ls],
-            diam_max=[row[1] for row in ls],
-            rootlength_max=[row[2] for row in ls],
-            years_max=[row[3] for row in ls],
-            stemdens=[row[4] for row in ls],
-            fraction_0=ls[0][5],
-            drag=[row[6] for row in ls],
-            mud_percent=[row[7] for row in ls],
-            desic_no_mort=[row[8] for row in ls],
-            desic_all_mort=[row[9] for row in ls],
-            flood_no_mort=[row[10] for row in ls],
-            flood_all_mort=[row[11] for row in ls],
-            uproot_no_mort=[row[12] for row in ls],
-            uproot_all_mort=[row[13] for row in ls],
-            ht_winter_max=[row[14] for row in ls],
-        )
+        return VegetationAttributes(**data)
 
 
     def colonization(self, ets, min_depths, max_depths, fl_dr, combined_cohorts=None):
@@ -452,145 +414,3 @@ class MultipleVegetationSpecies(SharedVegMethods):
             r.report(msg, level="ERROR")
             raise ValueError(msg)
         self.mor = self.species_list[0].mor
-
-
-
-
-
-
-
-
-
-
-
-    #     # inherit the "mor" input parameter from the individual species object
-    #     # we cannot have some species with mor=1 and others with mor=0
-    #     if len(set([veg.mor for veg in self.species_list])) != 1:
-    #         msg = "All vegetation species inputs must have the same value for 'mor'"
-    #         logger.error(msg)
-    #         raise ValueError(msg)
-    #     self.mor = self.species_list[0].mor
-
-    #     # a dictionary for tracking fractions across multiple species. As more fractions are colonized, a unique 
-    #     #   ID (veg_fraction_ID) is appended to the list corresponding to each species so that we can access them 
-    #     #   later when tracking mortality. See colonization method for more explanation.
-    #     self.veg_fraction_inds = {}
-    #     self.veg_fraction_ind = 0
-    #     for veg in self.species_list:
-    #         self.veg_fraction_inds[veg.name] = []
-
-    #     # master list of all veg fractions, identical in shape to veg_fractions lists for individual species,
-    #     #   but it includes cell-wise fractions for all species for accounting purposes. For example, for one
-    #     #   species, the arrays within the veg_fractions list are arrays of fractions for each consecutive 
-    #     #   cohort/colonization. For two species, each species colonizes during the colonization time step,
-    #     #   and their fractions are appended to this list. So, every other array within veg_fractions will
-    #     #   correspond to the same species. For three species, every third array, and so on.
-    #     self.veg_fractions = []
-    #     # also keep lists of other vegetation parameters. By keeping these lists and using the same variable 
-    #     #   names as for the individual species, we can run shared functions (e.g., compute_veg_model_quantities) 
-    #     #   without needing to pass arguments or make adjustments
-    #     self.veg_densities = []
-    #     self.veg_diameters = []
-    #     self.veg_heights   = []
-    #     self.mort_from_flood  = []
-    #     self.mort_from_desic  = []
-    #     self.mort_from_uproot = []
-    #     self.mort_from_burial = []
-    #     self.mort_from_scour  = []
-    #     self.mort_total       = []
-
-    # def update_lifestage_and_stemdensity(self):
-    #     for veg in self.species_list:
-    #         # update lifestages and associated stem densities for individual species and update the corresponding lists for that species
-    #         veg.update_lifestage_and_stemdensity()
-    #         # iterate through once more, taking the latest stem density values and updating the global list
-    #         for i, vdens in enumerate(veg.veg_densities):
-    #             corresponding_ind = self.veg_fraction_inds[veg.name][i]
-    #             self.veg_densities[corresponding_ind] = vdens
-
-
-    # def stemheight_growth(self, ets):
-    #     for veg in self.species_list:
-    #         # compute stem height growth for individual species and update the corresponding list for that species
-    #         veg.stemheight_growth(ets)
-    #         # iterate through once more, taking the latest stem height values and updating the global list
-    #         for i, vht in enumerate(veg.veg_heights):
-    #             corresponding_ind = self.veg_fraction_inds[veg.name][i]
-    #             self.veg_heights[corresponding_ind] = vht
-
-    # def stemdiam_growth(self, ets):
-    #     for veg in self.species_list:
-    #         # compute stem diameter growth for individual species and update the corresponding list for that species
-    #         veg.stemdiam_growth(ets)
-    #         # iterate through once more, taking the latest stem diameter values and updating the global list
-    #         for i, vd in enumerate(veg.veg_diameters):
-    #             corresponding_ind = self.veg_fraction_inds[veg.name][i]
-    #             self.veg_diameters[corresponding_ind] = vd            
-
-    # def root_growth(self, ets):
-    #     # we do not track root_growth globally because we don't export this at the end of the run (as of now)
-    #     for veg in self.species_list:
-    #         veg.root_growth(ets)
-
-    # def colonization(self, ets, min_depths, max_depths, fl_dr):
-    #     for veg in self.species_list:
-    #         # for the first colonization of the first species, self.veg_fractions_combined will be an empty list,
-    #         #   and colonization will proceed normally
-    #         veg.colonization(ets, min_depths, max_depths, fl_dr, combined_fractions_list=self.veg_fractions)
-    #         # update the global fractions list
-    #         self.update_fractions_with_new_colonization(ets, veg)
-    #     logger.info(f"Number of veg fractions total: {len(self.veg_fractions)}")
-
-    # def update_fractions_with_new_colonization(self, ets, veg):
-    #     # ETS checks happen here and under colonization() because they depend on inputs for individual species (start/end)
-    #     if veg.start_col_ets <= ets < veg.end_col_ets:
-    #         # after colonization of an individual species, we append that most recent array of cell-wise fractions
-    #         #   and corresponding parameters to the master lists, so when we do colonization for the next species, 
-    #         #   we have a global account of cell-wise fractions and therefore available space in each cell. We use
-    #         #   veg_fraction_inds to track fractions for each species within that master list, even though the
-    #         #   fractions arrays will be spaced regularly within the master list. 
-    #         self.veg_fractions.append(veg.veg_fractions[-1])
-    #         # this means, for the first colonization of species 1: veg_fraction_inds = {"species 1": [0], "species 2" = []}
-    #         # and for the first colonization of species 2:         veg_fraction_inds = {"species 1" = [0], "species 2" = [1]}
-    #         # and for the second colonization of species 1:        veg_fraction_inds = {"species 1" = [0, 2], "species 2" = [1]}
-    #         #   and so on. Clearly, the arrays in veg_fractions will alternate between species, but the structure of
-    #         #   the list is the same as if there were only one species, which makes the cell-averaging calculations
-    #         #   in compute_veg_model_quantities simple
-    #         self.veg_fraction_inds[veg.name].append(self.veg_fraction_ind)
-    #         self.veg_densities.append(veg.veg_densities[-1])
-    #         self.veg_diameters.append(veg.veg_diameters[-1])
-    #         self.veg_heights.append(veg.veg_heights[-1])
-    #         self.veg_fraction_ind += 1
-
-    # def mortality_hydrodynamic(self, fld_fraction, dry_fraction, vel_maximum):
-    #     for veg in self.species_list:
-    #         # Compute the potential mortality for each species, for each stressor, individually. 
-    #         # This will yield mortality from hydrodynamic causes as fractions between 0 and 1 for each grid cell, REGARDLESS of 
-    #         #   vegetation present in the cell. But potential mortality is dependent on species properties, so they are computed 
-    #         #   separately.
-    #         veg.mortality_hydrodynamic(fld_fraction, dry_fraction, vel_maximum)
-
-    # # TODO: find a better way to share these function definitions, so that the identical arguments are not written out in two places
-    # def mortality_morphodynamic(self, bl_diff, burial_frac=1.0, scour_frac=0.1):
-    #     for veg in self.species_list:
-    #         # See comments under mortality_hydrodynamic()
-    #         veg.mortality_morphodynamic(bl_diff, burial_frac, scour_frac)
-
-    # def apply_mortality(self):
-    #     for veg in self.species_list:
-    #         veg.apply_mortality()
-    #         # Below, we redo the loop that occurs in apply_mortality() and apply updated fractions to the global list.
-    #         # veg.veg_fractions is the individual species' fractions list
-    #         # self.veg_fractions is the global fractions list
-    #         for i in range(len(veg.veg_fractions)):
-    #             # NT verified that this works correctly 7/17/25
-    #             # i = 0, 1, 2, ...
-    #             # vf_ID should be = 0, 2, 4, .... if this is the first of two species
-    #             vf_ind = self.veg_fraction_inds[veg.name][i]
-    #             # Global list updated with fractions from individual veg objects that were previously updated in apply_mortality()
-    #             self.veg_fractions[vf_ind] = veg.veg_fractions[i]
-    #         # Add mortality arrays from individual lists to global lists
-    #         # This keeps the mortality arrays in the same order as fractions, so they can be indexed with veg_fractions_inds
-    #         for attr in ["mort_from_flood", "mort_from_desic", "mort_from_uproot", 
-    #                      "mort_from_burial", "mort_from_scour", "mort_total"]:
-    #             getattr(self, attr).append(getattr(veg, attr)[-1])

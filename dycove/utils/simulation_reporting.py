@@ -1,5 +1,5 @@
 import time
-from dycove import Reporter
+from dycove.utils.log import Reporter
 
 r = Reporter()  # get singleton reporter instance
 

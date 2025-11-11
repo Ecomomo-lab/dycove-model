@@ -9,10 +9,9 @@ Adapted from ANUGA example "channel1.py"
 # Import necessary modules
 #------------------------------------------------------------------------------
 
-from dycove.sim.vegetation import VegetationSpecies
-from dycove.sim.engines.ANUGA_hydro import ANUGA
+#import dycove
+from dycove import VegetationSpecies, ANUGA
 from gen_anuga_domain import RectangSlopeDomainGenerator as RectangDomain
-
 
 #------------------------------------------------------------------------------
 # Create a sloped rectangular ANUGA domain using anuga.rectangular_cross_domain
@@ -44,7 +43,7 @@ sim_time = 3
 time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynamic years'
 
 # create vegetation species object
-veg_1 = VegetationSpecies("veg1.txt", "veg1")
+veg_1 = VegetationSpecies("veg1.json", "veg1")
 
 # instantiate ANUGA model
 HydroModel = ANUGA(HydroDomain.domain, vegetation=veg_1)
