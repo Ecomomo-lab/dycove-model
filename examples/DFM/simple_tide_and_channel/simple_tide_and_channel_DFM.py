@@ -10,7 +10,7 @@ Adapted from ANUGA-DYCOVE example "simple_tide_ANUGA.py"
 
 from pathlib import Path
 
-from dycove import VegetationSpecies, DFM
+from dycove import VegetationSpecies, DFM_hydro
 
 
 #------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynam
 veg_1 = VegetationSpecies("veg1.json", "veg1")
 
 # instantiate DFM model
-HydroModel = DFM(DFM_DLLs, config_file, mdu_file, vegetation=veg_1)
+HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=veg_1)
 
 # do timestepping
 HydroModel.run_simulation(sim_time, sim_time_unit=time_unit)

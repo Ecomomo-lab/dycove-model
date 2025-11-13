@@ -1,7 +1,7 @@
 DYCOVE
-=======
+======
 
-**DYCOVE** (die-CO-vee), short for DYnamic COastal VEgetation, is a Python package used for tightly coupling 
+**DYCOVE** (die-COH-vee), short for DYnamic COastal VEgetation, is a Python package used for tightly coupling 
 dynamic vegetation processes with 2-D hydrodynamic models in coastal environments.
 
 DYCOVE takes as input a set of vegetation characteristics for any number of species of interest and computes 
@@ -11,10 +11,10 @@ numerical model. The strength of DYCOVE lies in its ability to model the evoluti
 as well as provide hydro-morphodynamic models with a robust representation of roughness that can change over time.
 
 Currently, DYCOVE supports coupling with `ANUGA <https://github.com/GeoscienceAustralia/anuga_core>`_ and 
-Delft3D Flexible Mesh (FM).
+`Delft3D Flexible Mesh <https://oss.deltares.nl/web/delft3dfm>`_.
 
 The logic behind this model was developed as part of the following study, which coupled a MATLAB vegetation code 
-with the Delft3D 4 model:
+with the Delft3D 4 model: |
 Brückner, M. Z. M., Schwarz, C., van Dijk, W. M., van Oorschot, M., Douma, H., & Kleinhans, M. G. (2019). 
 Salt marsh establishment and eco-engineering effects in dynamic estuaries determined by species growth and mortality. 
 Journal of Geophysical Research: Earth Surface, 124, 2962-2986. https://doi.org/10.1029/2019JF005092

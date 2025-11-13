@@ -1,5 +1,5 @@
 from pathlib import Path
-from dycove import ModelPlotter
+from dycove import plotting
 
 
 """
@@ -28,7 +28,7 @@ Vegetation quantites to plot from DYCOVE (use exact names):
 'Mortality -- Total'
 """
 
-plotter = ModelPlotter(
+plotter = plotting.ModelPlotter(
     simdir = Path('../ANUGA/simple_tide_and_channel'),
     #quantity = 'Velocity',
     quantity = 'Stem Height',

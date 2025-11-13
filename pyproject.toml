@@ -36,8 +36,10 @@ anuga = [
 # for coupling with Delft3D FM
 dfm = [
     "bmi",
+    "pypiwin32",
     "netCDF4"
     ]
+# for using ModelPlotter
 plot = [
     "tqdm",
     "imageio",

@@ -9,25 +9,39 @@ characteristics related to colonization, growth, and mortality. The user
 instantiates the model based on these inputs and a simulation time frame
 (including a coupling interval).
 
-This file contains the classes that form the basis of the DYCOVE model, and 
-can be imported directly without specifying complete file paths as long 
-import statements. The simple import statement below allows the user to 
-directly import these classes:
+This file provides import shortcuts for the public-facing classes that form 
+the basis of the DYCOVE model, and can be imported directly without specifying 
+complete file paths as long import statements. For example, from a working 
+model script (entry point), ANUGA users looking to model a single species 
+should import these high-level classes to get a DYCOVE model running:
 
->>> import dycove
+>>> from dycove import VegetationSpecies, ANUGA_hydro
 
-From a working model script (entry point), ANUGA users looking to model a 
-single species should import these high-level classes to get a MWE running:
+...create an ANUGA domain:
 
->>> from dycove import VegetationSpecies, ANUGA
+>>> domain = anuga.create_domain_from_regions(...)
 
-or, for example, for DFM users looking to model multiple species at once:
+...and then instantiate and run the coupled model:
 
->>> from dycove import VegetationSpecies, MultipleVegetationSpecies, DFM
+>>> veg_1 = VegetationSpecies("veg1.json", "veg1")
+>>> model = ANUGA_hydro.ANUGA(domain, vegetation=veg_1)
+>>> model.run_simulation(3)
+
+Or, for Delft3D FM users looking to model multiple species at once:
+
+>>> from dycove import VegetationSpecies, DFM_hydro
+>>> from dycove import MultipleVegetationSpecies as Multi
+>>> veg_1 = VegetationSpecies("veg1.json", "veg1")
+>>> veg_2 = VegetationSpecies("veg2.json", "veg2")
+
+...define paths to DFM executables, DIMR config file, and model MDU files, then run:
+
+>>> model = DFM_hydro.DFM(DFM_DLL_path, 'dimr_config.xml', 'FlowFM.mdu', vegetation=Multi([veg_1, veg_2])
+>>> model.run_simulation(3)
 
 Note that users of one numerical model or another may not have installed the
-requirements for the other model(s). In the higher-level classes below, the 
-try-except statements protect against those kinds of import errors.
+requirements for the other model(s). For the higher-level classes below, the 
+_optional_import/_LazyEngine protect against those kinds of import errors.
 
 """
 
@@ -36,32 +50,45 @@ try-except statements protect against those kinds of import errors.
 from dycove.sim.vegetation import VegetationSpecies, MultipleVegetationSpecies
 
 # Optional backends
-__all__ = ["VegetationSpecies", "MultipleVegetationSpecies"]
+__all__ = [
+    "VegetationSpecies", 
+    "MultipleVegetationSpecies",
+    "ANUGA_hydro",
+    "DFM_hydro",
+    "plotting",
+    ]
 
+import importlib
+# import sys
+# import types
+import warnings
 
+# ---------------------------------------------------------------------
+# Helper: optional imports
+# ---------------------------------------------------------------------
 def _optional_import(name: str):
     """ Attempt to import an optional backend when accessed. """
-    import importlib
-    import warnings
 
     import_paths = {
-        "dfm": "dycove.sim.engines.DFM_hydro",
-        "anuga": "dycove.sim.engines.ANUGA_hydro",
-        "plot": "dycove.utils.plotter",
+        "DFM": "dycove.sim.engines.DFM_hydro",
+        "ANUGA": "dycove.sim.engines.ANUGA_hydro",
+        "plot": "dycove.utils.plotting",
     }
 
     try:
         return importlib.import_module(import_paths[name])
     except ImportError as e:
         warnings.warn(
-            f"Optional dependency for '{name.upper()}' coupling not found. "
-            f"For depndency checks, install with: pip install dycove[{name}]",
+            f"Optional dependency for '{name}' not found. "
+            f"For dependency checks, install with: pip install dycove[{name.lower()}]",
             ImportWarning,
             stacklevel=2,
         )
         raise e
 
-
+# ---------------------------------------------------------------------
+# Lazy wrapper class
+# ---------------------------------------------------------------------
 class _LazyEngine:
     """ Lazy loading of an optional coupling engine when first accessed. """
 
@@ -76,6 +103,6 @@ class _LazyEngine:
 
 
 # Expose optional engines lazily
-ANUGA = _LazyEngine("anuga")
-DFM = _LazyEngine("dfm")
-ModelPlotter = _LazyEngine("plot")
+ANUGA_hydro = _LazyEngine("ANUGA")
+DFM_hydro = _LazyEngine("DFM")
+plotting = _LazyEngine("plot")

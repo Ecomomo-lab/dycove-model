@@ -10,9 +10,8 @@
 Welcome to the DYCOVE documentation!
 ====================================
 
-**DYCOVE** (DY-CO-VEE), short for DYnamic COastal VEgetation, 
-is a Python library for tightly coupling dynamic vegetation 
-processes with hydrodynamic models in coastal environments.
+**DYCOVE** (die-COH-vee), short for DYnamic COastal VEgetation, is a Python package used for tightly coupling 
+dynamic vegetation processes with 2-D hydrodynamic models in coastal environments.
 
 .. toctree::
    :maxdepth: 2
