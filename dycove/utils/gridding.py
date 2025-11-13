@@ -8,19 +8,26 @@ def create_nn_interpFunc(x_coords, y_coords, grid_size, k_nn=1,
     """
     Creates a nearest-neighbor interpolator function for a fixed grid.
     
-    Parameters:
-    - coords: List of (x, y) coordinate pairs (length L).
-    - grid_size: Desired grid cell size.
-    - k_nn: Number of nearest neighbors to use (default is 1).
-    - polygon_csv: Path to csv file containing polygon vertices (columns: x, y). 
-                   If provided, values outside the polygon will be masked as NaN.
-    - extents: Manual x- and y-extent limits for the interpolation grid.
-               Example: extents=(10, 50, 20, 80).
-               If None, this defaults to the min/max of the input coords.
-    - tree_inds, weights, inside_mask: Optional precomputed values to speed up repeated calls.
+    Parameters
+    ----------
+    coords : list
+        List of (x, y) coordinate pairs.
+    grid_size : int
+        Desired grid cell size for interpolation.
+    k_nn : int
+        Number of nearest neighbors to use (typically 1 or 3).
+    polygon_csv : Path or str
+        Path to csv file containing polygon vertices (columns: x, y). If provided, 
+        values outside the polygon will be masked as NaN.
+    extents : list or tuple
+        Manual x- and y-extent limits for the interpolation grid.
+        Example: extents=(10, 50, 20, 80).
+        If None, defaults to the min/max of the input coords.
 
-    Returns:
-    - A function that can be used to interpolate new z values efficiently.
+    Returns
+    -------
+    Function that can be used to interpolate new z values efficiently.
+
     """
 
     # Convert input coordinates to NumPy array
@@ -67,11 +74,15 @@ def create_nn_interpFunc(x_coords, y_coords, grid_size, k_nn=1,
         """
         Interpolates z-values using k-nearest neighbors.
 
-        Parameters:
-        - z_values: Array of shape (L,) corresponding to coords.
+        Parameters
+        ----------
+        z_values: np.ndarray or list
+            Array of shape (L,) where L = len(coords).
 
-        Returns:
-        - Z: 2D array of interpolated values matching the grid shape.
+        Returns
+        -------
+        2D array of interpolated values matching the grid shape.
+
         """
 
         # Filter z_values to match extents

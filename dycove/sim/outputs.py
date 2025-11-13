@@ -4,7 +4,7 @@ from dataclasses import asdict
 
 
 class OutputManager:
-    """ For saving vegetation variables to output files """
+    """ For saving :class:`~dycove.sim.vegetation_data.VegCohort` instances to output files. """
     
     def __init__(self, engine):
         self.engine = engine

@@ -4,10 +4,12 @@ from dycove.utils.log import Reporter
 r = Reporter()  # get singleton reporter instance
 
 def print_model_time_info(simstate):
+    """ Print duration of simulation in hydrodynamic days and eco-morphodynamic years. """
     r.report(f"Hydrodynamic model duration: {int(simstate.hydro_sim_days)} days")
     r.report(f"Eco-morphodynamic model duration: {simstate.veg_sim_years} years ")
 
 def print_runtime_updates(simstate, i):
+    """ Print current simulation time, elapsed wall time, and projected total wall time. """
     elapsed_units = 1., "seconds", 0      
     simstate.times_elapsed.append(time.time() - simstate.time_0)
     if simstate.times_elapsed[-1] > 60:
@@ -17,7 +19,7 @@ def print_runtime_updates(simstate, i):
     t_str = round(simstate.times_elapsed[-1]/elapsed_units[0], elapsed_units[2])
 
     r.report(f"Current hydrodynamic model time = {round(simstate.hydrotime_seconds/86400., 1)} days")
-    r.report(f"Current eco-morphodynamic model time = {round(simstate.hydrotime_seconds/86400./simstate.days_per_year*simstate.vegfac, 1)} years")
+    r.report(f"Current eco-morphodynamic model time = {round(simstate.hydrotime_seconds/86400./simstate.days_per_year*simstate.ecofac, 1)} years")
     r.report(f"Current eco-morphodynamic model date = {simstate.vegtime_date}")
     r.report(f"Total time elapsed: {t_str} {elapsed_units[1]}")        
     

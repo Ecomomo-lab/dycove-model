@@ -44,12 +44,18 @@ def _optional_import(name: str):
     import importlib
     import warnings
 
+    import_paths = {
+        "dfm": "dycove.sim.engines.DFM_hydro",
+        "anuga": "dycove.sim.engines.ANUGA_hydro",
+        "plot": "dycove.utils.plotter",
+    }
+
     try:
-        return importlib.import_module(f"dycove.sim.engines.{name}_hydro")
+        return importlib.import_module(import_paths[name])
     except ImportError as e:
         warnings.warn(
             f"Optional dependency for '{name.upper()}' coupling not found. "
-            f"Install with: pip install dycove[{name}]",
+            f"For depndency checks, install with: pip install dycove[{name}]",
             ImportWarning,
             stacklevel=2,
         )
@@ -70,52 +76,6 @@ class _LazyEngine:
 
 
 # Expose optional engines lazily
-ANUGA = _LazyEngine("ANUGA")
-DFM = _LazyEngine("DFM")
-
-
-
-
-
-
-
-
-
-
-# for coupling with ANUGA engine
-try:
-    from dycove.sim.engines.ANUGA_hydro import ANUGA
-    __all__.append("ANUGA")
-except ImportError:
-    import warnings
-    warnings.warn(
-        "Optional dependency for ANUGA coupling not found. "
-        "Install with: pip install dycove[anuga]",
-        ImportWarning,
-        stacklevel=2,
-    )
-
-# for coupling with DFM engine
-try:
-    from dycove.sim.engines.DFM_hydro import DFM
-    __all__.append("DFM")
-except ImportError:
-    import warnings
-    warnings.warn(
-        "Optional dependency for Delft3D-FM coupling not found. "
-        "Install with: pip install dycove[dfm]",
-        ImportWarning,
-        stacklevel=2,
-    )
-
-try:
-    from dycove.utils.plotter import ModelPlotter
-    __all__.append("ModelPlotter")
-except ImportError:
-    import warnings
-    warnings.warn(
-        "Optional dependency for plotting module not found. "
-        "Install with: pip install dycove[plot]",
-        ImportWarning,
-        stacklevel=2,
-    )
+ANUGA = _LazyEngine("anuga")
+DFM = _LazyEngine("dfm")
+ModelPlotter = _LazyEngine("plot")

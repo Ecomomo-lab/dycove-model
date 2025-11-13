@@ -18,15 +18,17 @@ class DFM(HydroSimulationBase):
     """
     Hydrodynamic simulation wrapper for the Delft3D FM model.
 
-    Connects :class:`HydroSimulationBase` to :class:`DFMEngine`, providing a
-    consistent Python interface for running D-Flow FM through its BMI and
-    DIMR interfaces.
+    This class connects the generic :class:`~dycove.sim.base.HydroSimulationBase`  
+    to :class:`~dycove.sim.base.engines.DFM_hydro.DFMEngine`, providing a
+    consistent Python interface for running D-Flow FM through its BMI and DIMR 
+    interfaces.
 
     Notes
     -----
-    All higher-level logic that can be abstracted from the engine classes is
-    handled in :class:`HydroSimulationBase`; all low-level model interactions 
-    are delegated to :class:`DFMEngine`.
+    - All higher-level logic that can be abstracted from the engine classes is
+      handled in :class:`~dycove.sim.base.HydroSimulationBase`; all low-level model 
+      interactions are delegated to 
+      :class:`~dycove.sim.base.engines.DFM_hydro.DFMEngine`.
     """
 
     def __init__(self, dfm_path, config_path, mdu_path, vegetation=None):
@@ -42,17 +44,12 @@ class DFMEngine(HydroEngineBase):
     Engine interface for DFM hydro-morphodynamic model.
 
     This engine:
-    - Loads and initializes DFM executables (DIMR + D-Flow FM BMI)
+    
+    - Loads and initializes DFM executables (DIMR + D-Flow FM BMI).
     - Manages exchange of hydrodynamic and vegetation state variables though
-      DFM-specific BMI-python wrapper
+      DFM-specific ``BMI-python`` wrapper.
     - Ensures that required input files are present and are consistent 
-      with simulation settings
-
-    Notes
-    -----
-    - Vegetation files (.xyz) required by DFM vegetation module are auto-created 
-      if missing.
-    - Parallel mode is not currently implemented.
+      with simulation settings.
 
     Parameters
     ----------
@@ -60,11 +57,18 @@ class DFMEngine(HydroEngineBase):
         Path to the root Delft3D-FM installation directory. Might look like this:
         'C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/plugins/DeltaShell.Dimr/kernels/x64'
     config_path : Path or str
-        Path to DIMR configuration file 'dimr_config.xml'
+        Path to DIMR configuration file ``dimr_config.xml``
     mdu_path : Path or str
         Path to DFM MDU file.
-    vegetation : optional
+    vegetation : VegetationSpecies or MultipleVegetationSpecies, optional
         Vegetation object passed down from the base simulation.
+
+    Notes
+    -----
+    - Vegetation files (.xyz) required by DFM vegetation module are auto-created 
+      if missing.
+    - Parallel mode is not currently implemented.
+
     """
 
     def __init__(self, dfm_path, config_path, mdu_path, vegetation=None):

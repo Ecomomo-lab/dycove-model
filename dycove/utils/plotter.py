@@ -25,41 +25,41 @@ class ModelPlotter:
     Parameters
     ----------
     simdir : str or Path
-        Path to the root simulation directory containing either `dflowfm/` (DFM)
-        or ANUGA `.sww` files.
+        Path to the root simulation directory containing either a `dflowfm/` directory 
+        (DFM) or a ``.sww`` model file (ANUGA).
     quantity : str
         Quantity to plot. Must be one of the supported quantities listed below.
     plot_times : dict[str, int]
         Dictionary of plot timing parameters with the following keys:
         
-        - `'plotHR_0'`: Sim. hour to start plotting
-        - `'plotHR_f'`: Sim. hour to end plotting
-        - `'mapHR_int'`: Sim. hours between hydrodynamic model outputs
-        - `'plotHR_int'`: Sim. hours between consecutive plots, cannot be less than 
+        - ``'plotHR_0'``: Sim. hour to start plotting
+        - ``'plotHR_f'``: Sim. hour to end plotting
+        - ``'mapHR_int'``: Sim. hours between hydrodynamic model outputs
+        - ``'plotHR_int'``: Sim. hours between consecutive plots, cannot be less than 
           map_output, unused if plotting vegetation.
 
     plot_label_time : str, optional
-        Time scale to use in plot titles, either `'eco-morphodynamic'` (default) or
-        `'hydrodynamic'`.
+        Time scale to use in plot titles, either ``'eco-morphodynamic'`` (default) or
+        ``'hydrodynamic'``.
     n_ets_year : int, optional
         Number of ecological time steps (ETS) per ecological year (default 14).
     hr_ets : int, optional
         Number of hydrodynamic hours per ETS (default 12).
     ecofac : int, optional
         Multiplicative factor converting hydro to eco time. If None, computed from
-        `n_ets_year` and `hr_ets`.
+        ``n_ets_year`` and ``hr_ets``.
     plot_interp_vars : dict, optional
-        Options for interpolating to 2D grid, e.g. `{'cell_size': 5, 'n_neighbors': 3}`.
+        Options for interpolating to 2D grid, e.g. ``{'cell_size': 5, 'n_neighbors': 3}``.
     plot_specs : dict, optional
         Plot appearance options, e.g., 
-        `{'figsize': (6, 6), 'fontsize': 12, 'output_dpi': 150}`.
+        ``{'figsize': (6, 6), 'fontsize': 12, 'output_dpi': 150}``.
     cmap_lims : dict, optional
-        Colorbar limits for each quantity (min, max), e.g. `{'Bathymetry': (0, 1)}`.
+        Colorbar limits for each quantity (min, max), e.g. ``{'Bathymetry': (0, 1)}``.
     cmaps : dict, optional
-        Colormaps for each quantity. Accepts Matplotlib `Colormap` objects.
+        Colormaps for each quantity. Accepts Matplotlib ``Colormap`` objects.
     quantity_units : dict, optional
         Unit labels, scaling factors, and minimum plotting thresholds for each quantity, 
-        e.g. `{'Depth': ('[m]', 1, 0.01), 'Stem Diameter': ('[mm]', 1000, 1)}`.
+        e.g. ``{'Depth': ('[m]', 1, 0.01), 'Stem Diameter': ('[mm]', 1000, 1)}``.
     mask_bndy_file : str or Path, optional
         Path to polygon CSV file for masking interpolation outside the domain. Probably
         required if model domain is not rectangular.
@@ -67,62 +67,64 @@ class ModelPlotter:
         Geographic extents for interpolation (xmin, xmax, ymin, ymax). Useful for
         zooming in on a particular location.
     animate : bool, optional
-        If True, creates an animated GIF after generating all plots. Requires `imageio`
+        If True, creates an animated GIF after generating all plots. Requires ``imageio``
         library.
     delete_static_imgs : bool, optional
         If True, deletes individual PNGs after animation is built.
     save_grids : bool, optional
-        If True, saves interpolated grids (`.npz`) alongside figures. Can be helpful for
+        If True, saves interpolated grids (``.npz``) alongside figures. Can be helpful for
         external plotting of, say, difference maps, which are not supported here (yet).
 
     Supported Quantities (use exact names)
     -------------------------------------
     Numerical model quantities:
 
-    - `'Bathymetry'`
-    - `'WSE'`
-    - `'Depth'`
-    - `'Velocity'`
-    - `'Max Shear Stress'`
+    - ``'Bathymetry'``
+    - ``'WSE'``
+    - ``'Depth'``
+    - ``'Velocity'``
+    - ``'Max Shear Stress'``
 
     DYCOVE quantities:
 
-    - `'Stem Height'`
-    - `'Stem Diameter'`
-    - `'Stem Density'`
-    - `'Fractions'`
-    - `'Potential Mortality -- Flooding'`
-    - `'Potential Mortality -- Desiccation'`
-    - `'Potential Mortality -- Uprooting'`
-    - `'Potential Mortality -- Burial'`
-    - `'Potential Mortality -- Scour'`
-    - `'Mortality -- Flooding'`
-    - `'Mortality -- Desiccation'`
-    - `'Mortality -- Uprooting'`
-    - `'Mortality -- Burial'`
-    - `'Mortality -- Scour'`
-    - `'Mortality -- Total'`
+    - ``'Stem Height'``
+    - ``'Stem Diameter'``
+    - ``'Stem Density'``
+    - ``'Fractions'``
+    - ``'Potential Mortality -- Flooding'``
+    - ``'Potential Mortality -- Desiccation'``
+    - ``'Potential Mortality -- Uprooting'``
+    - ``'Potential Mortality -- Burial'``
+    - ``'Potential Mortality -- Scour'``
+    - ``'Mortality -- Flooding'``
+    - ``'Mortality -- Desiccation'``
+    - ``'Mortality -- Uprooting'``
+    - ``'Mortality -- Burial'``
+    - ``'Mortality -- Scour'``
+    - ``'Mortality -- Total'``
 
     Notes
     -----
     - All optional arguments have default values, but some dictionary arguments
       will almost definitely need to be changed or provided by the user,
-      such as `cmap_lims`, for which appropriate values will depend on model data.
-    - The class automatically detects the model type (`'DFM'` or `'ANUGA'`)
+      such as ``cmap_lims``, for which appropriate values will depend on model data.
+    - The class automatically detects the model type (``'DFM'`` or ``'ANUGA'``)
       based on directory contents.
-    - Uses :class:`DFMMapLoader` or :class:`ANUGAMapLoader` for reading
-      model-specific outputs.
+    - Uses :class:`~dycove.utils.model_loader.DFMMapLoader` or 
+      :class:`~dycove.utils.model_loader.ANUGAMapLoader` for reading model-specific 
+      outputs.
     - Vegetation quantities (e.g. fractions, stem attributes, mortality)
       are handled differently than hydrodynamic quantities, using eco-time
-      and the `ecofac` time scaling factor.
-    - Quantities that include `'Mortality'` may be plotted either as potential
+      and the ``ecofac`` time scaling factor.
+    - Quantities that include ``'Mortality'`` may be plotted either as potential
       (model-estimated stress exposure) or applied (post-threshold mortality)
-      fields. See :class:`VegCohort` documentation and "mortality*" methods of
-      :class:`VegetationSpecies` for details.
+      fields. See :class:`~dycove.sim.vegetation_data.VegCohort` documentation and 
+      ``mortality*`` methods of
+      :class:`~dycove.sim.vegetation.VegetationSpecies` for details.
 
     Examples
     --------
-    >>> from dycove.plotting import ModelPlotter
+    >>> from dycove import ModelPlotter
     >>> mp = ModelPlotter(
     ...     simdir='path/to/run',
     ...     quantity='Depth',

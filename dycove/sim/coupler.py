@@ -5,6 +5,14 @@ class VegetationCoupler:
 
     This class orchestrates the vegetation update cycle by coordinating between
     the hydrodynamic engine and vegetation model at each ecological timestep.
+
+    Vegetation object (``self.veg``) may be an instance of 
+    :class:`~dycove.sim.vegetation.VegetationSpecies` or 
+    :class:`~dycove.sim.vegetation.MultipleVegetationSpecies`. If it is the latter, 
+    the methods in :meth:`~dycove.sim.coupler.VegetationCoupler.update` are 
+    distrubuted to each individual species under the methods of 
+    :class:`~dycove.sim.vegetation.MultipleVegetationSpecies`.
+
     """
 
     def __init__(self, engine):
@@ -15,11 +23,8 @@ class VegetationCoupler:
         """
         Advance vegetation by one eco timestep.
 
-        These are all the steps that need to be performed within one update cycle.
-
-        Vegetation object (self.veg) may be a VegetationSpecies or a MultipleVegetationSpecies.
-        If it is the latter, the methods below are distrubuted to each individual species under
-        the methods of the MultipleVegetationSpecies class.
+        These are all the steps that need to be performed within one ecological 
+        time step.
         """
         self.lifestage_update(simstate)
         self.apply_growth(simstate)

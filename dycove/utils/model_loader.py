@@ -10,8 +10,9 @@ class BaseMapLoader(ABC):
     Abstract base class for loading map quantities from DYCOVE model outputs.
 
     Provides shared logic for vegetation quantities and file management between
-    model-specific subclasses :class:`DFMMapLoader` and :class:`ANUGAMapLoader`,
-    and potentially others in the future.
+    model-specific subclasses :class:`~dycove.utils.model_loader.DFMMapLoader` 
+    and :class:`~dycove.utils.model_loader.ANUGAMapLoader`, and potentially 
+    others in the future.
 
     Parameters
     ----------
@@ -20,22 +21,17 @@ class BaseMapLoader(ABC):
     model_name : str
         Root name of the model file (without extension).
     quantity : str
-        Quantity to load (e.g., `'Velocity'`, `'Mortality -- Flooding'`).
+        Quantity to load (e.g., ``'Velocity'``, ``'Mortality -- Flooding'``).
     eco_plot : bool
         Whether vegetation quantities are being plotted.
     n_ets_year : int
         Number of eco-time-steps per simulated year.
 
-    Attributes
-    ----------
-    veg_varnames : dict
-        Maps DYCOVE vegetation quantities to variable names stored in `.npz` files.
-
     Notes
     -----
     - Subclasses must implement the :meth:`load` method to return a dictionary of
-      arrays containing the required fields (e.g. `X`, `Y`, `Bathymetry`, and the 
-      target `quantity`).
+      arrays containing the required fields (e.g. ``X``, ``Y``, ``Bathymetry``, and the 
+      target ``quantity``).
     - As expected, loading vegetation data/DYCOVE outputs relies on logic independent
       of the numerical model being used. But even in the case of plotting vegetation,
       we would also want to plot bathymetry as a layer underneath, which is dependent
@@ -107,13 +103,13 @@ class ANUGAMapLoader(BaseMapLoader):
     """
     Loader for ANUGA hydrodynamic and DYCOVE vegetation output files.
 
-    Loads data from ANUGA `.sww` NetCDF files and DYCOVE `.npz` vegetation cohort files.
+    Loads data from ANUGA `.sww` NetCDF files and DYCOVE ``.npz`` vegetation cohort files.
 
     Notes
     -----
-    - ANUGA stores variables at cell centroids, but the `.sww` format provides only vertex 
+    - ANUGA stores variables at cell centroids, but the ``.sww`` format provides only vertex 
       coordinates; centroids are computed on first load and cached.
-    - Subsequent calls reuse saved arrays (`xx_c.npy`, `yy_c.npy`) because it is an intensive
+    - Subsequent calls reuse saved arrays (``xx_c.npy``, ``yy_c.npy``) because it is an intensive
       computation for large grids.
     - Velocity is derived from stored quantities Depth and Depth-averaged momentum.
 
@@ -121,8 +117,8 @@ class ANUGAMapLoader(BaseMapLoader):
     -------
     dict
         Dictionary of NumPy arrays with keys:
-        `'X'`, `'Y'`, `'Bathymetry'`, and (if applicable)
-        `'WSE'`, `'Depth'`, `'Velocity'`, or vegetation fields.
+        ``'X'``, ``'Y'``, ``'Bathymetry'``, and (if applicable)
+        ``'WSE'``, ``'Depth'``, ``'Velocity'``, or vegetation fields.
     """
 
     def __init__(self, *args, **kwargs):
@@ -196,19 +192,20 @@ class DFMMapLoader(BaseMapLoader):
     """
     Loader for DFM hydrodynamic and DYCOVE vegetation output files.
 
-    Loads data from ANUGA `*_map.nc` NetCDF files and DYCOVE `.npz` vegetation cohort files.
+    Loads data from ANUGA ``*_map.nc`` NetCDF files and DYCOVE ``.npz`` vegetation cohort
+    files.
 
     Notes
     -----
-    - Automatically detects dynamic morphology (`mesh2d_mor_bl`).
+    - Automatically detects dynamic morphology (``'mesh2d_mor_bl'``).
     - Caches variables for efficient access.
 
     Returns
     -------
     dict
         Dictionary of NumPy arrays with fields:
-        `'X'`, `'Y'`, `'Bathymetry'`, `'WSE'`, `'Depth'`, and (if applicable)
-        `'WSE'`, `'Depth'`, `'Velocity'``, or vegetation data.
+        ``'X'``, ``'Y'``, ``'Bathymetry'``, ``'WSE'``, ``'Depth'``, and (if applicable)
+        ``'WSE'``, ``'Depth'``, ``'Velocity'``, or vegetation data.
     """
 
     def __init__(self, *args, **kwargs):

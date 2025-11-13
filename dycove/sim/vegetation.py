@@ -49,7 +49,25 @@ class SharedVegMethods:
 
 
 class VegetationSpecies(SharedVegMethods):
-    
+    """
+    A single vegetation species. Can (and will) handle multiple cohorts of the species.
+
+    Parameters
+    ----------
+    input_veg_filename : str or Path
+        Path to JSON file containing vegetation attributes.
+    species_name : str
+        String representing name of species (can be anything).
+    mor : int
+        1 if we want to consider morphology (burial/scour) for this vegetation unit, else 0
+    rand_seed_frac : float
+        Fraction of potentially colonized cells that will actually colonize, distributed randomly.
+    rand_seed_method : str
+        Options are 'random' or 'deterministic'. If rand_seed_frac is between 0 and 1, 
+        'deterministic' will use a seed to evaluate the SAME set of cells for each colonization, 
+        whereas 'random' will be truly random each time.
+    """
+
     def __init__(self, 
                  input_veg_filename,
                  species_name="veg1",
@@ -57,15 +75,7 @@ class VegetationSpecies(SharedVegMethods):
                  rand_seed_frac=1.0,
                  rand_seed_method="deterministic",
                  ):
-        """
-        input_veg_filename: text file containing vegetation attributes
-        species_name: string representing name of species (can be anything)
-        mor: 1 if we want to consider morphology (burial/scour) for this vegetation unit, else 0
-        rand_seed_frac: fraction of potentially colonized cells that will actually colonize, distributed randomly
-        rand_seed_method: 'random' or 'deterministic'. If rand_seed_frac is between 0 and 1, 
-                          'deterministic' will use a seed to evaluate the SAME set of cells for each colonization, 
-                          whereas 'random' will be truly random each time
-        """
+
         self.attrs       = self.load_vegetation_attributes(Path(input_veg_filename))
         self.name        = species_name
         self.mor         = mor
@@ -91,7 +101,8 @@ class VegetationSpecies(SharedVegMethods):
 
     def colonization(self, ets, min_depths, max_depths, fl_dr, combined_cohorts=None):
         """
-        Do vegetation colonization by adding new fractions to cells.
+        Colonize a :class:`~dycove.sim.vegetation_data.VegCohort` by adding a new 
+        fraction to cells.
 
         This method only adds new fractions. Effective stem diameters and heights are 
         computed elsewhere.
@@ -100,16 +111,16 @@ class VegetationSpecies(SharedVegMethods):
         ----------
         ets : int
             Current ecological timestep within current ecological year.
-        min_depths : np.ndarray
+        min_depths : numpy.ndarray
             Array of minimum water depths [m] at each cell over the previous period.
-        max_depths : np.ndarray
+        max_depths : numpy.ndarray
             Array of maximum water depths [m] at each cell over the previous period.
         fl_dr : float
             Wet/dry threshold [m]; cells with depth above this value are considered wet.
         combined_cohorts : list of VegetationSpecies or None, optional
             Relevant only if multiple species are present. Provides information about
             other species occupying space in cells. See colonization method of 
-            MultipleVegetationSpecies for the use-case.
+            :class:`~dycove.sim.vegetation.MultipleVegetationSpecies` for the use-case.
         """
 
         if self.attrs.start_col_ets <= ets < self.attrs.end_col_ets:
@@ -195,13 +206,13 @@ class VegetationSpecies(SharedVegMethods):
 
         Parameters
         ----------
-        fld_frac : np.ndarray
+        fld_frac : numpy.ndarray
             Array containing fractions of time that each cell was flooded during the 
             previous period.
-        dry_frac : np.ndarray
+        dry_frac : numpy.ndarray
             Array containing fractions of time that each cell was dry during the 
             previous period.
-        vel_max : np.ndarray
+        vel_max : numpy.ndarray
             Array of maximum water velocities [m/s] at each cell over the previous period.
         """
 
@@ -244,7 +255,7 @@ class VegetationSpecies(SharedVegMethods):
 
         Parameters
         ----------
-        bl_diff : np.ndarray
+        bl_diff : numpy.ndarray
             Array of cell-wise differences in bed level [m], from beginning to end of the 
             previous period, where positive values signify scour.
         burial_frac : float
@@ -306,7 +317,7 @@ class VegetationSpecies(SharedVegMethods):
 
         Parameters
         ----------
-        stressor : np.ndarray
+        stressor : numpy.ndarray
             Array of relevant stressor magnitude for each cell. For flooding/dessication,
             it is an array of fraction of time where cells are wet/dry. For uprooting, 
             it is an array of maximum velocities.

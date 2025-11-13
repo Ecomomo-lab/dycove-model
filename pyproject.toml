@@ -42,7 +42,8 @@ plot = [
     "tqdm",
     "imageio",
     "netCDF4",
-    "scipy"
+    "scipy",
+    "matplotlib"
 ]
 dev = [
     "pytest",
@@ -51,7 +52,10 @@ dev = [
 ]
 docs = [
 	"sphinx",
+    "sphinx-autodoc-typehints",
     "sphinx-rtd-theme",
+    "sphinx-copybutton",
+    "sphinxcontrib-napoleon",
 	"m2r2",
 	"ipython",
 	"ipykernel"

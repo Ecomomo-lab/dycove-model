@@ -9,7 +9,7 @@ from pathlib import Path
 import re
 
 from dycove.sim.base import HydroSimulationBase, HydroEngineBase
-from dycove.utils.baptist_operator import Baptist_operator
+from dycove.sim.engines.ANUGA_baptist import Baptist_operator
 from dycove.utils.log import Reporter
 
 from anuga import myid, numprocs, finalize, barrier
@@ -21,17 +21,19 @@ class ANUGA(HydroSimulationBase):
     """
     Hydrodynamic simulation wrapper for the ANUGA model.
 
-    This class connects the generic :class:`HydroSimulationBase` interface to
-    the ANUGA hydrodynamic engine :class:`AnugaEngine`.
+    This class connects the generic :class:`~dycove.sim.base.HydroSimulationBase` 
+    interface to the ANUGA hydrodynamic engine 
+    :class:`~dycove.sim.base.engines.ANUGA_hydro.AnugaEngine`.
 
     Notes
     -----
-    - The ANUGA `domain` object is expected to be pre-constructed by the user.
+    - The ANUGA ``domain`` object is expected to be pre-constructed by the user.
       This preserves the typical ANUGA workflow where domains are created
       directly in Python scripts.
     - All higher-level logic that can be abstracted from the engine classes is
-      handled in :class:`HydroSimulationBase`; all low-level model 
-      interactions are delegated to :class:`AnugaEngine`.
+      handled in :class:`~dycove.sim.base.HydroSimulationBase`; all low-level 
+      model interactions are delegated to 
+      :class:`~dycove.sim.base.engines.ANUGA_hydro.AnugaEngine`.
 
     """
 
@@ -47,25 +49,28 @@ class AnugaEngine(HydroEngineBase):
     Engine interface for ANUGA hydrodynamic model.
 
     This engine:
-    - Holds the ANUGA domain object
+    
+    - Holds the ANUGA domain object.
     - Reads/writes flow and vegetation state directly through Python objects
-      (unlike BMI-based engine used for Delft3D FM)
+      (unlike BMI-based engine used for Delft3D FM).
     - Contains all methods that are specific to the ANUGA model.
-
-    Notes
-    -----
-    - ANUGA runs in many short `domain.evolve()` loops rather than one long
-      simulation call; the `skip_step` mechanism prevents duplicate first
-      timesteps across loops.
-    - Parallel execution (if enabled) requires merging local vegetation state
-      after simulation; see ``merge_parallel_veg``.
 
     Parameters
     ----------
-    anuga_domain : ANUGA Domain object
+    anuga_domain : anuga.domain
         The pre-constructed computational domain.
-    vegetation : optional
+    vegetation : VegetationSpecies or MultipleVegetationSpecies, optional
         Vegetation object passed down from the base simulation.
+
+    Notes
+    -----
+    - ANUGA runs in many short `domain.evolve()` loops (see 
+      :meth:`~dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg`) 
+      rather than one long simulation call; the ``skip_step`` mechanism 
+      prevents duplicate first timesteps across loops.
+    - Parallel execution (if enabled) requires merging local vegetation states
+      after simulation; see 
+      :meth:`~dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg`.
     """
 
     def __init__(self, anuga_domain, vegetation=None):
@@ -93,7 +98,7 @@ class AnugaEngine(HydroEngineBase):
         
     def step(self, seconds):
         # normally, all processes would be performed within this domain.evolve() loop, 
-        #   but for consistency across all potential models, we wrap it up here under the "step" method.
+        # but for consistency across all potential models, we wrap it up here under the "step" method.
         yieldstep = min(seconds, self.save_interval)  # if performing a "big" step, reduce yieldstep so it equals save_interval
         barrier()
         for t in self.domain.evolve(yieldstep=yieldstep, 
@@ -167,9 +172,13 @@ class AnugaEngine(HydroEngineBase):
     def merge_parallel_veg(self, OutputManager):
         """
         Merge vegetation output files from parallel ANUGA runs into single files per cohort.
-        This involves reading local-to-global index mapping from each ANUGA subdomain's sww file,
-        then using that mapping to merge local vegetation arrays into global arrays.
-        Finally, save merged arrays using OutputManager and delete local files.
+        
+        This involves reading local-to-global index mapping from each ANUGA subdomain's 
+        ``sww`` file, then using that mapping to merge local vegetation arrays into global 
+        arrays.
+        
+        Finally, save merged arrays using :class:`~dycove.sim.outputs.OutputManager` and 
+        delete local files.
         """
         outputdir = OutputManager.veg_dir
 

@@ -10,35 +10,107 @@ class VegetationAttributes:
 
     This class stores all vegetation input attributes and computes
     linear growth rates for height, stem diameter, and root length
-    across life stages. Values are typically read from the vegetation
-    configuration json file used by DYCOVE.
+    across life stages. Values are read from a vegetation configuration 
+    JSON file (e.g., ``veg1.json``). The JSON file must have a number of 
+    dictionaries of life-stage parameters equal to the number of life 
+    stages indicated by ``nls`` in the general parameters.
+
+    Parameters (General)
+    --------------------
+    age_max : int
+        Maximum plant age (in years).
+    nls : int
+        Number of life stages.
+    fraction_0 : float
+        Initial colonization fraction (0–1).
+    rootlength_0 : float
+        Initial root length (m).
+    shootlength_0 : float
+        Initial shoot length (m).
+    stemdiam_0 : float
+        Initial stem diameter (m).
+    start_growth_ets : int
+        Ecological timestep at which shoot growth starts.
+    end_growth_ets : int
+        Ecological timestep at which shoot growth ends.
+    winter_ets : int
+        Ecological timestep marking the start of the winter period.
+    start_col_ets : int
+        Ecological timestep at which colonization starts.
+    end_col_ets : int
+        Ecological timestep at which colonization ends (for the year; currently non-inclusive).
+
+    Parameters (Life Stage)
+    -----------------------
+    ht_max : list[float]
+        Maximum plant height per life stage (m).
+    diam_max : list[float]
+        Maximum stem diameter per life stage (m).
+    rootlength_max : list[float]
+        Maximum root length per life stage (m).
+    years_max : list[int]
+        Maximum number of years spent in each life stage.
+    stemdens : list[float]
+        Stem density per life stage (number of stems per m²).
+
+    desic_no_mort : list[float]
+        Dry fraction below which there is no desiccation mortality.
+        (Zero disables desiccation mortality.)
+    desic_all_mort : list[float]
+        Dry fraction above which there is total desiccation mortality.
+    flood_no_mort : list[float]
+        Flood fraction below which there is no flooding mortality.
+        (Zero disables flooding mortality.)
+    flood_all_mort : list[float]
+        Flood fraction above which there is total flooding mortality.
+    uproot_no_mort : list[float]
+        Flow velocity below which there is no uprooting mortality.
+        (Zero disables uprooting mortality.)
+    uproot_all_mort : list[float]
+        Flow velocity above which there is total uprooting mortality.
+    ht_winter_max : list[float]
+        Maximum plant height during winter for each life stage.
+
+    Attributes (Computed)
+    ---------------------
+    ht_growth_rates : list[float]
+        Linear growth rate of plant height per life stage (computed in :meth:`__post_init__`).
+    diam_growth_rates : list[float]
+        Linear growth rate of stem diameter per life stage (computed in :meth:`__post_init__`).
+    root_growth_rates : list[float]
+        Linear growth rate of root length per life stage (computed in :meth:`__post_init__`).
+
+    Notes
+    -----
+    - Input JSON file must have a number of dictionaries of life-stage parameters equal to the 
+      number of life stages indicated by ``nls`` in the general parameters.
     """
 
-    age_max: int  # max age
-    nls: int  # number of life stages
-    fraction_0: float  # initial colonization fraction (0-1)
-    rootlength_0: float  # initial root length in m
-    shootlength_0: float  # initial shoot length in m
-    stemdiam_0: float  # initial stem diameter in m
-    start_growth_ets: int  # ecological timestep start growth shoot (in case of growth method 2)
-    end_growth_ets: int  # ecological timestep end growth shoot (in case of growth method 2) 
-    winter_ets: int  # ecological timestep  step start winter period
-    start_col_ets: int  # ecological timestep at which colonisation starts 
-    end_col_ets: int  # ecological timestep of last colonisation. Right now, is non-inclusive. TODO: decide on this
-    # each attribute below is a list with length equal to number of life stages (nls)
-    ht_max: list[float]  # max plant height growth [m]
-    diam_max: list[float]  # max stem diameter at ets "end growth shoot"
-    rootlength_max: list[float]  # max root length [m] at ets "end growth root"
-    years_max: list[int]  # max number of years in life-stage
-    stemdens: list[float]  # number of stems per m2 
-    desic_no_mort: list[float]  # dry fraction below which there is no mortality (zero turns dessication mortality off)
-    desic_all_mort: list[float]  # dry fraction above which there total mortality
-    flood_no_mort: list[float]  # flood fraction below which there is no mortality (zero turns flooding mortality off)
-    flood_all_mort: list[float]  # flood fraction above which there total no mortality
-    uproot_no_mort: list[float]  # flow velocity below which there is no mortality (zero turns uprooting mortality off)
-    uproot_all_mort: list[float]  # flow velocity above which there is total mortality
-    ht_winter_max: list[float]  # max height during winter time
-    # computed below, after reading in above attributes
+    age_max: int
+    nls: int
+    fraction_0: float
+    rootlength_0: float
+    shootlength_0: float
+    stemdiam_0: float
+    start_growth_ets: int
+    end_growth_ets: int
+    winter_ets: int
+    start_col_ets: int
+    end_col_ets: int
+    
+    ht_max: list[float]
+    diam_max: list[float]
+    rootlength_max: list[float]
+    years_max: list[int]
+    stemdens: list[float]
+    desic_no_mort: list[float]
+    desic_all_mort: list[float]
+    flood_no_mort: list[float]
+    flood_all_mort: list[float]
+    uproot_no_mort: list[float]
+    uproot_all_mort: list[float]
+    ht_winter_max: list[float]
+    
     ht_growth_rates: list[float] = field(init=False)
     diam_growth_rates: list[float] = field(init=False)
     root_growth_rates: list[float] = field(init=False)
@@ -96,7 +168,7 @@ class VegCohort:
 
     Attributes
     ----------
-    fraction : ndarray
+    fraction : numpy.ndarray
         Vegetation fractional cover per cell (0–1).
     density : float
         Stem density (stems/m²).
@@ -107,11 +179,11 @@ class VegCohort:
     lifestage_year : int
         Years elapsed in the current life stage.
 
-    potential_mort_* : ndarray
+    potential_mort_* : numpy.ndarray
         Mortality potential based solely on environmental stress.
         Represents vulnerability prior to application to vegetated fraction.
 
-    applied_mort_* : ndarray
+    applied_mort_* : numpy.ndarray
         Mortality applied to vegetation fraction.
         Represents actual loss per cell.
     """

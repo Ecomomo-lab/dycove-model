@@ -8,11 +8,13 @@ Modeling Earth Systems, 14, e2022MS003025.
 https://doi.org/10.1029/2022MS003025
 
 The Baptist_operator used in DYCOVE has been modified in the following ways:
+
 - Quantity checks have been removed (this class is not part of public API).
 - Logic has been distributed into more self-contained methods.
 - New methods set_vegetation and set_veg_quantity have been added to allow
   DYCOVE to update vegetation parameters after the Operator has been
   instantiated.
+  
 """
 
 from __future__ import division, absolute_import, print_function
@@ -28,21 +30,68 @@ from anuga.operators.base_operator import Operator
 #===============================================================================
 class Baptist_operator(Operator):
     """
-    Baptist operator that applies a drag on the flow due to the presence of veg.
-    Methodology is based on Baptist et al, 2007 for emergent and submerged veg.
-    Modified Chezy coefficient is computed as:
-    Cv = (Cb^-2 + (Cd*m*D/(2g))*min(h,hv))^-0.5 + (g^0.5/k)*ln(max(h,hv)/hv)
-    
-    (Cv is vegetated Chezy, Cb is bed Chezy, Cd is drag coefficient, m is stem
-    density [m^-2], D is stem diameter [m], g is gravity, h is flow depth [m], 
-    hv is stem height [m], k is von karman constant)
-    
-    However, we precompute some of these terms together in the init for speed.
-    The result looks like:
-    Cv = (a1 + a2*CD*min(h,hv))^-0.5 + a3*ln(max(h,hv)/hv)
-    
-    Operator uses explicit form to update velocities, according to:
-    d/dt(uh) = -g*uh*sqrt(uh^2 + vh^2)/(Cv^2*h^2)
+    Applies vegetation-induced flow drag based on the Baptist et al. (2007) formulation.
+
+    This operator modifies the local flow field in ANUGA simulations to account for
+    emergent and submerged vegetation effects. The vegetation-adjusted Chezy coefficient
+    :math:`C_v` is computed as:
+
+    .. math::
+
+        C_v = \\left( C_b^{-2} + \\frac{C_d m D}{2 g} \\min(h, h_v) \\right)^{-0.5}
+              + \\frac{\\sqrt{g}}{k} \\ln\\left( \\frac{\\max(h, h_v)}{h_v} \\right)
+
+    where:
+
+    - :math:`C_v` — vegetated Chezy coefficient  
+    - :math:`C_b` — bed Chezy coefficient  
+    - :math:`C_d` — drag coefficient  
+    - :math:`m` — stem density :math:`[m^{-2}]`  
+    - :math:`D` — stem diameter :math:`[m]`  
+    - :math:`g` — gravitational acceleration :math:`[m/s^2]`  
+    - :math:`h` — flow depth :math:`[m]`  
+    - :math:`h_v` — vegetation height :math:`[m]`  
+    - :math:`k` — von Kármán constant  
+
+    For computational efficiency, some terms are precomputed in the initializer, giving:
+
+    .. math::
+
+        C_v = (a_1 + a_2 C_d \\min(h, h_v))^{-0.5} + a_3 \\ln\\left( \\frac{\\max(h, h_v)}{h_v} \\right)
+
+    The operator updates momentum explicitly using:
+
+    .. math::
+
+        \\frac{\\partial (uh)}{\\partial t} = 
+        - g \\frac{uh \\sqrt{u^2 + v^2}}{C_v^2 h^2}
+
+    Parameters
+    ----------
+    domain : anuga.Domain
+        ANUGA domain instance.
+
+    veg_diameter : float or numpy.ndarray
+        Vegetation stem diameter [m]. Either a single constant applied everywhere or
+        an array with one value per cell centroid.
+
+    veg_density : float or numpy.ndarray
+        Vegetation stem density [#/m²]. Either a single constant applied everywhere or
+        an array with one value per cell centroid.
+
+    veg_height : float or numpy.ndarray
+        Vegetation stem height [m]. Either a single constant applied everywhere or
+        an array with one value per cell centroid.
+
+    bed_friction_const : float or numpy.ndarray, optional
+        Bed friction Chezy coefficient. Default is 65. Either a single constant applied
+        everywhere or an array with one value per cell centroid.
+
+    References
+    ----------
+    Baptist, M. J., Babovic, C., Uthurburu, J. R., Uittenbogaard, R. E., Mynett, A., & 
+    Verwey, A. (2007). "On inducing equations for vegetation resistance." Journal of 
+    Hydraulic Research, 45(4), 435–450. https://doi.org/10.1080/00221686.2007.9521778
     """
 
     def __init__(self, 
@@ -55,37 +104,7 @@ class Baptist_operator(Operator):
                  label = None,
                  logging = False,
                  verbose = False):
-        """
 
-        Initialize vegetation characteristics
-
-        Parameters
-        ----------
-
-        domain : object
-            ANUGA domain instance
-
-        veg_diameter : float or np.ndarray
-            Vegetation stem diameters [m]. 
-            Input can be either one constant value applied everywhere, or an array 
-            giving one value per cell centroid.
-
-        veg_density : float or np.ndarray
-            Vegetation stem density [#/m^2].
-            Input can be either one constant value applied everywhere, or an array 
-            giving one value per cell centroid.
-
-        veg_height : float or np.ndarray
-            Vegetation stem height [m].
-            Input can be either one constant value applied everywhere, or an array 
-            giving one value per cell centroid.
-
-        bed_friction_const : float or np.ndarray, optional
-            Bed friction Chezy coefficient. Default is 65.
-            Input can be either one constant value applied everywhere, or an array 
-            giving one value per cell centroid.
-
-        """
         super().__init__(domain, description, label, logging, verbose)
 
         #-----------------------------------------------------

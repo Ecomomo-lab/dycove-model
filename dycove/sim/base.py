@@ -18,18 +18,19 @@ class HydroSimulationBase(ABC):
     """
     Base class for running hydrodynamic simulations.
 
-    This class is model-agnostic: it is a high-level wrapper that manages the time stepping logic,
-    both for the hydrodynamic and vegetation components.
+    This class is model-agnostic: it is a high-level wrapper that manages the time 
+    stepping logic, both for the hydrodynamic and vegetation components.
     
-    Model-specific computations are delegated to the appropriate `engine` object.
-    Tracking of simulation time state variables is delegated to the `SimulationTimeState` dataclass.
-    Calculation of hydrodynamic statistics relevant for vegetation processes is delegated to the 
-    `HydrodynamicStats` dataclass. Coupling logic between vegetation and hydrodynamic models is 
-    handled by the `VegetationCoupler` class. Writing of output files is handled by the 
-    `OutputManager` class.
-
-    Subclasses should implement the engine-specific methods called here, such as `step` and 
-    `get_velocity_and_depth`.
+    Model-specific computations are delegated to the appropriate 
+    :class:`~dycove.sim.base.HydroEngineBase`.
+    Tracking of simulation time state variables is delegated to the 
+    :class:`~dycove.sim.simulation_data.SimulationTimeState` dataclass.
+    Calculation of hydrodynamic statistics relevant for vegetation processes is 
+    handled by the :class:`~dycove.sim.simulation_data.HydrodynamicStats` dataclass.
+    Coupling logic between vegetation and hydrodynamic models is managed by 
+    :class:`~dycove.sim.coupler.VegetationCoupler`.
+    Writing of output files is performed by the 
+    :class:`~dycove.sim.outputs.OutputManager` class.
     """
 
     def __init__(self, engine):
@@ -46,36 +47,43 @@ class HydroSimulationBase(ABC):
                        veg_interval=43200, 
                        hydro_interval=900, 
                        save_interval=3600,
-                       vegfac=None,
+                       ecofac=None,
                        fl_dr=0.15):
         """
         Run a full simulation over the specified time period.
 
         This method handles the main simulation loop, including:
+        
         - Initializing the engine
-        - Creating simulation state and hydrodynamic stats objects
+        - Creating :class:`~dycove.sim.simulation_data.SimulationTimeState` and
+          :class:`~dycove.sim.simulation_data.HydrodynamicStats` objects
         - Running vegetation and hydrodynamic loops
         - Saving outputs
 
-        Args:
-            sim_time (float): Simulation duration in `sim_time_unit`.
-
-            sim_time_unit (str): 'hydrodynamic days' or 'eco-morphodynamic years'. 
-                Determines interpretation of `sim_time`.
-
-            n_ets (int): Number of ecological time steps per vegetation year.
-
-            veg_interval (int): Seconds between vegetation updates. Default is 43200 (12 hours).
-
-            hydro_interval (int): Seconds between hydrodynamic substeps.
-
-            save_interval (int): Interval in seconds for writing outputs.
-
-            vegfac (int): Vegetation 'acceleration factor' relative to hydrodynamics.
-                Must equal MORFAC if Delft3D morphology is enabled. If None, it is computed.
-
-            fl_dr (float): Wet/dry threshold in meters; cells below this
-                depth are considered dry to avoid thin-film issues.
+        Parameters
+        ----------
+        sim_time : float
+            Simulation duration in units of ``sim_time_unit``.
+        sim_time_unit : str, optional
+            Either ``'hydrodynamic days'`` or ``'eco-morphodynamic years'``.
+            Determines interpretation of ``sim_time``.
+        n_ets : int, optional
+            Number of ecological time steps per vegetation year. Default is 14.
+        veg_interval : int, optional
+            Time interval in seconds between vegetation updates.
+            Default is 43200 (12 hours).
+        hydro_interval : int, optional
+            Time interval in seconds between hydrodynamic substeps.
+            Default is 900 (15 minutes).
+        save_interval : int, optional
+            Interval in seconds for writing outputs. Default is 3600 (1 hour).
+        ecofac : int, optional
+            Ecological (vegetation) acceleration factor relative to hydrodynamics.
+            Must equal ``MORFAC`` if Delft3D morphology is enabled. If ``None``,
+            it is computed automatically.
+        fl_dr : float, optional
+            Wet/dry threshold in meters. Cells below this depth are considered dry
+            to avoid thin-film instability issues.
         """
 
         # initialize model
@@ -89,7 +97,7 @@ class HydroSimulationBase(ABC):
         self.simstate = SimulationTimeState(eco_year=1, ets=1, sim_time=sim_time, sim_time_unit=sim_time_unit,
                                             n_ets=n_ets, veg_interval=veg_interval, hydro_interval=hydro_interval,
                                             morfac=int(self.engine.morph_vars["MorFac"]) if self.engine.morphology else None,
-                                            vegfac=vegfac,
+                                            ecofac=ecofac,
                                             refdate=self.engine.get_refdate()
                                             )
 
