@@ -14,8 +14,8 @@ Currently, DYCOVE supports coupling with `ANUGA <https://github.com/GeoscienceAu
 `Delft3D Flexible Mesh <https://oss.deltares.nl/web/delft3dfm>`_.
 
 The logic behind this model was developed as part of the following study, which coupled a MATLAB vegetation code 
-with the Delft3D 4 model: |
-Brückner, M. Z. M., Schwarz, C., van Dijk, W. M., van Oorschot, M., Douma, H., & Kleinhans, M. G. (2019). 
+with the Delft3D 4 model:
+|Brückner, M. Z. M., Schwarz, C., van Dijk, W. M., van Oorschot, M., Douma, H., & Kleinhans, M. G. (2019). 
 Salt marsh establishment and eco-engineering effects in dynamic estuaries determined by species growth and mortality. 
 Journal of Geophysical Research: Earth Surface, 124, 2962-2986. https://doi.org/10.1029/2019JF005092
 
