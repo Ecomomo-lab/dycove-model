@@ -8,8 +8,7 @@ import numpy as np
 from dycove.sim.coupler import VegetationCoupler
 from dycove.sim.simulation_data import SimulationTimeState, HydrodynamicStats
 from dycove.sim.outputs import OutputManager
-from dycove.utils.log import Reporter
-from dycove.utils.simulation_reporting import print_model_time_info, print_runtime_updates
+from dycove.utils.simulation_reporting import Reporter
 
 
 r = Reporter()
@@ -106,12 +105,12 @@ class HydroSimulationBase(ABC):
 
         # perform some checks on simulation inputs
         self.engine.check_simulation_inputs(self.simstate)
-        print_model_time_info(self.simstate)
+        r.print_model_time_info(self.simstate)
 
         # loop over all vegetation time steps
         for vts in range(self.simstate.n_veg_steps):
             # print runtime stats to the screen
-            print_runtime_updates(self.simstate, vts)
+            r.print_runtime_updates(self.simstate, vts)
             if self.engine.veg is None:
                 self.step_hydrodynamics(self.simstate.veg_interval)
             else:

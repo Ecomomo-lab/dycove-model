@@ -7,7 +7,7 @@ import numpy as np
 import json
 
 from dycove.sim.vegetation_data import VegetationAttributes, VegCohort
-from dycove.utils.log import Reporter
+from dycove.utils.simulation_reporting import Reporter
 from dycove.utils.array_math import cell_averaging, sum_product, sum_elementwise
 
 r = Reporter()

@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 
 from dycove.sim.base import HydroSimulationBase, HydroEngineBase
-from dycove.utils.log import Reporter
+from dycove.utils.simulation_reporting import Reporter
 from bmi.wrapper import BMIWrapper
 
 r = Reporter()

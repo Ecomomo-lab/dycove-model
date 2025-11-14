@@ -10,7 +10,7 @@ import re
 
 from dycove.sim.base import HydroSimulationBase, HydroEngineBase
 from dycove.sim.engines.ANUGA_baptist import Baptist_operator
-from dycove.utils.log import Reporter
+from dycove.utils.simulation_reporting import Reporter
 
 from anuga import myid, numprocs, finalize, barrier
 

@@ -4,7 +4,7 @@ import time
 from typing import Optional
 from dataclasses import dataclass, field
 
-from dycove.utils.log import Reporter
+from dycove.utils.simulation_reporting import Reporter
 
 r = Reporter()
 
