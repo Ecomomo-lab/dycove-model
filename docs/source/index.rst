@@ -18,7 +18,8 @@ dynamic vegetation processes with 2-D hydrodynamic models in coastal environment
    :caption: Contents:
 
    installation/index
-   quickstart/index
+   quickstart_anuga/index
+   quickstart_dfm/index
    background/index
    examples/index
    apiref/index
