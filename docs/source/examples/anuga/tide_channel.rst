@@ -9,6 +9,7 @@ A tidal boundary condition is imposed on the left (ocean) side, that propagates 
 A vegetation species, loosely based on Nelumbo Lutea (American lotus), is added to the model via a set of parameters defined in the file `veg1.json`.
 After the simulation is finished, we can inspect a variety of 2-D model results using :class:`~dycove.utils.plotting.ModelPlotter`.
 
+
 Run the Model
 -------------
 
@@ -63,6 +64,7 @@ Therefore, the above line can also be written as below, with the same resulting 
 
    HydroModel.run_simulation(21, sim_time_unit="hydrodynamic days")
 
+
 Plot the Results
 ----------------
 
@@ -70,23 +72,25 @@ ANUGA output is saved in netCDF files with the `.sww` extension.
 DYCOVE output is saved in `.npz` files, with one file per vegetation cohort per ecological time step.
 For a list of outputs stored with each cohort, see :class:`~dycove.sim.vegetation_data.VegCohort`.
 
-Plot 2-D maps of various model quantities using :class:`~dycove.utils.plotting.ModelPlotter`. 
+Plot 2-D maps of various model quantities over time using :class:`~dycove.utils.plotting.ModelPlotter`.
 For example, we can plot vegetation stem heights over the entire 21-day (hydrodynamic time) simulation period.
 
 .. code-block:: python
 
    >>> from dycove import plotting
    >>> plotter = plotting.ModelPlotter(
-         simdir = Path("./"),
+         simdir = Path("."),
          quantity = "Stem Height",
          plot_times = {
-           'plotHR_0': 0*24.,
-           'plotHR_f': 21*24.,
-           'mapHR_int': 1,
-           'plotHR_int': 1,
+           "plotHR_0": 0*24.,
+           "plotHR_f": 21*24.,
+           "mapHR_int": 1,
+           "plotHR_int": 1,
          },
          cmap_lims = {
-           'Bathymetry': (-0.5, 0.5),
+           "Bathymetry": (-0.5, 0.5),
          },
        )
    >>> plotter.run()
+
+This plotting code is located in the same example directory at "examples/ANUGA/tide_channel/plot_tide_channel_ANUGA.py", where there are additional comments on how to use the code, as well as more ideas for quantities to plot.

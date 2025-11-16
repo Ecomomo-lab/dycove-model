@@ -29,7 +29,7 @@ Vegetation quantites to plot from DYCOVE (use exact names):
 """
 
 plotter = plotting.ModelPlotter(
-    simdir = Path('../ANUGA/simple_tide_and_channel'),
+    simdir = Path('.'),
     #quantity = 'Velocity',
     quantity = 'Stem Height',
     #quantity = 'Mortality -- Total',
