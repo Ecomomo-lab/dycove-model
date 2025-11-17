@@ -47,7 +47,7 @@ plotter = plotting.ModelPlotter(
     cmap_lims = {
         'Bathymetry': (-0.5, 0.5),
         },
-    animate=False,
+    animate=True,
 )
 
 plotter.run()

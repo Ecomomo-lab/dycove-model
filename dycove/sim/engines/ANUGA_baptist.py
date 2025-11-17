@@ -1,20 +1,32 @@
-"""
-The Baptist_operator class for ANUGA was originally developed by Kyle Wright 
-as part of the following study:
-Wright, K., Passalacqua, P., Simard, M., & Jones, C. E. (2022). Integrating 
-connectivity into hydrodynamic models: An automated open-source method to 
-refine an unstructured mesh using remote sensing. Journal of Advances in 
-Modeling Earth Systems, 14, e2022MS003025.
-https://doi.org/10.1029/2022MS003025
+###############################################################
+#  ANUGA_baptist.py
+###############################################################
 
-The Baptist_operator used in DYCOVE has been modified in the following ways:
+"""
+The Baptist_operator class for ANUGA was originally developed by Kyle Wright:
+
+- Wright, K., Passalacqua, P., Simard, M., & Jones, C. E. (2022). Integrating 
+  connectivity into hydrodynamic models: An automated open-source method to 
+  refine an unstructured mesh using remote sensing. Journal of Advances in 
+  Modeling Earth Systems, 14, e2022MS003025. 
+  https://doi.org/10.1029/2022MS003025
+
+The Baptist_operator used in DYCOVE has been modified from Wright et al. (2022)
+in the following ways:
 
 - Quantity checks have been removed (this class is not part of public API).
 - Logic has been distributed into more self-contained methods.
 - New methods set_vegetation and set_veg_quantity have been added to allow
   DYCOVE to update vegetation parameters after the Operator has been
   instantiated.
-  
+
+The Baptist formulation itself comes from:
+
+- Baptist, M. J., Babovic, C., Uthurburu, J. R., Uittenbogaard, R. E., Mynett, 
+  A., & Verwey, A. (2007). "On inducing equations for vegetation resistance." 
+  Journal of Hydraulic Research, 45(4), 435–450.
+  https://doi.org/10.1080/00221686.2007.9521778
+
 """
 
 from __future__ import division, absolute_import, print_function
@@ -30,7 +42,7 @@ from anuga.operators.base_operator import Operator
 #===============================================================================
 class Baptist_operator(Operator):
     """
-    Applies vegetation-induced flow drag based on the Baptist et al. (2007) formulation.
+    Applies vegetation-induced flow drag based on the Baptist formulation.
 
     This operator modifies the local flow field in ANUGA simulations to account for
     emergent and submerged vegetation effects. The vegetation-adjusted Chezy coefficient
@@ -86,12 +98,6 @@ class Baptist_operator(Operator):
     bed_friction_const : float or numpy.ndarray, optional
         Bed friction Chezy coefficient. Default is 65. Either a single constant applied
         everywhere or an array with one value per cell centroid.
-
-    References
-    ----------
-    Baptist, M. J., Babovic, C., Uthurburu, J. R., Uittenbogaard, R. E., Mynett, A., & 
-    Verwey, A. (2007). "On inducing equations for vegetation resistance." Journal of 
-    Hydraulic Research, 45(4), 435–450. https://doi.org/10.1080/00221686.2007.9521778
     """
 
     def __init__(self, 
@@ -99,6 +105,7 @@ class Baptist_operator(Operator):
                  veg_diameter=None,
                  veg_density=None,
                  veg_height=None,
+                 drag=1.0,
                  bed_friction_const=65.0,
                  description = None,
                  label = None,
@@ -116,8 +123,8 @@ class Baptist_operator(Operator):
         #-----------------------------------------------------
         # Set constants
         self.bed_friction = np.ones_like(self.depth, dtype=float)*bed_friction_const
-        self.K = 0.41  # von Karman constant
-        self.Cd = 1.0  # drag coefficient. TODO: move this back to being a life stage attribute
+        self.K = 0.41   # von Karman constant
+        self.Cd = drag  # drag coefficient C_d
 
         #-----------------------------------------------------
         # Initialize vegetation characteristics

@@ -1,12 +1,12 @@
 Example - Simple beach and tide channel (ANUGA)
 ===============================================
 
-This example corresponds to the Python file "tide_channel_ANUGA.py" located in the "examples/ANUGA/tide_channel/" directory, along with supporting input files.
+This example corresponds to the Python file `tide_channel_ANUGA.py` located in the `examples/ANUGA/tide_channel/` directory, along with supporting input files.
 
 This example consists of a simple, symmetrical beach slope with a channel that bisects the dune and connects to a lagoon.
 A simple mesh is developed using one of ANUGA's built-in functions that creates a rectangular mesh of structured triangles.
 A tidal boundary condition is imposed on the left (ocean) side, that propagates through the channel and fills the lagoon behind the dune.
-A vegetation species, loosely based on Nelumbo Lutea (American lotus), is added to the model via a set of parameters defined in the file `veg1.json`.
+A vegetation species, loosely based on Nelumbo Lutea (American lotus), is added to the model via a set of attributes defined in the file `veg1.json`.
 After the simulation is finished, we can inspect a variety of 2-D model results using :class:`~dycove.utils.plotting.ModelPlotter`.
 
 
@@ -41,12 +41,15 @@ In general, the most critical aspects of the ANUGA domain setup are the followin
    domain.set_boundary({'left': Bt, 'right': Br, 'top': Br, 'bottom': Br})  # assign BCs to each domain side
 
 More important than the specifics of the domain geometry is the implementation of vegetation with DYCOVE. 
-Instantiate a ``VegetationSpecies`` object using the vegetation parameter file, then pass that object to the ``ANUGA`` hydrodynamic engine:
+Instantiate a ``VegetationSpecies`` object using the vegetation attribute file, then pass that object to the :class:`~dycove.sim.engines.ANUGA_hydro.ANUGA` hydrodynamic engine:
 
 .. code-block:: python
 
    >>> veg_1 = VegetationSpecies("veg1.json", "veg1")
    >>> HydroModel = ANUGA_hydro.ANUGA(HydroDomain.domain, vegetation=veg_1)
+
+The `veg1.json` attribute file found in the working example directory contains a number of parameters related to when/where this species will colonize, how it will grow, and under what conditions it will die off.
+The variables in this file map directly to :class:`~dycove.sim.vegetation_data.VegetationAttributes`, a class that contains the documentation for all required input variables.
 
 Finally, run the simulation for a specified number of eco-morphodynamic years (here, 3 years):
 
@@ -54,7 +57,7 @@ Finally, run the simulation for a specified number of eco-morphodynamic years (h
 
    >>> HydroModel.run_simulation(3, sim_time_unit="eco-morphodynamic years")
 
-Note that above command to run the simulation uses default values for ecological time scaling, namely, the number of ecological time steps per year ``n_ets``, hydrodynamic time between ecological time steps ``veg_interval``, and ecological scaling factor ``ecofac`` (see :meth:`~dycove.sim.base.HydroSimulationBase.run_simulation' for details and default values).
+Note that above command to run the simulation uses default values for ecological time scaling, namely, the number of ecological time steps per year ``n_ets``, hydrodynamic time between ecological time steps ``veg_interval``, and ecological scaling factor ``ecofac`` (see :meth:`~dycove.sim.base.HydroSimulationBase.run_simulation` for details and default values).
 For further explanation of the ecological time scaling logic used in DYCOVE, refer to the `background documentation <https://Ecomomo-lab.github.io/dycove-model/background/ecological_time_scaling.html>`_.
 Using the default values of ``n_ets`` and ``veg_interval``, ``ecofac`` is equal to 52.
 So, three years of ecological time is equivalent to 21 days of hydrodynamic time.
@@ -93,4 +96,4 @@ For example, we can plot vegetation stem heights over the entire 21-day (hydrody
        )
    >>> plotter.run()
 
-This plotting code is located in the same example directory at "examples/ANUGA/tide_channel/plot_tide_channel_ANUGA.py", where there are additional comments on how to use the code, as well as more ideas for quantities to plot.
+This plotting code is located in the same example directory at `examples/ANUGA/tide_channel/plot_tide_channel_ANUGA.py`, where there are additional comments on how to use the code, as well as more ideas for quantities to plot.

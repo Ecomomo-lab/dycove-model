@@ -26,3 +26,4 @@ Delft3D FM
    :maxdepth: 1
 
    dfm/tide_channel
+   dfm/tide_channel_morph

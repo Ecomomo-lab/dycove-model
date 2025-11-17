@@ -14,13 +14,11 @@ from dycove import VegetationSpecies, DFM_hydro
 
 
 #------------------------------------------------------------------------------
-# Define model file paths
+# Define model file locations
 #------------------------------------------------------------------------------
 
-work_dir = Path(__file__).parent
-config_file = work_dir / 'dimr_config.xml'
-model_dir   = work_dir / 'dflowfm'
-mdu_file    = model_dir / 'FlowFM.mdu'
+config_file = 'dimr_config.xml'
+mdu_file    = Path('dflowfm/FlowFM.mdu')
 
 DFM_DLLs = Path('C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/'
                 'plugins/DeltaShell.Dimr/kernels/x64')  # path to the local Delft3D software folder

@@ -1,7 +1,7 @@
 """
 Simple example script to run an ANUGA hydrodynamic simulation with DYCOVE.
 
-Adapted from ANUGA example "channel1.py"
+Adapted from ANUGA example `channel1.py`.
 """
 
 

@@ -17,9 +17,8 @@ Welcome to the DYCOVE documentation!
    :caption: Contents:
 
    installation/index
-   quickstart_anuga/index
-   quickstart_dfm/index
    background/index
+   userguide/index
    examples/index
    apiref/index
 

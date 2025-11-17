@@ -1,3 +1,7 @@
+###############################################################
+#  vegetation_data.py
+###############################################################
+
 import numpy as np
 from typing import Optional
 from dataclasses import dataclass, field
@@ -11,8 +15,8 @@ class VegetationAttributes:
     This class stores all vegetation input attributes and computes
     linear growth rates for height, stem diameter, and root length
     across life stages. Values are read from a vegetation configuration 
-    JSON file (e.g., ``veg1.json``). The JSON file must have a number of 
-    dictionaries of life-stage parameters equal to the number of life 
+    JSON file (e.g., `veg1.json`). The JSON file must have a number of 
+    dictionaries of life-stage attributes equal to the number of life 
     stages indicated by ``nls`` in the general parameters.
 
     Parameters (General)
@@ -52,7 +56,8 @@ class VegetationAttributes:
         Maximum number of years spent in each life stage.
     stemdens : list[float]
         Stem density per life stage (number of stems per m²).
-
+    drag : list[float]
+        Drag coefficient
     desic_no_mort : list[float]
         Dry fraction below which there is no desiccation mortality.
         (Zero disables desiccation mortality.)
@@ -79,11 +84,6 @@ class VegetationAttributes:
         Linear growth rate of stem diameter per life stage (computed in :meth:`__post_init__`).
     root_growth_rates : list[float]
         Linear growth rate of root length per life stage (computed in :meth:`__post_init__`).
-
-    Notes
-    -----
-    - Input JSON file must have a number of dictionaries of life-stage parameters equal to the 
-      number of life stages indicated by ``nls`` in the general parameters.
     """
 
     age_max: int
@@ -103,6 +103,7 @@ class VegetationAttributes:
     rootlength_max: list[float]
     years_max: list[int]
     stemdens: list[float]
+    drag: list[float]
     desic_no_mort: list[float]
     desic_all_mort: list[float]
     flood_no_mort: list[float]
