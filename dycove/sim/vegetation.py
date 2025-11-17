@@ -422,6 +422,12 @@ class MultipleVegetationSpecies(SharedVegMethods):
     the number of species. This class handles the extra steps required, mostly containing 
     wrappers of functions from VegetationSpecies that distribute the tasks to each species
     present.
+
+    Parameters
+    ----------
+    species_list : list[VegetationSpecies]
+        A list of VegetationSpecies objects.
+
     """
 
     def __init__(self, species_list: list[VegetationSpecies]):

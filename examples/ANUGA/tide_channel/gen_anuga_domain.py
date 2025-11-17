@@ -103,6 +103,8 @@ class RectangSlopeDomainGenerator:
         self.set_initial_quantities()
         self.set_boundary_conditions()
 
+        print("Finished!")
+
     
     def create_domain(self):
 

@@ -17,7 +17,11 @@ class VegetationAttributes:
     across life stages. Values are read from a vegetation configuration 
     JSON file (e.g., `veg1.json`). The JSON file must have a number of 
     dictionaries of life-stage attributes equal to the number of life 
-    stages indicated by ``nls`` in the general parameters.
+    stages indicated by ``nls`` in the general parameters. Note that 
+    the type hints for life-stage attributes are lists, because 
+    :meth:`~dycove.sim.vegetation.VegetationSpecies.load_vegetation_attributes`
+    converts them from a series of dictionaries to one list for each
+    attribute.
 
     Parameters (General)
     --------------------

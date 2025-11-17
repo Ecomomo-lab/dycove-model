@@ -65,7 +65,7 @@ class AnugaEngine(HydroEngineBase):
     Notes
     -----
     - ANUGA runs in many short `domain.evolve()` loops (see 
-      :meth:`~dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg`) 
+      :meth:`~dycove.sim.engines.ANUGA_hydro.AnugaEngine.step`) 
       rather than one long simulation call; the ``skip_step`` mechanism 
       prevents duplicate first timesteps across loops.
     - Parallel execution (if enabled) requires merging local vegetation states
