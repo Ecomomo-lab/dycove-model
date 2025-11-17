@@ -368,6 +368,7 @@ class ModelPlotter:
 
         # to save for building animations later
         self.timestrings = []
+        self.img_paths = []
 
 
     def run(self):
@@ -600,6 +601,7 @@ class ModelPlotter:
         self.output_plot_dir.mkdir(parents=True, exist_ok=True)
         fig_path = self.output_plot_dir / fname
         plt.savefig(f"{fig_path}.png", dpi=self.plot_specs['output_dpi'], bbox_inches='tight')
+        self.img_paths.append(f"{fig_path}.png")
         if self.save_grids:
             np.savez_compressed(f"{fig_path}.npz", data=main_grid.data, mask=main_grid.mask)
         plt.close()
@@ -609,11 +611,10 @@ class ModelPlotter:
         import imageio.v2 as imageio
         print("Creating animation...")
         fps = 5 if self.eco_plot else 10
-        img_paths = [self.output_plot_dir / f"{self.full_quantity_name.replace(' ', '')}_{ts[0]}.png" for ts in self.timestrings]
-        images = [imageio.imread(p) for p in img_paths]
+        #img_paths = [self.output_plot_dir / f"{self.full_quantity_name.replace(' ', '')}_{ts[0]}.png" for ts in self.timestrings]
+        images = [imageio.imread(p) for p in self.img_paths]
         gif_path = self.output_plot_dir / 'animation.gif'
         imageio.mimsave(str(gif_path), images, fps=fps, loop=0)  # type: ignore[arg-type]
         if self.delete_static_imgs:
-            for img in img_paths:
+            for img in self.img_paths:
                 Path.unlink(img)
-

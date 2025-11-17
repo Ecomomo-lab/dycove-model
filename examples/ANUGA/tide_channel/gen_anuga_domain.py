@@ -117,7 +117,7 @@ class RectangSlopeDomainGenerator:
                                                      len2=self.dims[1])     # length in y-direction
         self.domain.set_name(self.model_name)  # ANUGA output name for .sww file
         self.domain.set_low_froude(1)          # Always set to 1 for low-froude flows
-        self.domain.set_flow_algorithm('DE1')      # For stable solution, can always try 'DE0' for faster results
+        self.domain.set_flow_algorithm('DE0')      # For stable solution, can always try 'DE1' but is twice as slow
         self.domain.set_minimum_storable_height(0.01)  # Only store heights > 1 cm
 
         print(self.domain.statistics())

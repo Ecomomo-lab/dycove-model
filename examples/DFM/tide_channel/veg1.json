@@ -1,7 +1,7 @@
 {
   "age_max": 50,
   "nls": 1,
-  "fraction_0": 0.25,
+  "fraction_0": 0.5,
   "rootlength_0": 0.5,
   "shootlength_0": 0.3,
   "stemdiam_0": 0.015,
@@ -9,7 +9,7 @@
   "end_growth_ets": 8,
   "winter_ets": 11,
   "start_col_ets": 3,
-  "end_col_ets": 6,
+  "end_col_ets": 5,
 
   "life_stage_attr": [
     {
@@ -22,9 +22,9 @@
       "desic_no_mort": 0,
       "desic_all_mort": 0,
       "flood_no_mort": 0.9,
-      "flood_all_mort": 0.99,
+      "flood_all_mort": 1.0,
       "uproot_no_mort": 1.2,
-      "uproot_all_mort": 1.32,
+      "uproot_all_mort": 1.3,
       "ht_winter_max": 0.11
     }
   ]
