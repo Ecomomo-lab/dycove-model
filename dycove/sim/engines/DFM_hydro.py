@@ -77,6 +77,7 @@ class DFMEngine(HydroEngineBase):
         self.dimr_path    = Path(dfm_path) / ("dimr/bin/dimr_dll.dll")
         self.mdu_path     = Path(mdu_path)  # location of MDU file that contains model directions/inputs
         self.model_dir    = mdu_path.parent  # model directory containing MDU and other model files
+        print(self.model_dir)
         self.config_path  = config_path  # location of config file used for running DFM using dimr
 
         # currently only need this passed here for the file checks that happens under initialize()

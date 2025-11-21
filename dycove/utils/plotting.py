@@ -249,7 +249,6 @@ class ModelPlotter:
                  simdir, 
                  quantity, 
                  plot_times,
-                 #hydro_plot_label_time='hydrodynamic',
                  plot_label_time='eco-morphodynamic',
                  n_ets_year=14,
                  hr_ets=12,

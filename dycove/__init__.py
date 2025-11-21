@@ -30,13 +30,13 @@ should import these high-level classes to get a DYCOVE model running:
 Or, for Delft3D FM users looking to model multiple species at once:
 
 >>> from dycove import VegetationSpecies, DFM_hydro
->>> from dycove import MultipleVegetationSpecies as Multi
+>>> from dycove import MultipleVegetationSpecies as MultiVeg
 >>> veg_1 = VegetationSpecies("veg1.json", "veg1")
 >>> veg_2 = VegetationSpecies("veg2.json", "veg2")
 
 ...define paths to DFM executables, DIMR config file, and model MDU files, then run:
 
->>> model = DFM_hydro.DFM(DFM_DLL_path, 'dimr_config.xml', 'FlowFM.mdu', vegetation=Multi([veg_1, veg_2])
+>>> model = DFM_hydro.DFM(DFM_DLL_path, 'dimr_config.xml', 'FlowFM.mdu', vegetation=MultiVeg([veg_1, veg_2])
 >>> model.run_simulation(3)
 
 Note that users of one numerical model or another may not have installed the

@@ -17,8 +17,9 @@ from dycove import VegetationSpecies, DFM_hydro
 # Define model file locations
 #------------------------------------------------------------------------------
 
-config_file = 'dimr_config.xml'
-mdu_file    = Path('dflowfm/FlowFM.mdu')
+work_dir = Path(__file__).parent
+config_file = work_dir / 'dimr_config.xml'
+mdu_file    = work_dir / 'dflowfm/FlowFM.mdu'
 
 DFM_DLLs = Path('C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/'
                 'plugins/DeltaShell.Dimr/kernels/x64')  # path to the local Delft3D software folder
@@ -28,7 +29,7 @@ DFM_DLLs = Path('C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM 
 #------------------------------------------------------------------------------
 
 # define simulation time period
-sim_time = 3
+sim_time = 4
 time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynamic years'
 
 # create vegetation species object

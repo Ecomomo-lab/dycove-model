@@ -82,7 +82,7 @@ class HydroSimulationBase(ABC):
             it is computed automatically.
         fl_dr : float, optional
             Wet/dry threshold in meters. Cells below this depth are considered dry
-            to avoid thin-film instability issues.
+            to avoid thin-film issues/influence.
         """
 
         # initialize model

@@ -25,7 +25,8 @@ classifiers = [
 ]
 
 dependencies = [
-    "numpy"
+    "numpy",
+    "netCDF4"
 ]
 
 [project.optional-dependencies]
@@ -37,13 +38,11 @@ anuga = [
 dfm = [
     "bmi",        # Python-DFM interface
     "pypiwin32",  # needed for BMI
-    "netCDF4"
     ]
 # for using ModelPlotter
 plot = [
     "tqdm",
     "imageio",
-    "netCDF4",
     "scipy",
     "matplotlib"
 ]

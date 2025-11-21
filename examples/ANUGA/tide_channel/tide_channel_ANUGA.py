@@ -23,7 +23,7 @@ HydroDomain = RectangDomain("rectang_beach")
 #------------------------------------------------------------------------------
 
 # define simulation time period
-sim_time = 1
+sim_time = 4
 time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynamic years'
 
 # create vegetation species object

@@ -1,3 +1,5 @@
+.. _tide-channel-dfm:
+
 Example - Simple beach and tide channel (Delft3D FM)
 ====================================================
 
@@ -43,7 +45,7 @@ This will create an `.xml` file at the same level as a directory called `dflowfm
 
 - Lastly, you must indicate to Delft3D FM that you will be modeling vegetation, by taking the following steps:
 
-  - Create a text file with extension `.ext` in your `dflowfm/` directory, with the same name as your `.mdu` file, that contains the following text:
+  - Create a text file with extension `.ext` in your `dflowfm/` directory, with the same name as your `.mdu` file, that contains the following text (this file is included in the example directory as `FlowFM.ext`):
 
    .. code-block:: python
 
@@ -70,11 +72,11 @@ This will create an `.xml` file at the same level as a directory called `dflowfm
 
    .. code-block:: python
 
-   [veg]
-   Vegetationmodelnr                 = 1               # 1: Baptist et al. (2007) equation for calculation of vegetation roughness
-   Clveg                             = 0.8             # Stem distance factor, default=0.8
-   Cdveg                             = 0.7             # Stem Cd coefficient, default=0.7
-   Cbveg                             = 0.7             # Stem stiffness coefficient, default=0.7
+      [veg]
+      Vegetationmodelnr                 = 1               # 1: Baptist et al. (2007) equation for calculation of vegetation roughness
+      Clveg                             = 0.8             # Stem distance factor, default=0.8
+      Cdveg                             = 0.7             # Stem Cd coefficient, default=0.7
+      Cbveg                             = 0.7             # Stem stiffness coefficient, default=0.7
 
 
 After setting up the model and identifying the model file paths, DYCOVE-DFM models are run in much the same way as DYCOVE-ANUGA models.
