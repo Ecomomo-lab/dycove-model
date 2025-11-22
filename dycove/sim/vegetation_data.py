@@ -31,12 +31,14 @@ class VegetationAttributes:
         Number of life stages.
     fraction_0 : float
         Initial colonization fraction (0–1).
+    stemht_0 : float
+        Initial stem height (m).
     rootlength_0 : float
         Initial root length (m).
-    shootlength_0 : float
-        Initial shoot length (m).
     stemdiam_0 : float
         Initial stem diameter (m).
+    drag : float
+        Drag coefficient C_d.
     start_growth_ets : int
         Ecological timestep at which shoot growth starts.
     end_growth_ets : int
@@ -50,18 +52,16 @@ class VegetationAttributes:
 
     Parameters (Life Stage)
     -----------------------
-    ht_max : list[float]
-        Maximum plant height per life stage (m).
-    diam_max : list[float]
-        Maximum stem diameter per life stage (m).
+    stemht_max : list[float]
+        Maximum stem height per life stage (m).
     rootlength_max : list[float]
         Maximum root length per life stage (m).
+    stemdiam_max : list[float]
+        Maximum stem diameter per life stage (m).
     years_max : list[int]
         Maximum number of years spent in each life stage.
     stemdens : list[float]
         Stem density per life stage (number of stems per m²).
-    drag : list[float]
-        Drag coefficient
     desic_no_mort : list[float]
         Dry fraction below which there is no desiccation mortality.
         (Zero disables desiccation mortality.)
@@ -77,8 +77,8 @@ class VegetationAttributes:
         (Zero disables uprooting mortality.)
     uproot_all_mort : list[float]
         Flow velocity above which there is total uprooting mortality.
-    ht_winter_max : list[float]
-        Maximum plant height during winter for each life stage.
+    stemht_winter_max : list[float]
+        Maximum stem height during winter for each life stage.
 
     Attributes (Computed)
     ---------------------
@@ -93,28 +93,28 @@ class VegetationAttributes:
     age_max: int
     nls: int
     fraction_0: float
+    stemht_0: float
     rootlength_0: float
-    shootlength_0: float
     stemdiam_0: float
+    drag: float
     start_growth_ets: int
     end_growth_ets: int
     winter_ets: int
     start_col_ets: int
     end_col_ets: int
     
-    ht_max: list[float]
-    diam_max: list[float]
+    stemht_max: list[float]
     rootlength_max: list[float]
+    stemdiam_max: list[float]
     years_max: list[int]
     stemdens: list[float]
-    drag: list[float]
     desic_no_mort: list[float]
     desic_all_mort: list[float]
     flood_no_mort: list[float]
     flood_all_mort: list[float]
     uproot_no_mort: list[float]
     uproot_all_mort: list[float]
-    ht_winter_max: list[float]
+    stemht_winter_max: list[float]
     
     ht_growth_rates: list[float] = field(init=False)
     diam_growth_rates: list[float] = field(init=False)
@@ -150,15 +150,15 @@ class VegetationAttributes:
         #       which was technically described initially as being for shoot growth.
         #       I think it makes sense: shoot growth -> diameter/root growth.
         return {
-            'height': (self.ht_max[0] - self.shootlength_0) / (self.end_growth_ets - self.start_growth_ets),
-            'diameter': (self.diam_max[0] - self.stemdiam_0) / (self.winter_ets - self.start_growth_ets) / self.years_max[0],
+            'height': (self.stemht_max[0] - self.stemht_0) / (self.end_growth_ets - self.start_growth_ets),
+            'diameter': (self.stemdiam_max[0] - self.stemdiam_0) / (self.winter_ets - self.start_growth_ets) / self.years_max[0],
             'root': (self.rootlength_max[0] - self.rootlength_0) / (self.winter_ets - self.start_growth_ets) / self.years_max[0]
         }
 
     def _compute_stage_n_rates(self, n: int) -> dict:
         return {
-            'height': (self.ht_max[n] - self.ht_winter_max[n-1]) / (self.end_growth_ets - self.start_growth_ets),
-            'diameter': (self.diam_max[n] - self.diam_max[n-1]) / (self.winter_ets - self.start_growth_ets) / self.years_max[n],
+            'height': (self.stemht_max[n] - self.stemht_winter_max[n-1]) / (self.end_growth_ets - self.start_growth_ets),
+            'diameter': (self.stemdiam_max[n] - self.stemdiam_max[n-1]) / (self.winter_ets - self.start_growth_ets) / self.years_max[n],
             'root': (self.rootlength_max[n] - self.rootlength_max[n-1]) / (self.winter_ets - self.start_growth_ets) / self.years_max[n]
         }
     

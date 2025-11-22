@@ -172,13 +172,14 @@ class DFMEngine(HydroEngineBase):
     # --------------------------------------------------------
 
     def get_model_inputs(self):
-        # Read model file and get all variables
+        # Read model file
+        mdu_lines = self.mdu_path.read_text().splitlines()
         mdu_vars = {}
-        with open(self.mdu_path) as f:
-            for line in f:
-                if "=" in line:
-                    slist = re.split("=|#", line)
-                    mdu_vars[slist[0].strip()] = slist[1].strip()
+        # Parse lines into mdu_vars
+        for line in mdu_lines:
+            if "=" in line:
+                slist = re.split("=|#", line)
+                mdu_vars[slist[0].strip()] = slist[1].strip()
         return mdu_vars
 
     def get_morphodynamic_inputs(self):
@@ -205,36 +206,129 @@ class DFMEngine(HydroEngineBase):
 
     def vegetation_file_check(self):
         """
-        Creates empty text files for stem density, stem diameter, and stem height, if they 
-        don't already exist.
+        MODIFIES .mdu file if certain vegetation-related lines are not present:
+
+        - Adds a filename next to 'ExtForceFile' if blank, creates the file too
+        - Adds drag coefficient from VegetationAttributes if [veg] block is present
+        - Adds [veg] block if it is not present, including drag coefficient from VegetationAttributes
+
+        Creates empty text files for stem density, stem diameter, and stem height, if they don't 
+        already exist. 
         
         The filenames are those specified in the vegetation .ext file in the model directory 
         (e.g., "FlowFM_veg.ext").
 
         These files can be created beforehand if prior vegetation establishment is desired.
         
-        Otherwise, blank files are required so that DFM stores these variables through time.
+        Otherwise, blank files are required so that DFM knows to store these variables through time.
         """
 
-        # TODO: Make a note in documentation that the user needs to supply a copy of the ext file, 
-        #       as well as add it manually to the mdu file along with [veg] input block
-        if self.veg is not None:
-            # get file names from vegetation boundary file, write blank files to model directory if they don't exist
-            ext_force_file = self.model_dir / self.mdu_vars["ExtForceFile"]
-            req_veg_files = ["stemdensity.xyz", "stemdiameter.xyz", "stemheight.xyz"]
-            if not ext_force_file.exists() or self.mdu_vars["ExtForceFile"] == "":
-                msg = ("An *.ext file for external forcing (old format) must be specified next to 'ExtForceFile' in the MDU file, "
-                       "and that file must exist in the model folder (at the same level as the MDU file)")
+        # Read .mdu file lines
+        mdu_lines = self.mdu_path.read_text().splitlines()
+        
+        self.modify_mdu_lines(mdu_lines)
+        self.add_mdu_veg_module(mdu_lines)
+        self.create_ext_file()
+        self.create_veg_xyz_files()
+
+
+    def modify_mdu_lines(self, mdu_lines):
+
+        # Add ExtForceFile to .mdu if not there (and if vegetation is active)
+        if self.mdu_vars["ExtForceFile"] == "" and self.veg is not None:
+            #modified = False  # Track if we must rewrite the file
+
+            drag = self.veg.attrs.drag  # get drag value from VegetationAttributes 
+
+            # Get name of model/file based on name of "new" .ext file
+            try:
+                replacement = self.mdu_vars["ExtForceFileNew"].replace("_bnd", "")
+            except:
+                msg = ("Either the 'ExtForceFileNew' file name in the .mdu file does not end in the expected "
+                       "'_bnd.ext', or there is no 'ExtForceFileNew' file defined in the .mdu file")
                 r.report(msg, level="ERROR")
-                raise FileNotFoundError(msg)
-            with open(ext_force_file, "r") as f:
-                for line in f:
-                    slist = line.strip().split("=")
-                    if slist[0] == "FILENAME" and slist[1] in req_veg_files:
-                        veg_file = self.model_dir / slist[1]
-                        if not veg_file.exists():
-                            with open(veg_file, "w") as f:
-                                f.write("")
+                raise NameError(msg)
+
+            self.mdu_vars["ExtForceFile"] = replacement
+
+            for i, line in enumerate(self.mdu_lines):
+                # Replace blank space with name of required .ext file
+                if line.strip().startswith("ExtForceFile"):
+                    slist = re.split("=|#", line)
+                    n_spaces = len(slist[1])
+                    mdu_lines[i] = f"{slist[0]}= {replacement}{' '*max(n_spaces - len(replacement), 1)}#{slist[2]}"
+                # Replace drag coefficient value with the one provided in input .json file (if [veg] block is present)
+                if line.strip().startswith("Cdveg"):
+                    slist = re.split("=|#", line)
+                    n_spaces = len(slist[1])                    
+                    mdu_lines[i] = f"{slist[0]}= {drag:.1f}{' '*13}#{slist[2]}"
+
+
+    def add_mdu_veg_module(self, mdu_lines):
+
+        # Add [veg] section to .mdu if not there (and if vegetation is active)
+        veg_block_present = any(line.strip().startswith("[veg]") for line in mdu_lines)
+        if not veg_block_present and self.veg is not None:
+
+            drag = self.veg.attrs.drag  # get drag value from VegetationAttributes
+            
+            #mdu_lines.append("")
+            mdu_lines.extend([
+                "[veg]",
+                "Vegetationmodelnr                 = 1               # 1: Baptist et al. (2007) equation for calculation of vegetation roughness",
+                "Clveg                             = 0.8             # Stem distance factor, default=0.8",
+                f"Cdveg                             = {drag:.1f}             # Stem Cd coefficient, default=0.7",
+                "Cbveg                             = 0.7             # Stem stiffness coefficient, default=0.7",
+            ])
+                
+
+    def create_ext_file(self):
+        # Create file in the model directory if it doesn't exist
+        ext_force_file = self.model_dir / self.mdu_vars["ExtForceFile"]
+        if not ext_force_file.exists():
+            content = """QUANTITY=stemdensity
+            FILENAME=stemdensity.xyz
+            FILETYPE=7
+            METHOD=5
+            OPERAND=O
+
+            QUANTITY=stemdiameter
+            FILENAME=stemdiameter.xyz
+            FILETYPE=7
+            METHOD=5
+            OPERAND=O
+
+            QUANTITY=stemheight
+            FILENAME=stemheight.xyz
+            FILETYPE=7
+            METHOD=5
+            OPERAND=O
+            """
+            with open(ext_force_file, "w") as f:
+                f.write(content)
+
+
+    def create_veg_xyz_files(self):
+        # get file names from vegetation boundary file, write blank files to model directory if they don't exist
+        #ext_force_file = self.model_dir / self.mdu_vars["ExtForceFile"]
+        req_veg_files = ["stemdensity.xyz", "stemdiameter.xyz", "stemheight.xyz"]
+        # if not ext_force_file.exists() or self.mdu_vars["ExtForceFile"] == "":
+        #     msg = ("An *.ext file for external forcing (old format) must be specified next to 'ExtForceFile' in the MDU file, "
+        #             "and that file must exist in the model folder (at the same level as the MDU file)")
+        #     r.report(msg, level="ERROR")
+        #     raise FileNotFoundError(msg)
+        # with open(ext_force_file, "r") as f:
+        #     for line in f:
+        #         slist = line.strip().split("=")
+        #         if slist[0] == "FILENAME" and slist[1] in req_veg_files:
+        #             veg_file = self.model_dir / slist[1]
+
+        for filename in reg_veg_files:
+            veg_file = self.model_dir / filename
+            if not veg_file.exists():
+                with open(veg_file, "w") as f:
+                    f.write("")
+
 
     def check_simulation_inputs(self, simstate):
         """
