@@ -323,7 +323,7 @@ class DFMEngine(HydroEngineBase):
         #         if slist[0] == "FILENAME" and slist[1] in req_veg_files:
         #             veg_file = self.model_dir / slist[1]
 
-        for filename in reg_veg_files:
+        for filename in req_veg_files:
             veg_file = self.model_dir / filename
             if not veg_file.exists():
                 with open(veg_file, "w") as f:

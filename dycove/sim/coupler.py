@@ -60,7 +60,7 @@ class VegetationCoupler:
         n_substeps = simstate.n_hydro_steps
         hydro_vars  = {"fld_frac"   : hydrostats.flood_frac(n_substeps),
                        "dry_frac"   : hydrostats.dry_frac(n_substeps),
-                       "vel_max"    : hydrostats.v_max}
+                       "vel_max"    : hydrostats.v_max*0.95}
         morpho_vars = {"bl_diff"    : hydrostats.bedlevel_diff,
                        "burial_frac": 1.0,
                        "scour_frac" : 0.1}
