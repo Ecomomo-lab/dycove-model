@@ -147,9 +147,9 @@ class VegetationSpecies(SharedVegMethods):
                 fraction=new_fraction,
                 density=self.attrs.stemdens[0],
                 diameter=self.attrs.stemdiam_0,
-                height=self.attrs.shootlength_0,
+                height=self.attrs.stemht_0,
                 rootlength=self.attrs.rootlength_0,
-                lifestage=1,  # life stage always starts at 1 with colonization. TODO: check this
+                lifestage=1,
                 lifestage_year=1,
             )
             self.cohorts.append(new_cohort)
@@ -360,11 +360,11 @@ class VegetationSpecies(SharedVegMethods):
         if ets > self.attrs.start_growth_ets:
             for c in self.cohorts:
                 # if none of these conditions are met, height stays the same
-                if ets <= self.attrs.end_growth_ets and c.height < self.attrs.ht_max[c.lifestage-1]:
+                if ets <= self.attrs.end_growth_ets and c.height < self.attrs.stemht_max[c.lifestage-1]:
                     c.height += self.attrs.ht_growth_rates[c.lifestage-1]
                 elif ets >= self.attrs.winter_ets:
                     # drop down to winter height, but by some chance if we are already below winter max, do nothing
-                    c.height = min(c.height, self.attrs.ht_winter_max[c.lifestage-1])
+                    c.height = min(c.height, self.attrs.stemht_winter_max[c.lifestage-1])
 
 
     def stemdiam_growth(self, ets):
@@ -372,7 +372,7 @@ class VegetationSpecies(SharedVegMethods):
         # during first growth ets, height starts at previous winter value, so no need to loop
         if ets > self.attrs.start_growth_ets:
             for c in self.cohorts:
-                if c.diameter < self.attrs.diam_max[c.lifestage-1] and ets < self.attrs.winter_ets:
+                if c.diameter < self.attrs.stemdiam_max[c.lifestage-1] and ets < self.attrs.winter_ets:
                     c.diameter += self.attrs.diam_growth_rates[c.lifestage-1]  # else, remains constant
 
 

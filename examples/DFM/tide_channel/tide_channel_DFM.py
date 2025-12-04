@@ -29,7 +29,7 @@ DFM_DLLs = Path('C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM 
 #------------------------------------------------------------------------------
 
 # define simulation time period
-sim_time = 4
+sim_time = 3
 time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynamic years'
 
 # create vegetation species object

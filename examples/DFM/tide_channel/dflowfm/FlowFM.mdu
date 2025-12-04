@@ -143,7 +143,7 @@ RestartFile                       =                 # Restart netcdf-file, eithe
 RestartDateTime                   = 20251106        # Restart date and time when restarting from *_map.nc [YYYY-MM-DD HH:MM:SS]
 
 [external forcing]
-ExtForceFile                      = FlowFM.ext      # Old format for external forcings file *.ext, link with tim/cmp-format boundary conditions specification
+ExtForceFile                      = FlowFM.ext     # Old format for external forcings file *.ext, link with tim/cmp-format boundary conditions specification
 ExtForceFileNew                   = FlowFM_bnd.ext  # New format for external forcings file *.ext, link with bc-format boundary conditions specification
 
 [trachytopes]
@@ -230,5 +230,5 @@ Richardsononoutput                = 1               # Write Richardson numbers (
 [veg]
 Vegetationmodelnr                 = 1               # 1: Baptist et al. (2007) equation for calculation of vegetation roughness
 Clveg                             = 0.8             # Stem distance factor, default=0.8
-Cdveg                             = 0.7             # Stem Cd coefficient, default=0.7
+Cdveg                             = 1.1             # Stem Cd coefficient, default=0.7
 Cbveg                             = 0.7             # Stem stiffness coefficient, default=0.7

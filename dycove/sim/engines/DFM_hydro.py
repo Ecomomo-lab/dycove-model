@@ -224,19 +224,25 @@ class DFMEngine(HydroEngineBase):
         """
 
         # Read .mdu file lines
-        mdu_lines = self.mdu_path.read_text().splitlines()
+        self.mdu_lines = self.mdu_path.read_text().splitlines()
+
+        # Track for .mdu file modification
+        self.mdu_modified = False
         
-        self.modify_mdu_lines(mdu_lines)
-        self.add_mdu_veg_module(mdu_lines)
+        self.add_mdu_extforcefile()
+        self.add_mdu_veg_module()
         self.create_ext_file()
         self.create_veg_xyz_files()
 
+        if self.mdu_modified:
+            self.write_modified_mdu()
 
-    def modify_mdu_lines(self, mdu_lines):
+
+    def add_mdu_extforcefile(self):
 
         # Add ExtForceFile to .mdu if not there (and if vegetation is active)
         if self.mdu_vars["ExtForceFile"] == "" and self.veg is not None:
-            #modified = False  # Track if we must rewrite the file
+            self.mdu_modified = True
 
             drag = self.veg.attrs.drag  # get drag value from VegetationAttributes 
 
@@ -253,27 +259,28 @@ class DFMEngine(HydroEngineBase):
 
             for i, line in enumerate(self.mdu_lines):
                 # Replace blank space with name of required .ext file
-                if line.strip().startswith("ExtForceFile"):
+                if line.startswith("ExtForceFile "):
                     slist = re.split("=|#", line)
                     n_spaces = len(slist[1])
-                    mdu_lines[i] = f"{slist[0]}= {replacement}{' '*max(n_spaces - len(replacement), 1)}#{slist[2]}"
+                    self.mdu_lines[i] = f"{slist[0]}= {replacement}{' '*max(n_spaces - len(replacement) - 2, 1)}#{slist[2]}"
                 # Replace drag coefficient value with the one provided in input .json file (if [veg] block is present)
                 if line.strip().startswith("Cdveg"):
                     slist = re.split("=|#", line)
                     n_spaces = len(slist[1])                    
-                    mdu_lines[i] = f"{slist[0]}= {drag:.1f}{' '*13}#{slist[2]}"
+                    self.mdu_lines[i] = f"{slist[0]}= {drag:.1f}{' '*13}#{slist[2]}"
 
 
-    def add_mdu_veg_module(self, mdu_lines):
+    def add_mdu_veg_module(self):
 
         # Add [veg] section to .mdu if not there (and if vegetation is active)
-        veg_block_present = any(line.strip().startswith("[veg]") for line in mdu_lines)
+        veg_block_present = any(line.strip().startswith("[veg]") for line in self.mdu_lines)
         if not veg_block_present and self.veg is not None:
+            self.mdu_modified = True
 
             drag = self.veg.attrs.drag  # get drag value from VegetationAttributes
             
-            #mdu_lines.append("")
-            mdu_lines.extend([
+            self.mdu_lines.append("")
+            self.mdu_lines.extend([
                 "[veg]",
                 "Vegetationmodelnr                 = 1               # 1: Baptist et al. (2007) equation for calculation of vegetation roughness",
                 "Clveg                             = 0.8             # Stem distance factor, default=0.8",
@@ -282,28 +289,35 @@ class DFMEngine(HydroEngineBase):
             ])
                 
 
+    def write_modified_mdu(self):
+        self.mdu_path.write_text("\n".join(self.mdu_lines) + "\n")
+        msg = "DFM MDU file updated and rewritten to include required inputs for vegetation module."
+        r.report(msg)
+
+
+
     def create_ext_file(self):
         # Create file in the model directory if it doesn't exist
         ext_force_file = self.model_dir / self.mdu_vars["ExtForceFile"]
         if not ext_force_file.exists():
             content = """QUANTITY=stemdensity
-            FILENAME=stemdensity.xyz
-            FILETYPE=7
-            METHOD=5
-            OPERAND=O
+FILENAME=stemdensity.xyz
+FILETYPE=7
+METHOD=5
+OPERAND=O
 
-            QUANTITY=stemdiameter
-            FILENAME=stemdiameter.xyz
-            FILETYPE=7
-            METHOD=5
-            OPERAND=O
+QUANTITY=stemdiameter
+FILENAME=stemdiameter.xyz
+FILETYPE=7
+METHOD=5
+OPERAND=O
 
-            QUANTITY=stemheight
-            FILENAME=stemheight.xyz
-            FILETYPE=7
-            METHOD=5
-            OPERAND=O
-            """
+QUANTITY=stemheight
+FILENAME=stemheight.xyz
+FILETYPE=7
+METHOD=5
+OPERAND=O
+"""
             with open(ext_force_file, "w") as f:
                 f.write(content)
 
