@@ -12,9 +12,18 @@ from dycove.sim.base import HydroSimulationBase, HydroEngineBase
 from dycove.sim.engines.ANUGA_baptist import Baptist_operator
 from dycove.utils.simulation_reporting import Reporter
 
-from anuga import myid, numprocs, finalize, barrier
 
 r = Reporter()
+
+def _import_anuga():
+    try:
+        from anuga import myid, numprocs, finalize, barrier
+        return myid, numprocs, finalize, barrier
+    except ImportError:
+        msg = ("The `anuga` package is not installed. "
+               "Refer to the documentation for installation instructions.")
+        r.report(msg, level="ERROR")
+        raise ImportError(msg)
 
 
 class ANUGA(HydroSimulationBase):
@@ -74,6 +83,9 @@ class AnugaEngine(HydroEngineBase):
     """
 
     def __init__(self, anuga_domain, vegetation=None):
+        # lazy anuga loading
+        self.myid, self.numprocs, self.finalize, self.barrier = _import_anuga()
+
         self.domain = anuga_domain
         self.model_dir = self.domain.get_datadir()
 
@@ -100,29 +112,29 @@ class AnugaEngine(HydroEngineBase):
         # normally, all processes would be performed within this domain.evolve() loop, 
         # but for consistency across all potential models, we wrap it up here under the "step" method.
         yieldstep = min(seconds, self.save_interval)  # if performing a "big" step, reduce yieldstep so it equals save_interval
-        barrier()
+        self.barrier()
         for t in self.domain.evolve(yieldstep=yieldstep, 
                                     outputstep=self.save_interval,
                                     duration=seconds,
                                     skip_initial_step=self.skip_step):
-            if myid == 0:
+            if self.myid == 0:
                 r.report(self.domain.timestepping_statistics())
                 
             # skip initial yieldstep for all future loops, to avoid rerunning yieldsteps at restart
             self.skip_step = True
         # barrier() enforces wait time for all cores so they catch up to each other when this is called (ignored if not parallel)
-        barrier()
+        self.barrier()
 
     def cleanup(self):
         # cleanup only required for parallel models
         if self.is_parallel():
             self.domain.sww_merge(delete_old=True)
-            finalize()
+            self.finalize()
         else:
             pass
 
     def get_rank(self):
-        return myid
+        return self.myid
 
     def get_cell_count(self):
         # get number of cells (not nodes) in numerical model grid
@@ -167,7 +179,7 @@ class AnugaEngine(HydroEngineBase):
         pass
 
     def is_parallel(self):
-        return True if numprocs > 1 else False
+        return True if self.numprocs > 1 else False
     
     def merge_parallel_veg(self, OutputManager):
         """
@@ -187,7 +199,7 @@ class AnugaEngine(HydroEngineBase):
         sww_dir = Path(self.domain.get_datadir())
 
         # put sww variables from each processor into list
-        sww_file_list = [f"{sww_dir}/{base_name}_{p}.sww" for p in range(numprocs)]
+        sww_file_list = [f"{sww_dir}/{base_name}_{p}.sww" for p in range(self.numprocs)]
 
         # get subdomain index mapping arrays
         tri_l2g, tri_full_flag = [], []
@@ -201,8 +213,8 @@ class AnugaEngine(HydroEngineBase):
         n_global = max([tri.max() for tri in tri_l2g]) + 1
 
         # get indices for full (non-ghost) cells
-        f_ids = [np.where(tri_full_flag[p]==1)[0] for p in range(numprocs)]
-        f_gids = [tri_l2g[p][f_ids[p]] for p in range(numprocs)]
+        f_ids = [np.where(tri_full_flag[p]==1)[0] for p in range(self.numprocs)]
+        f_gids = [tri_l2g[p][f_ids[p]] for p in range(self.numprocs)]
 
         # loop over vegetation cohorts (we want one file per cohort
         for cohort_id, cohort in enumerate(self.veg.cohorts, start=1):
@@ -222,13 +234,13 @@ class AnugaEngine(HydroEngineBase):
             ets_0 = int(Path(c_files[0]).stem.split("_")[-1])
 
             # number of ecological timesteps experienced by this cohort
-            n_ets = len(c_files)//numprocs
+            n_ets = len(c_files)//self.numprocs
 
             for ets in range(ets_0, ets_0 + n_ets):
                 # for storing merged arrays
                 merged = {}
                 
-                for p in range(numprocs):
+                for p in range(self.numprocs):
                     # get local cohort output file (don't use previous file list because proc ID may be unsorted)
                     fname = outputdir / f"cohort{cohort_id}_proc{p}_{ets}.npz"
 

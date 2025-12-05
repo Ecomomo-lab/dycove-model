@@ -29,18 +29,29 @@ The Baptist formulation itself comes from:
 
 """
 
-from __future__ import division, absolute_import, print_function
+#from __future__ import division, absolute_import, print_function
 import numpy as np
-from numpy import sqrt, minimum, maximum, log
 
-# from anuga import Domain
-from anuga import Quantity
-from anuga.operators.base_operator import Operator
+
+class _OperatorBase:
+    """Fallback base class when ANUGA is unavailable."""
+    pass
+
+def _import_anuga():
+    try:
+        from anuga import Quantity
+        from anuga.operators.base_operator import Operator        
+        return Quantity, Operator
+    except ImportError:
+        msg = ("The `anuga` package is not installed. "
+               "Refer to the documentation for installation instructions.")
+        raise ImportError(msg)
+    
 
 #===============================================================================
 # Vegetation operator applying drag to the flow
 #===============================================================================
-class Baptist_operator(Operator):
+class Baptist_operator(_OperatorBase):
     """
     Applies vegetation-induced flow drag based on the Baptist formulation.
 
@@ -112,6 +123,13 @@ class Baptist_operator(Operator):
                  logging = False,
                  verbose = False):
 
+        # ensure lazy import the first time the object is created
+        if not hasattr(self, "_anuga_loaded"):
+            self.Quantity, Operator = _import_anuga()
+            # Patch the base class of Baptist_operator AFTER module load
+            Baptist_operator.__bases__ = (Operator,)
+            self._anuga_loaded = True
+
         super().__init__(domain, description, label, logging, verbose)
 
         #-----------------------------------------------------
@@ -159,7 +177,7 @@ class Baptist_operator(Operator):
     def set_veg_quantity(self, name, values):
         """ Register vegetation quantity and set values in the domain. """
         if name not in self.domain.quantities:
-            Quantity(self.domain, name=name, register=True)
+            self.Quantity(self.domain, name=name, register=True)
 
         q = self.domain.quantities[name]
 
@@ -176,7 +194,7 @@ class Baptist_operator(Operator):
 
         self.a1 = self.bed_friction**-2   # First lumped coefficient
         self.a2 = vdiam*vdens/(2*self.g)  # Second lumped coefficient
-        self.a3 = sqrt(self.g)/self.K     # Third lumped coefficient
+        self.a3 = np.sqrt(self.g)/self.K     # Third lumped coefficient
 
 
     def update_quantities(self):
@@ -194,11 +212,11 @@ class Baptist_operator(Operator):
             ymom_w = self.ymom_c[self.inds]
 
             # calculate discharge in the cell
-            qcell_w = sqrt(xmom_w**2 + ymom_w**2)
+            qcell_w = np.sqrt(xmom_w**2 + ymom_w**2)
 
             # Calculate Chezy
-            Cv_w = (1./sqrt(a1_w + a2_w*self.Cd*minimum(depth_w, hv_w)) 
-                    + self.a3*log(maximum(depth_w, hv_w)/hv_w))
+            Cv_w = (1./np.sqrt(a1_w + a2_w*self.Cd*np.minimum(depth_w, hv_w)) 
+                    + self.a3*np.log(np.maximum(depth_w, hv_w)/hv_w))
 
             # Compute friction slope
             Sf_x = self.g*xmom_w*qcell_w/(Cv_w**2*depth_w**2 + 1e-6)

@@ -10,9 +10,19 @@ import numpy as np
 
 from dycove.sim.base import HydroSimulationBase, HydroEngineBase
 from dycove.utils.simulation_reporting import Reporter
-from bmi.wrapper import BMIWrapper
 
 r = Reporter()
+
+def _import_bmi():
+    try:
+        from bmi.wrapper import BMIWrapper
+        return BMIWrapper
+    except ImportError:
+        msg = ("The `bmi` package is not installed. "
+               "Refer to the documentation for installation instructions.")
+        r.report(msg, level="ERROR")
+        raise ImportError(msg)
+    
 
 class DFM(HydroSimulationBase):
     """
@@ -72,6 +82,9 @@ class DFMEngine(HydroEngineBase):
     """
 
     def __init__(self, dfm_path, config_path, mdu_path, vegetation=None):
+        # lazy bmi loading
+        self.BMIWrapper = _import_bmi()
+
         # paths to Delft3D FM dll files
         self.dflowfm_path = Path(dfm_path) / ("dflowfm/bin/dflowfm.dll")
         self.dimr_path    = Path(dfm_path) / ("dimr/bin/dimr_dll.dll")
@@ -96,9 +109,9 @@ class DFMEngine(HydroEngineBase):
         os.add_dll_directory(dfm_path / Path("swan/scripts"))
 
         # BMI wrapper object that interacts with the actual numerical model (e.g., getting and setting variables)
-        self.dflowfm = BMIWrapper(engine=str(self.dflowfm_path), configfile=str(self.mdu_path))
+        self.dflowfm = self.BMIWrapper(engine=str(self.dflowfm_path), configfile=str(self.mdu_path))
         # BMI wrapper object that handles the deployment of the model executables
-        self.dimr = BMIWrapper(engine=str(self.dimr_path), configfile=str(self.config_path))
+        self.dimr = self.BMIWrapper(engine=str(self.dimr_path), configfile=str(self.config_path))
 
     def initialize(self):
         ### ----- Required for vegetation module ----- ###
