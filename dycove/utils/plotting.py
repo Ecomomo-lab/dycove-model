@@ -493,10 +493,20 @@ class ModelPlotter:
     def get_model_name(self):
         # Find file with the model file extension, this could be ".mdu" or "_orig.mdu" for DFM, ".mdf" for D3D4, ".sww" for ANUGA
         if self.model_type == 'DFM':
-            model_file = next(self.modeldir.glob(f"*.mdu"))
+            model_files = list(self.modeldir.glob(f"*.mdu"))
         elif self.model_type == 'ANUGA':
-            model_file = next(self.modeldir.glob(f"*.sww"))
-        return model_file.stem
+            model_files = list(self.modeldir.glob(f"*.sww"))
+                
+        if len(model_files) == 0:
+            raise FileNotFoundError(
+                f"No {self.model_type} model file found in {self.modeldir}"
+            )
+        elif len(model_files) > 1:
+            raise ValueError(
+                f"Multiple {self.model_type} model files found in {self.modeldir}. "
+                f"Please specify which model to use or remove extra files."
+        )
+        return model_files[0].stem
 
 
     def create_interp_func(self, map_vars):

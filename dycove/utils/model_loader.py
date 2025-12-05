@@ -109,8 +109,8 @@ class ANUGAMapLoader(BaseMapLoader):
     -----
     - ANUGA stores variables at cell centroids, but the ``.sww`` format provides only vertex 
       coordinates; centroids are computed on first load and cached.
-    - Subsequent calls reuse saved arrays (``xx_c.npy``, ``yy_c.npy``) because it is an intensive
-      computation for large grids.
+    - Subsequent calls reuse saved x and y centroid coordinate arrays because it is an 
+      intensive computation for large grids.
     - Velocity is derived from stored quantities Depth and Depth-averaged momentum.
 
     Returns
@@ -138,9 +138,11 @@ class ANUGAMapLoader(BaseMapLoader):
             # only create the mesh centroid variables if they don't exist for this mesh
             # -- this is a time consuming step, so save these files for future plotting with the same mesh
             files_exist = False
-            if (subdir / "xx_c.npy").exists() and (subdir / "yy_c.npy").exists():
-                self.xx_c = np.load(subdir / "xx_c.npy")
-                self.yy_c = np.load(subdir / "yy_c.npy")
+            x_fname = "xCentroidsSavedForFastRecomputation.npy"
+            y_fname = "yCentroidsSavedForFastRecomputation.npy"    
+            if (subdir / x_fname).exists() and (subdir / y_fname).exists():
+                self.xx_c = np.load(subdir / x_fname)
+                self.yy_c = np.load(subdir / y_fname)
                 # make sure existing files are not leftover from previous run
                 if len(self.xx_c) == len(self.cached_map_vars['elevation_c']):
                     files_exist = True
@@ -152,8 +154,8 @@ class ANUGAMapLoader(BaseMapLoader):
                 self.xx_c = [(xx[i]+xx[j]+xx[k])/3. for i, j, k in self.cached_map_vars['volumes']]
                 self.yy_c = [(yy[i]+yy[j]+yy[k])/3. for i, j, k in self.cached_map_vars['volumes']]
                 
-                np.save(subdir / "xx_c.npy", self.xx_c)
-                np.save(subdir / "yy_c.npy", self.yy_c)
+                np.save(subdir / x_fname, self.xx_c)
+                np.save(subdir / y_fname, self.yy_c)
             
             self.zz_c = self.cached_map_vars['elevation_c']
 
