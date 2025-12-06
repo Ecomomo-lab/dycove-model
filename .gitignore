@@ -218,6 +218,9 @@ _plot/
 *.nc
 *.sww
 
+# Retain native Delft3D-FM mesh file format
+!*_net.nc
+
 # Delft3D-FM output
 output/
 *.err

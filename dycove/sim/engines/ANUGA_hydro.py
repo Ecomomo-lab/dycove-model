@@ -7,6 +7,8 @@ import numpy as np
 from netCDF4 import Dataset  # type: ignore
 from pathlib import Path
 import re
+from collections import defaultdict
+
 
 from dycove.sim.base import HydroSimulationBase, HydroEngineBase
 from dycove.sim.engines.ANUGA_baptist import Baptist_operator
@@ -216,53 +218,84 @@ class AnugaEngine(HydroEngineBase):
         f_ids = [np.where(tri_full_flag[p]==1)[0] for p in range(self.numprocs)]
         f_gids = [tri_l2g[p][f_ids[p]] for p in range(self.numprocs)]
 
-        # loop over vegetation cohorts (we want one file per cohort
-        for cohort_id, cohort in enumerate(self.veg.cohorts, start=1):
+        # Regex to extract cohort, proc, year, ets from output file names
+        # file names are like: 'cohort1_proc0_year1_ets2.npz'
+        # we want to merge them so they are like: 'cohort1_year1_ets2.npz'
+        pattern = re.compile(
+            r"cohort(?P<cohort>\d+)_proc(?P<proc>\d+)_year(?P<year>\d+)_ets(?P<ets>\d+)\.npz"
+        )
+
+        files_by_cohort = defaultdict(list)
+        
+        for f in outputdir.iterdir():
+            m = pattern.match(f.name)
+            if not m:
+                continue  # ignore non-matching files
+            info = m.groupdict()
+            info = {k: int(v) for k, v in info.items()}
+            info["path"] = f
+            files_by_cohort[info["cohort"]].append(info)
+
+        # loop over vegetation cohorts (we want one file per cohort)
+        for cohort_id in range(1, len(self.veg.cohorts) + 1):
             
             # all files for this cohort
-            c_files = sorted(outputdir.glob(f"cohort{cohort_id}_proc*.npz"),
-                             key=lambda f: int(re.search(r"_(\d+)\.npz", f.name).group(1)))
+            c_files = files_by_cohort.get(cohort_id, [])
+            #c_files = sorted(outputdir.glob(f"cohort{cohort_id}_proc*.npz"), key=lambda f: parse_file(f.name))
             
             if len(c_files) == 0:
                 msg = (f"Warning: No output files found for cohort {cohort_id}, skipping merge. "
-                        "This is likely due to the simulation ending in the middle of an ETS, "
+                        "This could be due to the simulation ending in the middle of an ETS, "
                         "where the last cohort has not been written to an output file yet.")
                 r.report(msg, level="WARNING")
                 continue
 
-            # first ETS for this cohort, from first filename
-            ets_0 = int(Path(c_files[0]).stem.split("_")[-1])
+            # sort by (ets, year, cohort)   <-- your required sorting
+            c_files_sorted = sorted(c_files, key=lambda d: (d["ets"], d["year"], d["cohort"]))
 
-            # number of ecological timesteps experienced by this cohort
-            n_ets = len(c_files)//self.numprocs
+            # build structure: years → ets → list of dicts
+            years = defaultdict(lambda: defaultdict(list))
+            for info in c_files_sorted:
+                years[info["year"]][info["ets"]].append(info)
 
-            for ets in range(ets_0, ets_0 + n_ets):
-                # for storing merged arrays
-                merged = {}
+            # --- Double loop: years then ETS (note: ETS may not start at 1) ---
+            for year in sorted(years.keys()):
+                for ets in sorted(years[year].keys()):
+
+                    # for storing merged arrays
+                    merged = {}
                 
-                for p in range(self.numprocs):
-                    # get local cohort output file (don't use previous file list because proc ID may be unsorted)
-                    fname = outputdir / f"cohort{cohort_id}_proc{p}_{ets}.npz"
+                    for p in range(self.numprocs):
+                        # find matching file
+                        match = next((fi for fi in years[year][ets] if fi["proc"] == p), None)
 
-                    # load numpy and convert to dictionary
-                    cohort_local = dict(np.load(fname, allow_pickle=True))
+                        if match:
+                            fname = match["path"]
+                        else:
+                            msg = ("No individual processor (proc) output files found for this "
+                                   "cohort, year, and ETS combination")
+                            r.report(msg, level="ERROR")
+                            raise FileNotFoundError(msg)
 
-                    # loop over cohort quantities that are array-like
-                    for key, values in cohort_local.items():
-                        if np.ndim(values) > 0:
-                            if key not in merged:  # allocate global array only once
-                                merged[key] = np.zeros(n_global, dtype=float)
+                        # load numpy and convert to dictionary
+                        cohort_local = dict(np.load(fname, allow_pickle=True))
 
-                            # merge into global array using local-to-global index mapping
-                            merged[key][f_gids[p]] = values[f_ids[p]]
+                        # loop over cohort quantities that are array-like
+                        for key, values in cohort_local.items():
+                            if np.ndim(values) > 0:
+                                if key not in merged:  # allocate global array only once
+                                    merged[key] = np.zeros(n_global, dtype=float)
 
-                        # for scalar quantities, just pass the output (only need to do it once since it doesn not vary spatially)
-                        elif p == 0:
-                            merged[key] = values
+                                # merge into global array using local-to-global index mapping
+                                merged[key][f_gids[p]] = values[f_ids[p]]
 
-                    # remove local file
-                    fname.unlink()
+                            # for scalar quantities, just pass the output (only need to do it once since it doesn not vary spatially)
+                            elif p == 0:
+                                merged[key] = values
 
-                # save merged output (basically just remove the "proc" part of the filename
-                OutputManager.save_binary(outputdir, f"cohort{cohort_id}", merged, i=ets)
+                        # remove local file
+                        fname.unlink()
+
+                    # save merged output (basically just remove the "proc" part of the filename)
+                    OutputManager.save_binary(outputdir, f"cohort{cohort_id}", merged, year, ets)
 

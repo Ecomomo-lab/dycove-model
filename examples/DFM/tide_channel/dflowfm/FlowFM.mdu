@@ -1,4 +1,4 @@
-# Generated on 2025-11-14 10:40:49
+# Generated on 2025-12-06 00:07:08
 # Deltares, Plugin D-FLOW FM Version 4.3.0.0, D-Flow FM Version 1.2.110.67911M
 
 [General]
@@ -143,7 +143,7 @@ RestartFile                       =                 # Restart netcdf-file, eithe
 RestartDateTime                   = 20251106        # Restart date and time when restarting from *_map.nc [YYYY-MM-DD HH:MM:SS]
 
 [external forcing]
-ExtForceFile                      = FlowFM.ext     # Old format for external forcings file *.ext, link with tim/cmp-format boundary conditions specification
+ExtForceFile                      = FlowFM.ext      # Old format for external forcings file *.ext, link with tim/cmp-format boundary conditions specification
 ExtForceFileNew                   = FlowFM_bnd.ext  # New format for external forcings file *.ext, link with bc-format boundary conditions specification
 
 [trachytopes]

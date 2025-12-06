@@ -90,7 +90,6 @@ class DFMEngine(HydroEngineBase):
         self.dimr_path    = Path(dfm_path) / ("dimr/bin/dimr_dll.dll")
         self.mdu_path     = Path(mdu_path)  # location of MDU file that contains model directions/inputs
         self.model_dir    = mdu_path.parent  # model directory containing MDU and other model files
-        print(self.model_dir)
         self.config_path  = config_path  # location of config file used for running DFM using dimr
 
         # currently only need this passed here for the file checks that happens under initialize()
@@ -275,11 +274,10 @@ class DFMEngine(HydroEngineBase):
                 if line.startswith("ExtForceFile "):
                     slist = re.split("=|#", line)
                     n_spaces = len(slist[1])
-                    self.mdu_lines[i] = f"{slist[0]}= {replacement}{' '*max(n_spaces - len(replacement) - 2, 1)}#{slist[2]}"
+                    self.mdu_lines[i] = f"{slist[0]}= {replacement}{' '*max(n_spaces - len(replacement) - 1, 1)}#{slist[2]}"
                 # Replace drag coefficient value with the one provided in input .json file (if [veg] block is present)
                 if line.strip().startswith("Cdveg"):
                     slist = re.split("=|#", line)
-                    n_spaces = len(slist[1])                    
                     self.mdu_lines[i] = f"{slist[0]}= {drag:.1f}{' '*13}#{slist[2]}"
 
 
