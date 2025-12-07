@@ -1,5 +1,5 @@
 ﻿"""
-Simple example script to run a Delft3D-FM hydrodynamic simulation with DYCOVE (no morphology).
+Simple example script to run a Delft3D-FM hydrodynamic simulation with DYCOVE (with morphology).
 
 Adapted from ANUGA-DYCOVE example "simple_tide_ANUGA.py"
 """
@@ -11,7 +11,7 @@ Adapted from ANUGA-DYCOVE example "simple_tide_ANUGA.py"
 from pathlib import Path
 
 from dycove import VegetationSpecies, DFM_hydro
-
+from dycove import MultipleVegetationSpecies as MultiVeg
 
 #------------------------------------------------------------------------------
 # Define model file locations
@@ -33,10 +33,21 @@ sim_time = 4
 time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynamic years'
 
 # create vegetation species object
-veg_1 = VegetationSpecies("veg1.json", "veg1")
+veg_1 = VegetationSpecies("NelumboLutea.json", 
+                          "nelumbo",
+                          mor=1,
+                          rand_seed_frac=0.8,
+                          rand_seed_method="random"
+                          )
+veg_2 = VegetationSpecies("ColocasciaEsculenta.json", 
+                          "colocascia",
+                          mor=1,
+                          rand_seed_frac=0.8,
+                          rand_seed_method="random"
+                          )
 
 # instantiate DFM model
-HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=veg_1)
+HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=MultiVeg([veg_1, veg_2]))
 
 # do timestepping
 HydroModel.run_simulation(sim_time, sim_time_unit=time_unit)

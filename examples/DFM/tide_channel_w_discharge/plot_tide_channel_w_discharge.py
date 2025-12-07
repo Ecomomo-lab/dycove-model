@@ -30,6 +30,7 @@ Vegetation quantites to plot from DYCOVE (use exact names):
 
 plotter = plotting.ModelPlotter(
     simdir = Path('.'),
+    #quantity = 'Bathymetry',
     #quantity = 'Velocity',
     quantity = 'Stem Height',
     #quantity = 'Mortality -- Total',

@@ -94,8 +94,13 @@ class DFMEngine(HydroEngineBase):
 
         # currently only need this passed here for the file checks that happens under initialize()
         # but we are keeping it and using it with all possible engines to make output writing more consistent
-        #   (accessing vegetation via engine rather than passing both the the outputs class)
+        #   (accessing vegetation via engine rather than passing both to the outputs class)
         self.veg = vegetation
+
+        # vegetation drag is an input in the .json file
+        # unfortunately, DFM requires a single vegetation drag value in the .mdu file when vegetation is active
+        # so even if we have multiple species with different characteristics, we can only use one value
+        self.drag = self.set_drag()
 
         # add DLL paths to env before calling BMI
         # NOTE: for versions of python 3.7 and earlier, you will need to set the env variables differently:
@@ -183,6 +188,13 @@ class DFMEngine(HydroEngineBase):
     # Extra, required DFM methods related to input processing
     # --------------------------------------------------------
 
+    def set_drag(self):
+        if self.veg is not None:
+            if hasattr(self.veg, "attrs"):  # then it is a single species object
+                return self.veg.attrs.drag
+            else:  # then it is a multiple species object, take average
+                return np.mean([sp.attrs.drag for sp in self.veg.species_list])
+            
     def get_model_inputs(self):
         # Read model file
         mdu_lines = self.mdu_path.read_text().splitlines()
@@ -256,8 +268,6 @@ class DFMEngine(HydroEngineBase):
         if self.mdu_vars["ExtForceFile"] == "" and self.veg is not None:
             self.mdu_modified = True
 
-            drag = self.veg.attrs.drag  # get drag value from VegetationAttributes 
-
             # Get name of model/file based on name of "new" .ext file
             try:
                 replacement = self.mdu_vars["ExtForceFileNew"].replace("_bnd", "")
@@ -278,7 +288,7 @@ class DFMEngine(HydroEngineBase):
                 # Replace drag coefficient value with the one provided in input .json file (if [veg] block is present)
                 if line.strip().startswith("Cdveg"):
                     slist = re.split("=|#", line)
-                    self.mdu_lines[i] = f"{slist[0]}= {drag:.1f}{' '*13}#{slist[2]}"
+                    self.mdu_lines[i] = f"{slist[0]}= {self.drag:.1f}{' '*13}#{slist[2]}"
 
 
     def add_mdu_veg_module(self):
@@ -287,15 +297,13 @@ class DFMEngine(HydroEngineBase):
         veg_block_present = any(line.strip().startswith("[veg]") for line in self.mdu_lines)
         if not veg_block_present and self.veg is not None:
             self.mdu_modified = True
-
-            drag = self.veg.attrs.drag  # get drag value from VegetationAttributes
             
             self.mdu_lines.append("")
             self.mdu_lines.extend([
                 "[veg]",
                 "Vegetationmodelnr                 = 1               # 1: Baptist et al. (2007) equation for calculation of vegetation roughness",
                 "Clveg                             = 0.8             # Stem distance factor, default=0.8",
-                f"Cdveg                             = {drag:.1f}             # Stem Cd coefficient, default=0.7",
+                f"Cdveg                             = {self.drag:.1f}             # Stem Cd coefficient, default=0.7",
                 "Cbveg                             = 0.7             # Stem stiffness coefficient, default=0.7",
             ])
                 

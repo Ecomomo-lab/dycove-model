@@ -1,4 +1,4 @@
-# Generated on 2025-12-06 12:24:57
+# Generated on 2025-12-06 15:43:26
 # Deltares, Plugin D-FLOW FM Version 4.3.0.0, D-Flow FM Version 1.2.110.67911M
 
 [General]
@@ -226,3 +226,8 @@ StatsInterval                     =                 # Interval (in s) between si
 Writebalancefile                  = 0               # Write balance file (1: yes, 0: no)
 TimingsInterval                   =                 # Timings statistics output interval [Dd HH:MM:SS.ZZZ]
 Richardsononoutput                = 1               # Write Richardson numbers (1: yes, 0: no)
+
+[sediment]
+MorFile                           = FlowFM.mor      # Morphology file *mor.nc
+SedFile                           = FlowFM.sed      # Sediment descriptions file *sed.nc
+Sedimentmodelnr                   = 4               # Sediment model nr, (0=no, 1=Krone, 2=SvR2007, 3=E-H, 4=MorphologyModule)
