@@ -171,6 +171,9 @@ class ModelPlotter:
     quantity_units : dict, optional
         Unit labels, scaling factors, and minimum plotting thresholds for each quantity, 
         e.g. ``{'Depth': ('[m]', 1, 0.01), 'Stem Diameter': ('[mm]', 1000, 1)}``.
+    quiver_props : dict, optional
+        Scaling and spacing options for velocity vectors, used if quantity = "Velocity Vectors",
+        e.g., ``{}``.
     mask_bndy_file : str or Path, optional
         Path to polygon CSV file for masking interpolation outside the domain. Probably
         required if model domain is not rectangular.
@@ -249,35 +252,45 @@ class ModelPlotter:
                  simdir, 
                  quantity, 
                  plot_times,
-                 plot_label_time='eco-morphodynamic',
-                 n_ets_year=14,
-                 hr_ets=12,
-                 ecofac=None,
+                 plot_label_time = 'eco-morphodynamic',
+                 n_ets_year = 14,
+                 hr_ets = 12,
+                 ecofac = None,
                  plot_interp_vars: Optional[dict[str, int]] = None,
                  plot_specs: Optional[dict[str, Any]] = None, 
                  cmap_lims: Optional[dict[str, tuple[float, float]]] = None, 
                  cmaps: Optional[dict[str, Colormap]] = None,
                  quantity_units: Optional[dict[str, tuple[str, Union[int, float]]]] = None, 
-                 mask_bndy_file=None,
-                 extents=None,
-                 animate=False, 
-                 delete_static_imgs=False,
-                 save_grids=False,
+                 plot_vectors = False,
+                 vector_props: Optional[dict[str, Any]] = None,
+                 show_title = True,
+                 show_topo_cbar = False,
+                 mask_bndy_file: Optional[Union[Path, str]] = None,
+                 extents: Optional[tuple[float, float, float, float]] = None,
+                 animate = False, 
+                 delete_static_imgs = False,
+                 save_grids = False,
                  ):
         
         self.simdir = Path(simdir)
         self.quantity = quantity
         self.plot_times = plot_times
         self.plot_label_time = plot_label_time
+        self.plot_vectors = plot_vectors
+        self.show_title = show_title
+        self.show_topo_cbar = show_topo_cbar
         self.mask_bndy_file = mask_bndy_file
         self.extents = extents
         self.animate = animate
         self.delete_static_imgs = delete_static_imgs
         self.save_grids = save_grids
 
+        if self.plot_vectors and self.quantity != "Velocity":
+            raise ValueError("plot_vectors option is only supported for quantity = 'Velocity'.")
+        
         # simplify quantity name if "Mortality"
         self.full_quantity_name = self.quantity
-        if self.quantity[:9] == "Mortality":
+        if "Mortality" in self.full_quantity_name.split():
             self.quantity = "Mortality"
 
         # for restart simulations, some additional temporal inputs
@@ -297,9 +310,9 @@ class ModelPlotter:
         self.plot_interp_vars = {**defaults, **(plot_interp_vars or {})}  # merge provided custom values with default values
 
         defaults = {
-            'figsize'       : (6, 6),
-            'fontsize'      : 12,
-            'output_dpi'    : 100,
+            'figsize': (6, 6),
+            'fontsize': 12,
+            'output_dpi': 100,
         }
         self.plot_specs = {**defaults, **(plot_specs or {})}  # merge provided custom values with default values
 
@@ -352,6 +365,15 @@ class ModelPlotter:
         }
         self.quantity_units = {**defaults, **(quantity_units or {})}  # merge provided custom values with default values
 
+        defaults = {
+            'vect_spacing': 50,
+            'color': 'red',
+            'scale': 30,
+            'pivot': 'mid',
+            'width': 0.003,
+        }
+        self.vector_props = {**defaults, **(vector_props or {})}  # merge provided custom values with default values
+
         self.output_plot_dir = self.simdir / 'figures' / self.full_quantity_name.replace(' ', '')
         self.model_type = self.get_model_type()
         self.modeldir = self.get_modeldir()
@@ -379,7 +401,8 @@ class ModelPlotter:
             z_grid, grid2plot = self.get_quantity_grids(map_vars)
             self.plot_quantity(z_grid, grid2plot)
 
-        if self.animate: self.create_gif()
+        if self.animate: 
+            self.create_gif()
 
 
     def compute_ecofac(self, ecofac_input):
@@ -528,12 +551,16 @@ class ModelPlotter:
         if self.interp_func is None:
             self.interp_func = self.create_interp_func(map_vars)
             
+        # to be populated if we are doing vector plots
+        self.vector_comps = None
+
         # for DFM, z_grid should be recomputed every step in case morphology is turned on. For ANUGA, oh well it's fast enough
         z_grid = self.interp_func(map_vars['Bathymetry']) * self.quantity_units['Bathymetry'][1]
         if self.quantity == 'Bathymetry':
             return z_grid, None
         elif not self.eco_plot:
             depth_grid = self.interp_func(map_vars['Depth']) * self.quantity_units[self.quantity][1]
+            show_inds = depth_grid < self.quantity_units['Depth'][2]
             if self.quantity == 'Depth':
                 return z_grid, np.ma.masked_where(depth_grid < self.quantity_units['Depth'][2], depth_grid)
             elif self.quantity == 'WSE':
@@ -541,6 +568,12 @@ class ModelPlotter:
                 return z_grid, np.ma.masked_where(depth_grid < self.quantity_units['Depth'][2], wse_grid)
             elif self.quantity == 'Velocity':
                 V_grid = self.interp_func(map_vars[self.quantity]) * self.quantity_units[self.quantity][1]
+                if self.plot_vectors:
+                    Vx_grid = self.interp_func(map_vars['Vel_x']) * self.quantity_units[self.quantity][1]
+                    Vy_grid = self.interp_func(map_vars['Vel_y']) * self.quantity_units[self.quantity][1]
+                    self.vector_comps = (np.ma.masked_where(show_inds, Vx_grid),
+                                         np.ma.masked_where(show_inds, Vy_grid),
+                                         np.ma.masked_where(show_inds, V_grid))
                 return z_grid, np.ma.masked_where(depth_grid < self.quantity_units['Depth'][2], V_grid)
             elif self.quantity == 'Max Shear Stress':
                 tau_grid = self.interp_func(map_vars[self.quantity]) * self.quantity_units[self.quantity][1]
@@ -594,16 +627,28 @@ class ModelPlotter:
                              vmin=self.cmap_lims[self.quantity][0],
                              vmax=self.cmap_lims[self.quantity][1])            
 
-        ax.set_title(title, fontsize=self.plot_specs['fontsize'])
+        if self.plot_vectors:
+            self.do_quiver(ax, base_grid)
+
+        if self.show_title:
+            ax.set_title(title, fontsize=self.plot_specs['fontsize'])
         ax.set_xticks([])
         ax.set_yticks([])
         ax.set_aspect('equal')
 
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="3%", pad=0.12)
-        colorbar = plt.colorbar(main if self.quantity != 'Bathymetry' else base, cax=cax)
-        colorbar.set_label(f"{self.quantity} {self.quantity_units[self.quantity][0]}", rotation=270, labelpad=25, fontsize=self.plot_specs['fontsize'])
-        colorbar.ax.tick_params(labelsize=self.plot_specs['fontsize'])
+        cbar = plt.colorbar(main if self.quantity != 'Bathymetry' else base, cax=cax)
+        cbar.set_label(f"{self.quantity} {self.quantity_units[self.quantity][0]}", rotation=270, labelpad=25, fontsize=self.plot_specs['fontsize'])
+        cbar.ax.tick_params(labelsize=self.plot_specs['fontsize'])
+
+        if self.show_topo_cbar:
+            cax_z = divider.append_axes("left", size="3%", pad=0.12)
+            cbar_z = plt.colorbar(base, cax=cax_z)
+            cbar_z.set_label(f"Bathymetry {self.quantity_units['Bathymetry'][0]}", rotation=90, labelpad=5, fontsize=self.plot_specs['fontsize'])
+            cbar_z.ax.yaxis.set_label_position("left")
+            cbar_z.ax.yaxis.tick_left()
+            cbar_z.ax.tick_params(labelsize=self.plot_specs['fontsize'], direction="out", labelrotation=0)          
 
         fig.tight_layout()
 
@@ -615,6 +660,26 @@ class ModelPlotter:
             np.savez_compressed(f"{fig_path}.npz", data=main_grid.data, mask=main_grid.mask)
         plt.close()
 
+
+    def do_quiver(self, ax, base_grid):  # See pyplot.quiver manual for more info
+        # get x and y components of velocity
+        vx, vy, V = self.vector_comps
+        # normalize to get unit vectors
+        with np.errstate(divide='ignore', invalid='ignore'):
+            vx, vy = vx/V, vy/V
+        # get dimenions of grid
+        ny, nx = base_grid.shape
+        gridX, gridY = np.meshgrid(np.linspace(0, nx, nx), np.linspace(0, ny, ny))
+        # Identify mesh array indices where we want to show vectors (cut down number of arrows)
+        dr = int(self.vector_props['vect_spacing']/self.plot_interp_vars['cell_size'])
+        quiver = ax.quiver(gridX[::dr,::dr], gridY[::dr,::dr], vx[::dr,::dr], vy[::dr,::dr],
+                           color=self.vector_props['color'],
+                           scale=self.vector_props['scale'],
+                           pivot=self.vector_props['pivot'],
+                           width=self.vector_props['width'],
+                           )
+        # return quiver
+    
 
     def create_gif(self):
         import imageio.v2 as imageio

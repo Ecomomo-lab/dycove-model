@@ -33,13 +33,21 @@ sim_time = 4
 time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynamic years'
 
 # create vegetation species object
-veg_1 = VegetationSpecies("veg1.json", 
-                          "veg1",
+veg_1 = VegetationSpecies("NelumboLutea.json", 
+                          "nelumbo",
                           mor=1,
+                          rand_seed_frac=0.8,
+                          rand_seed_method="random"
+                          )
+veg_2 = VegetationSpecies("ColocasciaEsculenta.json", 
+                          "colocascia",
+                          mor=1,
+                          rand_seed_frac=0.8,
+                          rand_seed_method="random"
                           )
 
 # instantiate DFM model
-HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=veg_1)
+HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=MultiVeg([veg_1, veg_2]))
 
 # do timestepping
 HydroModel.run_simulation(sim_time, sim_time_unit=time_unit)

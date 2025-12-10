@@ -48,7 +48,7 @@ class BaseMapLoader(ABC):
     def __init__(self, modeldir, model_name, quantity_name, eco_plot, n_ets_year):
         self.modeldir = Path(modeldir)
         self.model_name = model_name
-        self.quantity_name = quantity_name
+        self.quantity = quantity_name
         self.eco_plot = eco_plot
         self.n_ets_year = n_ets_year
         self.ecodir = self.modeldir / 'veg_output'
@@ -86,7 +86,7 @@ class BaseMapLoader(ABC):
         for file in self.ecodir.glob(f'cohort*_year{eco_year}_ets{ets}.npz'):
             c = dict(np.load(file, allow_pickle=True))
             veg_fractions.append(c["fraction"])
-            veg_quantity.append(c[self.veg_varnames[self.quantity_name]])  # not used if quantity is 'Fractions'
+            veg_quantity.append(c[self.veg_varnames[self.quantity]])  # not used if quantity is 'Fractions'
 
         return veg_fractions, veg_quantity
 
@@ -94,9 +94,9 @@ class BaseMapLoader(ABC):
     def _pass_veg(self, veg_data, data):
         # just for distributing veg data to correct keys in data dict
         data['Fractions'] = veg_data[0]
-        if self.quantity_name != "Fractions":
+        if self.quantity != "Fractions":
             # for all other quantities, we need Fractions in order to do weighted averaging of cohorts in grid cells
-            data[self.quantity_name] = veg_data[1]
+            data[self.quantity] = veg_data[1]
         return data
 
 class ANUGAMapLoader(BaseMapLoader):
@@ -169,20 +169,20 @@ class ANUGAMapLoader(BaseMapLoader):
                 # change from DFM: removed index because no time dimension for elevation in ANUGA
                 'Bathymetry': np.asarray(self.zz_c)}
         
-        if self.quantity_name == 'Bathymetry':
+        if self.quantity == 'Bathymetry':
             pass
 
         elif not self.eco_plot:
             data['WSE'] = np.asarray(self.cached_map_vars['stage_c'][hydro_i])
             data['Depth'] = data['WSE'] - data['Bathymetry']
-            if self.quantity_name not in ['WSE', 'Depth']:
-                if self.quantity_name == 'Velocity':
+            if self.quantity not in ['WSE', 'Depth']:
+                if self.quantity == 'Velocity':
                     xmom = np.asarray(self.cached_map_vars['xmomentum_c'][hydro_i])
                     ymom = np.asarray(self.cached_map_vars['ymomentum_c'][hydro_i])
                     with np.errstate(divide='ignore', invalid='ignore'):
-                        xvel = xmom/data['Depth']
-                        yvel = ymom/data['Depth']
-                    data[self.quantity_name] = np.sqrt(xvel**2 + yvel**2)
+                        data['Vel_x'] = xmom/data['Depth']
+                        data['Vel_y'] = ymom/data['Depth']
+                    data['Velocity'] = np.sqrt(data['Vel_x']**2 + data['Vel_y']**2)
         else:
             veg_data = self._load_veg(ets, eco_year)
             data = self._pass_veg(veg_data, data)
@@ -223,7 +223,7 @@ class DFMMapLoader(BaseMapLoader):
                               'Z': 'mesh2d_flowelem_bl',          # static bathymetry
                               'Bathymetry mor': 'mesh2d_mor_bl'}  # dynamic bathymetry
         self.hydro_varnames = {'WSE': 'mesh2d_s1', 
-                               'Velocity': 'mesh2d_ucmag', 
+                               'Velocity': ('mesh2d_ucmag', 'mesh2d_ucx', 'mesh2d_ucy'),
                                'Max Shear Stress': 'mesh2d_tausmax'}
 
     def _load_DFM_outputs(self, subdir):
@@ -251,14 +251,19 @@ class DFMMapLoader(BaseMapLoader):
         else:
             data['Bathymetry'] = np.asarray(self.cached_map_vars[self.mesh_varnames['Z']])
 
-        if self.quantity_name == 'Bathymetry':
+        if self.quantity == 'Bathymetry':
             pass
 
         elif not self.eco_plot:
             data['WSE'] = np.asarray(self.cached_map_vars[self.hydro_varnames['WSE']][hydro_i])
             data['Depth'] = data['WSE'] - data['Bathymetry']
-            if self.quantity_name not in ['WSE', 'Depth']:
-                data[self.quantity_name] = np.asarray(self.cached_map_vars[self.hydro_varnames[self.quantity_name]][hydro_i])
+            if self.quantity not in ['WSE', 'Depth']:
+                if self.quantity == 'Velocity':
+                    data['Velocity'] = np.asarray(self.cached_map_vars[self.hydro_varnames[self.quantity][0]][hydro_i])
+                    data['Vel_x'] = np.asarray(self.cached_map_vars[self.hydro_varnames[self.quantity][1]][hydro_i])
+                    data['Vel_y'] = np.asarray(self.cached_map_vars[self.hydro_varnames[self.quantity][2]][hydro_i])
+                else:
+                    data[self.quantity] = np.asarray(self.cached_map_vars[self.hydro_varnames[self.quantity]][hydro_i])
         else:
             veg_data = self._load_veg(ets, eco_year)
             data = self._pass_veg(veg_data, data)
