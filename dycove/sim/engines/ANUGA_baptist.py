@@ -160,9 +160,9 @@ class Baptist_operator(_OperatorBase):
         self.depth = self.stage_c - self.elev_c
 
         # Only apply where vegetation exists and depth is positive
-        self.inds = (self.veg_density.centroid_values > 0) & (self.depth > 0.01) # Update active indices
+        inds = (self.veg_density.centroid_values > 0) & (self.depth > 0.01) # Update active indices
 
-        self.update_quantities()
+        self.update_quantities(inds)
 
 
     def set_vegetation(self, veg_diameter=None, veg_density=None, veg_height=None):
@@ -197,19 +197,19 @@ class Baptist_operator(_OperatorBase):
         self.a3 = np.sqrt(self.g)/self.K     # Third lumped coefficient
 
 
-    def update_quantities(self):
+    def update_quantities(self, inds):
         """
         Calculate drag that vegetation imparts on flow, then update momentum quantities.
         """
-        if np.any(self.inds):
+        if np.any(inds):
             # Cut down some variables to just vegetated areas
-            depth_w = self.depth[self.inds]
-            hv_w = self.veg_height.centroid_values[self.inds]
+            depth_w = self.depth[inds]
+            hv_w = self.veg_height.centroid_values[inds]
             Cv_w = np.zeros_like(depth_w) # Vegetated Chezy
-            a1_w = self.a1[self.inds]
-            a2_w = self.a2[self.inds]
-            xmom_w = self.xmom_c[self.inds]
-            ymom_w = self.ymom_c[self.inds]
+            a1_w = self.a1[inds]
+            a2_w = self.a2[inds]
+            xmom_w = self.xmom_c[inds]
+            ymom_w = self.ymom_c[inds]
 
             # calculate discharge in the cell
             qcell_w = np.sqrt(xmom_w**2 + ymom_w**2)
@@ -222,8 +222,8 @@ class Baptist_operator(_OperatorBase):
             Sf_x = self.g*xmom_w*qcell_w/(Cv_w**2*depth_w**2 + 1e-6)
             Sf_y = self.g*ymom_w*qcell_w/(Cv_w**2*depth_w**2 + 1e-6)
 
-            self.xmom_c[self.inds] = xmom_w - Sf_x*self.dt
-            self.ymom_c[self.inds] = ymom_w - Sf_y*self.dt
+            self.xmom_c[inds] = xmom_w - Sf_x*self.dt
+            self.ymom_c[inds] = ymom_w - Sf_y*self.dt
 
 
     def parallel_safe(self):

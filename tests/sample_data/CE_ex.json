@@ -1,0 +1,31 @@
+{
+  "age_max": 50,
+  "nls": 1,
+  "fraction_0": 0.6,
+  "stemht_0": 0.3,
+  "rootlength_0": 0.5,
+  "stemdiam_0": 0.015,
+  "drag": 1,
+  "start_growth_ets": 3,
+  "end_growth_ets": 8,
+  "winter_ets": 11,
+  "start_col_ets": 2,
+  "end_col_ets": 3,
+
+  "life_stage_attr": [
+    {
+      "stemht_max": 2.0,
+      "rootlength_max": 0.5,
+      "stemdiam_max": 0.015,
+      "years_max": 50,
+      "stemdens": 200,
+      "desic_no_mort": 0,
+      "desic_all_mort": 0,
+      "flood_no_mort": 0.5,
+      "flood_all_mort": 0.6,
+      "uproot_no_mort": 0.8,
+      "uproot_all_mort": 0.9,
+      "stemht_winter_max": 1.5
+    }
+  ]
+}

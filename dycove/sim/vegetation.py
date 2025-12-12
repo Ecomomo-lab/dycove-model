@@ -257,11 +257,16 @@ class VegetationSpecies(SharedVegMethods):
         ----------
         bl_diff : numpy.ndarray
             Array of cell-wise differences in bed level [m], from beginning to end of the 
-            previous period, where positive values signify scour.
+            previous period, where positive values signify burial.
         burial_frac : float
             Fraction of stem height above which vegetation is considered buried.
         scour_frac : float
             Fraction of root length above which vegetation is considered scoured.
+
+        Notes
+        -----
+        - If morphology is turned on (mor=1), but morphology is not active in the model (e.g., ANUGA)
+          bl_diff will be passed as zero-difference arrays, and scour/burial will be set to zero.
         """
 
         # loop over fractions and their current shoot/root lengths and compare to erosion/sedimentation
@@ -271,8 +276,8 @@ class VegetationSpecies(SharedVegMethods):
                 c.potential_mort_burial = np.zeros_like(c.fraction)
                 c.potential_mort_scour  = np.zeros_like(c.fraction)
             else:
-                c.potential_mort_burial = np.where(bl_diff < -burial_frac*c.height, 1, 0)
-                c.potential_mort_scour  = np.where(bl_diff > scour_frac*c.rootlength, 1, 0)
+                c.potential_mort_burial = np.where(bl_diff >= burial_frac*c.height, 1, 0)
+                c.potential_mort_scour  = np.where(bl_diff <= -scour_frac*c.rootlength, 1, 0)
 
 
     def apply_mortality(self):

@@ -19,8 +19,6 @@ keywords = ["vegetation", "hydrodynamics", "morphodynamics", "ANUGA", "Delft3D"]
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
 ]
 
@@ -74,3 +72,8 @@ where = [
 include = [
     "dycove*",
 ]
+
+[tool.pytest.ini_options]
+markers = ["anuga: tests requiring anuga",
+           "dfm: tests requiring bmi",
+           ]

@@ -94,6 +94,11 @@ class AnugaEngine(HydroEngineBase):
         # passing vegetation as attribute of the engine
         self.veg = vegetation
 
+        # Theoretically, we could take the weighted average of drag attributes based on species, lifestage
+        # But DFM can only acept a single value. So we copy that approach for ANUGA and set the Baptist_operator
+        #   with a constant value each time we do set_vegetation()
+        self.drag = self.get_drag()
+
         # With DYCOVE-ANUGA, we run many consecutive "domain.evolve" loops, rather than just one big loop.
         # We don't want to skip the first step for the first of these loops, but for every other loop, we do.
         # Otherwise, we get repeated steps.
@@ -107,7 +112,11 @@ class AnugaEngine(HydroEngineBase):
     def initialize(self):
         # ANUGA doesn't have an "initialize" method like DFM, 
         # but we can include some required steps here rather than just having an empty method
-        self.Baptist = Baptist_operator(self.domain, veg_diameter=0, veg_density=0, veg_height=0)
+        self.Baptist = Baptist_operator(self.domain, 
+                                        veg_diameter=0, 
+                                        veg_density=0, 
+                                        veg_height=0, 
+                                        drag=self.drag)
         self.morphology = False
         
     def step(self, seconds):
@@ -174,8 +183,16 @@ class AnugaEngine(HydroEngineBase):
     def set_vegetation(self, stemdensity, stemdiameter, stemheight):
         self.Baptist.set_vegetation(veg_diameter=stemdiameter,
                                     veg_density=stemdensity,
-                                    veg_height=stemheight)
+                                    veg_height=stemheight,
+                                    )
 
+    def get_drag(self):
+        if self.veg is not None:
+            if hasattr(self.veg, "attrs"):  # then it is a single species object
+                return self.veg.attrs.drag
+            else:  # then it is a multiple species object, take average
+                return np.mean([sp.attrs.drag for sp in self.veg.species_list])
+            
     def check_simulation_inputs(self, simstate):
         # Nothing implemented yet
         pass

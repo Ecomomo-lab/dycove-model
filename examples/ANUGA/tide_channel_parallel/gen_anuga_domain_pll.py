@@ -53,9 +53,6 @@ class RectangSlopeDomainGenerator:
         Initial water level on the seaward side.
     mannings_n : float, optional
         Spatially constant Manning's `n` friction coefficient.
-    plotting : bool, optional
-        Whether to plot mesh and mesh elevation using ANUGA's 
-        ``Domain_plotter``.
 
     Notes
     -----
@@ -80,7 +77,6 @@ class RectangSlopeDomainGenerator:
         tide_props=None,
         WL_0=0.0,
         mannings_n=0.025,
-        plotting=False,
     ):
 
         # If tide_props wasn't supplied, use defaults
@@ -103,7 +99,6 @@ class RectangSlopeDomainGenerator:
         self.tide = tide_props
         self.friction = mannings_n
         self.WL_0 = WL_0
-        self.plotting = plotting
 
         if myid == 0:
             self.create_domain()
@@ -193,5 +188,5 @@ class RectangSlopeDomainGenerator:
         # set domain to None for all cores except the first
         if myid != 0:
             self.domain = None
-        # distribute domain fro the first core to all cores
+        # distribute domain from the first core to all cores
         self.domain = distribute(self.domain)

@@ -100,7 +100,7 @@ class DFMEngine(HydroEngineBase):
         # vegetation drag is an input in the .json file
         # unfortunately, DFM requires a single vegetation drag value in the .mdu file when vegetation is active
         # so even if we have multiple species with different characteristics, we can only use one value
-        self.drag = self.set_drag()
+        self.drag = self.get_drag()
 
         # add DLL paths to env before calling BMI
         # NOTE: for versions of python 3.7 and earlier, you will need to set the env variables differently:
@@ -188,7 +188,7 @@ class DFMEngine(HydroEngineBase):
     # Extra, required DFM methods related to input processing
     # --------------------------------------------------------
 
-    def set_drag(self):
+    def get_drag(self):
         if self.veg is not None:
             if hasattr(self.veg, "attrs"):  # then it is a single species object
                 return self.veg.attrs.drag
