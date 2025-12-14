@@ -11,8 +11,8 @@ sys.path.insert(0, os.path.abspath('../..'))
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'DYCOVE'
-copyright = '2025, N. Tull, M. Bruckner'
-author = 'N. Tull, M. Bruckner'
+copyright = '2025, N. Tull, M. Brückner'
+author = 'N. Tull, M. Brückner'
 release = '0.1.0'
 
 # -- General configuration ---------------------------------------------------

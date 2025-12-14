@@ -11,7 +11,7 @@ requires-python = ">=3.10"
 license = { text = "MIT" }
 authors = [
     {name="N. Tull", email="neltull@lsu.edu"},
-    {name="M. Bruckner", email="mbruckner@lsu.edu"}
+    {name="M. Brückner", email="mbruckner@lsu.edu"}
     ]
 
 keywords = ["vegetation", "hydrodynamics", "morphodynamics", "ANUGA", "Delft3D"]

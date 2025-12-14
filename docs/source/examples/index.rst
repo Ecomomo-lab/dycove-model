@@ -19,6 +19,7 @@ ANUGA
    :maxdepth: 1
 
    anuga/tide_channel
+   anuga/tide_channel_parallel
 
 
 Delft3D FM
@@ -28,4 +29,5 @@ Delft3D FM
    :maxdepth: 1
 
    dfm/tide_channel
-   dfm/tide_channel_morph
+   dfm/tide_channel_w_discharge
+   dfm/tide_channel_w_discharge_multiveg

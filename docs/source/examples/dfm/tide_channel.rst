@@ -13,7 +13,7 @@ A tidal boundary condition is imposed on the left (ocean) side, that propagates 
 A vegetation species, loosely based on Nelumbo Lutea (American lotus), is added to the model via a set of attributes defined in the file `veg1.json`.
 After the simulation is finished, we can inspect a variety of 2-D model results using :class:`~dycove.utils.plotting.ModelPlotter`.
 
-This example does not consider morphology. Please see this :doc:`example <tide_channel_morph>` for a similar example that has morphology turned on.
+This example does not consider morphology. Please see this :doc:`example <tide_channel_w_discharge>` for a model that has morphology turned on.
 
 
 Run the Model

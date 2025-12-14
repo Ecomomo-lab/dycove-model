@@ -171,9 +171,15 @@ class ModelPlotter:
     quantity_units : dict, optional
         Unit labels, scaling factors, and minimum plotting thresholds for each quantity, 
         e.g. ``{'Depth': ('[m]', 1, 0.01), 'Stem Diameter': ('[mm]', 1000, 1)}``.
-    quiver_props : dict, optional
+    plot_vectors : bool, optional
+        If True, plots normalized velocity vectors (quantity="Velocity" only).
+    vector_props : dict, optional
         Scaling and spacing options for velocity vectors, used if quantity = "Velocity Vectors",
-        e.g., ``{}``.
+        e.g., ``{'vect_spacing': 50, 'color': 'red', 'scale': 30, 'pivot': 'mid', 'width': 0.003}``.
+    show_title : bool, optional
+        If True, include auto-generated plot title at top of plot.
+    show_topo_cbar : bool, optional
+        If True, include elevation color bar on the left-hand side.
     mask_bndy_file : str or Path, optional
         Path to polygon CSV file for masking interpolation outside the domain. Probably
         required if model domain is not rectangular.
@@ -678,7 +684,6 @@ class ModelPlotter:
                            pivot=self.vector_props['pivot'],
                            width=self.vector_props['width'],
                            )
-        # return quiver
     
 
     def create_gif(self):

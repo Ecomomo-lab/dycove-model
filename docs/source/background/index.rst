@@ -34,7 +34,7 @@ The Ecological Time Scale
 -------------------------
 
 DYCOVE simulations run on the idea that vegetation and morphological changes both occur on longer time scales than hydrodynamic changes.
-Therefore, we "accelerate" vegetation processes in a manner similar to the Morphological Acceleration Factor (MORFAC) of DFM.
+Therefore, we "accelerate" vegetation processes in a manner similar to the Morphological Acceleration Factor (MORFAC) [4]_ of DFM.
 In fact, for DYCOVE-DFM simulations with morphology active, we set the Ecological Acceleration Factor (``ecofac``) equal to the ``morfac`` of the DFM model.
 
 To reconcile the hydrodynamic and ecological time scales, we run simulations by defining the following parameters:
@@ -372,6 +372,8 @@ References
 
 .. [2] Lesser, G. R., Roelvink, J. A., van Kester, J. A. T. M., and Stelling, G. S., 2004. Development and validation of a three-dimensional morphological model. Coastal engineering, 51(8-9), 883–915. https://doi.org/10.1016/j.coastaleng.2004.07.014
 
-.. [3] Davies, G., and Roberts, S., 2015. Open source flood simulation with a 2D discontinuous-elevation hydrodynamic model. In Proceedings of MODSIM 2015.
+.. [3] Davies, G., and Roberts, S., 2015. Open source flood simulation with a 2D discontinuous-elevation hydrodynamic model. In Proceedings of MODSIM 2015. https://doi.org/10.1016/j.coastaleng.2011.03.010
 
-.. [4] Baptist, M. J., Babovic, C., Uthurburu, J. R., Uittenbogaard, R. E., Mynett, A., & Verwey, A. (2007). "On inducing equations for vegetation resistance." Journal of Hydraulic Research, 45(4), 435–450. https://doi.org/10.1080/00221686.2007.9521778
+.. [4] Ranasinghe, R., Swinkels, C., Luijendijk, A., Roelvink, D., Bosboom, J., Stive, M., and Walstra, D. (2011). Morphodynamic upscaling with the MORFAC approach: Dependencies and sensitivities. Coastal engineering, 58(8), 806-811.
+
+.. [5] Baptist, M. J., Babovic, C., Uthurburu, J. R., Uittenbogaard, R. E., Mynett, A., & Verwey, A. (2007). "On inducing equations for vegetation resistance." Journal of Hydraulic Research, 45(4), 435–450. https://doi.org/10.1080/00221686.2007.9521778
