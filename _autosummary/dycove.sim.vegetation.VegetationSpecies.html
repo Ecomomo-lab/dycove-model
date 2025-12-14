@@ -1,0 +1,351 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dycove.sim.vegetation.VegetationSpecies &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dycove.sim.vegetation.MultipleVegetationSpecies" href="dycove.sim.vegetation.MultipleVegetationSpecies.html" />
+    <link rel="prev" title="dycove.sim.simulation_data.HydrodynamicStats" href="dycove.sim.simulation_data.HydrodynamicStats.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apiref/index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../apiref/sim/index.html">Simulation</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#base-simulation-module">Base Simulation Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#hydrodynamic-model-engines">Hydrodynamic Model Engines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#simulation-helper-classes">Simulation Helper Classes</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../apiref/sim/index.html#vegetation-modules">Vegetation Modules</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="../apiref/sim/index.html#species-classes">Species Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apiref/sim/index.html#species-data">Species Data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../apiref/utils/index.html">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../apiref/index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../apiref/sim/index.html">Simulation</a></li>
+      <li class="breadcrumb-item active">dycove.sim.vegetation.VegetationSpecies</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/dycove.sim.vegetation.VegetationSpecies.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dycove-sim-vegetation-vegetationspecies">
+<h1>dycove.sim.vegetation.VegetationSpecies<a class="headerlink" href="#dycove-sim-vegetation-vegetationspecies" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dycove.sim.vegetation.</span></span><span class="sig-name descname"><span class="pre">VegetationSpecies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_veg_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'veg1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed_frac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'deterministic'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies" title="Link to this definition"></a></dt>
+<dd><p>A single vegetation species. Can (and will) handle multiple cohorts of the species.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_veg_filename</strong> (<em>str</em><em> or </em><em>Path</em>) – Path to JSON file containing vegetation attributes.</p></li>
+<li><p><strong>species_name</strong> (<em>str</em>) – String representing name of species (can be anything).</p></li>
+<li><p><strong>mor</strong> (<em>int</em>) – 1 if we want to consider morphology (burial/scour) for this vegetation unit, else 0</p></li>
+<li><p><strong>rand_seed_frac</strong> (<em>float</em>) – Fraction of potentially colonized cells that will actually colonize, distributed randomly.</p></li>
+<li><p><strong>rand_seed_method</strong> (<em>str</em>) – Options are ‘random’ or ‘deterministic’. If rand_seed_frac is between 0 and 1,
+‘deterministic’ will use a seed to evaluate the SAME set of cells for each colonization,
+whereas ‘random’ will be truly random each time.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_veg_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'veg1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed_frac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'deterministic'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.__init__" title="dycove.sim.vegetation.VegetationSpecies.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(input_veg_filename[, species_name, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.apply_mortality" title="dycove.sim.vegetation.VegetationSpecies.apply_mortality"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_mortality</span></code></a>()</p></td>
+<td><p>Multiply potential mortality by vegetation fractions to determine actual mortality.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_out_old_fractions</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.colonization" title="dycove.sim.vegetation.VegetationSpecies.colonization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">colonization</span></code></a>(ets, min_depths, max_depths, fl_dr)</p></td>
+<td><p>Colonize a <a class="reference internal" href="dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> by adding a new fraction to cells.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_new_fraction</span></code>(existing_cohorts, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.compute_veg_model_quantities" title="dycove.sim.vegetation.VegetationSpecies.compute_veg_model_quantities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_veg_model_quantities</span></code></a>()</p></td>
+<td><p>Function to compute weighted area averages of model vegetation variables.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_seed_fraction_mask</span></code>(array_len)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.linear_mortality_func" title="dycove.sim.vegetation.VegetationSpecies.linear_mortality_func"><code class="xref py py-obj docutils literal notranslate"><span class="pre">linear_mortality_func</span></code></a>(stressor, th_min, th_max)</p></td>
+<td><p>Generic, hydrodynamic stressor mortality function (linear).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.load_vegetation_attributes" title="dycove.sim.vegetation.VegetationSpecies.load_vegetation_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_vegetation_attributes</span></code></a>(filename)</p></td>
+<td><p>Parse vegetation input json file and store attributes in a dataclass.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.mortality" title="dycove.sim.vegetation.VegetationSpecies.mortality"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mortality</span></code></a>(hydro_vars, morpho_vars)</p></td>
+<td><p>Delegate to internal methods.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.mortality_hydrodynamic" title="dycove.sim.vegetation.VegetationSpecies.mortality_hydrodynamic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mortality_hydrodynamic</span></code></a>(fld_frac, dry_frac, ...)</p></td>
+<td><p>Compute linear mortality functions for each hydrodynamic stressor (if activated).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.mortality_morphodynamic" title="dycove.sim.vegetation.VegetationSpecies.mortality_morphodynamic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mortality_morphodynamic</span></code></a>([bl_diff, ...])</p></td>
+<td><p>Compute linear mortality functions for each morphodynamic stressor (if activated).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">remove_old_cohorts</span></code>(list_of_inds)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.root_growth" title="dycove.sim.vegetation.VegetationSpecies.root_growth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">root_growth</span></code></a>(ets)</p></td>
+<td><p>Computes root length based on growth functions in VegAttributes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.stemdiam_growth" title="dycove.sim.vegetation.VegetationSpecies.stemdiam_growth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stemdiam_growth</span></code></a>(ets)</p></td>
+<td><p>Computes stem diameter based on growth functions in VegAttributes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.stemheight_growth" title="dycove.sim.vegetation.VegetationSpecies.stemheight_growth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stemheight_growth</span></code></a>(ets)</p></td>
+<td><p>Computes stem height based on growth functions in VegAttributes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.update_lifestage_and_stemdensity" title="dycove.sim.vegetation.VegetationSpecies.update_lifestage_and_stemdensity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_lifestage_and_stemdensity</span></code></a>()</p></td>
+<td><p>Function to be called at the end of every eco year.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.apply_mortality">
+<span class="sig-name descname"><span class="pre">apply_mortality</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.apply_mortality"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.apply_mortality" title="Link to this definition"></a></dt>
+<dd><p>Multiply potential mortality by vegetation fractions to determine actual mortality.</p>
+<p>Populate mortality-related fields of each active VegCohort object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.colonization">
+<span class="sig-name descname"><span class="pre">colonization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ets</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_depths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fl_dr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">combined_cohorts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.colonization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.colonization" title="Link to this definition"></a></dt>
+<dd><p>Colonize a <a class="reference internal" href="dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> by adding a new
+fraction to cells.</p>
+<p>This method only adds new fractions. Effective stem diameters and heights are
+computed elsewhere.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ets</strong> (<em>int</em>) – Current ecological timestep within current ecological year.</p></li>
+<li><p><strong>min_depths</strong> (<em>numpy.ndarray</em>) – Array of minimum water depths [m] at each cell over the previous period.</p></li>
+<li><p><strong>max_depths</strong> (<em>numpy.ndarray</em>) – Array of maximum water depths [m] at each cell over the previous period.</p></li>
+<li><p><strong>fl_dr</strong> (<em>float</em>) – Wet/dry threshold [m]; cells with depth above this value are considered wet.</p></li>
+<li><p><strong>combined_cohorts</strong> (<em>list</em><em> of </em><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies" title="dycove.sim.vegetation.VegetationSpecies"><em>VegetationSpecies</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Relevant only if multiple species are present. Provides information about
+other species occupying space in cells. See colonization method of
+<a class="reference internal" href="dycove.sim.vegetation.MultipleVegetationSpecies.html#dycove.sim.vegetation.MultipleVegetationSpecies" title="dycove.sim.vegetation.MultipleVegetationSpecies"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleVegetationSpecies</span></code></a> for the use-case.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.compute_veg_model_quantities">
+<span class="sig-name descname"><span class="pre">compute_veg_model_quantities</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.compute_veg_model_quantities" title="Link to this definition"></a></dt>
+<dd><p>Function to compute weighted area averages of model vegetation variables.</p>
+<p>Handles the various fractions that are tracked within each grid cell.</p>
+<p>This function works the same no matter the number of species, and so it is shared
+by both classes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.linear_mortality_func">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">linear_mortality_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stressor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th_max</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.linear_mortality_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.linear_mortality_func" title="Link to this definition"></a></dt>
+<dd><p>Generic, hydrodynamic stressor mortality function (linear).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stressor</strong> (<em>numpy.ndarray</em>) – Array of relevant stressor magnitude for each cell. For flooding/dessication,
+it is an array of fraction of time where cells are wet/dry. For uprooting,
+it is an array of maximum velocities.</p></li>
+<li><p><strong>th_min</strong> (<em>float</em>) – Stressor value below which there is no mortality. Comes from JSON input file.</p></li>
+<li><p><strong>th_max</strong> (<em>float</em>) – Stressor value above which there is total mortality. Comes from JSON input file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.load_vegetation_attributes">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_vegetation_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="dycove.sim.vegetation_data.VegetationAttributes.html#dycove.sim.vegetation_data.VegetationAttributes" title="dycove.sim.vegetation_data.VegetationAttributes"><span class="pre">VegetationAttributes</span></a></span></span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.load_vegetation_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.load_vegetation_attributes" title="Link to this definition"></a></dt>
+<dd><p>Parse vegetation input json file and store attributes in a dataclass.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.mortality">
+<span class="sig-name descname"><span class="pre">mortality</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hydro_vars</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">morpho_vars</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.mortality"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.mortality" title="Link to this definition"></a></dt>
+<dd><p>Delegate to internal methods.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.mortality_hydrodynamic">
+<span class="sig-name descname"><span class="pre">mortality_hydrodynamic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fld_frac</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dry_frac</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vel_max</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.mortality_hydrodynamic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.mortality_hydrodynamic" title="Link to this definition"></a></dt>
+<dd><p>Compute linear mortality functions for each hydrodynamic stressor (if activated).</p>
+<p>Hydrodynamic mortality is computed independently from vegetation characteristics
+like stem height, root length, etc. Mortality parameters can be dependent on life
+stage though, so we compute mortality for each life stage and apply to the
+fractions later (self.apply_mortality).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fld_frac</strong> (<em>numpy.ndarray</em>) – Array containing fractions of time that each cell was flooded during the
+previous period.</p></li>
+<li><p><strong>dry_frac</strong> (<em>numpy.ndarray</em>) – Array containing fractions of time that each cell was dry during the
+previous period.</p></li>
+<li><p><strong>vel_max</strong> (<em>numpy.ndarray</em>) – Array of maximum water velocities [m/s] at each cell over the previous period.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.mortality_morphodynamic">
+<span class="sig-name descname"><span class="pre">mortality_morphodynamic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bl_diff</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">burial_frac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scour_frac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.mortality_morphodynamic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.mortality_morphodynamic" title="Link to this definition"></a></dt>
+<dd><p>Compute linear mortality functions for each morphodynamic stressor (if activated).</p>
+<p>Morphodynamic stressors (burial, scour) are not currently functions of life stage,
+and they are binary (e.g., stem is either buried or not).</p>
+<p>Creates arrays of zeros if using a non-morphology model or with morphology turned
+off.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bl_diff</strong> (<em>numpy.ndarray</em>) – Array of cell-wise differences in bed level [m], from beginning to end of the
+previous period, where positive values signify burial.</p></li>
+<li><p><strong>burial_frac</strong> (<em>float</em>) – Fraction of stem height above which vegetation is considered buried.</p></li>
+<li><p><strong>scour_frac</strong> (<em>float</em>) – Fraction of root length above which vegetation is considered scoured.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>If morphology is turned on (mor=1), but morphology is not active in the model (e.g., ANUGA)
+bl_diff will be passed as zero-difference arrays, and scour/burial will be set to zero.</p></li>
+</ul>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.root_growth">
+<span class="sig-name descname"><span class="pre">root_growth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.root_growth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.root_growth" title="Link to this definition"></a></dt>
+<dd><p>Computes root length based on growth functions in VegAttributes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.stemdiam_growth">
+<span class="sig-name descname"><span class="pre">stemdiam_growth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.stemdiam_growth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.stemdiam_growth" title="Link to this definition"></a></dt>
+<dd><p>Computes stem diameter based on growth functions in VegAttributes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.stemheight_growth">
+<span class="sig-name descname"><span class="pre">stemheight_growth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.stemheight_growth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.stemheight_growth" title="Link to this definition"></a></dt>
+<dd><p>Computes stem height based on growth functions in VegAttributes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.update_lifestage_and_stemdensity">
+<span class="sig-name descname"><span class="pre">update_lifestage_and_stemdensity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.update_lifestage_and_stemdensity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.update_lifestage_and_stemdensity" title="Link to this definition"></a></dt>
+<dd><p>Function to be called at the end of every eco year.</p>
+<p>Updates the life stage and the year within the life stage for each cohort.</p>
+<p>Stem density update is done here because it only depends on eco year and does not
+change during the year.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dycove.sim.simulation_data.HydrodynamicStats.html" class="btn btn-neutral float-left" title="dycove.sim.simulation_data.HydrodynamicStats" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dycove.sim.vegetation.MultipleVegetationSpecies.html" class="btn btn-neutral float-right" title="dycove.sim.vegetation.MultipleVegetationSpecies" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

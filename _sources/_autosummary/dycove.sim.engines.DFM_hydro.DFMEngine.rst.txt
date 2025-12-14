@@ -1,0 +1,44 @@
+﻿dycove.sim.engines.DFM\_hydro.DFMEngine
+=======================================
+
+.. currentmodule:: dycove.sim.engines.DFM_hydro
+
+.. autoclass:: DFMEngine
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DFMEngine.__init__
+      ~DFMEngine.add_mdu_extforcefile
+      ~DFMEngine.add_mdu_veg_module
+      ~DFMEngine.check_simulation_inputs
+      ~DFMEngine.cleanup
+      ~DFMEngine.create_ext_file
+      ~DFMEngine.create_veg_xyz_files
+      ~DFMEngine.get_cell_count
+      ~DFMEngine.get_drag
+      ~DFMEngine.get_elevation
+      ~DFMEngine.get_model_inputs
+      ~DFMEngine.get_morphodynamic_inputs
+      ~DFMEngine.get_rank
+      ~DFMEngine.get_refdate
+      ~DFMEngine.get_vegetation
+      ~DFMEngine.get_velocity_and_depth
+      ~DFMEngine.initialize
+      ~DFMEngine.is_parallel
+      ~DFMEngine.merge_parallel_veg
+      ~DFMEngine.set_vegetation
+      ~DFMEngine.step
+      ~DFMEngine.vegetation_file_check
+      ~DFMEngine.write_modified_mdu
+   
+   
+
+   
+   
+   

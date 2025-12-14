@@ -1,0 +1,186 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dycove.utils.model_loader.BaseMapLoader &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dycove.utils.simulation_reporting.Reporter" href="dycove.utils.simulation_reporting.Reporter.html" />
+    <link rel="prev" title="dycove.utils.model_loader.DFMMapLoader" href="dycove.utils.model_loader.DFMMapLoader.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apiref/index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../apiref/sim/index.html">Simulation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../apiref/utils/index.html">Utilities</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../apiref/utils/index.html#plotting">Plotting</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="dycove.utils.plotting.ModelPlotter.html">dycove.utils.plotting.ModelPlotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dycove.utils.plotting.create_nn_interpFunc.html">dycove.utils.plotting.create_nn_interpFunc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dycove.utils.model_loader.ANUGAMapLoader.html">dycove.utils.model_loader.ANUGAMapLoader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dycove.utils.model_loader.DFMMapLoader.html">dycove.utils.model_loader.DFMMapLoader</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">dycove.utils.model_loader.BaseMapLoader</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../apiref/utils/index.html#logging-and-reporting">Logging and Reporting</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../apiref/index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../apiref/utils/index.html">Utilities</a></li>
+      <li class="breadcrumb-item active">dycove.utils.model_loader.BaseMapLoader</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/dycove.utils.model_loader.BaseMapLoader.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dycove-utils-model-loader-basemaploader">
+<h1>dycove.utils.model_loader.BaseMapLoader<a class="headerlink" href="#dycove-utils-model-loader-basemaploader" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="dycove.utils.model_loader.BaseMapLoader">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dycove.utils.model_loader.</span></span><span class="sig-name descname"><span class="pre">BaseMapLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modeldir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eco_plot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ets_year</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/utils/model_loader.html#BaseMapLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.utils.model_loader.BaseMapLoader" title="Link to this definition"></a></dt>
+<dd><p>Abstract base class for loading map quantities from DYCOVE model outputs.</p>
+<p>Provides shared logic for vegetation quantities and file management between
+model-specific subclasses <a class="reference internal" href="dycove.utils.model_loader.DFMMapLoader.html#dycove.utils.model_loader.DFMMapLoader" title="dycove.utils.model_loader.DFMMapLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">DFMMapLoader</span></code></a>
+and <a class="reference internal" href="dycove.utils.model_loader.ANUGAMapLoader.html#dycove.utils.model_loader.ANUGAMapLoader" title="dycove.utils.model_loader.ANUGAMapLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ANUGAMapLoader</span></code></a>, and potentially
+others in the future.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>modeldir</strong> (<em>str</em><em> or </em><em>Path</em>) – Path to the model’s working directory.</p></li>
+<li><p><strong>model_name</strong> (<em>str</em>) – Root name of the model file (without extension).</p></li>
+<li><p><strong>quantity</strong> (<em>str</em>) – Quantity to load (e.g., <code class="docutils literal notranslate"><span class="pre">'Velocity'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Mortality</span> <span class="pre">--</span> <span class="pre">Flooding'</span></code>).</p></li>
+<li><p><strong>eco_plot</strong> (<em>bool</em>) – Whether vegetation quantities are being plotted.</p></li>
+<li><p><strong>n_ets_year</strong> (<em>int</em>) – Number of eco-time-steps per simulated year.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Subclasses must implement the <code class="xref py py-meth docutils literal notranslate"><span class="pre">load()</span></code> method to return a dictionary of
+arrays containing the required fields (e.g. <code class="docutils literal notranslate"><span class="pre">X</span></code>, <code class="docutils literal notranslate"><span class="pre">Y</span></code>, <code class="docutils literal notranslate"><span class="pre">Bathymetry</span></code>, and the
+target <code class="docutils literal notranslate"><span class="pre">quantity</span></code>).</p></li>
+<li><p>As expected, loading vegetation data/DYCOVE outputs relies on logic independent
+of the numerical model being used. But even in the case of plotting vegetation,
+we would also want to plot bathymetry as a layer underneath, which is dependent
+on numerical model load methods.</p></li>
+</ul>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loader</span> <span class="o">=</span> <span class="n">ANUGAMapLoader</span><span class="p">(</span><span class="n">modeldir</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="s1">&#39;Depth&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">hydro_i</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eco_year</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="go">dict_keys([&#39;X&#39;, &#39;Y&#39;, &#39;Bathymetry&#39;, &#39;WSE&#39;, &#39;Depth&#39;])</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.utils.model_loader.BaseMapLoader.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modeldir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eco_plot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ets_year</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/utils/model_loader.html#BaseMapLoader.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.utils.model_loader.BaseMapLoader.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.utils.model_loader.BaseMapLoader.__init__" title="dycove.utils.model_loader.BaseMapLoader.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(modeldir, model_name, ...)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">load</span></code>(hydro_i, ets, eco_year)</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dycove.utils.model_loader.DFMMapLoader.html" class="btn btn-neutral float-left" title="dycove.utils.model_loader.DFMMapLoader" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dycove.utils.simulation_reporting.Reporter.html" class="btn btn-neutral float-right" title="dycove.utils.simulation_reporting.Reporter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

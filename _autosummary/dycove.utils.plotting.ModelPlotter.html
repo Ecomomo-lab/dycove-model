@@ -1,0 +1,312 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dycove.utils.plotting.ModelPlotter &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dycove.utils.plotting.create_nn_interpFunc" href="dycove.utils.plotting.create_nn_interpFunc.html" />
+    <link rel="prev" title="Utilities" href="../apiref/utils/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apiref/index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../apiref/sim/index.html">Simulation</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../apiref/utils/index.html">Utilities</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../apiref/utils/index.html#plotting">Plotting</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">dycove.utils.plotting.ModelPlotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dycove.utils.plotting.create_nn_interpFunc.html">dycove.utils.plotting.create_nn_interpFunc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dycove.utils.model_loader.ANUGAMapLoader.html">dycove.utils.model_loader.ANUGAMapLoader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dycove.utils.model_loader.DFMMapLoader.html">dycove.utils.model_loader.DFMMapLoader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="dycove.utils.model_loader.BaseMapLoader.html">dycove.utils.model_loader.BaseMapLoader</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../apiref/utils/index.html#logging-and-reporting">Logging and Reporting</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../apiref/index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../apiref/utils/index.html">Utilities</a></li>
+      <li class="breadcrumb-item active">dycove.utils.plotting.ModelPlotter</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/dycove.utils.plotting.ModelPlotter.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dycove-utils-plotting-modelplotter">
+<h1>dycove.utils.plotting.ModelPlotter<a class="headerlink" href="#dycove-utils-plotting-modelplotter" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="dycove.utils.plotting.ModelPlotter">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dycove.utils.plotting.</span></span><span class="sig-name descname"><span class="pre">ModelPlotter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_label_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eco-morphodynamic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ets_year</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hr_ets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecofac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_interp_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_specs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_lims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Colormap</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_props</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_topo_cbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_bndy_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_static_imgs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_grids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/utils/plotting.html#ModelPlotter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.utils.plotting.ModelPlotter" title="Link to this definition"></a></dt>
+<dd><p>Plot hydrodynamic and vegetation quantities from DYCOVE model runs (ANUGA or DFM).</p>
+<p>This class handles loading, interpolating, and plotting 2-D spatial quantities
+(e.g., depth, velocity, vegetation fractions, mortality, etc.) from DYCOVE simulations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>simdir</strong> (<em>str</em><em> or </em><em>Path</em>) – Path to the root simulation directory containing either a <cite>dflowfm/</cite> directory
+(DFM) or a <code class="docutils literal notranslate"><span class="pre">.sww</span></code> model file (ANUGA).</p></li>
+<li><p><strong>quantity</strong> (<em>str</em>) – Quantity to plot. Must be one of the supported quantities listed below.</p></li>
+<li><p><strong>plot_times</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>int</em><em>]</em>) – <p>Dictionary of plot timing parameters with the following keys:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">'plotHR_0'</span></code>: Sim. hour to start plotting</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'plotHR_f'</span></code>: Sim. hour to end plotting</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'mapHR_int'</span></code>: Sim. hours between hydrodynamic model outputs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'plotHR_int'</span></code>: Sim. hours between consecutive plots, cannot be less than
+map_output, unused if plotting vegetation.</p></li>
+</ul>
+</p></li>
+<li><p><strong>plot_label_time</strong> (<em>str</em><em>, </em><em>optional</em>) – Time scale to use in plot titles, either <code class="docutils literal notranslate"><span class="pre">'eco-morphodynamic'</span></code> (default) or
+<code class="docutils literal notranslate"><span class="pre">'hydrodynamic'</span></code>.</p></li>
+<li><p><strong>n_ets_year</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of ecological time steps (ETS) per ecological year (default 14).</p></li>
+<li><p><strong>hr_ets</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of hydrodynamic hours per ETS (default 12).</p></li>
+<li><p><strong>ecofac</strong> (<em>int</em><em>, </em><em>optional</em>) – Multiplicative factor converting hydro to eco time. If None, computed from
+<code class="docutils literal notranslate"><span class="pre">n_ets_year</span></code> and <code class="docutils literal notranslate"><span class="pre">hr_ets</span></code>.</p></li>
+<li><p><strong>plot_interp_vars</strong> (<em>dict</em><em>, </em><em>optional</em>) – Options for interpolating to 2D grid, e.g. <code class="docutils literal notranslate"><span class="pre">{'cell_size':</span> <span class="pre">5,</span> <span class="pre">'n_neighbors':</span> <span class="pre">3}</span></code>.</p></li>
+<li><p><strong>plot_specs</strong> (<em>dict</em><em>, </em><em>optional</em>) – Plot appearance options, e.g.,
+<code class="docutils literal notranslate"><span class="pre">{'figsize':</span> <span class="pre">(6,</span> <span class="pre">6),</span> <span class="pre">'fontsize':</span> <span class="pre">12,</span> <span class="pre">'output_dpi':</span> <span class="pre">150}</span></code>.</p></li>
+<li><p><strong>cmap_lims</strong> (<em>dict</em><em>, </em><em>optional</em>) – Colorbar limits for each quantity (min, max), e.g. <code class="docutils literal notranslate"><span class="pre">{'Bathymetry':</span> <span class="pre">(0,</span> <span class="pre">1)}</span></code>.</p></li>
+<li><p><strong>cmaps</strong> (<em>dict</em><em>, </em><em>optional</em>) – Colormaps for each quantity. Accepts Matplotlib <code class="docutils literal notranslate"><span class="pre">Colormap</span></code> objects.</p></li>
+<li><p><strong>quantity_units</strong> (<em>dict</em><em>, </em><em>optional</em>) – Unit labels, scaling factors, and minimum plotting thresholds for each quantity,
+e.g. <code class="docutils literal notranslate"><span class="pre">{'Depth':</span> <span class="pre">('[m]',</span> <span class="pre">1,</span> <span class="pre">0.01),</span> <span class="pre">'Stem</span> <span class="pre">Diameter':</span> <span class="pre">('[mm]',</span> <span class="pre">1000,</span> <span class="pre">1)}</span></code>.</p></li>
+<li><p><strong>plot_vectors</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, plots normalized velocity vectors (quantity=”Velocity” only).</p></li>
+<li><p><strong>vector_props</strong> (<em>dict</em><em>, </em><em>optional</em>) – Scaling and spacing options for velocity vectors, used if quantity = “Velocity Vectors”,
+e.g., <code class="docutils literal notranslate"><span class="pre">{'vect_spacing':</span> <span class="pre">50,</span> <span class="pre">'color':</span> <span class="pre">'red',</span> <span class="pre">'scale':</span> <span class="pre">30,</span> <span class="pre">'pivot':</span> <span class="pre">'mid',</span> <span class="pre">'width':</span> <span class="pre">0.003}</span></code>.</p></li>
+<li><p><strong>show_title</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, include auto-generated plot title at top of plot.</p></li>
+<li><p><strong>show_topo_cbar</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, include elevation color bar on the left-hand side.</p></li>
+<li><p><strong>mask_bndy_file</strong> (<em>str</em><em> or </em><em>Path</em><em>, </em><em>optional</em>) – Path to polygon CSV file for masking interpolation outside the domain. Probably
+required if model domain is not rectangular.</p></li>
+<li><p><strong>extents</strong> (<em>tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Geographic extents for interpolation (xmin, xmax, ymin, ymax). Useful for
+zooming in on a particular location.</p></li>
+<li><p><strong>animate</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, creates an animated GIF after generating all plots. Requires <code class="docutils literal notranslate"><span class="pre">imageio</span></code>
+library.</p></li>
+<li><p><strong>delete_static_imgs</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, deletes individual PNGs after animation is built.</p></li>
+<li><p><strong>save_grids</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, saves interpolated grids (<code class="docutils literal notranslate"><span class="pre">.npz</span></code>) alongside figures. Can be helpful for
+external plotting of, say, difference maps, which are not supported here (yet).</p></li>
+<li><p><strong>names</strong><strong>)</strong> (<em>Supported Quantities</em><em> (</em><em>use exact</em>)</p></li>
+<li><p><strong>-------------------------------------</strong></p></li>
+<li><p><strong>quantities</strong> (<em>DYCOVE</em>)</p></li>
+<li><p><strong>'Bathymetry'</strong> (<em>-</em>)</p></li>
+<li><p><strong>'WSE'</strong> (<em>-</em>)</p></li>
+<li><p><strong>'Depth'</strong> (<em>-</em>)</p></li>
+<li><p><strong>'Velocity'</strong> (<em>-</em>)</p></li>
+<li><p><strong>Stress'</strong> (<em>- 'Max Shear</em>)</p></li>
+<li><p><strong>quantities</strong></p></li>
+<li><p><strong>Height'</strong> (<em>- 'Stem</em>)</p></li>
+<li><p><strong>Diameter'</strong> (<em>- 'Stem</em>)</p></li>
+<li><p><strong>Density'</strong> (<em>- 'Stem</em>)</p></li>
+<li><p><strong>'Fractions'</strong> (<em>-</em>)</p></li>
+<li><p><strong>Flooding'</strong> (<em>- 'Mortality --</em>)</p></li>
+<li><p><strong>Desiccation'</strong> (<em>- 'Mortality --</em>)</p></li>
+<li><p><strong>Uprooting'</strong> (<em>- 'Mortality --</em>)</p></li>
+<li><p><strong>Burial'</strong> (<em>- 'Mortality --</em>)</p></li>
+<li><p><strong>Scour'</strong> (<em>- 'Mortality --</em>)</p></li>
+<li><p><strong>Flooding'</strong></p></li>
+<li><p><strong>Desiccation'</strong></p></li>
+<li><p><strong>Uprooting'</strong></p></li>
+<li><p><strong>Burial'</strong></p></li>
+<li><p><strong>Scour'</strong></p></li>
+<li><p><strong>Total'</strong> (<em>- 'Mortality --</em>)</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>All optional arguments have default values, but some dictionary arguments
+will almost definitely need to be changed or provided by the user,
+such as <code class="docutils literal notranslate"><span class="pre">cmap_lims</span></code>, for which appropriate values will depend on model data.</p></li>
+<li><p>The class automatically detects the model type (<code class="docutils literal notranslate"><span class="pre">'DFM'</span></code> or <code class="docutils literal notranslate"><span class="pre">'ANUGA'</span></code>)
+based on directory contents.</p></li>
+<li><p>Uses <a class="reference internal" href="dycove.utils.model_loader.DFMMapLoader.html#dycove.utils.model_loader.DFMMapLoader" title="dycove.utils.model_loader.DFMMapLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">DFMMapLoader</span></code></a> or
+<a class="reference internal" href="dycove.utils.model_loader.ANUGAMapLoader.html#dycove.utils.model_loader.ANUGAMapLoader" title="dycove.utils.model_loader.ANUGAMapLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ANUGAMapLoader</span></code></a> for reading model-specific
+outputs.</p></li>
+<li><p>Vegetation quantities (e.g. fractions, stem attributes, mortality)
+are handled differently than hydrodynamic quantities, using eco-time
+and the <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> time scaling factor.</p></li>
+<li><p>Quantities that include <code class="docutils literal notranslate"><span class="pre">'Mortality'</span></code> may be plotted either as potential
+(model-estimated stress exposure) or applied (post-threshold mortality)
+fields. See <a class="reference internal" href="dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> documentation and
+<code class="docutils literal notranslate"><span class="pre">mortality*</span></code> methods of
+<a class="reference internal" href="dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies" title="dycove.sim.vegetation.VegetationSpecies"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationSpecies</span></code></a> for details.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModelPlotter</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span> <span class="o">=</span> <span class="n">ModelPlotter</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">simdir</span><span class="o">=</span><span class="s1">&#39;path/to/run&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">quantity</span><span class="o">=</span><span class="s1">&#39;Depth&#39;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">plot_times</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;plotHR_0&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;plotHR_f&#39;</span><span class="p">:</span> <span class="mi">48</span><span class="p">,</span> <span class="s1">&#39;plotHR_int&#39;</span><span class="p">:</span> <span class="mi">6</span><span class="p">,</span> <span class="s1">&#39;mapHR_int&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mp</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="go"># Generates depth plots every 6 hydrodynamic hours and saves to figures/Depth/</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.utils.plotting.ModelPlotter.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simdir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_label_time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eco-morphodynamic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ets_year</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hr_ets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">12</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecofac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_interp_vars</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_specs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap_lims</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmaps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Colormap</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity_units</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_vectors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_props</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_title</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_topo_cbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_bndy_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extents</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">animate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_static_imgs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_grids</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/utils/plotting.html#ModelPlotter.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.utils.plotting.ModelPlotter.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.utils.plotting.ModelPlotter.__init__" title="dycove.utils.plotting.ModelPlotter.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(simdir, quantity, plot_times[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_ecofac</span></code>(ecofac_input)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_gif</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_interp_func</span></code>(map_vars)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_timestrings</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">do_quiver</span></code>(ax, base_grid)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_fname_time</span></code>(time_parts)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_title_time</span></code>(time_parts)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_eco_times</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_hydro_eco_times</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_map_indices</span></code>(i)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_model_name</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_model_type</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_modeldir</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_quantity_grids</span></code>(map_vars)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.utils.plotting.ModelPlotter.get_time_breakdown" title="dycove.utils.plotting.ModelPlotter.get_time_breakdown"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_breakdown</span></code></a>(i)</p></td>
+<td><p>Returns a dict with time components for formatting titles and filenames.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_time_indices</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_quantity</span></code>(base_grid, main_grid)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.utils.plotting.ModelPlotter.get_time_breakdown">
+<span class="sig-name descname"><span class="pre">get_time_breakdown</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">i</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/utils/plotting.html#ModelPlotter.get_time_breakdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.utils.plotting.ModelPlotter.get_time_breakdown" title="Link to this definition"></a></dt>
+<dd><p>Returns a dict with time components for formatting titles and filenames.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../apiref/utils/index.html" class="btn btn-neutral float-left" title="Utilities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dycove.utils.plotting.create_nn_interpFunc.html" class="btn btn-neutral float-right" title="dycove.utils.plotting.create_nn_interpFunc" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

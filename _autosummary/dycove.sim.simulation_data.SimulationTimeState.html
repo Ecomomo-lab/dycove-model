@@ -1,0 +1,480 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dycove.sim.simulation_data.SimulationTimeState &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dycove.sim.simulation_data.HydrodynamicStats" href="dycove.sim.simulation_data.HydrodynamicStats.html" />
+    <link rel="prev" title="dycove.sim.outputs.OutputManager" href="dycove.sim.outputs.OutputManager.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apiref/index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../apiref/sim/index.html">Simulation</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#base-simulation-module">Base Simulation Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#hydrodynamic-model-engines">Hydrodynamic Model Engines</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../apiref/sim/index.html#simulation-helper-classes">Simulation Helper Classes</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../apiref/sim/index.html#model-coupling">Model Coupling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apiref/sim/index.html#output-management">Output Management</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../apiref/sim/index.html#simulation-data">Simulation Data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#vegetation-modules">Vegetation Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../apiref/utils/index.html">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../apiref/index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../apiref/sim/index.html">Simulation</a></li>
+      <li class="breadcrumb-item active">dycove.sim.simulation_data.SimulationTimeState</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/dycove.sim.simulation_data.SimulationTimeState.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dycove-sim-simulation-data-simulationtimestate">
+<h1>dycove.sim.simulation_data.SimulationTimeState<a class="headerlink" href="#dycove-sim-simulation-data-simulationtimestate" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dycove.sim.simulation_data.</span></span><span class="sig-name descname"><span class="pre">SimulationTimeState</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eco_year:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ets:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_time:</span> <span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_time_unit:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ets:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">veg_interval:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydro_interval:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">morfac:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecofac:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refdate:</span> <span class="pre">~datetime.datetime</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydrotime_seconds:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/simulation_data.html#SimulationTimeState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState" title="Link to this definition"></a></dt>
+<dd><p>Tracks and manages simulation time state variables.</p>
+<p>This class handles both the hydrodynamic and eco-morphodynamic
+time scales, including conversions between them.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.eco_year">
+<span class="sig-name descname"><span class="pre">eco_year</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.eco_year" title="Link to this definition"></a></dt>
+<dd><p>Current ecological year in the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.ets">
+<span class="sig-name descname"><span class="pre">ets</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.ets" title="Link to this definition"></a></dt>
+<dd><p>Current ecological time step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.sim_time">
+<span class="sig-name descname"><span class="pre">sim_time</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.sim_time" title="Link to this definition"></a></dt>
+<dd><p>Simulation time in units given by <cite>sim_time_unit</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.sim_time_unit">
+<span class="sig-name descname"><span class="pre">sim_time_unit</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.sim_time_unit" title="Link to this definition"></a></dt>
+<dd><p>Unit of <cite>sim_time</cite>. Must be either <cite>‘hydrodynamic days’</cite> or
+<cite>‘eco-morphodynamic years’</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.n_ets">
+<span class="sig-name descname"><span class="pre">n_ets</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.n_ets" title="Link to this definition"></a></dt>
+<dd><p>Number of ecological time steps per year.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.veg_interval">
+<span class="sig-name descname"><span class="pre">veg_interval</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.veg_interval" title="Link to this definition"></a></dt>
+<dd><p>Time interval (in seconds) between vegetation updates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.hydro_interval">
+<span class="sig-name descname"><span class="pre">hydro_interval</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.hydro_interval" title="Link to this definition"></a></dt>
+<dd><p>Time interval (in seconds) between hydrodynamic updates
+(updates to <a class="reference internal" href="dycove.sim.simulation_data.HydrodynamicStats.html#dycove.sim.simulation_data.HydrodynamicStats" title="dycove.sim.simulation_data.HydrodynamicStats"><code class="xref py py-class docutils literal notranslate"><span class="pre">HydrodynamicStats</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.morfac">
+<span class="sig-name descname"><span class="pre">morfac</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.morfac" title="Link to this definition"></a></dt>
+<dd><p>Morphological acceleration factor from the morphodynamic model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.vegfac">
+<span class="sig-name descname"><span class="pre">vegfac</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.vegfac" title="Link to this definition"></a></dt>
+<dd><p>Vegetation acceleration factor. If None, it is computed automatically.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int, optional</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.refdate">
+<span class="sig-name descname"><span class="pre">refdate</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.refdate" title="Link to this definition"></a></dt>
+<dd><p>Reference start date of the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.hydrotime_seconds">
+<span class="sig-name descname"><span class="pre">hydrotime_seconds</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.hydrotime_seconds" title="Link to this definition"></a></dt>
+<dd><p>Accumulated hydrodynamic simulation time in seconds.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">Computed</span> <span class="pre">Attributes</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">-------------------</span></span></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.days_per_year">
+<span class="sig-name descname"><span class="pre">days_per_year</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.days_per_year" title="Link to this definition"></a></dt>
+<dd><p>Implied number of days per ecological year.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.hydro_sim_days">
+<span class="sig-name descname"><span class="pre">hydro_sim_days</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.hydro_sim_days" title="Link to this definition"></a></dt>
+<dd><p>Total hydrodynamic days elapsed in the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.veg_sim_years">
+<span class="sig-name descname"><span class="pre">veg_sim_years</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.veg_sim_years" title="Link to this definition"></a></dt>
+<dd><p>Total eco-morphodynamic years elapsed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.time_0">
+<span class="sig-name descname"><span class="pre">time_0</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.time_0" title="Link to this definition"></a></dt>
+<dd><p>Wall-clock timestamp of simulation start.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.times_elapsed">
+<span class="sig-name descname"><span class="pre">times_elapsed</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.times_elapsed" title="Link to this definition"></a></dt>
+<dd><p>List of elapsed wall-clock times at updates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.n_veg_steps">
+<span class="sig-name descname"><span class="pre">n_veg_steps</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.n_veg_steps" title="Link to this definition"></a></dt>
+<dd><p>Total number of ecological steps in the simulation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.n_hydro_steps">
+<span class="sig-name descname"><span class="pre">n_hydro_steps</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.n_hydro_steps" title="Link to this definition"></a></dt>
+<dd><p>Total number of hydrodynamic steps per ecological step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.hydrotime_date">
+<span class="sig-name descname"><span class="pre">hydrotime_date</span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.hydrotime_date" title="Link to this definition"></a></dt>
+<dd><p>Current simulation date based on hydrodynamic time.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>datetime</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eco_year:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ets:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_time:</span> <span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_time_unit:</span> <span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ets:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">veg_interval:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydro_interval:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">morfac:</span> <span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecofac:</span> <span class="pre">int</span> <span class="pre">|</span> <span class="pre">None</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">refdate:</span> <span class="pre">~datetime.datetime</span> <span class="pre">=</span> <span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydrotime_seconds:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.__init__" title="dycove.sim.simulation_data.SimulationTimeState.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(eco_year, ets, sim_time, ...[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">advance_time</span></code>(seconds)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.compute_days_per_year" title="dycove.sim.simulation_data.SimulationTimeState.compute_days_per_year"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_days_per_year</span></code></a>()</p></td>
+<td><p>Compute the implied 'days per year' from ecofac, veg_interval, and n_ets.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.compute_ecofac" title="dycove.sim.simulation_data.SimulationTimeState.compute_ecofac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_ecofac</span></code></a>()</p></td>
+<td><p>Determine ecological acceleration factor, prioritizing: model morfac &gt; input value &gt; derived value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.compute_time_conversions" title="dycove.sim.simulation_data.SimulationTimeState.compute_time_conversions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_time_conversions</span></code></a>()</p></td>
+<td><p>Convert between hydrodynamic days and eco-morphodynamic years.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_ets</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ecofac</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.hydrotime_seconds" title="dycove.sim.simulation_data.SimulationTimeState.hydrotime_seconds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydrotime_seconds</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">vegtime_date</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.eco_year" title="dycove.sim.simulation_data.SimulationTimeState.eco_year"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eco_year</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.ets" title="dycove.sim.simulation_data.SimulationTimeState.ets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ets</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.sim_time" title="dycove.sim.simulation_data.SimulationTimeState.sim_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_time</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.sim_time_unit" title="dycove.sim.simulation_data.SimulationTimeState.sim_time_unit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sim_time_unit</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.n_ets" title="dycove.sim.simulation_data.SimulationTimeState.n_ets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_ets</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.veg_interval" title="dycove.sim.simulation_data.SimulationTimeState.veg_interval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">veg_interval</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.hydro_interval" title="dycove.sim.simulation_data.SimulationTimeState.hydro_interval"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydro_interval</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.morfac" title="dycove.sim.simulation_data.SimulationTimeState.morfac"><code class="xref py py-obj docutils literal notranslate"><span class="pre">morfac</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.refdate" title="dycove.sim.simulation_data.SimulationTimeState.refdate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">refdate</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.days_per_year" title="dycove.sim.simulation_data.SimulationTimeState.days_per_year"><code class="xref py py-obj docutils literal notranslate"><span class="pre">days_per_year</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.hydro_sim_days" title="dycove.sim.simulation_data.SimulationTimeState.hydro_sim_days"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydro_sim_days</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.veg_sim_years" title="dycove.sim.simulation_data.SimulationTimeState.veg_sim_years"><code class="xref py py-obj docutils literal notranslate"><span class="pre">veg_sim_years</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.time_0" title="dycove.sim.simulation_data.SimulationTimeState.time_0"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_0</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.times_elapsed" title="dycove.sim.simulation_data.SimulationTimeState.times_elapsed"><code class="xref py py-obj docutils literal notranslate"><span class="pre">times_elapsed</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.n_veg_steps" title="dycove.sim.simulation_data.SimulationTimeState.n_veg_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_veg_steps</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.n_hydro_steps" title="dycove.sim.simulation_data.SimulationTimeState.n_hydro_steps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_hydro_steps</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.simulation_data.SimulationTimeState.hydrotime_date" title="dycove.sim.simulation_data.SimulationTimeState.hydrotime_date"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydrotime_date</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.__post_init__">
+<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/simulation_data.html#SimulationTimeState.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.__post_init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize computed attributes and validate inputs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.compute_days_per_year">
+<span class="sig-name descname"><span class="pre">compute_days_per_year</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/simulation_data.html#SimulationTimeState.compute_days_per_year"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.compute_days_per_year" title="Link to this definition"></a></dt>
+<dd><p>Compute the implied ‘days per year’ from ecofac, veg_interval, and n_ets.</p>
+<p>Validates that the result is reasonable (350-380 days).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.compute_ecofac">
+<span class="sig-name descname"><span class="pre">compute_ecofac</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/simulation_data.html#SimulationTimeState.compute_ecofac"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.compute_ecofac" title="Link to this definition"></a></dt>
+<dd><p>Determine ecological acceleration factor, prioritizing:
+model morfac &gt; input value &gt; derived value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.simulation_data.SimulationTimeState.compute_time_conversions">
+<span class="sig-name descname"><span class="pre">compute_time_conversions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/simulation_data.html#SimulationTimeState.compute_time_conversions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.simulation_data.SimulationTimeState.compute_time_conversions" title="Link to this definition"></a></dt>
+<dd><p>Convert between hydrodynamic days and eco-morphodynamic years.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dycove.sim.outputs.OutputManager.html" class="btn btn-neutral float-left" title="dycove.sim.outputs.OutputManager" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dycove.sim.simulation_data.HydrodynamicStats.html" class="btn btn-neutral float-right" title="dycove.sim.simulation_data.HydrodynamicStats" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

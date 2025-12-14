@@ -1,0 +1,193 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dycove.sim.outputs.OutputManager &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dycove.sim.simulation_data.SimulationTimeState" href="dycove.sim.simulation_data.SimulationTimeState.html" />
+    <link rel="prev" title="dycove.sim.coupler.VegetationCoupler" href="dycove.sim.coupler.VegetationCoupler.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apiref/index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../apiref/sim/index.html">Simulation</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#base-simulation-module">Base Simulation Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#hydrodynamic-model-engines">Hydrodynamic Model Engines</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../apiref/sim/index.html#simulation-helper-classes">Simulation Helper Classes</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../apiref/sim/index.html#model-coupling">Model Coupling</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../apiref/sim/index.html#output-management">Output Management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apiref/sim/index.html#simulation-data">Simulation Data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#vegetation-modules">Vegetation Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../apiref/utils/index.html">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../apiref/index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../apiref/sim/index.html">Simulation</a></li>
+      <li class="breadcrumb-item active">dycove.sim.outputs.OutputManager</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/dycove.sim.outputs.OutputManager.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dycove-sim-outputs-outputmanager">
+<h1>dycove.sim.outputs.OutputManager<a class="headerlink" href="#dycove-sim-outputs-outputmanager" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="dycove.sim.outputs.OutputManager">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dycove.sim.outputs.</span></span><span class="sig-name descname"><span class="pre">OutputManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/outputs.html#OutputManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.outputs.OutputManager" title="Link to this definition"></a></dt>
+<dd><p>For saving <a class="reference internal" href="dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> instances to output files.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.outputs.OutputManager.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/outputs.html#OutputManager.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.outputs.OutputManager.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.__init__" title="dycove.sim.outputs.OutputManager.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(engine)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.make_numpy_friendly" title="dycove.sim.outputs.OutputManager.make_numpy_friendly"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_numpy_friendly</span></code></a>(obj)</p></td>
+<td><p>Recursively convert arrays/lists to numpy arrays where possible</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.reconcile_vegetation_output" title="dycove.sim.outputs.OutputManager.reconcile_vegetation_output"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconcile_vegetation_output</span></code></a>()</p></td>
+<td><p>Merge vegetation outputs across MPI subdomains into single files.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.save_binary" title="dycove.sim.outputs.OutputManager.save_binary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_binary</span></code></a>(directory, name, data, year, ets)</p></td>
+<td><p>Save dict-like data as compressed numpy .npz file</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.save_vegetation_step" title="dycove.sim.outputs.OutputManager.save_vegetation_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_vegetation_step</span></code></a>(year, ets)</p></td>
+<td><p>Save vegetation cohort state for a given ecological timestep</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.outputs.OutputManager.make_numpy_friendly">
+<span class="sig-name descname"><span class="pre">make_numpy_friendly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/outputs.html#OutputManager.make_numpy_friendly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.outputs.OutputManager.make_numpy_friendly" title="Link to this definition"></a></dt>
+<dd><p>Recursively convert arrays/lists to numpy arrays where possible</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.outputs.OutputManager.reconcile_vegetation_output">
+<span class="sig-name descname"><span class="pre">reconcile_vegetation_output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/outputs.html#OutputManager.reconcile_vegetation_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.outputs.OutputManager.reconcile_vegetation_output" title="Link to this definition"></a></dt>
+<dd><p>Merge vegetation outputs across MPI subdomains into single files.</p>
+<p>We want one output file per cohort, per ecological timestep.</p>
+<p>This executes on main processor only and can take a while for giant domains.</p>
+<p>Method is part of the engine class because it uses domain-specific info to
+re-map files, but we should keep this in OutputManager for now because we may
+add other similar tasks here later (and b/c it involves I/O and directory
+access).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.outputs.OutputManager.save_binary">
+<span class="sig-name descname"><span class="pre">save_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ets</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/outputs.html#OutputManager.save_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.outputs.OutputManager.save_binary" title="Link to this definition"></a></dt>
+<dd><p>Save dict-like data as compressed numpy .npz file</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.outputs.OutputManager.save_vegetation_step">
+<span class="sig-name descname"><span class="pre">save_vegetation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/outputs.html#OutputManager.save_vegetation_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.outputs.OutputManager.save_vegetation_step" title="Link to this definition"></a></dt>
+<dd><p>Save vegetation cohort state for a given ecological timestep</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dycove.sim.coupler.VegetationCoupler.html" class="btn btn-neutral float-left" title="dycove.sim.coupler.VegetationCoupler" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dycove.sim.simulation_data.SimulationTimeState.html" class="btn btn-neutral float-right" title="dycove.sim.simulation_data.SimulationTimeState" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

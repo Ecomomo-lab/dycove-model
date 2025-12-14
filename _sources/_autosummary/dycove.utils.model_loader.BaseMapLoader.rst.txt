@@ -1,0 +1,23 @@
+﻿dycove.utils.model\_loader.BaseMapLoader
+========================================
+
+.. currentmodule:: dycove.utils.model_loader
+
+.. autoclass:: BaseMapLoader
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BaseMapLoader.__init__
+      ~BaseMapLoader.load
+   
+   
+
+   
+   
+   

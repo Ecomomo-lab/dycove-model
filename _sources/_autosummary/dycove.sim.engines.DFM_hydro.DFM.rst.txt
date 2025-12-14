@@ -1,0 +1,25 @@
+﻿dycove.sim.engines.DFM\_hydro.DFM
+=================================
+
+.. currentmodule:: dycove.sim.engines.DFM_hydro
+
+.. autoclass:: DFM
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DFM.__init__
+      ~DFM.loop_hydrodynamics
+      ~DFM.run_simulation
+      ~DFM.step_hydrodynamics
+   
+   
+
+   
+   
+   

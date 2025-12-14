@@ -1,0 +1,23 @@
+﻿dycove.sim.vegetation.SharedVegMethods
+======================================
+
+.. currentmodule:: dycove.sim.vegetation
+
+.. autoclass:: SharedVegMethods
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SharedVegMethods.__init__
+      ~SharedVegMethods.compute_veg_model_quantities
+   
+   
+
+   
+   
+   

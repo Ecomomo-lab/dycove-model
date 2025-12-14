@@ -1,0 +1,25 @@
+﻿dycove.sim.engines.ANUGA\_hydro.ANUGA
+=====================================
+
+.. currentmodule:: dycove.sim.engines.ANUGA_hydro
+
+.. autoclass:: ANUGA
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ANUGA.__init__
+      ~ANUGA.loop_hydrodynamics
+      ~ANUGA.run_simulation
+      ~ANUGA.step_hydrodynamics
+   
+   
+
+   
+   
+   

@@ -1,0 +1,473 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dycove.sim.engines.ANUGA_hydro &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apiref/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dycove.sim.engines.ANUGA_hydro</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dycove.sim.engines.ANUGA_hydro</h1><div class="highlight"><pre>
+<span></span><span class="c1">###############################################################</span>
+<span class="c1">#  ANUGA_hydro.py</span>
+<span class="c1">###############################################################</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">netCDF4</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.sim.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">HydroSimulationBase</span><span class="p">,</span> <span class="n">HydroEngineBase</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.sim.engines.ANUGA_baptist</span><span class="w"> </span><span class="kn">import</span> <span class="n">Baptist_operator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.simulation_reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reporter</span>
+
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_import_anuga</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">anuga</span><span class="w"> </span><span class="kn">import</span> <span class="n">myid</span><span class="p">,</span> <span class="n">numprocs</span><span class="p">,</span> <span class="n">finalize</span><span class="p">,</span> <span class="n">barrier</span>
+        <span class="k">return</span> <span class="n">myid</span><span class="p">,</span> <span class="n">numprocs</span><span class="p">,</span> <span class="n">finalize</span><span class="p">,</span> <span class="n">barrier</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The `anuga` package is not installed. &quot;</span>
+               <span class="s2">&quot;Refer to the documentation for installation instructions.&quot;</span><span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="ANUGA">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.ANUGA.html#dycove.sim.engines.ANUGA_hydro.ANUGA">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ANUGA</span><span class="p">(</span><span class="n">HydroSimulationBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hydrodynamic simulation wrapper for the ANUGA model.</span>
+
+<span class="sd">    This class connects the generic :class:`~dycove.sim.base.HydroSimulationBase` </span>
+<span class="sd">    interface to the ANUGA hydrodynamic engine </span>
+<span class="sd">    :class:`~dycove.sim.base.engines.ANUGA_hydro.AnugaEngine`.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - The ANUGA ``domain`` object is expected to be pre-constructed by the user.</span>
+<span class="sd">      This preserves the typical ANUGA workflow where domains are created</span>
+<span class="sd">      directly in Python scripts.</span>
+<span class="sd">    - All higher-level logic that can be abstracted from the engine classes is</span>
+<span class="sd">      handled in :class:`~dycove.sim.base.HydroSimulationBase`; all low-level </span>
+<span class="sd">      model interactions are delegated to </span>
+<span class="sd">      :class:`~dycove.sim.base.engines.ANUGA_hydro.AnugaEngine`.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ANUGA.__init__">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.ANUGA.html#dycove.sim.engines.ANUGA_hydro.ANUGA.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anuga_domain</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># build ANUGA engine</span>
+        <span class="n">engine</span> <span class="o">=</span> <span class="n">AnugaEngine</span><span class="p">(</span><span class="n">anuga_domain</span><span class="p">,</span> <span class="n">vegetation</span><span class="p">)</span>
+        <span class="c1"># pass ANUGA engine to the base class</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span></div>
+</div>
+
+    
+
+<div class="viewcode-block" id="AnugaEngine">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AnugaEngine</span><span class="p">(</span><span class="n">HydroEngineBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">    Engine interface for ANUGA hydrodynamic model.</span>
+
+<span class="sd">    This engine:</span>
+<span class="sd">    </span>
+<span class="sd">    - Holds the ANUGA domain object.</span>
+<span class="sd">    - Reads/writes flow and vegetation state directly through Python objects</span>
+<span class="sd">      (unlike BMI-based engine used for Delft3D FM).</span>
+<span class="sd">    - Contains all methods that are specific to the ANUGA model.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    anuga_domain : anuga.domain</span>
+<span class="sd">        The pre-constructed computational domain.</span>
+<span class="sd">    vegetation : VegetationSpecies or MultipleVegetationSpecies, optional</span>
+<span class="sd">        Vegetation object passed down from the base simulation.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - ANUGA runs in many short `domain.evolve()` loops (see </span>
+<span class="sd">      :meth:`~dycove.sim.engines.ANUGA_hydro.AnugaEngine.step`) </span>
+<span class="sd">      rather than one long simulation call; the ``skip_step`` mechanism </span>
+<span class="sd">      prevents duplicate first timesteps across loops.</span>
+<span class="sd">    - Parallel execution (if enabled) requires merging local vegetation states</span>
+<span class="sd">      after simulation; see </span>
+<span class="sd">      :meth:`~dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AnugaEngine.__init__">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">anuga_domain</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># lazy anuga loading</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">myid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">finalize</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span> <span class="o">=</span> <span class="n">_import_anuga</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">domain</span> <span class="o">=</span> <span class="n">anuga_domain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">get_datadir</span><span class="p">()</span>
+
+        <span class="c1"># passing vegetation as attribute of the engine</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="o">=</span> <span class="n">vegetation</span>
+
+        <span class="c1"># Theoretically, we could take the weighted average of drag attributes based on species, lifestage</span>
+        <span class="c1"># But DFM can only acept a single value. So we copy that approach for ANUGA and set the Baptist_operator</span>
+        <span class="c1">#   with a constant value each time we do set_vegetation()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">drag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_drag</span><span class="p">()</span>
+
+        <span class="c1"># With DYCOVE-ANUGA, we run many consecutive &quot;domain.evolve&quot; loops, rather than just one big loop.</span>
+        <span class="c1"># We don&#39;t want to skip the first step for the first of these loops, but for every other loop, we do.</span>
+        <span class="c1"># Otherwise, we get repeated steps.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skip_step</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># interval (seconds) for saving ANUGA output, this is just a placeholder</span>
+        <span class="c1"># actual value is set via run_simulation() and used as argument to domain.evolve()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_interval</span> <span class="o">=</span> <span class="mi">3600</span></div>
+
+
+
+<div class="viewcode-block" id="AnugaEngine.initialize">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.initialize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># ANUGA doesn&#39;t have an &quot;initialize&quot; method like DFM, </span>
+        <span class="c1"># but we can include some required steps here rather than just having an empty method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Baptist</span> <span class="o">=</span> <span class="n">Baptist_operator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> 
+                                        <span class="n">veg_diameter</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                                        <span class="n">veg_density</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                                        <span class="n">veg_height</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                                        <span class="n">drag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">drag</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">morphology</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+        
+<div class="viewcode-block" id="AnugaEngine.step">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.step">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="p">):</span>
+        <span class="c1"># normally, all processes would be performed within this domain.evolve() loop, </span>
+        <span class="c1"># but for consistency across all potential models, we wrap it up here under the &quot;step&quot; method.</span>
+        <span class="n">yieldstep</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">seconds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_interval</span><span class="p">)</span>  <span class="c1"># if performing a &quot;big&quot; step, reduce yieldstep so it equals save_interval</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">evolve</span><span class="p">(</span><span class="n">yieldstep</span><span class="o">=</span><span class="n">yieldstep</span><span class="p">,</span> 
+                                    <span class="n">outputstep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_interval</span><span class="p">,</span>
+                                    <span class="n">duration</span><span class="o">=</span><span class="n">seconds</span><span class="p">,</span>
+                                    <span class="n">skip_initial_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_step</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">myid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">timestepping_statistics</span><span class="p">())</span>
+                
+            <span class="c1"># skip initial yieldstep for all future loops, to avoid rerunning yieldsteps at restart</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skip_step</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="c1"># barrier() enforces wait time for all cores so they catch up to each other when this is called (ignored if not parallel)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="AnugaEngine.cleanup">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.cleanup">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># cleanup only required for parallel models</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">sww_merge</span><span class="p">(</span><span class="n">delete_old</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="AnugaEngine.get_rank">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.get_rank">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rank</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">myid</span></div>
+
+
+<div class="viewcode-block" id="AnugaEngine.get_cell_count">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.get_cell_count">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># get number of cells (not nodes) in numerical model grid</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_elevation</span><span class="p">())</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_refdate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># hardcoded for now, because DFM requires this in input file</span>
+        <span class="c1"># TODO: fix or remove</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2001</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>     
+
+<div class="viewcode-block" id="AnugaEngine.get_elevation">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.get_elevation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># return array of elevation values at cell centers</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">quantities</span><span class="p">[</span><span class="s2">&quot;elevation&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">centroid_values</span></div>
+
+
+<div class="viewcode-block" id="AnugaEngine.get_velocity_and_depth">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.get_velocity_and_depth">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_velocity_and_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># get time-varying quantities available in anuga and convert to velocity and depth</span>
+        <span class="n">stage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">quantities</span><span class="p">[</span><span class="s2">&quot;stage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">centroid_values</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">stage</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_elevation</span><span class="p">()</span>
+        <span class="n">xmom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">quantities</span><span class="p">[</span><span class="s2">&quot;xmomentum&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">centroid_values</span>
+        <span class="n">ymom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">quantities</span><span class="p">[</span><span class="s2">&quot;ymomentum&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">centroid_values</span>
+        <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+            <span class="n">h_lim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">get_minimum_storable_height</span><span class="p">()</span>
+            <span class="n">xvel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">depth</span> <span class="o">&lt;</span> <span class="n">h_lim</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">xmom</span><span class="o">/</span><span class="n">depth</span><span class="p">)</span>
+            <span class="n">yvel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">depth</span> <span class="o">&lt;</span> <span class="n">h_lim</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">ymom</span><span class="o">/</span><span class="n">depth</span><span class="p">)</span>
+        <span class="n">velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">xvel</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">yvel</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">depth</span></div>
+
+
+<div class="viewcode-block" id="AnugaEngine.get_vegetation">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.get_vegetation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_vegetation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># pull directly from Baptist operator</span>
+        <span class="n">stemdensity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Baptist</span><span class="o">.</span><span class="n">veg_density</span><span class="o">.</span><span class="n">centroid_values</span>
+        <span class="n">stemdiameter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Baptist</span><span class="o">.</span><span class="n">veg_diameter</span><span class="o">.</span><span class="n">centroid_values</span>
+        <span class="n">stemheight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Baptist</span><span class="o">.</span><span class="n">veg_height</span><span class="o">.</span><span class="n">centroid_values</span>
+        <span class="k">return</span> <span class="n">stemdensity</span><span class="p">,</span> <span class="n">stemdiameter</span><span class="p">,</span> <span class="n">stemheight</span></div>
+
+    
+<div class="viewcode-block" id="AnugaEngine.set_vegetation">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.set_vegetation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_vegetation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stemdensity</span><span class="p">,</span> <span class="n">stemdiameter</span><span class="p">,</span> <span class="n">stemheight</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Baptist</span><span class="o">.</span><span class="n">set_vegetation</span><span class="p">(</span><span class="n">veg_diameter</span><span class="o">=</span><span class="n">stemdiameter</span><span class="p">,</span>
+                                    <span class="n">veg_density</span><span class="o">=</span><span class="n">stemdensity</span><span class="p">,</span>
+                                    <span class="n">veg_height</span><span class="o">=</span><span class="n">stemheight</span><span class="p">,</span>
+                                    <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_drag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="p">,</span> <span class="s2">&quot;attrs&quot;</span><span class="p">):</span>  <span class="c1"># then it is a single species object</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">drag</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># then it is a multiple species object, take average</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">sp</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">drag</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">species_list</span><span class="p">])</span>
+            
+<div class="viewcode-block" id="AnugaEngine.check_simulation_inputs">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.check_simulation_inputs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_simulation_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simstate</span><span class="p">):</span>
+        <span class="c1"># Nothing implemented yet</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="AnugaEngine.is_parallel">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.is_parallel">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">False</span></div>
+
+    
+<div class="viewcode-block" id="AnugaEngine.merge_parallel_veg">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">merge_parallel_veg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">OutputManager</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Merge vegetation output files from parallel ANUGA runs into single files per cohort.</span>
+<span class="sd">        </span>
+<span class="sd">        This involves reading local-to-global index mapping from each ANUGA subdomain&#39;s </span>
+<span class="sd">        ``sww`` file, then using that mapping to merge local vegetation arrays into global </span>
+<span class="sd">        arrays.</span>
+<span class="sd">        </span>
+<span class="sd">        Finally, save merged arrays using :class:`~dycove.sim.outputs.OutputManager` and </span>
+<span class="sd">        delete local files.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">outputdir</span> <span class="o">=</span> <span class="n">OutputManager</span><span class="o">.</span><span class="n">veg_dir</span>
+
+        <span class="n">sww_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>  <span class="c1"># this is the specific name for myid 0, so it has suffix &quot;_0&quot;</span>
+        <span class="n">base_name</span> <span class="o">=</span> <span class="n">sww_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># remove the suffix for myid 0</span>
+        <span class="n">sww_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">get_datadir</span><span class="p">())</span>
+
+        <span class="c1"># put sww variables from each processor into list</span>
+        <span class="n">sww_file_list</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sww_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">.sww&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">)]</span>
+
+        <span class="c1"># get subdomain index mapping arrays</span>
+        <span class="n">tri_l2g</span><span class="p">,</span> <span class="n">tri_full_flag</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">sww_file</span> <span class="ow">in</span> <span class="n">sww_file_list</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">sww_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">sww</span><span class="p">:</span>
+                <span class="n">tri_l2g</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sww</span><span class="p">[</span><span class="s2">&quot;tri_l2g&quot;</span><span class="p">][:])</span>
+                <span class="n">tri_full_flag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sww</span><span class="p">[</span><span class="s2">&quot;tri_full_flag&quot;</span><span class="p">][:])</span>
+
+        <span class="c1"># get no. global grid cells -- this must happen prior to loops b/c we need to know n_global beforehand</span>
+        <span class="c1"># get_cell_count() method would return only local processor cell count</span>
+        <span class="n">n_global</span> <span class="o">=</span> <span class="nb">max</span><span class="p">([</span><span class="n">tri</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="k">for</span> <span class="n">tri</span> <span class="ow">in</span> <span class="n">tri_l2g</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="c1"># get indices for full (non-ghost) cells</span>
+        <span class="n">f_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">tri_full_flag</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">)]</span>
+        <span class="n">f_gids</span> <span class="o">=</span> <span class="p">[</span><span class="n">tri_l2g</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">f_ids</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">)]</span>
+
+        <span class="c1"># Regex to extract cohort, proc, year, ets from output file names</span>
+        <span class="c1"># file names are like: &#39;cohort1_proc0_year1_ets2.npz&#39;</span>
+        <span class="c1"># we want to merge them so they are like: &#39;cohort1_year1_ets2.npz&#39;</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;cohort(?P&lt;cohort&gt;\d+)_proc(?P&lt;proc&gt;\d+)_year(?P&lt;year&gt;\d+)_ets(?P&lt;ets&gt;\d+)\.npz&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">files_by_cohort</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">outputdir</span><span class="o">.</span><span class="n">iterdir</span><span class="p">():</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c1"># ignore non-matching files</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">info</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+            <span class="n">info</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">f</span>
+            <span class="n">files_by_cohort</span><span class="p">[</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;cohort&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+
+        <span class="c1"># loop over vegetation cohorts (we want one file per cohort)</span>
+        <span class="k">for</span> <span class="n">cohort_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">cohorts</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            
+            <span class="c1"># all files for this cohort</span>
+            <span class="n">c_files</span> <span class="o">=</span> <span class="n">files_by_cohort</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cohort_id</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="c1">#c_files = sorted(outputdir.glob(f&quot;cohort{cohort_id}_proc*.npz&quot;), key=lambda f: parse_file(f.name))</span>
+            
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: No output files found for cohort </span><span class="si">{</span><span class="n">cohort_id</span><span class="si">}</span><span class="s2">, skipping merge. &quot;</span>
+                        <span class="s2">&quot;This could be due to the simulation ending in the middle of an ETS, &quot;</span>
+                        <span class="s2">&quot;where the last cohort has not been written to an output file yet.&quot;</span><span class="p">)</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># sort by (ets, year, cohort)   &lt;-- your required sorting</span>
+            <span class="n">c_files_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">c_files</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">d</span><span class="p">:</span> <span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;ets&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">],</span> <span class="n">d</span><span class="p">[</span><span class="s2">&quot;cohort&quot;</span><span class="p">]))</span>
+
+            <span class="c1"># build structure: years → ets → list of dicts</span>
+            <span class="n">years</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">c_files_sorted</span><span class="p">:</span>
+                <span class="n">years</span><span class="p">[</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">]][</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;ets&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+
+            <span class="c1"># --- Double loop: years then ETS (note: ETS may not start at 1) ---</span>
+            <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">years</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="k">for</span> <span class="n">ets</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">years</span><span class="p">[</span><span class="n">year</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+
+                    <span class="c1"># for storing merged arrays</span>
+                    <span class="n">merged</span> <span class="o">=</span> <span class="p">{}</span>
+                
+                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">):</span>
+                        <span class="c1"># find matching file</span>
+                        <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">fi</span> <span class="k">for</span> <span class="n">fi</span> <span class="ow">in</span> <span class="n">years</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">ets</span><span class="p">]</span> <span class="k">if</span> <span class="n">fi</span><span class="p">[</span><span class="s2">&quot;proc&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">p</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+
+                        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                            <span class="n">fname</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;No individual processor (proc) output files found for this &quot;</span>
+                                   <span class="s2">&quot;cohort, year, and ETS combination&quot;</span><span class="p">)</span>
+                            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+                            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+                        <span class="c1"># load numpy and convert to dictionary</span>
+                        <span class="n">cohort_local</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fname</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+
+                        <span class="c1"># loop over cohort quantities that are array-like</span>
+                        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">cohort_local</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">merged</span><span class="p">:</span>  <span class="c1"># allocate global array only once</span>
+                                    <span class="n">merged</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_global</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+                                <span class="c1"># merge into global array using local-to-global index mapping</span>
+                                <span class="n">merged</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">f_gids</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">f_ids</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span>
+
+                            <span class="c1"># for scalar quantities, just pass the output (only need to do it once since it doesn not vary spatially)</span>
+                            <span class="k">elif</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="n">merged</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">values</span>
+
+                        <span class="c1"># remove local file</span>
+                        <span class="n">fname</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+                    <span class="c1"># save merged output (basically just remove the &quot;proc&quot; part of the filename)</span>
+                    <span class="n">OutputManager</span><span class="o">.</span><span class="n">save_binary</span><span class="p">(</span><span class="n">outputdir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;cohort</span><span class="si">{</span><span class="n">cohort_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">merged</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">ets</span><span class="p">)</span></div>
+</div>
+
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

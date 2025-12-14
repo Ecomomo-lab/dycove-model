@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dycove.sim.engines.ANUGA_baptist &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+
+  
+      <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../apiref/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dycove.sim.engines.ANUGA_baptist</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dycove.sim.engines.ANUGA_baptist</h1><div class="highlight"><pre>
+<span></span><span class="c1">###############################################################</span>
+<span class="c1">#  ANUGA_baptist.py</span>
+<span class="c1">###############################################################</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The Baptist_operator class for ANUGA was originally developed by Kyle Wright:</span>
+
+<span class="sd">- Wright, K., Passalacqua, P., Simard, M., &amp; Jones, C. E. (2022). Integrating </span>
+<span class="sd">  connectivity into hydrodynamic models: An automated open-source method to </span>
+<span class="sd">  refine an unstructured mesh using remote sensing. Journal of Advances in </span>
+<span class="sd">  Modeling Earth Systems, 14, e2022MS003025. </span>
+<span class="sd">  https://doi.org/10.1029/2022MS003025</span>
+
+<span class="sd">The Baptist_operator used in DYCOVE has been modified from Wright et al. (2022)</span>
+<span class="sd">in the following ways:</span>
+
+<span class="sd">- Quantity checks have been removed (this class is not part of public API).</span>
+<span class="sd">- Logic has been distributed into more self-contained methods.</span>
+<span class="sd">- New methods set_vegetation and set_veg_quantity have been added to allow</span>
+<span class="sd">  DYCOVE to update vegetation parameters after the Operator has been</span>
+<span class="sd">  instantiated.</span>
+
+<span class="sd">The Baptist formulation itself comes from:</span>
+
+<span class="sd">- Baptist, M. J., Babovic, C., Uthurburu, J. R., Uittenbogaard, R. E., Mynett, </span>
+<span class="sd">  A., &amp; Verwey, A. (2007). &quot;On inducing equations for vegetation resistance.&quot; </span>
+<span class="sd">  Journal of Hydraulic Research, 45(4), 435–450.</span>
+<span class="sd">  https://doi.org/10.1080/00221686.2007.9521778</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1">#from __future__ import division, absolute_import, print_function</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_OperatorBase</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fallback base class when ANUGA is unavailable.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_import_anuga</span><span class="p">():</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">anuga</span><span class="w"> </span><span class="kn">import</span> <span class="n">Quantity</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">anuga.operators.base_operator</span><span class="w"> </span><span class="kn">import</span> <span class="n">Operator</span>        
+        <span class="k">return</span> <span class="n">Quantity</span><span class="p">,</span> <span class="n">Operator</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The `anuga` package is not installed. &quot;</span>
+               <span class="s2">&quot;Refer to the documentation for installation instructions.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    
+
+<span class="c1">#===============================================================================</span>
+<span class="c1"># Vegetation operator applying drag to the flow</span>
+<span class="c1">#===============================================================================</span>
+<div class="viewcode-block" id="Baptist_operator">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_baptist.Baptist_operator.html#dycove.sim.engines.ANUGA_baptist.Baptist_operator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Baptist_operator</span><span class="p">(</span><span class="n">_OperatorBase</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies vegetation-induced flow drag based on the Baptist formulation.</span>
+
+<span class="sd">    This operator modifies the local flow field in ANUGA simulations to account for</span>
+<span class="sd">    emergent and submerged vegetation effects. The vegetation-adjusted Chezy coefficient</span>
+<span class="sd">    :math:`C_v` is computed as:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        C_v = \\left( C_b^{-2} + \\frac{C_d m D}{2 g} \\min(h, h_v) \\right)^{-0.5}</span>
+<span class="sd">              + \\frac{\\sqrt{g}}{k} \\ln\\left( \\frac{\\max(h, h_v)}{h_v} \\right)</span>
+
+<span class="sd">    where:</span>
+
+<span class="sd">    - :math:`C_v` — vegetated Chezy coefficient  </span>
+<span class="sd">    - :math:`C_b` — bed Chezy coefficient  </span>
+<span class="sd">    - :math:`C_d` — drag coefficient  </span>
+<span class="sd">    - :math:`m` — stem density :math:`[m^{-2}]`  </span>
+<span class="sd">    - :math:`D` — stem diameter :math:`[m]`  </span>
+<span class="sd">    - :math:`g` — gravitational acceleration :math:`[m/s^2]`  </span>
+<span class="sd">    - :math:`h` — flow depth :math:`[m]`  </span>
+<span class="sd">    - :math:`h_v` — vegetation height :math:`[m]`  </span>
+<span class="sd">    - :math:`k` — von Kármán constant  </span>
+
+<span class="sd">    For computational efficiency, some terms are precomputed in the initializer, giving:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        C_v = (a_1 + a_2 C_d \\min(h, h_v))^{-0.5} + a_3 \\ln\\left( \\frac{\\max(h, h_v)}{h_v} \\right)</span>
+
+<span class="sd">    The operator updates momentum explicitly using:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \\frac{\\partial (uh)}{\\partial t} = </span>
+<span class="sd">        - g \\frac{uh \\sqrt{u^2 + v^2}}{C_v^2 h^2}</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    domain : anuga.Domain</span>
+<span class="sd">        ANUGA domain instance.</span>
+
+<span class="sd">    veg_diameter : float or numpy.ndarray</span>
+<span class="sd">        Vegetation stem diameter [m]. Either a single constant applied everywhere or</span>
+<span class="sd">        an array with one value per cell centroid.</span>
+
+<span class="sd">    veg_density : float or numpy.ndarray</span>
+<span class="sd">        Vegetation stem density [#/m²]. Either a single constant applied everywhere or</span>
+<span class="sd">        an array with one value per cell centroid.</span>
+
+<span class="sd">    veg_height : float or numpy.ndarray</span>
+<span class="sd">        Vegetation stem height [m]. Either a single constant applied everywhere or</span>
+<span class="sd">        an array with one value per cell centroid.</span>
+
+<span class="sd">    bed_friction_const : float or numpy.ndarray, optional</span>
+<span class="sd">        Bed friction Chezy coefficient. Default is 65. Either a single constant applied</span>
+<span class="sd">        everywhere or an array with one value per cell centroid.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Baptist_operator.__init__">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_baptist.Baptist_operator.html#dycove.sim.engines.ANUGA_baptist.Baptist_operator.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
+                 <span class="n">domain</span><span class="p">,</span> 
+                 <span class="n">veg_diameter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">veg_density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">veg_height</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">drag</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                 <span class="n">bed_friction_const</span><span class="o">=</span><span class="mf">65.0</span><span class="p">,</span>
+                 <span class="n">description</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">label</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                 <span class="n">logging</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                 <span class="n">verbose</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+
+        <span class="c1"># ensure lazy import the first time the object is created</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_anuga_loaded&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Quantity</span><span class="p">,</span> <span class="n">Operator</span> <span class="o">=</span> <span class="n">_import_anuga</span><span class="p">()</span>
+            <span class="c1"># Patch the base class of Baptist_operator AFTER module load</span>
+            <span class="n">Baptist_operator</span><span class="o">.</span><span class="vm">__bases__</span> <span class="o">=</span> <span class="p">(</span><span class="n">Operator</span><span class="p">,)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_anuga_loaded</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">logging</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+
+        <span class="c1">#-----------------------------------------------------</span>
+        <span class="c1"># Pull domain information</span>
+        <span class="c1"># See base Operator constructor for attributes that get transferred from domain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage_c</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">elev_c</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">g</span>  <span class="c1"># g value from ANUGA domain/config</span>
+
+        <span class="c1">#-----------------------------------------------------</span>
+        <span class="c1"># Set constants</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bed_friction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span><span class="o">*</span><span class="n">bed_friction_const</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">=</span> <span class="mf">0.41</span>   <span class="c1"># von Karman constant</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Cd</span> <span class="o">=</span> <span class="n">drag</span>  <span class="c1"># drag coefficient C_d</span>
+
+        <span class="c1">#-----------------------------------------------------</span>
+        <span class="c1"># Initialize vegetation characteristics</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_vegetation</span><span class="p">(</span><span class="n">veg_diameter</span><span class="p">,</span> <span class="n">veg_density</span><span class="p">,</span> <span class="n">veg_height</span><span class="p">)</span></div>
+
+            
+
+<div class="viewcode-block" id="Baptist_operator.__call__">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_baptist.Baptist_operator.html#dycove.sim.engines.ANUGA_baptist.Baptist_operator.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the current water depth and vegetated cell indicies, </span>
+<span class="sd">        then update Chezy values accordingly.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Get the timestep for explicit update</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_timestep</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stage_c</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">elev_c</span>
+
+        <span class="c1"># Only apply where vegetation exists and depth is positive</span>
+        <span class="n">inds</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_density</span><span class="o">.</span><span class="n">centroid_values</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">&gt;</span> <span class="mf">0.01</span><span class="p">)</span> <span class="c1"># Update active indices</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_quantities</span><span class="p">(</span><span class="n">inds</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="Baptist_operator.set_vegetation">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_baptist.Baptist_operator.html#dycove.sim.engines.ANUGA_baptist.Baptist_operator.set_vegetation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_vegetation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">veg_diameter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">veg_density</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">veg_height</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Set vegetation characteristics, either for the first time or as an update. &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="s1">&#39;veg_diameter&#39;</span><span class="p">,</span> <span class="s1">&#39;veg_density&#39;</span><span class="p">,</span> <span class="s1">&#39;veg_height&#39;</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="n">veg_diameter</span><span class="p">,</span> <span class="n">veg_density</span><span class="p">,</span> <span class="n">veg_height</span><span class="p">]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_veg_quantity</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_coefficients</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="Baptist_operator.set_veg_quantity">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_baptist.Baptist_operator.html#dycove.sim.engines.ANUGA_baptist.Baptist_operator.set_veg_quantity">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_veg_quantity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Register vegetation quantity and set values in the domain. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">quantities</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">register</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">q</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">quantities</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">q</span><span class="o">.</span><span class="n">set_values</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s2">&quot;centroids&quot;</span><span class="p">)</span>
+
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">q</span><span class="p">)</span>  <span class="c1"># always keep the Quantity, not raw array</span></div>
+
+
+
+<div class="viewcode-block" id="Baptist_operator.update_coefficients">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_baptist.Baptist_operator.html#dycove.sim.engines.ANUGA_baptist.Baptist_operator.update_coefficients">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_coefficients</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Recompute Baptist coefficients after vegetation update. &quot;&quot;&quot;</span>
+        <span class="n">vdiam</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg_diameter</span><span class="o">.</span><span class="n">centroid_values</span>
+        <span class="n">vdens</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg_density</span><span class="o">.</span><span class="n">centroid_values</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">a1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bed_friction</span><span class="o">**-</span><span class="mi">2</span>   <span class="c1"># First lumped coefficient</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a2</span> <span class="o">=</span> <span class="n">vdiam</span><span class="o">*</span><span class="n">vdens</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">)</span>  <span class="c1"># Second lumped coefficient</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span>     <span class="c1"># Third lumped coefficient</span></div>
+
+
+
+<div class="viewcode-block" id="Baptist_operator.update_quantities">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_baptist.Baptist_operator.html#dycove.sim.engines.ANUGA_baptist.Baptist_operator.update_quantities">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_quantities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inds</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate drag that vegetation imparts on flow, then update momentum quantities.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">inds</span><span class="p">):</span>
+            <span class="c1"># Cut down some variables to just vegetated areas</span>
+            <span class="n">depth_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+            <span class="n">hv_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg_height</span><span class="o">.</span><span class="n">centroid_values</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+            <span class="n">Cv_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">depth_w</span><span class="p">)</span> <span class="c1"># Vegetated Chezy</span>
+            <span class="n">a1_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a1</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+            <span class="n">a2_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">a2</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+            <span class="n">xmom_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmom_c</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+            <span class="n">ymom_w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymom_c</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span>
+
+            <span class="c1"># calculate discharge in the cell</span>
+            <span class="n">qcell_w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">xmom_w</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">ymom_w</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="c1"># Calculate Chezy</span>
+            <span class="n">Cv_w</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1.</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">a1_w</span> <span class="o">+</span> <span class="n">a2_w</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">Cd</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">depth_w</span><span class="p">,</span> <span class="n">hv_w</span><span class="p">))</span> 
+                    <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">a3</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">depth_w</span><span class="p">,</span> <span class="n">hv_w</span><span class="p">)</span><span class="o">/</span><span class="n">hv_w</span><span class="p">))</span>
+
+            <span class="c1"># Compute friction slope</span>
+            <span class="n">Sf_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">*</span><span class="n">xmom_w</span><span class="o">*</span><span class="n">qcell_w</span><span class="o">/</span><span class="p">(</span><span class="n">Cv_w</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">depth_w</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)</span>
+            <span class="n">Sf_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="o">*</span><span class="n">ymom_w</span><span class="o">*</span><span class="n">qcell_w</span><span class="o">/</span><span class="p">(</span><span class="n">Cv_w</span><span class="o">**</span><span class="mi">2</span><span class="o">*</span><span class="n">depth_w</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">xmom_c</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span> <span class="o">=</span> <span class="n">xmom_w</span> <span class="o">-</span> <span class="n">Sf_x</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ymom_c</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span> <span class="o">=</span> <span class="n">ymom_w</span> <span class="o">-</span> <span class="n">Sf_y</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">dt</span></div>
+
+
+
+<div class="viewcode-block" id="Baptist_operator.parallel_safe">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_baptist.Baptist_operator.html#dycove.sim.engines.ANUGA_baptist.Baptist_operator.parallel_safe">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parallel_safe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; If Operator is applied independently on each cell and so is parallel safe. &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">timestepping_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">anuga</span><span class="w"> </span><span class="kn">import</span> <span class="n">indent</span>
+
+        <span class="n">message</span>  <span class="o">=</span> <span class="n">indent</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">label</span> <span class="o">+</span> <span class="s1">&#39;: Veg_operator, time &#39;</span>
+        <span class="n">message</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_time</span><span class="p">())</span>
+        <span class="k">return</span> <span class="n">message</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

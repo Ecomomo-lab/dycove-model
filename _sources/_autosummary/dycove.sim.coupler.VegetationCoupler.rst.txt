@@ -1,0 +1,29 @@
+﻿dycove.sim.coupler.VegetationCoupler
+====================================
+
+.. currentmodule:: dycove.sim.coupler
+
+.. autoclass:: VegetationCoupler
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VegetationCoupler.__init__
+      ~VegetationCoupler.apply_growth
+      ~VegetationCoupler.compute_mortality
+      ~VegetationCoupler.compute_veg_model_quantities
+      ~VegetationCoupler.do_colonization
+      ~VegetationCoupler.lifestage_update
+      ~VegetationCoupler.push_veg_to_hydro
+      ~VegetationCoupler.update
+   
+   
+
+   
+   
+   

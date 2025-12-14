@@ -1,0 +1,266 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulation &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dycove.sim.base.HydroSimulationBase" href="../../_autosummary/dycove.sim.base.HydroSimulationBase.html" />
+    <link rel="prev" title="API Reference" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Simulation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#base-simulation-module">Base Simulation Module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/dycove.sim.base.HydroSimulationBase.html">dycove.sim.base.HydroSimulationBase</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/dycove.sim.base.HydroEngineBase.html">dycove.sim.base.HydroEngineBase</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#hydrodynamic-model-engines">Hydrodynamic Model Engines</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#anuga-hydrodynamic-engine">ANUGA Hydrodynamic Engine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#delft3d-fm-hydrodynamic-engine">Delft3D-FM Hydrodynamic Engine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#baptist-operator-anuga">Baptist Operator (ANUGA)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#simulation-helper-classes">Simulation Helper Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#model-coupling">Model Coupling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#output-management">Output Management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#simulation-data">Simulation Data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#vegetation-modules">Vegetation Modules</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#species-classes">Species Classes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#species-data">Species Data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Simulation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/apiref/sim/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="simulation">
+<h1>Simulation<a class="headerlink" href="#simulation" title="Link to this heading"></a></h1>
+<p>This section provides detailed documentation for DYCOVE simulation-related
+classes.</p>
+<section id="base-simulation-module">
+<h2>Base Simulation Module<a class="headerlink" href="#base-simulation-module" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase" title="dycove.sim.base.HydroSimulationBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HydroSimulationBase</span></code></a>(engine)</p></td>
+<td><p>Base class for running hydrodynamic simulations.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase" title="dycove.sim.base.HydroEngineBase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HydroEngineBase</span></code></a>()</p></td>
+<td><p>Abstract interface for hydrodynamic engines.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="hydrodynamic-model-engines">
+<h2>Hydrodynamic Model Engines<a class="headerlink" href="#hydrodynamic-model-engines" title="Link to this heading"></a></h2>
+<section id="anuga-hydrodynamic-engine">
+<h3>ANUGA Hydrodynamic Engine<a class="headerlink" href="#anuga-hydrodynamic-engine" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.engines.ANUGA_hydro.ANUGA.html#dycove.sim.engines.ANUGA_hydro.ANUGA" title="dycove.sim.engines.ANUGA_hydro.ANUGA"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ANUGA</span></code></a>(anuga_domain[, vegetation])</p></td>
+<td><p>Hydrodynamic simulation wrapper for the ANUGA model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">AnugaEngine</span></code></a>(anuga_domain[, vegetation])</p></td>
+<td><p>Engine interface for ANUGA hydrodynamic model.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="delft3d-fm-hydrodynamic-engine">
+<h3>Delft3D-FM Hydrodynamic Engine<a class="headerlink" href="#delft3d-fm-hydrodynamic-engine" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.engines.DFM_hydro.DFM.html#dycove.sim.engines.DFM_hydro.DFM" title="dycove.sim.engines.DFM_hydro.DFM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DFM</span></code></a>(dfm_path, config_path, mdu_path[, ...])</p></td>
+<td><p>Hydrodynamic simulation wrapper for the Delft3D FM model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine" title="dycove.sim.engines.DFM_hydro.DFMEngine"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DFMEngine</span></code></a>(dfm_path, config_path, mdu_path[, ...])</p></td>
+<td><p>Engine interface for DFM hydro-morphodynamic model.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="baptist-operator-anuga">
+<h3>Baptist Operator (ANUGA)<a class="headerlink" href="#baptist-operator-anuga" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.engines.ANUGA_baptist.Baptist_operator.html#dycove.sim.engines.ANUGA_baptist.Baptist_operator" title="dycove.sim.engines.ANUGA_baptist.Baptist_operator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Baptist_operator</span></code></a>(domain[, veg_diameter, ...])</p></td>
+<td><p>Applies vegetation-induced flow drag based on the Baptist formulation.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="simulation-helper-classes">
+<h2>Simulation Helper Classes<a class="headerlink" href="#simulation-helper-classes" title="Link to this heading"></a></h2>
+<section id="model-coupling">
+<h3>Model Coupling<a class="headerlink" href="#model-coupling" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.coupler.VegetationCoupler.html#dycove.sim.coupler.VegetationCoupler" title="dycove.sim.coupler.VegetationCoupler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VegetationCoupler</span></code></a>(engine)</p></td>
+<td><p>Class to handle coupling between hydrodynamic model and vegetation model.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="output-management">
+<h3>Output Management<a class="headerlink" href="#output-management" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.outputs.OutputManager.html#dycove.sim.outputs.OutputManager" title="dycove.sim.outputs.OutputManager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OutputManager</span></code></a>(engine)</p></td>
+<td><p>For saving <a class="reference internal" href="../../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> instances to output files.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="simulation-data">
+<h3>Simulation Data<a class="headerlink" href="#simulation-data" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.simulation_data.SimulationTimeState.html#dycove.sim.simulation_data.SimulationTimeState" title="dycove.sim.simulation_data.SimulationTimeState"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimulationTimeState</span></code></a>(eco_year, ets, sim_time, ...)</p></td>
+<td><p>Tracks and manages simulation time state variables.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.simulation_data.HydrodynamicStats.html#dycove.sim.simulation_data.HydrodynamicStats" title="dycove.sim.simulation_data.HydrodynamicStats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HydrodynamicStats</span></code></a>(fl_dr[, h_min, h_max, ...])</p></td>
+<td><p>Stores hydrodynamic model outputs used to compute vegetation responses.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="vegetation-modules">
+<h2>Vegetation Modules<a class="headerlink" href="#vegetation-modules" title="Link to this heading"></a></h2>
+<section id="species-classes">
+<h3>Species Classes<a class="headerlink" href="#species-classes" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies" title="dycove.sim.vegetation.VegetationSpecies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VegetationSpecies</span></code></a>(input_veg_filename[, ...])</p></td>
+<td><p>A single vegetation species.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.vegetation.MultipleVegetationSpecies.html#dycove.sim.vegetation.MultipleVegetationSpecies" title="dycove.sim.vegetation.MultipleVegetationSpecies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultipleVegetationSpecies</span></code></a>(species_list)</p></td>
+<td><p>A class for handling multiple vegetation species.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.vegetation.SharedVegMethods.html#dycove.sim.vegetation.SharedVegMethods" title="dycove.sim.vegetation.SharedVegMethods"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SharedVegMethods</span></code></a>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="species-data">
+<h3>Species Data<a class="headerlink" href="#species-data" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.vegetation_data.VegetationAttributes.html#dycove.sim.vegetation_data.VegetationAttributes" title="dycove.sim.vegetation_data.VegetationAttributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VegetationAttributes</span></code></a>(age_max, nls, ...)</p></td>
+<td><p>Container for vegetation trait parameters and life-cycle settings.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VegCohort</span></code></a>(fraction, density, diameter, ...)</p></td>
+<td><p>Represents a vegetation cohort (single colonization event) tracked through time.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="API Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../_autosummary/dycove.sim.base.HydroSimulationBase.html" class="btn btn-neutral float-right" title="dycove.sim.base.HydroSimulationBase" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

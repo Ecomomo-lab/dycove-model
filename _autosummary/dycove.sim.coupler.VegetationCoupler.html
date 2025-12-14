@@ -1,0 +1,229 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dycove.sim.coupler.VegetationCoupler &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dycove.sim.outputs.OutputManager" href="dycove.sim.outputs.OutputManager.html" />
+    <link rel="prev" title="dycove.sim.engines.ANUGA_baptist.Baptist_operator" href="dycove.sim.engines.ANUGA_baptist.Baptist_operator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apiref/index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../apiref/sim/index.html">Simulation</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#base-simulation-module">Base Simulation Module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#hydrodynamic-model-engines">Hydrodynamic Model Engines</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../apiref/sim/index.html#simulation-helper-classes">Simulation Helper Classes</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="../apiref/sim/index.html#model-coupling">Model Coupling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apiref/sim/index.html#output-management">Output Management</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apiref/sim/index.html#simulation-data">Simulation Data</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#vegetation-modules">Vegetation Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../apiref/utils/index.html">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../apiref/index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../apiref/sim/index.html">Simulation</a></li>
+      <li class="breadcrumb-item active">dycove.sim.coupler.VegetationCoupler</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/dycove.sim.coupler.VegetationCoupler.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dycove-sim-coupler-vegetationcoupler">
+<h1>dycove.sim.coupler.VegetationCoupler<a class="headerlink" href="#dycove-sim-coupler-vegetationcoupler" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="dycove.sim.coupler.VegetationCoupler">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dycove.sim.coupler.</span></span><span class="sig-name descname"><span class="pre">VegetationCoupler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler" title="Link to this definition"></a></dt>
+<dd><p>Class to handle coupling between hydrodynamic model and vegetation model.</p>
+<p>This class orchestrates the vegetation update cycle by coordinating between
+the hydrodynamic engine and vegetation model at each ecological timestep.</p>
+<p>Vegetation object (<code class="docutils literal notranslate"><span class="pre">self.veg</span></code>) may be an instance of
+<a class="reference internal" href="dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies" title="dycove.sim.vegetation.VegetationSpecies"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationSpecies</span></code></a> or
+<a class="reference internal" href="dycove.sim.vegetation.MultipleVegetationSpecies.html#dycove.sim.vegetation.MultipleVegetationSpecies" title="dycove.sim.vegetation.MultipleVegetationSpecies"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleVegetationSpecies</span></code></a>. If it is the latter,
+the methods in <a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.update" title="dycove.sim.coupler.VegetationCoupler.update"><code class="xref py py-meth docutils literal notranslate"><span class="pre">update()</span></code></a> are
+distrubuted to each individual species under the methods of
+<a class="reference internal" href="dycove.sim.vegetation.MultipleVegetationSpecies.html#dycove.sim.vegetation.MultipleVegetationSpecies" title="dycove.sim.vegetation.MultipleVegetationSpecies"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleVegetationSpecies</span></code></a>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.coupler.VegetationCoupler.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">engine</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.__init__" title="dycove.sim.coupler.VegetationCoupler.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(engine)</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.apply_growth" title="dycove.sim.coupler.VegetationCoupler.apply_growth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_growth</span></code></a>(simstate)</p></td>
+<td><p>Apply precomputed growth rates for stem height, diameter, and root depth.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.compute_mortality" title="dycove.sim.coupler.VegetationCoupler.compute_mortality"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_mortality</span></code></a>(simstate, hydrostats)</p></td>
+<td><p>Compute mortality based on hydrodynamic statistics.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.compute_veg_model_quantities" title="dycove.sim.coupler.VegetationCoupler.compute_veg_model_quantities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_veg_model_quantities</span></code></a>()</p></td>
+<td><p>Compute vegetation quantities (stem density, diameter, height), to be pushed to hydro model as single values at each grid cell</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.do_colonization" title="dycove.sim.coupler.VegetationCoupler.do_colonization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">do_colonization</span></code></a>(simstate, hydrostats)</p></td>
+<td><p>Compute colonization based on hydrodynamic conditions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.lifestage_update" title="dycove.sim.coupler.VegetationCoupler.lifestage_update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lifestage_update</span></code></a>(simstate)</p></td>
+<td><p>Update ETS and eco_year counter, then update vegetation life stage and stem density if we started a new eco year.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.push_veg_to_hydro" title="dycove.sim.coupler.VegetationCoupler.push_veg_to_hydro"><code class="xref py py-obj docutils literal notranslate"><span class="pre">push_veg_to_hydro</span></code></a>()</p></td>
+<td><p>Inject updated vegetation properties into hydrodynamic model arrays.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.update" title="dycove.sim.coupler.VegetationCoupler.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>(simstate, hydrostats)</p></td>
+<td><p>Advance vegetation by one eco timestep.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.coupler.VegetationCoupler.apply_growth">
+<span class="sig-name descname"><span class="pre">apply_growth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simstate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.apply_growth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.apply_growth" title="Link to this definition"></a></dt>
+<dd><p>Apply precomputed growth rates for stem height, diameter, and root depth.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.coupler.VegetationCoupler.compute_mortality">
+<span class="sig-name descname"><span class="pre">compute_mortality</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simstate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydrostats</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.compute_mortality"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.compute_mortality" title="Link to this definition"></a></dt>
+<dd><p>Compute mortality based on hydrodynamic statistics.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.coupler.VegetationCoupler.compute_veg_model_quantities">
+<span class="sig-name descname"><span class="pre">compute_veg_model_quantities</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.compute_veg_model_quantities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.compute_veg_model_quantities" title="Link to this definition"></a></dt>
+<dd><p>Compute vegetation quantities (stem density, diameter, height), to be pushed to
+hydro model as single values at each grid cell</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.coupler.VegetationCoupler.do_colonization">
+<span class="sig-name descname"><span class="pre">do_colonization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simstate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydrostats</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.do_colonization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.do_colonization" title="Link to this definition"></a></dt>
+<dd><p>Compute colonization based on hydrodynamic conditions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.coupler.VegetationCoupler.lifestage_update">
+<span class="sig-name descname"><span class="pre">lifestage_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simstate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.lifestage_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.lifestage_update" title="Link to this definition"></a></dt>
+<dd><p>Update ETS and eco_year counter, then update vegetation life stage and stem density
+if we started a new eco year.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.coupler.VegetationCoupler.push_veg_to_hydro">
+<span class="sig-name descname"><span class="pre">push_veg_to_hydro</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.push_veg_to_hydro"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.push_veg_to_hydro" title="Link to this definition"></a></dt>
+<dd><p>Inject updated vegetation properties into hydrodynamic model arrays.</p>
+<p>Replaces the current vegetation arrays in the hydro model with values from the
+vegetation module. Skips injection if no vegetation exists (due to delayed
+colonization, total mortality, or absence on this subdomain).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.coupler.VegetationCoupler.update">
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simstate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydrostats</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.update" title="Link to this definition"></a></dt>
+<dd><p>Advance vegetation by one eco timestep.</p>
+<p>These are all the steps that need to be performed within one ecological
+time step.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dycove.sim.engines.ANUGA_baptist.Baptist_operator.html" class="btn btn-neutral float-left" title="dycove.sim.engines.ANUGA_baptist.Baptist_operator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dycove.sim.outputs.OutputManager.html" class="btn btn-neutral float-right" title="dycove.sim.outputs.OutputManager" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

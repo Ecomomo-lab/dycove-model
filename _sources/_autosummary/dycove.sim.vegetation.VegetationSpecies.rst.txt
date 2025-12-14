@@ -1,0 +1,38 @@
+﻿dycove.sim.vegetation.VegetationSpecies
+=======================================
+
+.. currentmodule:: dycove.sim.vegetation
+
+.. autoclass:: VegetationSpecies
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VegetationSpecies.__init__
+      ~VegetationSpecies.apply_mortality
+      ~VegetationSpecies.clean_out_old_fractions
+      ~VegetationSpecies.colonization
+      ~VegetationSpecies.compute_new_fraction
+      ~VegetationSpecies.compute_veg_model_quantities
+      ~VegetationSpecies.create_seed_fraction_mask
+      ~VegetationSpecies.linear_mortality_func
+      ~VegetationSpecies.load_vegetation_attributes
+      ~VegetationSpecies.mortality
+      ~VegetationSpecies.mortality_hydrodynamic
+      ~VegetationSpecies.mortality_morphodynamic
+      ~VegetationSpecies.remove_old_cohorts
+      ~VegetationSpecies.root_growth
+      ~VegetationSpecies.stemdiam_growth
+      ~VegetationSpecies.stemheight_growth
+      ~VegetationSpecies.update_lifestage_and_stemdensity
+   
+   
+
+   
+   
+   

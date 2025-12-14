@@ -1,0 +1,174 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Utilities &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dycove.utils.plotting.ModelPlotter" href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html" />
+    <link rel="prev" title="dycove.sim.vegetation_data.VegCohort" href="../../_autosummary/dycove.sim.vegetation_data.VegCohort.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../sim/index.html">Simulation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Utilities</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#plotting">Plotting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html">dycove.utils.plotting.ModelPlotter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/dycove.utils.plotting.create_nn_interpFunc.html">dycove.utils.plotting.create_nn_interpFunc</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/dycove.utils.model_loader.ANUGAMapLoader.html">dycove.utils.model_loader.ANUGAMapLoader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/dycove.utils.model_loader.DFMMapLoader.html">dycove.utils.model_loader.DFMMapLoader</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../_autosummary/dycove.utils.model_loader.BaseMapLoader.html">dycove.utils.model_loader.BaseMapLoader</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#logging-and-reporting">Logging and Reporting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#anuga-hydrodynamic-engine">ANUGA Hydrodynamic Engine</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API Reference</a></li>
+      <li class="breadcrumb-item active">Utilities</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/apiref/utils/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="utilities">
+<h1>Utilities<a class="headerlink" href="#utilities" title="Link to this heading"></a></h1>
+<p>This section provides detailed documentation for DYCOVE utility classes and functions.</p>
+<section id="plotting">
+<h2>Plotting<a class="headerlink" href="#plotting" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>(simdir, quantity, plot_times[, ...])</p></td>
+<td><p>Plot hydrodynamic and vegetation quantities from DYCOVE model runs (ANUGA or DFM).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../_autosummary/dycove.utils.plotting.create_nn_interpFunc.html#dycove.utils.plotting.create_nn_interpFunc" title="dycove.utils.plotting.create_nn_interpFunc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_nn_interpFunc</span></code></a>(x_coords, y_coords, ...)</p></td>
+<td><p>Creates a nearest-neighbor interpolator function for a fixed grid.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.utils.model_loader.ANUGAMapLoader.html#dycove.utils.model_loader.ANUGAMapLoader" title="dycove.utils.model_loader.ANUGAMapLoader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ANUGAMapLoader</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Loader for ANUGA hydrodynamic and DYCOVE vegetation output files.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../../_autosummary/dycove.utils.model_loader.DFMMapLoader.html#dycove.utils.model_loader.DFMMapLoader" title="dycove.utils.model_loader.DFMMapLoader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DFMMapLoader</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Loader for DFM hydrodynamic and DYCOVE vegetation output files.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.utils.model_loader.BaseMapLoader.html#dycove.utils.model_loader.BaseMapLoader" title="dycove.utils.model_loader.BaseMapLoader"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseMapLoader</span></code></a>(modeldir, model_name, ...)</p></td>
+<td><p>Abstract base class for loading map quantities from DYCOVE model outputs.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="logging-and-reporting">
+<h2>Logging and Reporting<a class="headerlink" href="#logging-and-reporting" title="Link to this heading"></a></h2>
+<section id="anuga-hydrodynamic-engine">
+<h3>ANUGA Hydrodynamic Engine<a class="headerlink" href="#anuga-hydrodynamic-engine" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../../_autosummary/dycove.utils.simulation_reporting.Reporter.html#dycove.utils.simulation_reporting.Reporter" title="dycove.utils.simulation_reporting.Reporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Reporter</span></code></a>()</p></td>
+<td><p>Class that handles all printing of info/warning/errors to the screen.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../../_autosummary/dycove.sim.vegetation_data.VegCohort.html" class="btn btn-neutral float-left" title="dycove.sim.vegetation_data.VegCohort" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html" class="btn btn-neutral float-right" title="dycove.utils.plotting.ModelPlotter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

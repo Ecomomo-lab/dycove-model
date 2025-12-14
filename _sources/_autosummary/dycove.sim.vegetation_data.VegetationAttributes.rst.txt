@@ -1,0 +1,55 @@
+﻿dycove.sim.vegetation\_data.VegetationAttributes
+================================================
+
+.. currentmodule:: dycove.sim.vegetation_data
+
+.. autoclass:: VegetationAttributes
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VegetationAttributes.__init__
+      ~VegetationAttributes.compute_growth_rates
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VegetationAttributes.age_max
+      ~VegetationAttributes.nls
+      ~VegetationAttributes.fraction_0
+      ~VegetationAttributes.stemht_0
+      ~VegetationAttributes.rootlength_0
+      ~VegetationAttributes.stemdiam_0
+      ~VegetationAttributes.drag
+      ~VegetationAttributes.start_growth_ets
+      ~VegetationAttributes.end_growth_ets
+      ~VegetationAttributes.winter_ets
+      ~VegetationAttributes.start_col_ets
+      ~VegetationAttributes.end_col_ets
+      ~VegetationAttributes.stemht_max
+      ~VegetationAttributes.rootlength_max
+      ~VegetationAttributes.stemdiam_max
+      ~VegetationAttributes.years_max
+      ~VegetationAttributes.stemdens
+      ~VegetationAttributes.desic_no_mort
+      ~VegetationAttributes.desic_all_mort
+      ~VegetationAttributes.flood_no_mort
+      ~VegetationAttributes.flood_all_mort
+      ~VegetationAttributes.uproot_no_mort
+      ~VegetationAttributes.uproot_all_mort
+      ~VegetationAttributes.stemht_winter_max
+      ~VegetationAttributes.ht_growth_rates
+      ~VegetationAttributes.diam_growth_rates
+      ~VegetationAttributes.root_growth_rates
+   
+   

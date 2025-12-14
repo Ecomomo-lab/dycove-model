@@ -1,0 +1,37 @@
+﻿dycove.sim.vegetation.MultipleVegetationSpecies
+===============================================
+
+.. currentmodule:: dycove.sim.vegetation
+
+.. autoclass:: MultipleVegetationSpecies
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~MultipleVegetationSpecies.__init__
+      ~MultipleVegetationSpecies.apply_mortality
+      ~MultipleVegetationSpecies.check_species_consistency
+      ~MultipleVegetationSpecies.colonization
+      ~MultipleVegetationSpecies.compute_veg_model_quantities
+      ~MultipleVegetationSpecies.mortality
+      ~MultipleVegetationSpecies.root_growth
+      ~MultipleVegetationSpecies.stemdiam_growth
+      ~MultipleVegetationSpecies.stemheight_growth
+      ~MultipleVegetationSpecies.update_lifestage_and_stemdensity
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~MultipleVegetationSpecies.cohorts
+   
+   

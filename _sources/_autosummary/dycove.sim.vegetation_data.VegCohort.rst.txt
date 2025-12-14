@@ -1,0 +1,45 @@
+﻿dycove.sim.vegetation\_data.VegCohort
+=====================================
+
+.. currentmodule:: dycove.sim.vegetation_data
+
+.. autoclass:: VegCohort
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~VegCohort.__init__
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~VegCohort.applied_mort_burial
+      ~VegCohort.applied_mort_desic
+      ~VegCohort.applied_mort_flood
+      ~VegCohort.applied_mort_scour
+      ~VegCohort.applied_mort_total
+      ~VegCohort.applied_mort_uproot
+      ~VegCohort.potential_mort_burial
+      ~VegCohort.potential_mort_desic
+      ~VegCohort.potential_mort_flood
+      ~VegCohort.potential_mort_scour
+      ~VegCohort.potential_mort_uproot
+      ~VegCohort.fraction
+      ~VegCohort.density
+      ~VegCohort.diameter
+      ~VegCohort.height
+      ~VegCohort.rootlength
+      ~VegCohort.lifestage
+      ~VegCohort.lifestage_year
+   
+   

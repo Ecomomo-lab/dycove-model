@@ -1,0 +1,52 @@
+﻿dycove.sim.simulation\_data.SimulationTimeState
+===============================================
+
+.. currentmodule:: dycove.sim.simulation_data
+
+.. autoclass:: SimulationTimeState
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SimulationTimeState.__init__
+      ~SimulationTimeState.advance_time
+      ~SimulationTimeState.compute_days_per_year
+      ~SimulationTimeState.compute_ecofac
+      ~SimulationTimeState.compute_time_conversions
+      ~SimulationTimeState.update_ets
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SimulationTimeState.ecofac
+      ~SimulationTimeState.hydrotime_seconds
+      ~SimulationTimeState.vegtime_date
+      ~SimulationTimeState.eco_year
+      ~SimulationTimeState.ets
+      ~SimulationTimeState.sim_time
+      ~SimulationTimeState.sim_time_unit
+      ~SimulationTimeState.n_ets
+      ~SimulationTimeState.veg_interval
+      ~SimulationTimeState.hydro_interval
+      ~SimulationTimeState.morfac
+      ~SimulationTimeState.refdate
+      ~SimulationTimeState.days_per_year
+      ~SimulationTimeState.hydro_sim_days
+      ~SimulationTimeState.veg_sim_years
+      ~SimulationTimeState.time_0
+      ~SimulationTimeState.times_elapsed
+      ~SimulationTimeState.n_veg_steps
+      ~SimulationTimeState.n_hydro_steps
+      ~SimulationTimeState.hydrotime_date
+   
+   

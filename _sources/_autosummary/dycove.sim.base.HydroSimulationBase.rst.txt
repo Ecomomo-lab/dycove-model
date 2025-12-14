@@ -1,0 +1,25 @@
+﻿dycove.sim.base.HydroSimulationBase
+===================================
+
+.. currentmodule:: dycove.sim.base
+
+.. autoclass:: HydroSimulationBase
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HydroSimulationBase.__init__
+      ~HydroSimulationBase.loop_hydrodynamics
+      ~HydroSimulationBase.run_simulation
+      ~HydroSimulationBase.step_hydrodynamics
+   
+   
+
+   
+   
+   

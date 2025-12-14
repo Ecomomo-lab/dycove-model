@@ -1,0 +1,39 @@
+﻿dycove.sim.simulation\_data.HydrodynamicStats
+=============================================
+
+.. currentmodule:: dycove.sim.simulation_data
+
+.. autoclass:: HydrodynamicStats
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HydrodynamicStats.__init__
+      ~HydrodynamicStats.dry_frac
+      ~HydrodynamicStats.flood_frac
+      ~HydrodynamicStats.reset
+      ~HydrodynamicStats.update
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~HydrodynamicStats.bedlevel_0
+      ~HydrodynamicStats.bedlevel_diff
+      ~HydrodynamicStats.bedlevel_f
+      ~HydrodynamicStats.flood_counts
+      ~HydrodynamicStats.h_max
+      ~HydrodynamicStats.h_min
+      ~HydrodynamicStats.v_max
+      ~HydrodynamicStats.fl_dr
+   
+   

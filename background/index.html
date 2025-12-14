@@ -1,0 +1,448 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Background &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="User Guide" href="../userguide/index.html" />
+    <link rel="prev" title="Installation Instructions" href="../installation/index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Background</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#motivation">Motivation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-overview">Model Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-ecological-time-scale">The Ecological Time Scale</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vegetation-input-file">Vegetation Input File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#vegetation-coupling-processes">Vegetation Coupling Processes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#life-stages">Life Stages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#colonization">Colonization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#growth">Growth</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#mortality">Mortality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#computing-vegetation">Computing Vegetation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#baptist-and-chezy">Baptist and Chezy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#modeling-of-multiple-species">Modeling of Multiple Species</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../apiref/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Background</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/background/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="background">
+<span id="id1"></span><h1>Background<a class="headerlink" href="#background" title="Link to this heading"></a></h1>
+<section id="motivation">
+<h2>Motivation<a class="headerlink" href="#motivation" title="Link to this heading"></a></h2>
+<p>DYCOVE originated as a MATLAB code coupled with Delft3D 4 <a class="footnote-reference brackets" href="#id11" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>.
+In that study by Brückner et al. (2019), the dynamic vegetation approach was shown to reproduce observed vegetation distributions in salt marshes.
+With DYCOVE written in Python, we can couple to the widely-used and modernized hydro-morphodynamic model <a class="reference external" href="https://oss.deltares.nl/web/delft3dfm">Delft3D FM (DFM)</a> <a class="footnote-reference brackets" href="#id12" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>, while also offering a fully open-source avenue with the <a class="reference external" href="https://github.com/GeoscienceAustralia/anuga_core">ANUGA hydrodynamic model</a> <a class="footnote-reference brackets" href="#id13" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>.
+Furthermore, DYCOVE is written in such a way that will allow for straightforward integration of other hydro-morphodynamic models and modules in the future.</p>
+</section>
+<section id="model-overview">
+<h2>Model Overview<a class="headerlink" href="#model-overview" title="Link to this heading"></a></h2>
+<p>DYCOVE allows users to incorporate vegetation in their numerical models in a dynamic way.
+A set of vegetation species input parameters must be provided in the form of a <a class="reference internal" href="#input-json"><span class="std std-ref">.json file</span></a> that describes species attributes such as initial and maximum stem height and diameter, number of life stages, colonization window, and more.
+Simulations are run by calling a model engine class (depending on which numerical model is being used) that implements the time stepping methods specific to that model.
+At regular intervals, typically one tidal cycle, hydrodynamic and morphodynamic statistics from the preceding interval are used to compute changes in vegetation state (colonization and mortality).
+Vegetation stem height, stem diameter, and root length growth are determined purely based on species characteristics defined in the input <cite>.json</cite> file.
+These parameters, along with stem density (based on species life stage), are passed back to the numerical model via the <a class="reference internal" href="#baptist-chezy"><span class="std std-ref">Baptist formulation</span></a>, which calculates a Chezy roughness value.</p>
+<figure class="align-center" id="id16">
+<img alt="background/images/flowchart.png" src="background/images/flowchart.png" />
+<figcaption>
+<p><span class="caption-text">A representation of the major components of a DYCOVE model and their feedback mechanisms.</span><a class="headerlink" href="#id16" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="the-ecological-time-scale">
+<span id="eco-time-scale"></span><h2>The Ecological Time Scale<a class="headerlink" href="#the-ecological-time-scale" title="Link to this heading"></a></h2>
+<p>DYCOVE simulations run on the idea that vegetation and morphological changes both occur on longer time scales than hydrodynamic changes.
+Therefore, we “accelerate” vegetation processes in a manner similar to the Morphological Acceleration Factor (MORFAC) <a class="footnote-reference brackets" href="#id14" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a> of DFM.
+In fact, for DYCOVE-DFM simulations with morphology active, we set the Ecological Acceleration Factor (<code class="docutils literal notranslate"><span class="pre">ecofac</span></code>) equal to the <code class="docutils literal notranslate"><span class="pre">morfac</span></code> of the DFM model.</p>
+<p>To reconcile the hydrodynamic and ecological time scales, we run simulations by defining the following parameters:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ecofac</span></code>: Ecological Acceleration Factor, a multiplier representing the ratio of ecological time to hydrodynamic time.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">veg_interval</span></code>: Vegetation coupling interval, in hydrodynamic seconds, defining how often changes in vegetation are computed and passed back to the hydrodynamic model.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n_ets</span></code>: Number of Ecological Time Steps, or vegetation coupling intervals, per ecological year.</p></li>
+</ul>
+<p>Because DYCOVE is most useful for modeling vegetation in the intertidal zone, it is convenient to structure simulations around full tidal cycles.
+We compute colonization and mortality by identifying wet/dry grid cells, and the fraction of time they are wet/dry during the previous <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code>.
+For mortality, we also need to know the maximum velocity at each grid cell.
+Therefore, it makes the most sense to do these calculations after at least one full tidal cycle, and so we typically set <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code> to be equal to one tidal cycle.
+For your typical semi-diurnal tide, one cycle is about 12 hours (43200 seconds), rounding down for simplicity.
+We must decide, then, whether we want to prescribe the <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> of our simulation or <code class="docutils literal notranslate"><span class="pre">n_ets</span></code>, and then the other variable will follow:</p>
+<div class="math notranslate nohighlight">
+\[\small \text{ecofac} \approx \frac{365 \times 86400}{\text{veg_interval} \times \text{n}_{\text{ets}}}\]</div>
+<p>The default value of <code class="docutils literal notranslate"><span class="pre">n_ets</span></code> is 14, because that provides enough temporal resolution to describe seasonal growth patterns for many species.
+<code class="docutils literal notranslate"><span class="pre">n_ets</span></code> must be compatible with the growth and colonization ETS attributes defined in the vegetation input <cite>.json</cite> file.
+Using the default values of <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code> and <code class="docutils literal notranslate"><span class="pre">n_ets</span></code> yields an <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> of 52.
+While there is no default value for <code class="docutils literal notranslate"><span class="pre">ecofac</span></code>, if it is not provided, it will be computed based on the other two variables using the above equation.
+Alternatively, the user can provide <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> directly, or by running a morphological simulation with a specified MORFAC, but they must ensure that the other two inputs (whether default or provided) are compatible based on the above equation.
+It is recommended that users pre-compute these three values to make sure they make sense.
+Users can specify a more round value of <code class="docutils literal notranslate"><span class="pre">ecofac</span> <span class="pre">=</span> <span class="pre">50</span></code>, for example, which would correspond to 350 days per year in the model.
+It is fine, and in fact encouraged, to use a round value in this way, but keep in mind that DYCOVE includes a hardcoded limit of <code class="docutils literal notranslate"><span class="pre">DAYS_PER_YEAR</span></code> between 350 and 380 to keep results reasonable.</p>
+<p>DYCOVE simulations can always be run using the default values provided in <a class="reference internal" href="../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase.run_simulation" title="dycove.sim.base.HydroSimulationBase.run_simulation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation()</span></code></a>.</p>
+</section>
+<section id="vegetation-input-file">
+<span id="input-json"></span><h2>Vegetation Input File<a class="headerlink" href="#vegetation-input-file" title="Link to this heading"></a></h2>
+<p>The vegetation input <cite>.json</cite> file contains both physical and time-related attributes of the species (one file per species if modeling <a class="reference internal" href="#multi-species"><span class="std std-ref">multiple species</span></a>).
+Vegetation attributes are passed to the <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegetationAttributes.html#dycove.sim.vegetation_data.VegetationAttributes" title="dycove.sim.vegetation_data.VegetationAttributes"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationAttributes</span></code></a> class, which contains descriptions of each input.
+These attributes are explained with more context in subsequent sections.
+The input <cite>.json</cite> file must consist of a dictionary like the one below (taken from the <a class="reference internal" href="../examples/anuga/tide_channel.html#tide-channel-anuga"><span class="std std-ref">tide channel example</span></a>).
+The first set of attributes are “general” attributes, and the second set are “life stage” attributes.
+This particular set of attributes, used in Brückner et al. (2019), is loosely based on <cite>Salicorniaspp.</cite> (pioneer species, first life stage) and <cite>Spartina anglica</cite> (second life stage).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;age_max&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+  <span class="s2">&quot;nls&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s2">&quot;fraction_0&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+  <span class="s2">&quot;stemht_0&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+  <span class="s2">&quot;rootlength_0&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
+  <span class="s2">&quot;stemdiam_0&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
+  <span class="s2">&quot;start_growth_ets&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s2">&quot;end_growth_ets&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+  <span class="s2">&quot;winter_ets&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+  <span class="s2">&quot;start_col_ets&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s2">&quot;end_col_ets&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+
+  <span class="s2">&quot;life_stage_attr&quot;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;stemht_max&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+      <span class="s2">&quot;rootlength_max&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+      <span class="s2">&quot;stemdiam_max&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+      <span class="s2">&quot;years_max&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;stemdens&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+      <span class="s2">&quot;drag&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+      <span class="s2">&quot;desic_no_mort&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;desic_all_mort&quot;</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">,</span>
+      <span class="s2">&quot;flood_no_mort&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+      <span class="s2">&quot;flood_all_mort&quot;</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span>
+      <span class="s2">&quot;uproot_no_mort&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+      <span class="s2">&quot;uproot_all_mort&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+      <span class="s2">&quot;stemht_winter_max&quot;</span><span class="p">:</span> <span class="mf">0.3</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;stemht_max&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+      <span class="s2">&quot;rootlength_max&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+      <span class="s2">&quot;stemdiam_max&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+      <span class="s2">&quot;years_max&quot;</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span>
+      <span class="s2">&quot;stemdens&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+      <span class="s2">&quot;drag&quot;</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">,</span>
+      <span class="s2">&quot;desic_no_mort&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">&quot;desic_all_mort&quot;</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">,</span>
+      <span class="s2">&quot;flood_no_mort&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+      <span class="s2">&quot;flood_all_mort&quot;</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span>
+      <span class="s2">&quot;uproot_no_mort&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+      <span class="s2">&quot;uproot_all_mort&quot;</span><span class="p">:</span> <span class="mf">0.55</span><span class="p">,</span>
+      <span class="s2">&quot;stemht_winter_max&quot;</span><span class="p">:</span> <span class="mf">0.5</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="vegetation-coupling-processes">
+<h2>Vegetation Coupling Processes<a class="headerlink" href="#vegetation-coupling-processes" title="Link to this heading"></a></h2>
+<p>The coupling between vegetation and the numerical model is handled via <a class="reference internal" href="../_autosummary/dycove.sim.coupler.VegetationCoupler.html#dycove.sim.coupler.VegetationCoupler" title="dycove.sim.coupler.VegetationCoupler"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationCoupler</span></code></a>.
+As mentioned in the previous section, vegetation is coupled to the numerical model after each <code class="docutils literal notranslate"><span class="pre">ets</span></code>, or every <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code> seconds.
+During each coupling, the following steps take place before the hydrodynamics continue (each are explained in more detail in subsequent sections):</p>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#life-stages"><span class="std std-ref">**Life stage update**</span></a></p></li>
+<li><p><a class="reference internal" href="#growth"><span class="std std-ref">**Growth**</span></a></p></li>
+<li><p><a class="reference internal" href="#colonization"><span class="std std-ref">**Colonization**</span></a></p></li>
+<li><p><a class="reference internal" href="#mortality"><span class="std std-ref">**Mortality**</span></a></p></li>
+<li><p><a class="reference internal" href="#compute-veg"><span class="std std-ref">**Compute vegetation**</span></a></p></li>
+<li><p><a class="reference internal" href="#baptist-chezy"><span class="std std-ref">**Hydrodynamic feedback**</span></a></p></li>
+</ol>
+</section>
+<section id="life-stages">
+<span id="id6"></span><h2>Life Stages<a class="headerlink" href="#life-stages" title="Link to this heading"></a></h2>
+<p>Relevant <cite>.json</cite> input attributes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'age_max'</span></code>: Maximum age of the species in years. Must be equal to the sum of <code class="docutils literal notranslate"><span class="pre">'years_max'</span></code> across all life stages.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'nls'</span></code>: Number of life stages for the species.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'years_max'</span></code> (life stage attr.): Maximum number of years spent in a life stage.</p></li>
+</ul>
+<p>DYCOVE allows for multiple life stages in case of species that do not have consistent attributes across the species lifetime.
+There will always be one set of general attributes per species, but there can theoretically be any number of sets of life stage attributes, as long as the number of life stage dictionaries is equal to <code class="docutils literal notranslate"><span class="pre">'nls'</span></code> in the general attributes.</p>
+<p>During each <code class="docutils literal notranslate"><span class="pre">ets</span></code>, or coupling, we check if the current <code class="docutils literal notranslate"><span class="pre">ets</span></code> is equal to <code class="docutils literal notranslate"><span class="pre">n_ets</span></code> (end of the year).
+If so, we increment the age of all vegetation by one year.
+If the end of the life stage is reached (i.e., age in current life stage is equal to <code class="docutils literal notranslate"><span class="pre">'years_max'</span></code>), the vegetation transitions to the next life stage.
+If the maximum age of the species is reached, the vegetation cohort dies and is removed from the model.</p>
+</section>
+<section id="colonization">
+<span id="id7"></span><h2>Colonization<a class="headerlink" href="#colonization" title="Link to this heading"></a></h2>
+<p>Relevant <cite>.json</cite> input attributes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'fraction_0'</span></code>: Maximum fractional area of a model grid cell that will be filled with vegetation upon colonization, as long as there is space available.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'stemht_0'</span></code>: Initial stem height upon colonization.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'rootlength_0'</span></code>: Initial root length upon colonization.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'stemdiam_0'</span></code>: Initial stem diameter upon colonization.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'start_col_ets'</span></code>: Ecological time step at which colonization can begin (inclusive).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'end_col_ets'</span></code>: Ecological time step at which colonization ends for the year (non-inclusive).</p></li>
+</ul>
+<p>Colonization may occur during one or more <code class="docutils literal notranslate"><span class="pre">ets</span></code> throughout the year, but typically, it occurs early in the ecological year.
+The colonization window is defined by the <code class="docutils literal notranslate"><span class="pre">'start_col_ets'</span></code> and <code class="docutils literal notranslate"><span class="pre">'end_col_ets'</span></code> input attributes.
+For example, if <code class="docutils literal notranslate"><span class="pre">'start_col_ets'</span> <span class="pre">=</span> <span class="pre">2</span></code> and <code class="docutils literal notranslate"><span class="pre">'end_col_ets'</span> <span class="pre">=</span> <span class="pre">3</span></code>, colonization will only occur during the second <code class="docutils literal notranslate"><span class="pre">ets</span></code> of each year.
+Note that if <code class="docutils literal notranslate"><span class="pre">'start_col_ets'</span> <span class="pre">=</span> <span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">'end_col_ets'</span> <span class="pre">=</span> <span class="pre">2</span></code>, the species will not colonize during the first year because one tidal cycle must run first.</p>
+<p>Currently, colonization will take place in grid cells that were BOTH dry AND wet for any amount of time during the previous <code class="docutils literal notranslate"><span class="pre">ets</span></code>.
+During a colonization event, all eligible grid cells that are not fully vegetated (i.e., total vegetation fraction less than 1.0) are eligible for colonization.
+The colonizing species will fill up to <code class="docutils literal notranslate"><span class="pre">'fraction_0'</span></code> of the grid cell, or the remaining available space, whichever is less.</p>
+<p>Colonization, no matter how many cells are included, creates a <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> object that is added to the <code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationSpecies</span></code> object for that species.
+Upon colonization, the new <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> will have initial stem height, root length, and stem diameter equal to <code class="docutils literal notranslate"><span class="pre">'stemht_0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'rootlength_0'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'stemdiam_0'</span></code>, respectively.
+See the <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> documentation for more detailts on the tracked attributes of a vegetation cohort.</p>
+</section>
+<section id="growth">
+<span id="id8"></span><h2>Growth<a class="headerlink" href="#growth" title="Link to this heading"></a></h2>
+<p>Relevant <cite>.json</cite> input attributes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'stemht_0'</span></code>: Initial stem height upon colonization.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'rootlength_0'</span></code>: Initial root length upon colonization.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'stemdiam_0'</span></code>: Initial stem diameter upon colonization.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'start_growth_ets'</span></code>: Ecological time step at which growth begins (inclusive).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'end_growth_ets'</span></code>: Ecological time step at which growth ends for the year (non-inclusive).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'winter_ets'</span></code>: Ecological time step marking the start of winter, during which stem height retreats to <code class="docutils literal notranslate"><span class="pre">'ht_winter_max'</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'stemht_max'</span></code> (life stage attr.): Maximum stem height.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'rootlength_max'</span></code> (life stage attr.): Maximum root length.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'stemdiam_max'</span></code> (life stage attr.): Maximum stem diameter.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'stemht_winter_max'</span></code> (life stage attr.): Maximum stem height during winter.</p></li>
+</ul>
+</div></blockquote>
+<p>Linear growth rates for stem height are computed internally based on the initial and maximum values as well as the growth window defined by <code class="docutils literal notranslate"><span class="pre">'start_growth_ets'</span></code> and <code class="docutils literal notranslate"><span class="pre">'end_growth_ets'</span></code>.
+These growth rates are calculated in the <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegetationAttributes.html#dycove.sim.vegetation_data.VegetationAttributes" title="dycove.sim.vegetation_data.VegetationAttributes"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationAttributes</span></code></a> class upon instantiation of <a class="reference internal" href="../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies" title="dycove.sim.vegetation.VegetationSpecies"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationSpecies</span></code></a>.
+If the current <code class="docutils literal notranslate"><span class="pre">ets</span></code> is within the growth window, all existing vegetation cohorts grow according to their life stage-specific growth rates, up to their maximum values.
+For the first year, growth begins from the initial values defined in the general attributes.
+If there are colonization events that occur after the growth window has started, the linear growth rate is unchanged, and so stem height will not reach its maximum value during that year.
+Once the <code class="docutils literal notranslate"><span class="pre">'end_growth_ets'</span></code> is reached, growth stops for the year and stem height remains constant.
+Once the <code class="docutils literal notranslate"><span class="pre">'winter_ets'</span></code> is reached, stem height retreats to <code class="docutils literal notranslate"><span class="pre">'stemht_winter_max'</span></code>.
+During subsequent years, growth begins from the previous year’s winter stem height.</p>
+<p>Stem diameter and root length grow similarly to stem height, but there is no winter retreat for these attributes.
+Instead, they grow linearly during the growth window from their previous values up to their life stage-specific maximum values.
+Furthermore, the linear growth rate for stem diameter and root length is divided by the number of years in the life stage, meaning they do not reach their maximum values until the end of the life stage.</p>
+<p>Stem density remains constant for each life stage.</p>
+</section>
+<section id="mortality">
+<span id="id9"></span><h2>Mortality<a class="headerlink" href="#mortality" title="Link to this heading"></a></h2>
+<p>Relevant <cite>.json</cite> input attributes:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'desic_no_mort'</span></code> (life stage attr.): Dry fraction of time below which there is no desiccation mortality (zero disables desiccation mortality).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'desic_all_mort'</span></code> (life stage attr.): Dry fraction of time above which there is 100% desiccation mortality.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'flood_no_mort'</span></code> (life stage attr.): Flood fraction of time below which there is no flooding mortality (zero disables flooding mortality).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'flood_all_mort'</span></code> (life stage attr.): Flood fraction of time above which there is 100% flooding mortality.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'uproot_no_mort'</span></code> (life stage attr.): Maximum velocity below which there is no uprooting mortality (zero disables uprooting mortality).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'uproot_all_mort'</span></code> (life stage attr.): Maximum velocity above which there is 100% uprooting mortality.</p></li>
+</ul>
+</div></blockquote>
+<p>Vegetation fractions in grid cells may be reduced or eliminated completely when the following hydrodynamic and morphodynamic stressors are deemed excessive based on the above input parameters:</p>
+<ul class="simple">
+<li><p>Flooding/inundation</p></li>
+<li><p>Drying/desiccation</p></li>
+<li><p>Flow velocity</p></li>
+<li><p>Sedimentation</p></li>
+<li><p>Erosion</p></li>
+</ul>
+<p>As mentioned above under <a class="reference internal" href="#colonization"><span class="std std-ref">Colonization</span></a>, a species will colonize grid cells that were both dry and wet for any amount of time during the previous <code class="docutils literal notranslate"><span class="pre">ets</span></code>.
+However, the thresholds provided in the <cite>.json</cite> file are typically more limiting.
+For all cells that were flooded for a <strong>lesser fraction of time</strong> than <code class="docutils literal notranslate"><span class="pre">'flood_no_mort'</span></code> during the previous <code class="docutils literal notranslate"><span class="pre">ets</span></code>, there will be zero flooding mortality.
+Likewise, for all cells that were flooded for a <strong>greater fraction of time</strong> than <code class="docutils literal notranslate"><span class="pre">'flood_all_mort'</span></code>, there will be 100% flooding mortality.
+The same logic applies for desiccation mortality based on dry fraction of time.
+For uprooting, maximum velocity is used instead of fraction of time.
+When these stressors are in between the minimum and maximum thresholds, mortality is computed via linear interpolation between 0% and 100%.</p>
+<p>Note that DYCOVE samples inundation and velocity arrays at regular intervals that are much larger than the hydrodynamic model time step but much smaller than <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code>.
+This “hydrodynamic” interval is defined in the call to <a class="reference internal" href="../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase.run_simulation" title="dycove.sim.base.HydroSimulationBase.run_simulation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation()</span></code></a> by argument <code class="docutils literal notranslate"><span class="pre">hydro_interval</span></code>.
+Hydrodynamic statistics (minimum depth, maximum depth, maximum velocity, flooded/dry fractions) are tracked in <a class="reference internal" href="../_autosummary/dycove.sim.simulation_data.HydrodynamicStats.html#dycove.sim.simulation_data.HydrodynamicStats" title="dycove.sim.simulation_data.HydrodynamicStats"><code class="xref py py-class docutils literal notranslate"><span class="pre">HydrodynamicStats</span></code></a>.</p>
+<p>Morphodynamic mortality (if morphology is enabled) is a simple binary calculation, where burial mortality is 100% if sedimentation exceeds the current stem height and scour mortality is 100% if erosion exceeds 10% of the current root length.
+Note that morphodynamic mortality can be disabled in the initial call to <a class="reference internal" href="../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies" title="dycove.sim.vegetation.VegetationSpecies"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationSpecies</span></code></a> even when morphology in the numerical model is enabled.</p>
+<p>Each kind of mortality is stored in <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> objects as both “potential” and “applied” mortality arrays.
+Potential mortality is a fraction based solely on the environmental stressor, representing cell-wise vulnerability regardless of distribution of vegetation fractions.
+Applied mortality is the fractional value that is actually applied to the vegetation fraction, which will equal zero in cells that do not have vegetation.
+Below are two examples illustrating the difference:</p>
+<p>Case 1: Based on hydrodynamic conditions and the mortality resistance of a species X at its current lifestage, a model grid cell is computed as having 100% “potential” mortality due to flooding AND 80% “potential” mortality due to uprooting, based on the thresholds provided.
+The species X fraction in this cell is currently 40%.
+Actual (applied) mortality is computed based on the following method (assuming no other mortality modes are active/relevant):</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+\small \text{applied_mort_flood} &amp; = \small 0.4 * 1.0 = 0.4 \\
+\small \text{applied_mort_uproot} &amp; = \small 0.4 * 0.8 = 0.32 \\
+\small \text{applied_mort_total} &amp; = \small \text{applied_mort_flood} + \text{applied_mort_uproot} = 0.4 + 0.32 = 0.72 \\
+\small \text{fraction_left} &amp; = \small \text{max}(0.4 - \text{applied_mort_total}, 0) = \text{max}(0.4 - 0.72, 0) = 0
+\end{align*}\end{split}\]</div>
+<p>Case 2: A model grid cell is computed as having 50% “potential” mortality due to flooding AND 20% “potential” mortality due to uprooting.
+The species X fraction in this cell is currently 40%:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align*}
+\small \text{applied_mort_flood} &amp; = \small 0.4 * 0.5 = 0.2 \\
+\small \text{applied_mort_uproot} &amp; = \small 0.4 * 0.2 = 0.08 \\
+\small \text{applied_mort_total} &amp; = \small \text{applied_mort_flood} + \text{applied_mort_uproot} = 0.2 + 0.08 = 0.28 \\
+\small \text{fraction_left} &amp; = \small \text{max}(0.4 - \text{applied_mort_total}, 0) = \text{max}(0.4 - 0.28, 0) = 0.12
+\end{align*}\end{split}\]</div>
+</section>
+<section id="computing-vegetation">
+<span id="compute-veg"></span><h2>Computing Vegetation<a class="headerlink" href="#computing-vegetation" title="Link to this heading"></a></h2>
+<p>Vegetation attributes are computed in DYCOVE as described in the above sections.
+However, DYCOVE tracks individual vegetation cohorts via <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> objects, which will have different fractions, stem heights, etc. in the grid cells they share.
+In order to pass vegetation attributes back to the numerical model, we must compute weighted averages across all cohorts, and across all species if applicable, so that each grid cell has just one value.
+This is handled by <a class="reference internal" href="../_autosummary/dycove.sim.vegetation.SharedVegMethods.html#dycove.sim.vegetation.SharedVegMethods.compute_veg_model_quantities" title="dycove.sim.vegetation.SharedVegMethods.compute_veg_model_quantities"><code class="xref py py-meth docutils literal notranslate"><span class="pre">compute_veg_model_quantities()</span></code></a>.</p>
+<p>To compute the representative stem density in each cell, we take the sumproduct of vegetation fraction arrays and stem density values.
+For example, a species colonizes a grid cell with <code class="docutils literal notranslate"><span class="pre">'fraction_0'</span></code> of 0.4 (as in the example above in <a class="reference internal" href="#input-json"><span class="std std-ref">Vegetation Input File</span></a>).
+The <code class="docutils literal notranslate"><span class="pre">'stemdens'</span></code> for that species and life stage is 300 stems/m².
+Therefore, at the current time, the effective stem density in that cell that is passed back to the numerical model is 0.4 * 300 = 120 stems/m².
+This method operates under the assumption that the stem density is an attribute of the species, perhaps a value found in the literature, while a <code class="docutils literal notranslate"><span class="pre">'fraction_0'</span></code> less than 1.0 leaves space for cohorts of an other species to potentially colonize that same cell.
+In the case of <a class="reference internal" href="#multi-species"><span class="std std-ref">multiple species</span></a>, DYCOVE will technically colonize each species one after the other, so a <code class="docutils literal notranslate"><span class="pre">'fraction_0'</span></code> of 1.0 will prevent any other species from colonizing at all.</p>
+<p>Stem height and diameter are computed as weighted averages based on vegetation fraction as well, but the calculation ignores empty space in grid cells, unlike the stem density calculation.
+For example, if a single cohort has a stem height of 0.5 m in a grid cell with a vegetation fraction of 0.4, the effective stem height passed to the numerical model is:</p>
+<div class="math notranslate nohighlight">
+\[\small \text{stemht_eff} = \frac{0.4 * 0.5}{0.4} = 0.5\, \text{m}\]</div>
+<p>The general equation for any number of cohorts N in a cell is:</p>
+<div class="math notranslate nohighlight">
+\[\small \text{stemht_eff} = \frac{\sum_{i=1}^{N} \text{fraction}_i * \text{stemht}_i}{\sum_{i=1}^{N} \text{fraction}_i}\]</div>
+<p>This cellular averaging method differs from the method used in the previous model in Brückner et al. (2019).
+In that model, individual Chezy values were calculated for each vegetation fraction in a cell, and the overall Chezy value was calculated as a weighted average of the individual Chezy values.
+The significance of this change is related to the different equation form depending on whether vegetation is submerged or not.</p>
+</section>
+<section id="baptist-and-chezy">
+<span id="baptist-chezy"></span><h2>Baptist and Chezy<a class="headerlink" href="#baptist-and-chezy" title="Link to this heading"></a></h2>
+<p>Relevant <cite>.json</cite> input attributes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'drag'</span></code> (life stage attr.): Drag coefficient used in the Baptist formulation.</p></li>
+</ul>
+<p>Flow resistance is computed using the Baptist formulation <a class="footnote-reference brackets" href="#id15" id="id10" role="doc-noteref"><span class="fn-bracket">[</span>5<span class="fn-bracket">]</span></a>, which calculates a Chezy roughness value based on vegetation attributes:</p>
+<div class="math notranslate nohighlight">
+\[\small C_v = \left( \frac{1}{C_b^2} + \frac{C_d\, m\, D}{2 g}\, \min(h, h_v) \right)^{-1/2}
+      + \frac{\sqrt{g}}{κ}\, \ln\!\left( \frac{\max(h, h_v)}{h_v} \right)\]</div>
+<p>where <span class="math notranslate nohighlight">\(C\)</span> is the Chezy roughness, <span class="math notranslate nohighlight">\(C_b\)</span> is the bed Chezy coefficient, <span class="math notranslate nohighlight">\(C_d\)</span> is the drag coefficient <code class="docutils literal notranslate"><span class="pre">'drag'</span></code>, <span class="math notranslate nohighlight">\(m\)</span> is stem density <span class="math notranslate nohighlight">\([\text{stems/m²}]\)</span>, <span class="math notranslate nohighlight">\(D\)</span> is stem diameter <span class="math notranslate nohighlight">\([\text{m}]\)</span>, <span class="math notranslate nohighlight">\(h_v\)</span> is stem height <span class="math notranslate nohighlight">\([\text{m}]\)</span>, <span class="math notranslate nohighlight">\(h\)</span> is water depth <span class="math notranslate nohighlight">\([\text{m}]\)</span>, <span class="math notranslate nohighlight">\(κ\)</span> is the von Karman constant, and <span class="math notranslate nohighlight">\(g\)</span> is gravitational acceleration <span class="math notranslate nohighlight">\([\text{m/s}^2]\)</span>.</p>
+<p><a class="reference internal" href="../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">AnugaEngine</span></code></a> implements this equation via the <a class="reference internal" href="../_autosummary/dycove.sim.engines.ANUGA_baptist.Baptist_operator.html#dycove.sim.engines.ANUGA_baptist.Baptist_operator" title="dycove.sim.engines.ANUGA_baptist.Baptist_operator"><code class="xref py py-class docutils literal notranslate"><span class="pre">Baptist_operator</span></code></a> class.
+<a class="reference internal" href="../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine" title="dycove.sim.engines.DFM_hydro.DFMEngine"><code class="xref py py-class docutils literal notranslate"><span class="pre">DFMEngine</span></code></a> implements this equation via an internal vegetation module.</p>
+</section>
+<section id="modeling-of-multiple-species">
+<span id="multi-species"></span><h2>Modeling of Multiple Species<a class="headerlink" href="#modeling-of-multiple-species" title="Link to this heading"></a></h2>
+<p>DYCOVE allows for the modeling of multiple vegetation species in a single simulation.
+Each species must have its own vegetation input <cite>.json</cite> file, and must be instantiated as its own <a class="reference internal" href="../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies" title="dycove.sim.vegetation.VegetationSpecies"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationSpecies</span></code></a> object.
+Each species is combined in a <a class="reference internal" href="../_autosummary/dycove.sim.vegetation.MultipleVegetationSpecies.html#dycove.sim.vegetation.MultipleVegetationSpecies" title="dycove.sim.vegetation.MultipleVegetationSpecies"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleVegetationSpecies</span></code></a> object, which contains all of the same method names as <a class="reference internal" href="../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies" title="dycove.sim.vegetation.VegetationSpecies"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationSpecies</span></code></a>.
+The majority of these methods simply loop over each species and call the corresponding method for each one.
+The major difference occurs in the <code class="xref py py-meth docutils literal notranslate"><span class="pre">colonization()</span></code> method.
+When this method is called for an individual species, the method receives an optional argument that contains all <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> objects across all species, so that the method knows how much actual space is available in each cell.</p>
+</section>
+<section id="references">
+<h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id11" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>Brückner, M. Z. M., Schwarz, C., van Dijk, W. M., van Oorschot, M., Douma, H., &amp; Kleinhans, M. G. (2019). Salt marsh establishment and eco-engineering effects in dynamic estuaries determined by species growth and mortality. Journal of Geophysical Research: Earth Surface, 124, 2962-2986. <a class="reference external" href="https://doi.org/10.1029/2019JF005092">https://doi.org/10.1029/2019JF005092</a></p>
+</aside>
+<aside class="footnote brackets" id="id12" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">2</a><span class="fn-bracket">]</span></span>
+<p>Lesser, G. R., Roelvink, J. A., van Kester, J. A. T. M., and Stelling, G. S., 2004. Development and validation of a three-dimensional morphological model. Coastal engineering, 51(8-9), 883–915. <a class="reference external" href="https://doi.org/10.1016/j.coastaleng.2004.07.014">https://doi.org/10.1016/j.coastaleng.2004.07.014</a></p>
+</aside>
+<aside class="footnote brackets" id="id13" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">3</a><span class="fn-bracket">]</span></span>
+<p>Davies, G., and Roberts, S., 2015. Open source flood simulation with a 2D discontinuous-elevation hydrodynamic model. In Proceedings of MODSIM 2015. <a class="reference external" href="https://doi.org/10.1016/j.coastaleng.2011.03.010">https://doi.org/10.1016/j.coastaleng.2011.03.010</a></p>
+</aside>
+<aside class="footnote brackets" id="id14" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">4</a><span class="fn-bracket">]</span></span>
+<p>Ranasinghe, R., Swinkels, C., Luijendijk, A., Roelvink, D., Bosboom, J., Stive, M., and Walstra, D. (2011). Morphodynamic upscaling with the MORFAC approach: Dependencies and sensitivities. Coastal engineering, 58(8), 806-811.</p>
+</aside>
+<aside class="footnote brackets" id="id15" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id10">5</a><span class="fn-bracket">]</span></span>
+<p>Baptist, M. J., Babovic, C., Uthurburu, J. R., Uittenbogaard, R. E., Mynett, A., &amp; Verwey, A. (2007). “On inducing equations for vegetation resistance.” Journal of Hydraulic Research, 45(4), 435–450. <a class="reference external" href="https://doi.org/10.1080/00221686.2007.9521778">https://doi.org/10.1080/00221686.2007.9521778</a></p>
+</aside>
+</aside>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../installation/index.html" class="btn btn-neutral float-left" title="Installation Instructions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../userguide/index.html" class="btn btn-neutral float-right" title="User Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

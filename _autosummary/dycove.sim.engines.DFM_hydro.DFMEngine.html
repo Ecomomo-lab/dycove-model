@@ -1,0 +1,337 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dycove.sim.engines.DFM_hydro.DFMEngine &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="dycove.sim.engines.ANUGA_baptist.Baptist_operator" href="dycove.sim.engines.ANUGA_baptist.Baptist_operator.html" />
+    <link rel="prev" title="dycove.sim.engines.DFM_hydro.DFM" href="dycove.sim.engines.DFM_hydro.DFM.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../apiref/index.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../apiref/sim/index.html">Simulation</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#base-simulation-module">Base Simulation Module</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../apiref/sim/index.html#hydrodynamic-model-engines">Hydrodynamic Model Engines</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="../apiref/sim/index.html#anuga-hydrodynamic-engine">ANUGA Hydrodynamic Engine</a></li>
+<li class="toctree-l4 current"><a class="reference internal" href="../apiref/sim/index.html#delft3d-fm-hydrodynamic-engine">Delft3D-FM Hydrodynamic Engine</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../apiref/sim/index.html#baptist-operator-anuga">Baptist Operator (ANUGA)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#simulation-helper-classes">Simulation Helper Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#vegetation-modules">Vegetation Modules</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../apiref/utils/index.html">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../apiref/index.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../apiref/sim/index.html">Simulation</a></li>
+      <li class="breadcrumb-item active">dycove.sim.engines.DFM_hydro.DFMEngine</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="dycove-sim-engines-dfm-hydro-dfmengine">
+<h1>dycove.sim.engines.DFM_hydro.DFMEngine<a class="headerlink" href="#dycove-sim-engines-dfm-hydro-dfmengine" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dycove.sim.engines.DFM_hydro.</span></span><span class="sig-name descname"><span class="pre">DFMEngine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dfm_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdu_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vegetation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine" title="Link to this definition"></a></dt>
+<dd><p>Engine interface for DFM hydro-morphodynamic model.</p>
+<p>This engine:</p>
+<ul class="simple">
+<li><p>Loads and initializes DFM executables (DIMR + D-Flow FM BMI).</p></li>
+<li><p>Manages exchange of hydrodynamic and vegetation state variables though
+DFM-specific <code class="docutils literal notranslate"><span class="pre">BMI-python</span></code> wrapper.</p></li>
+<li><p>Ensures that required input files are present and are consistent
+with simulation settings.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dfm_path</strong> (<em>Path</em><em> or </em><em>str</em>) – Path to the root Delft3D-FM installation directory. Might look like this:
+‘C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/plugins/DeltaShell.Dimr/kernels/x64’</p></li>
+<li><p><strong>config_path</strong> (<em>Path</em><em> or </em><em>str</em>) – Path to DIMR configuration file <code class="docutils literal notranslate"><span class="pre">dimr_config.xml</span></code></p></li>
+<li><p><strong>mdu_path</strong> (<em>Path</em><em> or </em><em>str</em>) – Path to DFM MDU file.</p></li>
+<li><p><strong>vegetation</strong> (<a class="reference internal" href="dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies" title="dycove.sim.vegetation.VegetationSpecies"><em>VegetationSpecies</em></a><em> or </em><a class="reference internal" href="dycove.sim.vegetation.MultipleVegetationSpecies.html#dycove.sim.vegetation.MultipleVegetationSpecies" title="dycove.sim.vegetation.MultipleVegetationSpecies"><em>MultipleVegetationSpecies</em></a><em>, </em><em>optional</em>) – Vegetation object passed down from the base simulation.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Vegetation files (.xyz) required by DFM vegetation module are auto-created
+if missing.</p></li>
+<li><p>Parallel mode is not currently implemented.</p></li>
+</ul>
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dfm_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mdu_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vegetation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.__init__" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Methods</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.__init__" title="dycove.sim.engines.DFM_hydro.DFMEngine.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(dfm_path, config_path, mdu_path[, ...])</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_mdu_extforcefile</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_mdu_veg_module</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.check_simulation_inputs" title="dycove.sim.engines.DFM_hydro.DFMEngine.check_simulation_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_simulation_inputs</span></code></a>(simstate)</p></td>
+<td><p>Compare DYCOVE simulation time to MDU simulation time.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.cleanup" title="dycove.sim.engines.DFM_hydro.DFMEngine.cleanup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanup</span></code></a>()</p></td>
+<td><p>Clean up resources.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_ext_file</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_veg_xyz_files</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_cell_count" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_count</span></code></a>()</p></td>
+<td><p>Return number of active grid cells in the model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_drag</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_elevation" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_elevation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elevation</span></code></a>()</p></td>
+<td><p>Return static bed elevation array (cell-centered).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_model_inputs</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_morphodynamic_inputs</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_rank" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_rank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_rank</span></code></a>()</p></td>
+<td><p>Get current parallel processor/rank.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_refdate</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_vegetation" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vegetation</span></code></a>()</p></td>
+<td><p>Return stem density, diameter, and height arrays.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_velocity_and_depth" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_velocity_and_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_velocity_and_depth</span></code></a>()</p></td>
+<td><p>Return velocity magnitude and depth arrays for each cell.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.initialize" title="dycove.sim.engines.DFM_hydro.DFMEngine.initialize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize</span></code></a>()</p></td>
+<td><p>Prepare engine to run (allocate memory, print start, etc.).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.is_parallel" title="dycove.sim.engines.DFM_hydro.DFMEngine.is_parallel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_parallel</span></code></a>()</p></td>
+<td><p>Return True if model is running in parallel based on number of active processors.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg" title="dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_parallel_veg</span></code></a>(OutputManager)</p></td>
+<td><p>Merge vegetation output files across MPI subdomains into single files.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation" title="dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vegetation</span></code></a>(stemdensity, stemdiameter, ...)</p></td>
+<td><p>Push vegetation arrays back into the hydro model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.step" title="dycove.sim.engines.DFM_hydro.DFMEngine.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(seconds)</p></td>
+<td><p>Advance the hydrodynamic model forward by a given number of seconds.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.vegetation_file_check" title="dycove.sim.engines.DFM_hydro.DFMEngine.vegetation_file_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vegetation_file_check</span></code></a>()</p></td>
+<td><p>MODIFIES .mdu file if certain vegetation-related lines are not present:</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_modified_mdu</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.check_simulation_inputs">
+<span class="sig-name descname"><span class="pre">check_simulation_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simstate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.check_simulation_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.check_simulation_inputs" title="Link to this definition"></a></dt>
+<dd><p>Compare DYCOVE simulation time to MDU simulation time.</p>
+<p>All MDU files (DFM models) will have a simulation time specifed, but DYCOVE will run
+DFM for a period of time based on how many veg years we want to simulate. Basically,
+the time specified in the MDU needs to be arbitrarily large enough so that we never
+run into the issue of the model stopping prematurely.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.cleanup" title="Link to this definition"></a></dt>
+<dd><p>Clean up resources.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_cell_count">
+<span class="sig-name descname"><span class="pre">get_cell_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_cell_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_cell_count" title="Link to this definition"></a></dt>
+<dd><p>Return number of active grid cells in the model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_elevation">
+<span class="sig-name descname"><span class="pre">get_elevation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_elevation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_elevation" title="Link to this definition"></a></dt>
+<dd><p>Return static bed elevation array (cell-centered).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_rank">
+<span class="sig-name descname"><span class="pre">get_rank</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_rank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_rank" title="Link to this definition"></a></dt>
+<dd><p>Get current parallel processor/rank.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_vegetation">
+<span class="sig-name descname"><span class="pre">get_vegetation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_vegetation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_vegetation" title="Link to this definition"></a></dt>
+<dd><p>Return stem density, diameter, and height arrays.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_velocity_and_depth">
+<span class="sig-name descname"><span class="pre">get_velocity_and_depth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_velocity_and_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_velocity_and_depth" title="Link to this definition"></a></dt>
+<dd><p>Return velocity magnitude and depth arrays for each cell.
+If applicable, velocity and depth arrays must be trimmed to active cells.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.initialize">
+<span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.initialize" title="Link to this definition"></a></dt>
+<dd><p>Prepare engine to run (allocate memory, print start, etc.).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.is_parallel">
+<span class="sig-name descname"><span class="pre">is_parallel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.is_parallel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.is_parallel" title="Link to this definition"></a></dt>
+<dd><p>Return True if model is running in parallel based on number of active processors.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg">
+<span class="sig-name descname"><span class="pre">merge_parallel_veg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">OutputManager</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.merge_parallel_veg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg" title="Link to this definition"></a></dt>
+<dd><p>Merge vegetation output files across MPI subdomains into single files.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation">
+<span class="sig-name descname"><span class="pre">set_vegetation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stemdensity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stemdiameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stemheight</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.set_vegetation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation" title="Link to this definition"></a></dt>
+<dd><p>Push vegetation arrays back into the hydro model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.step" title="Link to this definition"></a></dt>
+<dd><p>Advance the hydrodynamic model forward by a given number of seconds.</p>
+<p>ANUGA implements this by looping with domain.evolve(), while DFM calls dimr.update().</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.vegetation_file_check">
+<span class="sig-name descname"><span class="pre">vegetation_file_check</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.vegetation_file_check"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.vegetation_file_check" title="Link to this definition"></a></dt>
+<dd><p>MODIFIES .mdu file if certain vegetation-related lines are not present:</p>
+<ul class="simple">
+<li><p>Adds a filename next to ‘ExtForceFile’ if blank, creates the file too</p></li>
+<li><p>Adds drag coefficient from VegetationAttributes if [veg] block is present</p></li>
+<li><p>Adds [veg] block if it is not present, including drag coefficient from VegetationAttributes</p></li>
+</ul>
+<p>Creates empty text files for stem density, stem diameter, and stem height, if they don’t
+already exist.</p>
+<p>The filenames are those specified in the vegetation .ext file in the model directory
+(e.g., “FlowFM_veg.ext”).</p>
+<p>These files can be created beforehand if prior vegetation establishment is desired.</p>
+<p>Otherwise, blank files are required so that DFM knows to store these variables through time.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dycove.sim.engines.DFM_hydro.DFM.html" class="btn btn-neutral float-left" title="dycove.sim.engines.DFM_hydro.DFM" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dycove.sim.engines.ANUGA_baptist.Baptist_operator.html" class="btn btn-neutral float-right" title="dycove.sim.engines.ANUGA_baptist.Baptist_operator" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

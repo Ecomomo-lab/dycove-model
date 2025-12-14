@@ -1,0 +1,40 @@
+﻿dycove.utils.plotting.ModelPlotter
+==================================
+
+.. currentmodule:: dycove.utils.plotting
+
+.. autoclass:: ModelPlotter
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ModelPlotter.__init__
+      ~ModelPlotter.compute_ecofac
+      ~ModelPlotter.create_gif
+      ~ModelPlotter.create_interp_func
+      ~ModelPlotter.create_timestrings
+      ~ModelPlotter.do_quiver
+      ~ModelPlotter.format_fname_time
+      ~ModelPlotter.format_title_time
+      ~ModelPlotter.get_eco_times
+      ~ModelPlotter.get_hydro_eco_times
+      ~ModelPlotter.get_map_indices
+      ~ModelPlotter.get_model_name
+      ~ModelPlotter.get_model_type
+      ~ModelPlotter.get_modeldir
+      ~ModelPlotter.get_quantity_grids
+      ~ModelPlotter.get_time_breakdown
+      ~ModelPlotter.get_time_indices
+      ~ModelPlotter.plot_quantity
+      ~ModelPlotter.run
+   
+   
+
+   
+   
+   

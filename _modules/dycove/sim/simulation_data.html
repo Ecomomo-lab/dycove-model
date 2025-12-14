@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dycove.sim.simulation_data &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../apiref/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">dycove.sim.simulation_data</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for dycove.sim.simulation_data</h1><div class="highlight"><pre>
+<span></span><span class="c1">###############################################################</span>
+<span class="c1">#  simulation_data.py</span>
+<span class="c1">###############################################################</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">dt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.simulation_reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reporter</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="SimulationTimeState">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.SimulationTimeState.html#dycove.sim.simulation_data.SimulationTimeState">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SimulationTimeState</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Tracks and manages simulation time state variables.</span>
+
+<span class="sd">    This class handles both the hydrodynamic and eco-morphodynamic </span>
+<span class="sd">    time scales, including conversions between them.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    eco_year : int</span>
+<span class="sd">        Current ecological year in the simulation.</span>
+<span class="sd">    ets : int</span>
+<span class="sd">        Current ecological time step.</span>
+<span class="sd">    sim_time : float</span>
+<span class="sd">        Simulation time in units given by `sim_time_unit`.</span>
+<span class="sd">    sim_time_unit : str</span>
+<span class="sd">        Unit of `sim_time`. Must be either `&#39;hydrodynamic days&#39;` or </span>
+<span class="sd">        `&#39;eco-morphodynamic years&#39;`.</span>
+<span class="sd">    n_ets : int</span>
+<span class="sd">        Number of ecological time steps per year.</span>
+<span class="sd">    veg_interval : int</span>
+<span class="sd">        Time interval (in seconds) between vegetation updates.</span>
+<span class="sd">    hydro_interval : int</span>
+<span class="sd">        Time interval (in seconds) between hydrodynamic updates </span>
+<span class="sd">        (updates to :class:`HydrodynamicStats`).</span>
+<span class="sd">    morfac : int</span>
+<span class="sd">        Morphological acceleration factor from the morphodynamic model.</span>
+<span class="sd">    vegfac : int, optional</span>
+<span class="sd">        Vegetation acceleration factor. If None, it is computed automatically.</span>
+<span class="sd">    refdate : datetime</span>
+<span class="sd">        Reference start date of the simulation.</span>
+<span class="sd">    hydrotime_seconds : int</span>
+<span class="sd">        Accumulated hydrodynamic simulation time in seconds.</span>
+
+<span class="sd">    Computed Attributes</span>
+<span class="sd">    -------------------</span>
+<span class="sd">    days_per_year : float</span>
+<span class="sd">        Implied number of days per ecological year.</span>
+<span class="sd">    hydro_sim_days : float</span>
+<span class="sd">        Total hydrodynamic days elapsed in the simulation.</span>
+<span class="sd">    veg_sim_years : float</span>
+<span class="sd">        Total eco-morphodynamic years elapsed.</span>
+<span class="sd">    time_0 : float</span>
+<span class="sd">        Wall-clock timestamp of simulation start.</span>
+<span class="sd">    times_elapsed : list</span>
+<span class="sd">        List of elapsed wall-clock times at updates.</span>
+<span class="sd">    n_veg_steps : int</span>
+<span class="sd">        Total number of ecological steps in the simulation.</span>
+<span class="sd">    n_hydro_steps : int</span>
+<span class="sd">        Total number of hydrodynamic steps per ecological step.</span>
+<span class="sd">    hydrotime_date : datetime</span>
+<span class="sd">        Current simulation date based on hydrodynamic time.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">eco_year</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">ets</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">sim_time</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">sim_time_unit</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">n_ets</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">veg_interval</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">hydro_interval</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">morfac</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">ecofac</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">refdate</span><span class="p">:</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">())</span>
+    <span class="n">hydrotime_seconds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    
+    <span class="c1"># Computed attributes</span>
+    <span class="n">days_per_year</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">hydro_sim_days</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">veg_sim_years</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">time_0</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">times_elapsed</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">n_veg_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">n_hydro_steps</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">hydrotime_date</span><span class="p">:</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SimulationTimeState.__post_init__">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.SimulationTimeState.html#dycove.sim.simulation_data.SimulationTimeState.__post_init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize computed attributes and validate inputs. &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time_0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">times_elapsed</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="c1"># Compute/validate ecofac first</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_ecofac</span><span class="p">()</span>
+        
+        <span class="c1"># Compute days_per_year based on ecofac</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_days_per_year</span><span class="p">()</span>
+        
+        <span class="c1"># Use days_per_year to compute time conversions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_time_conversions</span><span class="p">()</span>
+        
+        <span class="c1"># Compute step counts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_veg_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_sim_years</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_ets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_hydro_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_interval</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">hydro_interval</span><span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">vegtime_date</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">refdate</span> <span class="o">+</span> <span class="n">dt</span><span class="o">.</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">hydrotime_seconds</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecofac</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">advance_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hydrotime_seconds</span> <span class="o">+=</span> <span class="n">seconds</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_ets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ets</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_ets</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ets</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ets</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eco_year</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="SimulationTimeState.compute_ecofac">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.SimulationTimeState.html#dycove.sim.simulation_data.SimulationTimeState.compute_ecofac">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_ecofac</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Determine ecological acceleration factor, prioritizing: </span>
+<span class="sd">        model morfac &gt; input value &gt; derived value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check that input ecofac matches morfac if morphology is on</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecofac</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">morfac</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">morfac</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecofac</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;MORFAC mismatch: when morphology is on (.mor file exists), input ecofac must &quot;</span>
+                       <span class="s2">&quot;either equal the DFM morfac value or be left as None.&quot;</span><span class="p">)</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Use morfac from model if morphology is on</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">morfac</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Using morfac = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">morfac</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2"> from morphology file as ecofac.&quot;</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ecofac</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">morfac</span>
+            <span class="c1"># Otherwise, compute ecofac implied from vegetation coupling times</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Compute ideal (continuous) ecofac</span>
+                <span class="n">ecofac_est</span> <span class="o">=</span> <span class="p">(</span><span class="mi">86400</span> <span class="o">*</span> <span class="mf">365.</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_interval</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_ets</span><span class="p">)</span>
+                <span class="c1"># Round to nearest whole number</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ecofac</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">ecofac_est</span><span class="p">))</span>
+                
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Computed ecofac = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ecofac</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">, derived from veg_interval and n_ets &quot;</span>
+                       <span class="sa">f</span><span class="s2">&quot;(rounded from </span><span class="si">{</span><span class="n">ecofac_est</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="SimulationTimeState.compute_days_per_year">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.SimulationTimeState.html#dycove.sim.simulation_data.SimulationTimeState.compute_days_per_year">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_days_per_year</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the implied &#39;days per year&#39; from ecofac, veg_interval, and n_ets.</span>
+
+<span class="sd">        Validates that the result is reasonable (350-380 days).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">days_per_year</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ecofac</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg_interval</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_ets</span><span class="p">)</span> <span class="o">/</span> <span class="mf">86400.</span>
+        
+        <span class="k">if</span> <span class="mi">350</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">days_per_year</span> <span class="o">&lt;=</span> <span class="mi">380</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;ecofac = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ecofac</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2"> corresponds to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">days_per_year</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> days per year.&quot;</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input parameters (ecofac = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ecofac</span><span class="si">:</span><span class="s2">d</span><span class="si">}</span><span class="s2">, veg_interval = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_interval</span><span class="si">}</span><span class="s2">, &quot;</span>
+                   <span class="sa">f</span><span class="s2">&quot;and n_ets = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_ets</span><span class="si">}</span><span class="s2">) correspond to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">days_per_year</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> days per year. &quot;</span>
+                   <span class="s2">&quot;Please check these three inputs for consistency. &quot;</span>
+                   <span class="s2">&quot;Note that the ecofac input can be left out (None) to have it computed automatically &quot;</span>
+                   <span class="s2">&quot;based on veg_interval and n_ets.&quot;</span><span class="p">)</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+    
+<div class="viewcode-block" id="SimulationTimeState.compute_time_conversions">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.SimulationTimeState.html#dycove.sim.simulation_data.SimulationTimeState.compute_time_conversions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_time_conversions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Convert between hydrodynamic days and eco-morphodynamic years. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_time_unit</span> <span class="o">==</span> <span class="s1">&#39;hydrodynamic days&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hydro_sim_days</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_time</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">veg_sim_years</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_time</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecofac</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">days_per_year</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_time_unit</span> <span class="o">==</span> <span class="s1">&#39;eco-morphodynamic years&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">veg_sim_years</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_time</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hydro_sim_days</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_time</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">days_per_year</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecofac</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Invalid sim_time_unit: &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_time_unit</span><span class="si">}</span><span class="s2">&#39;. Must be &#39;hydrodynamic days&#39; or &#39;eco-morphodynamic years&#39;.&quot;</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="HydrodynamicStats">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.HydrodynamicStats.html#dycove.sim.simulation_data.HydrodynamicStats">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HydrodynamicStats</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Stores hydrodynamic model outputs used to compute vegetation responses.</span>
+
+<span class="sd">    Tracks water depths, velocities, and flood statistics across the computational grid.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fl_dr : float</span>
+<span class="sd">        Flooding threshold (depth above which a cell is considered flooded).</span>
+<span class="sd">    h_min : numpy.ndarray</span>
+<span class="sd">        Minimum water depth observed in each cell during the hydrodynamic interval.</span>
+<span class="sd">    h_max : numpy.ndarray</span>
+<span class="sd">        Maximum water depth observed in each cell during the hydrodynamic interval.</span>
+<span class="sd">    v_max : numpy.ndarray</span>
+<span class="sd">        Maximum velocity observed in each cell during the hydrodynamic interval.</span>
+<span class="sd">    flood_counts : numpy.ndarray</span>
+<span class="sd">        Number of timesteps each cell was flooded during the hydrodynamic interval.</span>
+<span class="sd">    bedlevel_0 : numpy.ndarray</span>
+<span class="sd">        Bed elevations per cell before the hydrodynamic interval.</span>
+<span class="sd">    bedlevel_f : numpy.ndarray</span>
+<span class="sd">        Bed elevations per cell after the hydrodynamic interval.</span>
+
+<span class="sd">    Properties</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bedlevel_diff : numpy.ndarray</span>
+<span class="sd">        Change in bed elevation (``bedlevel_f - bedlevel_0``).</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    flood_frac(n_substeps)</span>
+<span class="sd">        Compute the fraction of time each cell was flooded over ``n_substeps``.</span>
+<span class="sd">    dry_frac(n_substeps)</span>
+<span class="sd">        Compute the fraction of time each cell was dry over ``n_substeps``.</span>
+<span class="sd">    reset(n_cells)</span>
+<span class="sd">        Initialize or reset all arrays for ``n_cells`` grid cells.</span>
+<span class="sd">    update(vel, depth)</span>
+<span class="sd">        Update minimum/maximum values and flood counts using new hydrodynamic data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">fl_dr</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">h_min</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">h_max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">v_max</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">flood_counts</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">bedlevel_0</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">bedlevel_f</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bedlevel_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bedlevel_f</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">bedlevel_0</span>
+    
+<div class="viewcode-block" id="HydrodynamicStats.flood_frac">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.HydrodynamicStats.html#dycove.sim.simulation_data.HydrodynamicStats.flood_frac">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flood_frac</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_substeps</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="c1"># fraction of time cells were flooded over ets</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flood_counts</span><span class="o">/</span><span class="n">n_substeps</span></div>
+
+    
+<div class="viewcode-block" id="HydrodynamicStats.dry_frac">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.HydrodynamicStats.html#dycove.sim.simulation_data.HydrodynamicStats.dry_frac">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dry_frac</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_substeps</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="c1"># fraction of time cells were dry over ets</span>
+        <span class="k">return</span> <span class="p">(</span><span class="n">n_substeps</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">flood_counts</span><span class="p">)</span><span class="o">/</span><span class="n">n_substeps</span></div>
+
+    
+<div class="viewcode-block" id="HydrodynamicStats.reset">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.HydrodynamicStats.html#dycove.sim.simulation_data.HydrodynamicStats.reset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_cells</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_cells</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">h_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_cells</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">v_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_cells</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flood_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_cells</span><span class="p">)</span>     </div>
+
+
+<div class="viewcode-block" id="HydrodynamicStats.update">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.HydrodynamicStats.html#dycove.sim.simulation_data.HydrodynamicStats.update">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
+        <span class="c1"># update arrays of min/max hydro variables</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v_max</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">v_max</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h_min</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">h_min</span><span class="p">)</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h_max</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">h_max</span><span class="p">)</span>
+        <span class="c1"># add to count of flooded/dry cells</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flood_counts</span><span class="p">[</span><span class="n">depth</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fl_dr</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

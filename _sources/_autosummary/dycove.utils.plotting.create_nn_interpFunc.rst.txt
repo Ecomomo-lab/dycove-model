@@ -1,0 +1,6 @@
+﻿dycove.utils.plotting.create\_nn\_interpFunc
+============================================
+
+.. currentmodule:: dycove.utils.plotting
+
+.. autofunction:: create_nn_interpFunc

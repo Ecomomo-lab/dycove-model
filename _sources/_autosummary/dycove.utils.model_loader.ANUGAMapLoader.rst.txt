@@ -1,0 +1,23 @@
+﻿dycove.utils.model\_loader.ANUGAMapLoader
+=========================================
+
+.. currentmodule:: dycove.utils.model_loader
+
+.. autoclass:: ANUGAMapLoader
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ANUGAMapLoader.__init__
+      ~ANUGAMapLoader.load
+   
+   
+
+   
+   
+   

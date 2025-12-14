@@ -1,0 +1,28 @@
+﻿dycove.sim.engines.ANUGA\_baptist.Baptist\_operator
+===================================================
+
+.. currentmodule:: dycove.sim.engines.ANUGA_baptist
+
+.. autoclass:: Baptist_operator
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~Baptist_operator.__init__
+      ~Baptist_operator.parallel_safe
+      ~Baptist_operator.set_veg_quantity
+      ~Baptist_operator.set_vegetation
+      ~Baptist_operator.timestepping_statistics
+      ~Baptist_operator.update_coefficients
+      ~Baptist_operator.update_quantities
+   
+   
+
+   
+   
+   

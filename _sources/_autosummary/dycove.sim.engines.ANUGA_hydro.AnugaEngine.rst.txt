@@ -1,0 +1,36 @@
+﻿dycove.sim.engines.ANUGA\_hydro.AnugaEngine
+===========================================
+
+.. currentmodule:: dycove.sim.engines.ANUGA_hydro
+
+.. autoclass:: AnugaEngine
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~AnugaEngine.__init__
+      ~AnugaEngine.check_simulation_inputs
+      ~AnugaEngine.cleanup
+      ~AnugaEngine.get_cell_count
+      ~AnugaEngine.get_drag
+      ~AnugaEngine.get_elevation
+      ~AnugaEngine.get_rank
+      ~AnugaEngine.get_refdate
+      ~AnugaEngine.get_vegetation
+      ~AnugaEngine.get_velocity_and_depth
+      ~AnugaEngine.initialize
+      ~AnugaEngine.is_parallel
+      ~AnugaEngine.merge_parallel_veg
+      ~AnugaEngine.set_vegetation
+      ~AnugaEngine.step
+   
+   
+
+   
+   
+   

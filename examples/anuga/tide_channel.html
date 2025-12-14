@@ -1,0 +1,204 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Example - Simple beach and tide channel (ANUGA) &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Example - Simple beach and tide channel (ANUGA in parallel)" href="tide_channel_parallel.html" />
+    <link rel="prev" title="Examples" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#id2">ANUGA</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Example - Simple beach and tide channel (ANUGA)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#run-the-model">Run the Model</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#plot-the-results">Plot the Results</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tide_channel_parallel.html">Example - Simple beach and tide channel (ANUGA in parallel)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#delft3d-fm">Delft3D FM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../apiref/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Examples</a></li>
+      <li class="breadcrumb-item active">Example - Simple beach and tide channel (ANUGA)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/examples/anuga/tide_channel.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="example-simple-beach-and-tide-channel-anuga">
+<span id="tide-channel-anuga"></span><h1>Example - Simple beach and tide channel (ANUGA)<a class="headerlink" href="#example-simple-beach-and-tide-channel-anuga" title="Link to this heading"></a></h1>
+<p>This example corresponds to the Python file <cite>tide_channel_ANUGA.py</cite> located in the <cite>examples/ANUGA/tide_channel/</cite> directory, along with supporting input files.</p>
+<p>This example consists of a simple, symmetrical beach slope with a channel that bisects the dune and connects to a lagoon.
+A simple mesh is developed using one of ANUGA’s built-in functions that creates a rectangular mesh of structured triangles.
+A tidal boundary condition is imposed on the left (ocean) side, that propagates through the channel and fills the lagoon behind the dune.
+A vegetation species, loosely based on Nelumbo Lutea (American lotus), is added to the model via a set of attributes defined in the file <cite>veg1.json</cite>.
+After the simulation is finished, we can inspect a variety of 2-D model results using <a class="reference internal" href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>.</p>
+<section id="run-the-model">
+<h2>Run the Model<a class="headerlink" href="#run-the-model" title="Link to this heading"></a></h2>
+<p>The following import statement forms the basis of all DYCOVE-ANUGA coupling simulations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">VegetationSpecies</span><span class="p">,</span> <span class="n">ANUGA_hydro</span>
+</pre></div>
+</div>
+<p>The class <code class="docutils literal notranslate"><span class="pre">RectangSlopeDomainGenerator</span></code> in the file <cite>gen_anuga_domain.py</cite> is a utility class that was developed to generate the ANUGA domain for this example.
+The new variable <code class="docutils literal notranslate"><span class="pre">HydroDomain</span></code> holds the ANUGA domain object required to run ANUGA models:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">gen_anuga_domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectangSlopeDomainGenerator</span> <span class="k">as</span> <span class="n">RectangDomain</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HydroDomain</span> <span class="o">=</span> <span class="n">RectangDomain</span><span class="p">(</span><span class="s2">&quot;rectang_beach&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>While this class is not part of DYCOVE, it demonstrates how to set up a simple domain in ANUGA.
+The majority of the inputs to this class are related to describing the exact geometry of the problem.
+In general, the most critical aspects of the ANUGA domain setup are the following lines (written generally):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">domain</span> <span class="o">=</span> <span class="n">anuga</span><span class="o">.</span><span class="n">rectangular_cross_domain</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># there are other ways to create domains...</span>
+<span class="n">domain</span><span class="o">.</span><span class="n">set_quantity</span><span class="p">(</span><span class="s2">&quot;elevation&quot;</span><span class="p">,</span> <span class="n">topography</span><span class="p">)</span>  <span class="c1"># can also set elevation from a file (e.g., .ASC)</span>
+<span class="n">domain</span><span class="o">.</span><span class="n">set_quantity</span><span class="p">(</span><span class="s2">&quot;friction&quot;</span><span class="p">,</span> <span class="n">friction</span><span class="p">)</span>     <span class="c1"># same as above</span>
+<span class="n">Br</span> <span class="o">=</span> <span class="n">anuga</span><span class="o">.</span><span class="n">Reflective_boundary</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span>        <span class="c1"># define the reflective BC</span>
+<span class="n">Bt</span> <span class="o">=</span> <span class="n">anuga</span><span class="o">.</span><span class="n">Time_boundary</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">[</span><span class="n">tidal_func</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>  <span class="c1"># define tidal BC</span>
+<span class="n">domain</span><span class="o">.</span><span class="n">set_boundary</span><span class="p">({</span><span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="n">Bt</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span> <span class="n">Br</span><span class="p">,</span> <span class="s1">&#39;top&#39;</span><span class="p">:</span> <span class="n">Br</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">:</span> <span class="n">Br</span><span class="p">})</span>  <span class="c1"># assign BCs to each domain side</span>
+</pre></div>
+</div>
+<p>More important than the specifics of the domain geometry is the implementation of vegetation with DYCOVE.
+Instantiate a <code class="docutils literal notranslate"><span class="pre">VegetationSpecies</span></code> object using the vegetation attribute file, then pass that object to the <a class="reference internal" href="../../_autosummary/dycove.sim.engines.ANUGA_hydro.ANUGA.html#dycove.sim.engines.ANUGA_hydro.ANUGA" title="dycove.sim.engines.ANUGA_hydro.ANUGA"><code class="xref py py-class docutils literal notranslate"><span class="pre">ANUGA</span></code></a> hydrodynamic engine:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;veg1.json&quot;</span><span class="p">,</span> <span class="s2">&quot;veg1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">HydroModel</span> <span class="o">=</span> <span class="n">ANUGA_hydro</span><span class="o">.</span><span class="n">ANUGA</span><span class="p">(</span><span class="n">HydroDomain</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="n">veg_1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The <cite>veg1.json</cite> attribute file found in the working example directory contains a number of parameters related to when/where this species will colonize, how it will grow, and under what conditions it will die off.
+The variables in this file map directly to <a class="reference internal" href="../../_autosummary/dycove.sim.vegetation_data.VegetationAttributes.html#dycove.sim.vegetation_data.VegetationAttributes" title="dycove.sim.vegetation_data.VegetationAttributes"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationAttributes</span></code></a>, a class that contains the documentation for all required input variables.</p>
+<p>Finally, run the simulation for a specified number of eco-morphodynamic years (here, 3 years):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">HydroModel</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">&quot;eco-morphodynamic years&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that above command to run the simulation uses default values for ecological time scaling, namely, the number of ecological time steps per year <code class="docutils literal notranslate"><span class="pre">n_ets</span></code>, hydrodynamic time between ecological time steps <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code>, and ecological scaling factor <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> (see <a class="reference internal" href="../../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase.run_simulation" title="dycove.sim.base.HydroSimulationBase.run_simulation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation()</span></code></a> for details and default values).
+For further explanation of the ecological time scaling logic used in DYCOVE, refer to the <a class="reference external" href="https://Ecomomo-lab.github.io/dycove-model/background/ecological_time_scaling.html">background documentation</a>.
+Using the default values of <code class="docutils literal notranslate"><span class="pre">n_ets</span></code> and <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code>, <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> is equal to 52.
+So, three years of ecological time is equivalent to 21 days of hydrodynamic time.
+Therefore, the above line can also be written as below, with the same resulting simulation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">HydroModel</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">&quot;hydrodynamic days&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="plot-the-results">
+<h2>Plot the Results<a class="headerlink" href="#plot-the-results" title="Link to this heading"></a></h2>
+<p>ANUGA output is saved in netCDF files with the <cite>.sww</cite> extension.
+DYCOVE output is saved in <cite>.npz</cite> files, with one file per vegetation cohort per ecological time step.
+For a list of outputs stored with each cohort, see <a class="reference internal" href="../../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a>.</p>
+<p>Plot 2-D maps of various model quantities over time using <a class="reference internal" href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>.
+For example, we can plot vegetation stem heights over the entire 21-day (hydrodynamic time) simulation period.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">plotting</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plotter</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ModelPlotter</span><span class="p">(</span>
+<span class="go">      simdir = Path(&quot;.&quot;),</span>
+<span class="go">      quantity = &quot;Stem Height&quot;,</span>
+<span class="go">      plot_times = {</span>
+<span class="go">        &quot;plotHR_0&quot;: 0*24.,</span>
+<span class="go">        &quot;plotHR_f&quot;: 21*24.,</span>
+<span class="go">        &quot;mapHR_int&quot;: 1,</span>
+<span class="go">        &quot;plotHR_int&quot;: 1,</span>
+<span class="go">      },</span>
+<span class="go">      cmap_lims = {</span>
+<span class="go">        &quot;Bathymetry&quot;: (-0.5, 0.5),</span>
+<span class="go">      },</span>
+<span class="go">    )</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">plotter</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This plotting code is located in the same example directory at <cite>examples/ANUGA/tide_channel/plot_tide_channel_ANUGA.py</cite>, where there are additional comments on how to use the code, as well as more ideas for quantities to plot.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="tide_channel_parallel.html" class="btn btn-neutral float-right" title="Example - Simple beach and tide channel (ANUGA in parallel)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

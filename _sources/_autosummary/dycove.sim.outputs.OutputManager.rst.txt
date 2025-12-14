@@ -1,0 +1,26 @@
+﻿dycove.sim.outputs.OutputManager
+================================
+
+.. currentmodule:: dycove.sim.outputs
+
+.. autoclass:: OutputManager
+
+   
+   .. automethod:: __init__
+
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OutputManager.__init__
+      ~OutputManager.make_numpy_friendly
+      ~OutputManager.reconcile_vegetation_output
+      ~OutputManager.save_binary
+      ~OutputManager.save_vegetation_step
+   
+   
+
+   
+   
+   
