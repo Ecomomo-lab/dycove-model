@@ -25,6 +25,9 @@ jobs:
           pip install sphinx
           pip install -r docs/requirements.txt
 
+      - name: Install dycove
+        run: pip install -e .
+        
       - name: Build docs
         run: |
           cd docs

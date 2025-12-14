@@ -49,16 +49,7 @@ dev = [
     "pytest-cov",
     "coveralls"
 ]
-docs = [
-	"sphinx",
-    "sphinx-autodoc-typehints",
-    "sphinx-rtd-theme",
-    "sphinx-copybutton",
-    "sphinxcontrib-napoleon",
-	"m2r2",
-	"ipython",
-	"ipykernel"
-]
+
 
 [project.urls]
 Homepage = "https://github.com/Ecomomo-lab/dycove-model"

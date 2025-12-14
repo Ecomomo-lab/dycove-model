@@ -1,2 +1,4 @@
 sphinx-rtd-theme
 matplotlib
+tqdm
+scipy

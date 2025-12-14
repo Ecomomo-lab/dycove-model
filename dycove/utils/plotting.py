@@ -5,8 +5,6 @@ Class for plotting various output quantites from DYCOVE-ANUGA/DFM
 from typing import Optional, Any, Union
 import numpy as np
 from pathlib import Path
-from tqdm import tqdm
-from scipy.spatial import cKDTree  # type: ignore
 import matplotlib.pyplot as plt
 from matplotlib.colors import Colormap, ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -16,6 +14,7 @@ from dycove.utils.array_math import cell_averaging, sum_product
 from dycove.utils.model_loader import DFMMapLoader, ANUGAMapLoader
 
 
+    
 def create_nn_interpFunc(x_coords, y_coords, grid_size, k_nn=1, 
                          polygon_csv=None, extents=None,
                         ):
