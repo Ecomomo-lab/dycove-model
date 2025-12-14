@@ -338,7 +338,7 @@ Relevant `.json` input attributes:
 
 - ``'drag'`` (life stage attr.): Drag coefficient used in the Baptist formulation.
 
-Flow resistance is computed using the Baptist formulation [4]_, which calculates a Chezy roughness value based on vegetation attributes:
+Flow resistance is computed using the Baptist formulation [5]_, which calculates a Chezy roughness value based on vegetation attributes:
 
 .. math::
 

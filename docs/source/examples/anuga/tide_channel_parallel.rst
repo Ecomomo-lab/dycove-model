@@ -1,4 +1,4 @@
-.. _tide-channel-anuga:
+.. _tide-channel-anuga-pll:
 
-Example - Simple beach and tide channel (ANUGA)
-===============================================
+Example - Simple beach and tide channel (ANUGA in parallel)
+===========================================================
