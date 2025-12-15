@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import Colormap, ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib import path as mpath
+from tqdm import tqdm
+from scipy.spatial import cKDTree  # type: ignore
 
 from dycove.utils.array_math import cell_averaging, sum_product
 from dycove.utils.model_loader import DFMMapLoader, ANUGAMapLoader
