@@ -213,7 +213,6 @@ _plot/
 *.msh
 *.tsh
 *.log
-*.png
 *.csv
 *.nc
 *.sww
