@@ -14,6 +14,7 @@ from dycove.utils.simulation_reporting import Reporter
 r = Reporter()
 
 def _import_bmi():
+    """ Lazy loading of bmi wrapper to avoid import errors when DFM will not be tested/used. """
     try:
         from bmi.wrapper import BMIWrapper
         return BMIWrapper

@@ -24,7 +24,12 @@ classifiers = [
 
 dependencies = [
     "numpy",
-    "netCDF4"
+    "netCDF4",
+    "matplotlib",
+    "tqdm",
+    "scipy",
+    "imageio",
+    "pytest"
 ]
 
 [project.optional-dependencies]
@@ -37,13 +42,7 @@ dfm = [
     "bmi",        # Python-DFM interface
     "pypiwin32",  # needed for BMI
     ]
-# for using ModelPlotter
-plot = [
-    "tqdm",
-    "imageio",
-    "scipy",
-    "matplotlib"
-]
+
 dev = [
     "pytest",
     "pytest-cov",

@@ -18,6 +18,7 @@ from dycove.utils.simulation_reporting import Reporter
 r = Reporter()
 
 def _import_anuga():
+    """ Lazy loading of ANUGA parallel methods to avoid import errors when ANUGA will not be tested/used. """
     try:
         from anuga import myid, numprocs, finalize, barrier
         return myid, numprocs, finalize, barrier

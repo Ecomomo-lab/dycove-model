@@ -38,6 +38,7 @@ class _OperatorBase:
     pass
 
 def _import_anuga():
+    """ Lazy loading of ANUGA classes to avoid import errors when ANUGA will not be tested/used. """
     try:
         from anuga import Quantity
         from anuga.operators.base_operator import Operator        

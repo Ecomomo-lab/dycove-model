@@ -14,7 +14,9 @@ from scipy.spatial import cKDTree  # type: ignore
 
 from dycove.utils.array_math import cell_averaging, sum_product
 from dycove.utils.model_loader import DFMMapLoader, ANUGAMapLoader
+from dycove.utils.simulation_reporting import Reporter
 
+r = Reporter()
 
     
 def create_nn_interpFunc(x_coords, y_coords, grid_size, k_nn=1, 
@@ -426,8 +428,8 @@ class ModelPlotter:
         # compute associated days_per_year after ecofac rounding
         days_per_year = (ecofac * self.hr_ets * self.n_ets_year) / 24.
 
-        print(msg)
-        print(f"ecofac = {ecofac:d} corresponds to {days_per_year:.1f} days per year.")
+        r.report(msg)
+        r.report(f"ecofac = {ecofac:d} corresponds to {days_per_year:.1f} days per year.")
 
         return ecofac, days_per_year
         
@@ -689,7 +691,7 @@ class ModelPlotter:
 
     def create_gif(self):
         import imageio.v2 as imageio
-        print("Creating animation...")
+        r.report("Creating animation...")
         fps = 5 if self.eco_plot else 10
         #img_paths = [self.output_plot_dir / f"{self.full_quantity_name.replace(' ', '')}_{ts[0]}.png" for ts in self.timestrings]
         images = [imageio.imread(p) for p in self.img_paths]

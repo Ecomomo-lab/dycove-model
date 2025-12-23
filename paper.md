@@ -1,5 +1,5 @@
 ---
-title: 'DYCOVE: A Python package for coupling dynamic vegetion processes with hydro-morphodynamic models'
+title: 'DYCOVE: A Python package for coupling dynamic vegetation processes with hydro-morphodynamic models'
 tags:
   - Python
   - vegetation
