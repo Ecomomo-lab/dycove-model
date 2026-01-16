@@ -6,9 +6,9 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Example - Simple beach and tide channel with discharge boundary (Delft3D FM) &mdash; DYCOVE 0.1.0 documentation</title>
+  <title>Example - Simple beach and tide channel with discharge boundary and morphology (Delft3D FM) &mdash; DYCOVE 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
@@ -16,12 +16,12 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Example - Simple beach and tide channel with discharge boundary and two vegetation species (Delft3D FM)" href="tide_channel_w_discharge_multiveg.html" />
+    <link rel="next" title="Example - Simple beach and tide channel with discharge boundary and morphology, with two vegetation species (Delft3D FM)" href="tide_channel_w_discharge_multiveg.html" />
     <link rel="prev" title="Example - Simple beach and tide channel (Delft3D FM)" href="tide_channel.html" /> 
 </head>
 
@@ -53,12 +53,13 @@
 <li class="toctree-l2"><a class="reference internal" href="../index.html#id2">ANUGA</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html#delft3d-fm">Delft3D FM</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="tide_channel.html">Example - Simple beach and tide channel (Delft3D FM)</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Example - Simple beach and tide channel with discharge boundary (Delft3D FM)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tide_channel_w_discharge_multiveg.html">Example - Simple beach and tide channel with discharge boundary and two vegetation species (Delft3D FM)</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Example - Simple beach and tide channel with discharge boundary and morphology (Delft3D FM)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tide_channel_w_discharge_multiveg.html">Example - Simple beach and tide channel with discharge boundary and morphology, with two vegetation species (Delft3D FM)</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting/index.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../apiref/index.html">API Reference</a></li>
 </ul>
 
@@ -77,7 +78,7 @@
   <ul class="wy-breadcrumbs">
       <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="../index.html">Examples</a></li>
-      <li class="breadcrumb-item active">Example - Simple beach and tide channel with discharge boundary (Delft3D FM)</li>
+      <li class="breadcrumb-item active">Example - Simple beach and tide channel with discharge boundary and morphology (Delft3D FM)</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../../_sources/examples/dfm/tide_channel_w_discharge.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -87,8 +88,17 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="example-simple-beach-and-tide-channel-with-discharge-boundary-delft3d-fm">
-<span id="tide-channel-dfm-discharge"></span><h1>Example - Simple beach and tide channel with discharge boundary (Delft3D FM)<a class="headerlink" href="#example-simple-beach-and-tide-channel-with-discharge-boundary-delft3d-fm" title="Link to this heading"></a></h1>
+  <section id="example-simple-beach-and-tide-channel-with-discharge-boundary-and-morphology-delft3d-fm">
+<span id="tide-channel-dfm-discharge"></span><h1>Example - Simple beach and tide channel with discharge boundary and morphology (Delft3D FM)<a class="headerlink" href="#example-simple-beach-and-tide-channel-with-discharge-boundary-and-morphology-delft3d-fm" title="Link to this heading"></a></h1>
+<p>This example corresponds to the Python file <cite>tide_channel_w_discharge.py</cite> located in the <cite>examples/DFM/tide_channel_w_discharge/</cite> directory, along with supporting input files.
+This example uses the same bathymetry and vegetation inputs as the <a class="reference internal" href="tide_channel.html"><span class="doc">tide_channel example</span></a>.</p>
+<p>This example consists of a simple, symmetrical beach slope with a channel that bisects the dune and connects to a lagoon.
+A simple structured mesh is developed using Delft3D’s <a class="reference external" href="https://content.oss.deltares.nl/delft3d4/RGFGRID_User_Manual.pdf">RGFGRID</a>.
+A tidal boundary condition is imposed on the left (ocean) side, that propagates through the channel and fills the lagoon behind the dune.
+A vegetation species, loosely based on <cite>Salicorniaspp.</cite> (pioneer species, first life stage) and <cite>Spartina anglica</cite> (second life stage), is added to the model via a set of attributes defined in the file <cite>veg1.json</cite>.
+After the simulation is finished, we can inspect a variety of 2-D model results using <a class="reference internal" href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>.</p>
+<p>This example differs from the <a class="reference internal" href="tide_channel.html"><span class="doc">tide_channel example</span></a> in that morphology is active, and to promote substantial bed level changes in the domain, a discharge boundary has been added to the right side that discharges water and sediment to the lagoon.</p>
+<p>Running the model and plotting the results are handled as described in the <a class="reference internal" href="tide_channel.html"><span class="doc">tide_channel example</span></a>.</p>
 </section>
 
 
@@ -96,7 +106,7 @@
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tide_channel.html" class="btn btn-neutral float-left" title="Example - Simple beach and tide channel (Delft3D FM)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tide_channel_w_discharge_multiveg.html" class="btn btn-neutral float-right" title="Example - Simple beach and tide channel with discharge boundary and two vegetation species (Delft3D FM)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tide_channel_w_discharge_multiveg.html" class="btn btn-neutral float-right" title="Example - Simple beach and tide channel with discharge boundary and morphology, with two vegetation species (Delft3D FM)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

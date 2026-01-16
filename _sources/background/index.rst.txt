@@ -6,26 +6,48 @@ Background
 Motivation
 ----------
 
-DYCOVE originated as a MATLAB code coupled with Delft3D 4 [1]_.
-In that study by Brückner et al. (2019), the dynamic vegetation approach was shown to reproduce observed vegetation distributions in salt marshes.
-With DYCOVE written in Python, we can couple to the widely-used and modernized hydro-morphodynamic model `Delft3D FM (DFM) <https://oss.deltares.nl/web/delft3dfm>`_ [2]_, while also offering a fully open-source avenue with the `ANUGA hydrodynamic model <https://github.com/GeoscienceAustralia/anuga_core>`_ [3]_.
-Furthermore, DYCOVE is written in such a way that will allow for straightforward integration of other hydro-morphodynamic models and modules in the future.
+DYCOVE's vegetation logic originated from a MATLAB model [1]_ coupled with Delft3D-FLOW [2]_ that successfully reproduced observed vegetation distributions of estuarine salt marshes without the need of calibration. 
+This original model was one of the first to incorporate detailed ecological processes and biophysical feedbacks in large-scale hydro-morphodynamic numerical models, but it relies on proprietary software (MATLAB and Delft3D) and is limited in its coupling capability with other numerical models. 
+DYCOVE is an advanced Python-implementation of the original model, which is now object-oriented, completely open-source, and has been reorganized and documented in a way that will allow easy implementation of dynamic vegetation processes across coastal models. 
+With DYCOVE written in Python, we can couple to the widely-used and modernized hydro-morphodynamic model `Delft3D FM (DFM) <https://oss.deltares.nl/web/delft3dfm>`_, while also offering a fully open-source and pip-installable avenue with the `ANUGA hydrodynamic model <https://github.com/GeoscienceAustralia/anuga_core>`_ [3]_.
 
 
 Model Overview
 --------------
 
-DYCOVE allows users to incorporate vegetation in their numerical models in a dynamic way. 
-A set of vegetation species input parameters must be provided in the form of a :ref:`.json file <input-json>` that describes species attributes such as initial and maximum stem height and diameter, number of life stages, colonization window, and more.
-Simulations are run by calling a model engine class (depending on which numerical model is being used) that implements the time stepping methods specific to that model.
-At regular intervals, typically one tidal cycle, hydrodynamic and morphodynamic statistics from the preceding interval are used to compute changes in vegetation state (colonization and mortality).
-Vegetation stem height, stem diameter, and root length growth are determined purely based on species characteristics defined in the input `.json` file.
-These parameters, along with stem density (based on species life stage), are passed back to the numerical model via the :ref:`Baptist formulation <baptist-chezy>`, which calculates a Chezy roughness value.
+DYCOVE incorporates coastal vegetation in physics-based numerical models through a dynamic coupling framework, where vegetation is distributed based on habitat parameters and provides spatially-varying roughness.
+The response of the physics-based model to this roughness leads to alteration of the environmental conditions, e.g., inundation, flow velocities, etc., that define habitat, and vegetation is updated during the next coupling, resulting in a biophysical feedback-loop.
+Vegetation is updated based on rules for colonization, growth and mortality: colonization is defined by seed dispersal during a defined colonization time-step (e.g., at the beginning of the year), where all wetted cells receive a user-defined vegetation fraction. 
+Throughout the simulation, the established vegetation ages and grows linearly up to a maximum stem height, root length and stem diameter. 
+In winter, an optional winter stem height allows users to simulate mortality of aboveground biomass. 
+Senescence is included as a maximum age, allowing for both annual and perennial vegetation. 
+The option to define life-stages allows users to specify a seedling and mature stage, where, after some number of years, the vegetation shifts into a new life-stage and vegetation properties change (e.g., larger maximum stem height, higher resilience against stresses, etc.). 
+Mortality is a dose-effect relationship where vegetation fractions are gradually removed if habitat conditions are not optimal, and the removed fraction depends linearly on the strength of the pressure. 
+If multiple species are modeled, competition is incorporated through available space in each cell: each cell can hold a total vegetation fraction of unity. 
+If a cell is fully colonized, no further colonization is allowed. 
+
+Simulations are run by calling a model engine class (depending on which numerical model is being used) that implements time stepping methods specific to that model. 
+Vegetation species are added to the model via a set of characteristics provided as a :ref:`JSON file <input-json>`.
+Coupling occurs at regular intervals, typically one tidal cycle, when hydrodynamic (and morphodynamic) statistics from the preceding interval are used to compute changes in vegetation distribution and state (colonization, growth, and mortality). 
+These parameters, along with the species' stem density and grid cell fraction, are passed back to the numerical model via the :ref:`Baptist formulation <baptist-chezy>`, which calculates a Chézy roughness value.
 
 .. figure:: images/flowchart.png
    :align: center
+   :width: 80%
 
-   A representation of the major components of a DYCOVE model and their feedback mechanisms.
+   Representation of the major components of a DYCOVE model and their feedback mechanisms.
+
+
+The model code structure consists of a hydrodynamic base class (:class:`~dycove.sim.base.HydroSimulationBase`) and a vegetation species class (:class:`~dycove.sim.vegetation.VegetationSpecies`).
+The hydrodynamic class is instantiated via a model-specific engine (i.e., :class:`~dycove.sim.engines.ANUGA_hydro.ANUGA` or :class:`~dycove.sim.engines.DFM_hydro.DFM`), which inherits the base class (see the :ref:`User Guide <user-guide>` or :ref:`Examples <examples>`).
+The vegetation species class is instantiated by providing an :ref:`input .json file <input-json>` containing species characteristics.
+The :class:`~dycove.sim.coupler.VegetationCoupler` class handles the processes that are called during each vegetation coupling, and passes information in both directions between the hydrodynamic and vegetation objects.
+
+.. figure:: images/code_diagram.png
+   :align: center
+   :width: 90%
+
+   Diagram of the major components of the DYCOVE code and how they interact.
 
 
 .. _eco-time-scale:
@@ -37,34 +59,73 @@ DYCOVE simulations run on the idea that vegetation and morphological changes bot
 Therefore, we "accelerate" vegetation processes in a manner similar to the Morphological Acceleration Factor (MORFAC) [4]_ of DFM.
 In fact, for DYCOVE-DFM simulations with morphology active, we set the Ecological Acceleration Factor (``ecofac``) equal to the ``morfac`` of the DFM model.
 
-To reconcile the hydrodynamic and ecological time scales, we run simulations by defining the following parameters:
+To reconcile the hydrodynamic and ecological time scales, we run simulations by defining the following parameters as arguments of the :meth:`~dycove.sim.base.HydroSimulationBase.run_simulation` method:
 
 - ``ecofac``: Ecological Acceleration Factor, a multiplier representing the ratio of ecological time to hydrodynamic time.
 - ``veg_interval``: Vegetation coupling interval, in hydrodynamic seconds, defining how often changes in vegetation are computed and passed back to the hydrodynamic model.
-- ``n_ets``: Number of Ecological Time Steps, or vegetation coupling intervals, per ecological year.
+- ``n_ets``: Number of Ecological Time Steps (ETSs), or vegetation coupling intervals, per ecological year.
 
 Because DYCOVE is most useful for modeling vegetation in the intertidal zone, it is convenient to structure simulations around full tidal cycles.
-We compute colonization and mortality by identifying wet/dry grid cells, and the fraction of time they are wet/dry during the previous ``veg_interval``. 
+We compute colonization and mortality by identifying wet/dry grid cells, and the fraction of time they are wet/dry during the previous ETS. 
 For mortality, we also need to know the maximum velocity at each grid cell.
-Therefore, it makes the most sense to do these calculations after at least one full tidal cycle, and so we typically set ``veg_interval`` to be equal to one tidal cycle. 
-For your typical semi-diurnal tide, one cycle is about 12 hours (43200 seconds), rounding down for simplicity.
+Therefore, it makes the most sense to do these calculations after at least one full tidal cycle, and so the default value of ``veg_interval`` is equal to the duration of a typical semi-diurnal tide, about 12 hours (43200 seconds), rounded down for simplicity.
 We must decide, then, whether we want to prescribe the ``ecofac`` of our simulation or ``n_ets``, and then the other variable will follow:
 
 .. math::
 
     \small \text{ecofac} \approx \frac{365 \times 86400}{\text{veg_interval} \times \text{n}_{\text{ets}}}
 
+The default value of ``n_ets`` is 14, which provides enough temporal resolution to describe seasonal growth patterns for many species.
+``n_ets`` must be compatible with the growth and colonization ETS attributes defined in the :ref:`input .json file <input-json>` (see **Example 2** below for more detail).
+Based on these default values and the equation above:
 
-The default value of ``n_ets`` is 14, because that provides enough temporal resolution to describe seasonal growth patterns for many species.
-``n_ets`` must be compatible with the growth and colonization ETS attributes defined in the vegetation input `.json` file.
-Using the default values of ``veg_interval`` and ``n_ets`` yields an ``ecofac`` of 52.
-While there is no default value for ``ecofac``, if it is not provided, it will be computed based on the other two variables using the above equation.
-Alternatively, the user can provide ``ecofac`` directly, or by running a morphological simulation with a specified MORFAC, but they must ensure that the other two inputs (whether default or provided) are compatible based on the above equation.
+.. math::
+
+    \small \text{ecofac} = \frac{365 \times 86400}{43200 \times 14} = 52.14 \approx 52
+
+There is no default value for ``ecofac``; if not provided, it is computed automatically as above.
+Alternatively, the user can provide ``ecofac`` directly, or by running a morphological simulation with a specified ``morfac``, but they must ensure that the other two inputs (whether default or provided) are compatible based on the above equation.
 It is recommended that users pre-compute these three values to make sure they make sense.
-Users can specify a more round value of ``ecofac = 50``, for example, which would correspond to 350 days per year in the model.
-It is fine, and in fact encouraged, to use a round value in this way, but keep in mind that DYCOVE includes a hardcoded limit of ``DAYS_PER_YEAR`` between 350 and 380 to keep results reasonable.
+Users can specify a more round value of ``ecofac = 50``, for example, which would correspond to 350 days per year in the model (rather than 365).
+It is fine, and in fact encouraged, to use a round value in this way, but keep in mind that DYCOVE has an internal variable ``DAYS_PER_YEAR`` with a required range between 350 and 380 to keep results reasonable.
+Below are a few examples of feasible and infeasible parameter combinations:
 
-DYCOVE simulations can always be run using the default values provided in :meth:`~dycove.sim.base.HydroSimulationBase.run_simulation`.
+**Example 1**: Setting ``ecofac = 20`` without adjusting ``veg_interval`` or ``n_ets`` (infeasible).
+
+.. math::
+
+    \small \text{DAYS_PER_YEAR} = \frac{20 \times 43200 \times 14}{86400} = \textbf{140}
+
+This example will throw an error because the combination of input parameters does not yield a realistic number of days per year.
+
+**Example 2**: Setting ``ecofac` = 100`` and ``n_ets = 7`` (feasible).
+
+.. math::
+
+    \small \text{DAYS_PER_YEAR} = \frac{100 \times 43200 \times 7}{86400} = \textbf{350}
+
+This example works because the combination of input parameters yields a realistic number of days per year.
+In this case, the user will run a simulation where vegetation processes (e.g., growth) are accelerated by a factor of 100, and 12 hours of hydrodynamic time (one ETS) is equivalent to 50 days of ecological time.
+Note that if running a simulation with morphology turned on, users should not provide an ``ecofac`` because the ``morfac`` value defined in the numerical model will be adopted instead.
+Values of ``veg_interval`` or ``n_ets``, default or otherwise, must still be compatible with that ``morfac`` value.
+
+*Important Note*: Any changes to ``n_ets`` must be accompanied by changes to temporal/ETS parameters in the :ref:`input .json file <input-json>`, namely ``'start_growth_ets'``, ``'end_growth_ets'``, ``'winter_ets'``, ``'start_col_ets'``, and ``'end_col_ets'`` (none of which can be larger than ``n_ets``, by definition).
+These parameters are defined in various sections below, but the important point here is that ``n_ets`` should be a high enough value that the start and end of the growth and winter seasons can be defined with sufficient temporal resolution.
+The main reason to use a smaller ``n_ets`` (like 7) is to reduce the number of output files.
+
+**Example 3**: Setting ``n_ets = 7`` and ``veg_interval = 86400`` (feasible).
+
+.. math::
+
+    \small \text{ecofac} = \frac{365 \times 86400}{86400 \times 7} = 52.14 \approx 52
+
+.. math::
+
+    \small \text{DAYS_PER_YEAR} = \frac{26 \times 86400 \times 7}{86400} = \textbf{364}
+
+This example works because ``ecofac`` is not specified explicitly (assuming no ``morfac``/morphology), and so it is calculated from the inputs.
+In this case and in the case of using all default values, after doing this calculation, the user may decide to specify ``ecofac = 50`` as a rounder and more typical input.
+``n_ets`` and ``veg_interval`` would remain the same, and only the internal value of ``DAYS_PER_YEAR`` will change to 350.
 
 
 .. _input-json:
@@ -88,6 +149,7 @@ This particular set of attributes, used in Brückner et al. (2019), is loosely b
      "stemht_0": 0.1,
      "rootlength_0": 0.005,
      "stemdiam_0": 0.005,
+     "drag": 1.1,
      "start_growth_ets": 2,
      "end_growth_ets": 9,
      "winter_ets": 10,
@@ -101,7 +163,6 @@ This particular set of attributes, used in Brückner et al. (2019), is loosely b
          "stemdiam_max": 0.01,
          "years_max": 1,
          "stemdens": 300,
-         "drag": 1.0,
          "desic_no_mort": 0,
          "desic_all_mort": 1.3,
          "flood_no_mort": 0.3,
@@ -116,7 +177,6 @@ This particular set of attributes, used in Brückner et al. (2019), is loosely b
          "stemdiam_max": 0.01,
          "years_max": 19,
          "stemdens": 500,
-         "drag": 1.1,
          "desic_no_mort": 0,
          "desic_all_mort": 1.3,
          "flood_no_mort": 0.3,
@@ -268,7 +328,7 @@ Potential mortality is a fraction based solely on the environmental stressor, re
 Applied mortality is the fractional value that is actually applied to the vegetation fraction, which will equal zero in cells that do not have vegetation.
 Below are two examples illustrating the difference:
 
-Case 1: Based on hydrodynamic conditions and the mortality resistance of a species X at its current lifestage, a model grid cell is computed as having 100% “potential” mortality due to flooding AND 80% “potential” mortality due to uprooting, based on the thresholds provided. 
+**Example 1**: Based on hydrodynamic conditions and the mortality resistance of a species X at its current lifestage, a model grid cell is computed as having 100% “potential” mortality due to flooding AND 80% “potential” mortality due to uprooting, based on the thresholds provided. 
 The species X fraction in this cell is currently 40%. 
 Actual (applied) mortality is computed based on the following method (assuming no other mortality modes are active/relevant):
 
@@ -278,10 +338,10 @@ Actual (applied) mortality is computed based on the following method (assuming n
    \small \text{applied_mort_flood} & = \small 0.4 * 1.0 = 0.4 \\
    \small \text{applied_mort_uproot} & = \small 0.4 * 0.8 = 0.32 \\
    \small \text{applied_mort_total} & = \small \text{applied_mort_flood} + \text{applied_mort_uproot} = 0.4 + 0.32 = 0.72 \\
-   \small \text{fraction_left} & = \small \text{max}(0.4 - \text{applied_mort_total}, 0) = \text{max}(0.4 - 0.72, 0) = 0
+   \small \text{fraction_left} & = \small \text{max}(0.4 - \text{applied_mort_total}, 0) = \text{max}(0.4 - 0.72, 0) = \textbf{0}
    \end{align*}
 
-Case 2: A model grid cell is computed as having 50% “potential” mortality due to flooding AND 20% “potential” mortality due to uprooting. 
+**Example 2**: A model grid cell is computed as having 50% “potential” mortality due to flooding AND 20% “potential” mortality due to uprooting. 
 The species X fraction in this cell is currently 40%:
 
 .. math::
@@ -290,7 +350,7 @@ The species X fraction in this cell is currently 40%:
    \small \text{applied_mort_flood} & = \small 0.4 * 0.5 = 0.2 \\
    \small \text{applied_mort_uproot} & = \small 0.4 * 0.2 = 0.08 \\
    \small \text{applied_mort_total} & = \small \text{applied_mort_flood} + \text{applied_mort_uproot} = 0.2 + 0.08 = 0.28 \\
-   \small \text{fraction_left} & = \small \text{max}(0.4 - \text{applied_mort_total}, 0) = \text{max}(0.4 - 0.28, 0) = 0.12
+   \small \text{fraction_left} & = \small \text{max}(0.4 - \text{applied_mort_total}, 0) = \text{max}(0.4 - 0.28, 0) = \textbf{0.12}
    \end{align*}
 
 
@@ -336,7 +396,7 @@ Baptist and Chezy
 
 Relevant `.json` input attributes:
 
-- ``'drag'`` (life stage attr.): Drag coefficient used in the Baptist formulation.
+- ``'drag'``: Drag coefficient used in the Baptist formulation.
 
 Flow resistance is computed using the Baptist formulation [5]_, which calculates a Chezy roughness value based on vegetation attributes:
 
@@ -347,7 +407,7 @@ Flow resistance is computed using the Baptist formulation [5]_, which calculates
 
 where :math:`C` is the Chezy roughness, :math:`C_b` is the bed Chezy coefficient, :math:`C_d` is the drag coefficient ``'drag'``, :math:`m` is stem density :math:`[\text{stems/m²}]`, :math:`D` is stem diameter :math:`[\text{m}]`, :math:`h_v` is stem height :math:`[\text{m}]`, :math:`h` is water depth :math:`[\text{m}]`, :math:`κ` is the von Karman constant, and :math:`g` is gravitational acceleration :math:`[\text{m/s}^2]`.
 
-:class:`~dycove.sim.engines.ANUGA_hydro.AnugaEngine` implements this equation via the :class:`~dycove.sim.engines.ANUGA_baptist.Baptist_operator` class.
+:class:`~dycove.sim.engines.ANUGA_hydro.AnugaEngine` implements this equation via the :class:`~dycove.sim.engines.ANUGA_baptist.Baptist_operator` class, originally developed by Kyle Wright [6]_.
 :class:`~dycove.sim.engines.DFM_hydro.DFMEngine` implements this equation via an internal vegetation module.
 
 
@@ -357,11 +417,24 @@ Modeling of Multiple Species
 ----------------------------
 
 DYCOVE allows for the modeling of multiple vegetation species in a single simulation.
-Each species must have its own vegetation input `.json` file, and must be instantiated as its own :class:`~dycove.sim.vegetation.VegetationSpecies` object.
+This multiple-species approach was first applied by Bij de Vaate et al. (2020) [7]_.
+In DYCOVE, each species must have its own vegetation input `.json` file, and must be instantiated as its own :class:`~dycove.sim.vegetation.VegetationSpecies` object.
 Each species is combined in a :class:`~dycove.sim.vegetation.MultipleVegetationSpecies` object, which contains all of the same method names as :class:`~dycove.sim.vegetation.VegetationSpecies`.
 The majority of these methods simply loop over each species and call the corresponding method for each one.
 The major difference occurs in the :meth:`~dycove.sim.vegetation.MultipleVegetationSpecies.colonization` method.
 When this method is called for an individual species, the method receives an optional argument that contains all :class:`~dycove.sim.vegetation_data.VegCohort` objects across all species, so that the method knows how much actual space is available in each cell.
+
+
+Applications and Limitations
+----------------------------
+
+DYCOVE is geared toward vegetation dynamics in tidal environments.
+Riparian vegetation in non-tidal environments can be modeled as well, but for those cases users must carefully define the simulation time parameters described above in the :ref:`Ecological Time Scale <eco-time-scale>` section.
+Because colonization in DYCOVE occurs in cells that were partially wet during the previous ETS, users must consider the context of their model, the time scale over which wetting and drying will occur, and how that will translate to the timing of vegetation coupling.
+
+Currently, DYCOVE only supports physical parameters as inputs, and does not support other processes like salinity, nutrients, organic accretion, and resource competition.
+In the future, we plan to add support for some or all of these processes.
+
 
 
 
@@ -374,6 +447,10 @@ References
 
 .. [3] Davies, G., and Roberts, S., 2015. Open source flood simulation with a 2D discontinuous-elevation hydrodynamic model. In Proceedings of MODSIM 2015. https://doi.org/10.1016/j.coastaleng.2011.03.010
 
-.. [4] Ranasinghe, R., Swinkels, C., Luijendijk, A., Roelvink, D., Bosboom, J., Stive, M., and Walstra, D. (2011). Morphodynamic upscaling with the MORFAC approach: Dependencies and sensitivities. Coastal engineering, 58(8), 806-811.
+.. [4] Ranasinghe, R., Swinkels, C., Luijendijk, A., Roelvink, D., Bosboom, J., Stive, M., and Walstra, D. (2011). Morphodynamic upscaling with the MORFAC approach: Dependencies and sensitivities. Coastal engineering, 58(8), 806-811. https://doi.org/10.1016/j.coastaleng.2011.03.010
 
-.. [5] Baptist, M. J., Babovic, C., Uthurburu, J. R., Uittenbogaard, R. E., Mynett, A., & Verwey, A. (2007). "On inducing equations for vegetation resistance." Journal of Hydraulic Research, 45(4), 435–450. https://doi.org/10.1080/00221686.2007.9521778
+.. [5] Baptist, M. J., Babovic, C., Uthurburu, J. R., Uittenbogaard, R. E., Mynett, A., & Verwey, A. (2007). On inducing equations for vegetation resistance. Journal of Hydraulic Research, 45(4), 435–450. https://doi.org/10.1080/00221686.2007.9521778
+
+.. [6] Wright, K., Passalacqua, P., Simard, M., & Jones, C. E. (2022). Integrating connectivity into hydrodynamic models: An automated open-source method to refine an unstructured mesh using remote sensing. Journal of Advances in Modeling Earth Systems, 14, e2022MS003025. https://doi.org/10.1029/2022MS003025
+
+.. [7] Bij de Vaate, I., Brückner, M. Z. M., Kleinhans, M. G., & Schwarz, C. (2020). On the impact of salt marsh pioneer species‐assemblages on the emergence of intertidal channel networks. Water Resources Research, 56, e2019WR025942. https://doi.org/10.1029/2019WR025942

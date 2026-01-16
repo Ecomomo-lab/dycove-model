@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>dycove.sim.vegetation.VegetationSpecies &mdash; DYCOVE 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../_static/plot_directive.css" />
 
@@ -16,8 +16,8 @@
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
@@ -50,6 +50,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../background/index.html">Background</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../userguide/index.html">User Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting/index.html">Troubleshooting</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../apiref/index.html">API Reference</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="../apiref/sim/index.html">Simulation</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="../apiref/sim/index.html#base-simulation-module">Base Simulation Module</a></li>
@@ -97,7 +98,7 @@
 <h1>dycove.sim.vegetation.VegetationSpecies<a class="headerlink" href="#dycove-sim-vegetation-vegetationspecies" title="Link to this heading"></a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dycove.sim.vegetation.</span></span><span class="sig-name descname"><span class="pre">VegetationSpecies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_veg_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'veg1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed_frac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'deterministic'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">dycove.sim.vegetation.</span></span><span class="sig-name descname"><span class="pre">VegetationSpecies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_veg_filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'veg1'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed_frac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rand_seed_method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'deterministic'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies" title="Link to this definition"></a></dt>
 <dd><p>A single vegetation species. Can (and will) handle multiple cohorts of the species.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -213,7 +214,7 @@ by both classes.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.linear_mortality_func">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">linear_mortality_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stressor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th_max</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.linear_mortality_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.linear_mortality_func" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">linear_mortality_func</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stressor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">th_max</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.linear_mortality_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.linear_mortality_func" title="Link to this definition"></a></dt>
 <dd><p>Generic, hydrodynamic stressor mortality function (linear).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -230,7 +231,7 @@ it is an array of maximum velocities.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.load_vegetation_attributes">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_vegetation_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="dycove.sim.vegetation_data.VegetationAttributes.html#dycove.sim.vegetation_data.VegetationAttributes" title="dycove.sim.vegetation_data.VegetationAttributes"><span class="pre">VegetationAttributes</span></a></span></span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.load_vegetation_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.load_vegetation_attributes" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">load_vegetation_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="dycove.sim.vegetation_data.VegetationAttributes.html#dycove.sim.vegetation_data.VegetationAttributes" title="dycove.sim.vegetation_data.VegetationAttributes"><span class="pre">VegetationAttributes</span></a></span></span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.load_vegetation_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.load_vegetation_attributes" title="Link to this definition"></a></dt>
 <dd><p>Parse vegetation input json file and store attributes in a dataclass.</p>
 </dd></dl>
 

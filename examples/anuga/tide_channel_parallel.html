@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Example - Simple beach and tide channel (ANUGA in parallel) &mdash; DYCOVE 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
@@ -16,8 +16,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -58,6 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../index.html#delft3d-fm">Delft3D FM</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting/index.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../apiref/index.html">API Reference</a></li>
 </ul>
 
@@ -88,6 +89,22 @@
              
   <section id="example-simple-beach-and-tide-channel-anuga-in-parallel">
 <span id="tide-channel-anuga-pll"></span><h1>Example - Simple beach and tide channel (ANUGA in parallel)<a class="headerlink" href="#example-simple-beach-and-tide-channel-anuga-in-parallel" title="Link to this heading"></a></h1>
+<p>This example corresponds to the Python file <cite>tide_channel_ANUGA_pll.py</cite> located in the <cite>examples/ANUGA/tide_channel_parallel/</cite> directory, along with supporting input files.
+This example uses the same bathymetry and vegetation inputs as the <a class="reference internal" href="tide_channel.html"><span class="doc">serial ANUGA example</span></a>.</p>
+<p>DYCOVE-ANUGA can be run in parallel as long as <cite>mpi4py</cite> is installed (see <a class="reference internal" href="../../installation/index.html"><span class="doc">Installation Instructions</span></a>) and the user has access to more than one processor.
+DYCOVE commands remain the same, but the ANUGA domain must be generated in parallel using a slightly modified approach.
+For this example, the parallel domain generation approach is provided in <cite>gen_anuga_domain_pll.py</cite> in the working directory.
+Users with existing ANUGA model codes that run in parallel should be able to seemlessly integrate DYCOVE in those codes by passing their parallelized domain in the same way as the serial examples:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">HydroModel</span> <span class="o">=</span> <span class="n">ANUGA_hydro</span><span class="o">.</span><span class="n">ANUGA</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="n">veg_1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This example uses a Windows batch file <cite>tide_channel_ANUGA_pll.bat</cite> in the working directory, which contains instructions on how to run it.
+As with any batch file, view and edit it by alt-clicking and choosing the “Edit” option.
+For users with HPC access, the DYCOVE-ANUGA Python script can be run via a Slurm scheduling script.</p>
+<p>Note that for very large ANUGA domains, the parallel file merging that needs to occur at the end of the simulation can take a long time (we are working on a better solution).
+We tested a simulation of 370,000 elements running on 180 cores that ran for about 2:15 hours, and the final merging took about one hour.
+This time may depend on the frequency of simulation outputs, load balancing (of vegetation), and number of vegetation cohorts (colonization events).
+If running on HPC, request a couple additional simulation hours just in case, until you get a sense of how long it takes at the end.</p>
 </section>
 
 

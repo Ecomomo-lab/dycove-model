@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Example - Simple beach and tide channel (Delft3D FM) &mdash; DYCOVE 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
@@ -16,12 +16,12 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Example - Simple beach and tide channel with discharge boundary (Delft3D FM)" href="tide_channel_w_discharge.html" />
+    <link rel="next" title="Example - Simple beach and tide channel with discharge boundary and morphology (Delft3D FM)" href="tide_channel_w_discharge.html" />
     <link rel="prev" title="Example - Simple beach and tide channel (ANUGA in parallel)" href="../anuga/tide_channel_parallel.html" /> 
 </head>
 
@@ -57,12 +57,13 @@
 <li class="toctree-l4"><a class="reference internal" href="#plot-the-results">Plot the Results</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="tide_channel_w_discharge.html">Example - Simple beach and tide channel with discharge boundary (Delft3D FM)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tide_channel_w_discharge_multiveg.html">Example - Simple beach and tide channel with discharge boundary and two vegetation species (Delft3D FM)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tide_channel_w_discharge.html">Example - Simple beach and tide channel with discharge boundary and morphology (Delft3D FM)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tide_channel_w_discharge_multiveg.html">Example - Simple beach and tide channel with discharge boundary and morphology, with two vegetation species (Delft3D FM)</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting/index.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../apiref/index.html">API Reference</a></li>
 </ul>
 
@@ -93,13 +94,13 @@
              
   <section id="example-simple-beach-and-tide-channel-delft3d-fm">
 <span id="tide-channel-dfm"></span><h1>Example - Simple beach and tide channel (Delft3D FM)<a class="headerlink" href="#example-simple-beach-and-tide-channel-delft3d-fm" title="Link to this heading"></a></h1>
-<p>This example corresponds to the Python file <cite>tide_channel_DFM.py</cite> located in the <cite>examples/DFM/tide_channel/</cite> directory, along with supporting input files.
+<p>This example corresponds to the Python file <cite>tide_channel.py</cite> located in the <cite>examples/DFM/tide_channel/</cite> directory, along with supporting input files.
 This example uses the same bathymetry and vegetation inputs as the corresponding <a class="reference internal" href="../anuga/tide_channel.html"><span class="doc">ANUGA example</span></a>.
-That example includes some more discussion on DYCOVE’s vegetation logic and inputs than this one does, and users are always encouraged to read the <a class="reference external" href="https://Ecomomo-lab.github.io/dycove-model/background/ecological_time_scaling.html">background documentation</a> for full exposure to DYCOVE concepts.</p>
+That example includes some more discussion on DYCOVE’s vegetation logic and inputs than this example does, and users are always encouraged to read the <a class="reference external" href="https://Ecomomo-lab.github.io/dycove-model/background/ecological_time_scaling.html">background documentation</a> for full exposure to DYCOVE concepts.</p>
 <p>This example consists of a simple, symmetrical beach slope with a channel that bisects the dune and connects to a lagoon.
 A simple structured mesh is developed using Delft3D’s <a class="reference external" href="https://content.oss.deltares.nl/delft3d4/RGFGRID_User_Manual.pdf">RGFGRID</a>, one that mimics the mesh developed for the ANUGA version of this example.
 A tidal boundary condition is imposed on the left (ocean) side, that propagates through the channel and fills the lagoon behind the dune.
-A vegetation species, loosely based on Nelumbo Lutea (American lotus), is added to the model via a set of attributes defined in the file <cite>veg1.json</cite>.
+A vegetation species, loosely based on <cite>Salicorniaspp.</cite> (pioneer species, first life stage) and <cite>Spartina anglica</cite> (second life stage), is added to the model via a set of attributes defined in the file <cite>veg1.json</cite>.
 After the simulation is finished, we can inspect a variety of 2-D model results using <a class="reference internal" href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>.</p>
 <p>This example does not consider morphology. Please see this <a class="reference internal" href="tide_channel_w_discharge.html"><span class="doc">example</span></a> for a model that has morphology turned on.</p>
 <section id="run-the-model">
@@ -108,66 +109,24 @@ After the simulation is finished, we can inspect a variety of 2-D model results 
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">VegetationSpecies</span><span class="p">,</span> <span class="n">DFM_hydro</span>
 </pre></div>
 </div>
-<p>To run Delft3D FM, you will need to take a few additional steps outside of your coding environment, aside from having the software installed.</p>
-<ul class="simple">
-<li><p>First, create your Delft3D model using Delta Shell, and export as DIMR:</p>
-<ul>
+<p>To run Delft3D FM, you will need to create and export your model outside of the coding environment.
+After creating a Delft3D model using Delta Shell, export the model as DIMR:</p>
+<blockquote>
+<div><ul class="simple">
 <li><p>Alt-click on the model name in the Project tree</p></li>
 <li><p>“Export…” → “DIMR configuration”</p></li>
 </ul>
-</li>
-</ul>
-<p>This will create an <cite>.xml</cite> file at the same level as a directory called <cite>dflowfm/</cite>, which contains the <cite>.mdu</cite> file inside.</p>
-<ul class="simple">
-<li><p>Next, identify the path to your Delft3D FM code library, which probably looks something like the path shown below:</p></li>
-</ul>
+</div></blockquote>
+<p>This will create an <cite>.xml</cite> file at the same level as a directory called <cite>dflowfm/</cite>, which contains the <cite>.mdu</cite> file inside.
+Next, identify the path to your Delft3D FM code library, which probably looks something like the path shown below:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">config_file</span> <span class="o">=</span> <span class="s1">&#39;dimr_config.xml&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">mdu_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;dflowfm/FlowFM.mdu&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">DFM_DLLs</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/plugins/DeltaShell.Dimr/kernels/x64&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
-<ul>
-<li><p>Lastly, you must indicate to Delft3D FM that you will be modeling vegetation, by taking the following steps:</p>
-<ul class="simple">
-<li><p>Create a text file with extension <cite>.ext</cite> in your <cite>dflowfm/</cite> directory, with the same name as your <cite>.mdu</cite> file, that contains the following text (this file is included in the example directory as <cite>FlowFM.ext</cite>):</p></li>
-</ul>
-<blockquote>
-<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">QUANTITY</span><span class="o">=</span><span class="n">stemdensity</span>
-<span class="n">FILENAME</span><span class="o">=</span><span class="n">stemdensity</span><span class="o">.</span><span class="n">xyz</span>
-<span class="n">FILETYPE</span><span class="o">=</span><span class="mi">7</span>
-<span class="n">METHOD</span><span class="o">=</span><span class="mi">5</span>
-<span class="n">OPERAND</span><span class="o">=</span><span class="n">O</span>
-
-<span class="n">QUANTITY</span><span class="o">=</span><span class="n">stemdiameter</span>
-<span class="n">FILENAME</span><span class="o">=</span><span class="n">stemdiameter</span><span class="o">.</span><span class="n">xyz</span>
-<span class="n">FILETYPE</span><span class="o">=</span><span class="mi">7</span>
-<span class="n">METHOD</span><span class="o">=</span><span class="mi">5</span>
-<span class="n">OPERAND</span><span class="o">=</span><span class="n">O</span>
-
-<span class="n">QUANTITY</span><span class="o">=</span><span class="n">stemheight</span>
-<span class="n">FILENAME</span><span class="o">=</span><span class="n">stemheight</span><span class="o">.</span><span class="n">xyz</span>
-<span class="n">FILETYPE</span><span class="o">=</span><span class="mi">7</span>
-<span class="n">METHOD</span><span class="o">=</span><span class="mi">5</span>
-<span class="n">OPERAND</span><span class="o">=</span><span class="n">O</span>
-</pre></div>
-</div>
-</div></blockquote>
-<ul class="simple">
-<li><p>In the <cite>.mdu</cite> file, set the <code class="docutils literal notranslate"><span class="pre">ExtForceFile</span></code> argument to be the name of the <cite>.ext</cite> file you just created.</p></li>
-<li><p>At the very bottom of the <cite>.mdu</cite> file, include the following text to access the Delft3D FM vegetation module:</p></li>
-</ul>
-<blockquote>
-<div><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">veg</span><span class="p">]</span>
-<span class="n">Vegetationmodelnr</span>                 <span class="o">=</span> <span class="mi">1</span>               <span class="c1"># 1: Baptist et al. (2007) equation for calculation of vegetation roughness</span>
-<span class="n">Clveg</span>                             <span class="o">=</span> <span class="mf">0.8</span>             <span class="c1"># Stem distance factor, default=0.8</span>
-<span class="n">Cdveg</span>                             <span class="o">=</span> <span class="mf">0.7</span>             <span class="c1"># Stem Cd coefficient, default=0.7</span>
-<span class="n">Cbveg</span>                             <span class="o">=</span> <span class="mf">0.7</span>             <span class="c1"># Stem stiffness coefficient, default=0.7</span>
-</pre></div>
-</div>
-</div></blockquote>
-</li>
-</ul>
+<p>To turn on the internal vegetation module in Delft3D FM, we must create an additional forcing <cite>.ext</cite> file and add a new block in the <cite>.mdu</cite> file with the <cite>[veg]</cite> heading.
+DYCOVE handles this automatically, as long as you supply a vegetation species to your DYCOVE model.</p>
 <p>After setting up the model and identifying the model file paths, DYCOVE-DFM models are run in much the same way as DYCOVE-ANUGA models.
 The only difference is the call to the hydrodynamic engine, which in this case is <a class="reference internal" href="../../_autosummary/dycove.sim.engines.DFM_hydro.DFM.html#dycove.sim.engines.DFM_hydro.DFM" title="dycove.sim.engines.DFM_hydro.DFM"><code class="xref py py-class docutils literal notranslate"><span class="pre">DFM</span></code></a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;veg1.json&quot;</span><span class="p">,</span> <span class="s2">&quot;veg1&quot;</span><span class="p">)</span>
@@ -211,7 +170,7 @@ For example, we can plot vegetation stem heights over the entire 21-day (hydrody
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="../anuga/tide_channel_parallel.html" class="btn btn-neutral float-left" title="Example - Simple beach and tide channel (ANUGA in parallel)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="tide_channel_w_discharge.html" class="btn btn-neutral float-right" title="Example - Simple beach and tide channel with discharge boundary (Delft3D FM)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tide_channel_w_discharge.html" class="btn btn-neutral float-right" title="Example - Simple beach and tide channel with discharge boundary and morphology (Delft3D FM)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

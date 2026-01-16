@@ -3,14 +3,14 @@
 Example - Simple beach and tide channel (Delft3D FM)
 ====================================================
 
-This example corresponds to the Python file `tide_channel_DFM.py` located in the `examples/DFM/tide_channel/` directory, along with supporting input files.
+This example corresponds to the Python file `tide_channel.py` located in the `examples/DFM/tide_channel/` directory, along with supporting input files.
 This example uses the same bathymetry and vegetation inputs as the corresponding :doc:`ANUGA example <../anuga/tide_channel>`.
-That example includes some more discussion on DYCOVE's vegetation logic and inputs than this one does, and users are always encouraged to read the `background documentation <https://Ecomomo-lab.github.io/dycove-model/background/ecological_time_scaling.html>`_ for full exposure to DYCOVE concepts.
+That example includes some more discussion on DYCOVE's vegetation logic and inputs than this example does, and users are always encouraged to read the `background documentation <https://Ecomomo-lab.github.io/dycove-model/background/ecological_time_scaling.html>`_ for full exposure to DYCOVE concepts.
 
 This example consists of a simple, symmetrical beach slope with a channel that bisects the dune and connects to a lagoon.
 A simple structured mesh is developed using Delft3D's `RGFGRID <https://content.oss.deltares.nl/delft3d4/RGFGRID_User_Manual.pdf>`_, one that mimics the mesh developed for the ANUGA version of this example.
 A tidal boundary condition is imposed on the left (ocean) side, that propagates through the channel and fills the lagoon behind the dune.
-A vegetation species, loosely based on Nelumbo Lutea (American lotus), is added to the model via a set of attributes defined in the file `veg1.json`.
+A vegetation species, loosely based on `Salicorniaspp.` (pioneer species, first life stage) and `Spartina anglica` (second life stage), is added to the model via a set of attributes defined in the file `veg1.json`.
 After the simulation is finished, we can inspect a variety of 2-D model results using :class:`~dycove.utils.plotting.ModelPlotter`.
 
 This example does not consider morphology. Please see this :doc:`example <tide_channel_w_discharge>` for a model that has morphology turned on.
@@ -25,16 +25,14 @@ The following import statement forms the basis of all DYCOVE-DFM coupling simula
 
    >>> from dycove import VegetationSpecies, DFM_hydro
 
-To run Delft3D FM, you will need to take a few additional steps outside of your coding environment, aside from having the software installed.
-
-- First, create your Delft3D model using Delta Shell, and export as DIMR:
+To run Delft3D FM, you will need to create and export your model outside of the coding environment.
+After creating a Delft3D model using Delta Shell, export the model as DIMR:
 
   - Alt-click on the model name in the Project tree
   - "Export..." → "DIMR configuration"
 
 This will create an `.xml` file at the same level as a directory called `dflowfm/`, which contains the `.mdu` file inside.
-
-- Next, identify the path to your Delft3D FM code library, which probably looks something like the path shown below:
+Next, identify the path to your Delft3D FM code library, which probably looks something like the path shown below:
 
 .. code-block:: python
 
@@ -43,41 +41,8 @@ This will create an `.xml` file at the same level as a directory called `dflowfm
    >>> mdu_file = Path('dflowfm/FlowFM.mdu')
    >>> DFM_DLLs = Path('C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/plugins/DeltaShell.Dimr/kernels/x64')
 
-- Lastly, you must indicate to Delft3D FM that you will be modeling vegetation, by taking the following steps:
-
-  - Create a text file with extension `.ext` in your `dflowfm/` directory, with the same name as your `.mdu` file, that contains the following text (this file is included in the example directory as `FlowFM.ext`):
-
-   .. code-block:: python
-
-      QUANTITY=stemdensity
-      FILENAME=stemdensity.xyz
-      FILETYPE=7
-      METHOD=5
-      OPERAND=O
-
-      QUANTITY=stemdiameter
-      FILENAME=stemdiameter.xyz
-      FILETYPE=7
-      METHOD=5
-      OPERAND=O
-
-      QUANTITY=stemheight
-      FILENAME=stemheight.xyz
-      FILETYPE=7
-      METHOD=5
-      OPERAND=O
-
-  - In the `.mdu` file, set the ``ExtForceFile`` argument to be the name of the `.ext` file you just created.
-  - At the very bottom of the `.mdu` file, include the following text to access the Delft3D FM vegetation module:
-
-   .. code-block:: python
-
-      [veg]
-      Vegetationmodelnr                 = 1               # 1: Baptist et al. (2007) equation for calculation of vegetation roughness
-      Clveg                             = 0.8             # Stem distance factor, default=0.8
-      Cdveg                             = 0.7             # Stem Cd coefficient, default=0.7
-      Cbveg                             = 0.7             # Stem stiffness coefficient, default=0.7
-
+To turn on the internal vegetation module in Delft3D FM, we must create an additional forcing `.ext` file and add a new block in the `.mdu` file with the `[veg]` heading.
+DYCOVE handles this automatically, as long as you supply a vegetation species to your DYCOVE model.
 
 After setting up the model and identifying the model file paths, DYCOVE-DFM models are run in much the same way as DYCOVE-ANUGA models.
 The only difference is the call to the hydrodynamic engine, which in this case is :class:`~dycove.sim.engines.DFM_hydro.DFM`:

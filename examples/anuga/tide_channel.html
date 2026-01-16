@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Example - Simple beach and tide channel (ANUGA) &mdash; DYCOVE 0.1.0 documentation</title>
       <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
-      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
       <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
 
@@ -16,8 +16,8 @@
       <script src="../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
       <script src="../../_static/documentation_options.js?v=01f34227"></script>
-      <script src="../../_static/doctools.js?v=9bcbadda"></script>
-      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
@@ -62,6 +62,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../index.html#delft3d-fm">Delft3D FM</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting/index.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../apiref/index.html">API Reference</a></li>
 </ul>
 
@@ -96,7 +97,7 @@
 <p>This example consists of a simple, symmetrical beach slope with a channel that bisects the dune and connects to a lagoon.
 A simple mesh is developed using one of ANUGA’s built-in functions that creates a rectangular mesh of structured triangles.
 A tidal boundary condition is imposed on the left (ocean) side, that propagates through the channel and fills the lagoon behind the dune.
-A vegetation species, loosely based on Nelumbo Lutea (American lotus), is added to the model via a set of attributes defined in the file <cite>veg1.json</cite>.
+A vegetation species, loosely based on <cite>Salicorniaspp.</cite> (pioneer species, first life stage) and <cite>Spartina anglica</cite> (second life stage), is added to the model via a set of attributes defined in the file <cite>veg1.json</cite>.
 After the simulation is finished, we can inspect a variety of 2-D model results using <a class="reference internal" href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>.</p>
 <section id="run-the-model">
 <h2>Run the Model<a class="headerlink" href="#run-the-model" title="Link to this heading"></a></h2>
