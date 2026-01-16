@@ -24,7 +24,7 @@ The only change needed when modeling multiple species is in creating multiple :c
    >>> HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=MultiVeg([veg_1, veg_2]))
    >>> HydroModel.run_simulation(3, sim_time_unit="eco-morphodynamic years")
 
-In this example, optional inputs arguments `rand_seed_frac` and `rand_seed_method` have also been changed from their default values.
+In this example, the optional argument `rand_seed_frac` has also been changed from its default value.
 By specifying `rand_seed_frac=0.8`, we are telling DYCOVE to only colonize vegetation of that species in 80 percent of eligible grid cells.
 
 Plotting results of simulations with multiple species is no different from plotting results of a single-species simulation.

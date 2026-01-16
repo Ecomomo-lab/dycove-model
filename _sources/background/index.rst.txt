@@ -68,12 +68,12 @@ To reconcile the hydrodynamic and ecological time scales, we run simulations by 
 Because DYCOVE is most useful for modeling vegetation in the intertidal zone, it is convenient to structure simulations around full tidal cycles.
 We compute colonization and mortality by identifying wet/dry grid cells, and the fraction of time they are wet/dry during the previous ETS. 
 For mortality, we also need to know the maximum velocity at each grid cell.
-Therefore, it makes the most sense to do these calculations after at least one full tidal cycle, and so the default value of ``veg_interval`` is equal to the duration of a typical semi-diurnal tide, about 12 hours (43200 seconds), rounded down for simplicity.
-We must decide, then, whether we want to prescribe the ``ecofac`` of our simulation or ``n_ets``, and then the other variable will follow:
+Therefore, it makes the most sense to do these calculations after at least one complete tidal cycle, and so the default value of ``veg_interval`` is equal to the duration of a typical semi-diurnal tide, about 12 hours (43200 seconds), rounded down for simplicity.
+We must decide, then, whether we want to prescribe ``ecofac`` or ``n_ets``, and then the other variable will follow:
 
 .. math::
 
-    \small \text{ecofac} \approx \frac{365 \times 86400}{\text{veg_interval} \times \text{n}_{\text{ets}}}
+    \small \mathrm{ecofac} = \frac{365 \times 86400}{\mathrm{veg_interval} \times \mathrm{n_ets}}
 
 The default value of ``n_ets`` is 14, which provides enough temporal resolution to describe seasonal growth patterns for many species.
 ``n_ets`` must be compatible with the growth and colonization ETS attributes defined in the :ref:`input .json file <input-json>` (see **Example 2** below for more detail).
@@ -81,7 +81,7 @@ Based on these default values and the equation above:
 
 .. math::
 
-    \small \text{ecofac} = \frac{365 \times 86400}{43200 \times 14} = 52.14 \approx 52
+    \small \mathrm{ecofac} = \frac{365 \times 86400}{43200 \times 14} = 52.14 \approx 52
 
 There is no default value for ``ecofac``; if not provided, it is computed automatically as above.
 Alternatively, the user can provide ``ecofac`` directly, or by running a morphological simulation with a specified ``morfac``, but they must ensure that the other two inputs (whether default or provided) are compatible based on the above equation.
@@ -90,19 +90,19 @@ Users can specify a more round value of ``ecofac = 50``, for example, which woul
 It is fine, and in fact encouraged, to use a round value in this way, but keep in mind that DYCOVE has an internal variable ``DAYS_PER_YEAR`` with a required range between 350 and 380 to keep results reasonable.
 Below are a few examples of feasible and infeasible parameter combinations:
 
-**Example 1**: Setting ``ecofac = 20`` without adjusting ``veg_interval`` or ``n_ets`` (infeasible).
+**Example 1**: Setting ``ecofac = 20`` without adjusting ``veg_interval`` or ``n_ets``  (infeasible).
 
 .. math::
 
-    \small \text{DAYS_PER_YEAR} = \frac{20 \times 43200 \times 14}{86400} = \textbf{140}
+    \small \mathrm{DAYS\_PER\_YEAR} = \frac{20 \times 43200 \times 14}{86400} = \textbf{140}
 
 This example will throw an error because the combination of input parameters does not yield a realistic number of days per year.
 
-**Example 2**: Setting ``ecofac` = 100`` and ``n_ets = 7`` (feasible).
+**Example 2**: Setting ``ecofac` = 100`` and ``n_ets = 7``  (feasible).
 
 .. math::
 
-    \small \text{DAYS_PER_YEAR} = \frac{100 \times 43200 \times 7}{86400} = \textbf{350}
+    \small \mathrm{DAYS\_PER\_YEAR} = \frac{100 \times 43200 \times 7}{86400} = \textbf{350}
 
 This example works because the combination of input parameters yields a realistic number of days per year.
 In this case, the user will run a simulation where vegetation processes (e.g., growth) are accelerated by a factor of 100, and 12 hours of hydrodynamic time (one ETS) is equivalent to 50 days of ecological time.
@@ -113,15 +113,15 @@ Values of ``veg_interval`` or ``n_ets``, default or otherwise, must still be com
 These parameters are defined in various sections below, but the important point here is that ``n_ets`` should be a high enough value that the start and end of the growth and winter seasons can be defined with sufficient temporal resolution.
 The main reason to use a smaller ``n_ets`` (like 7) is to reduce the number of output files.
 
-**Example 3**: Setting ``n_ets = 7`` and ``veg_interval = 86400`` (feasible).
+**Example 3**: Setting ``n_ets = 7`` and ``veg_interval = 86400``  (feasible).
 
 .. math::
 
-    \small \text{ecofac} = \frac{365 \times 86400}{86400 \times 7} = 52.14 \approx 52
+    \small \mathrm{ecofac} = \frac{365 \times 86400}{86400 \times 7} = 52.14 \approx 52
 
 .. math::
 
-    \small \text{DAYS_PER_YEAR} = \frac{26 \times 86400 \times 7}{86400} = \textbf{364}
+    \small \mathrm{DAYS\_PER\_YEAR} = \frac{26 \times 86400 \times 7}{86400} = \textbf{364}
 
 This example works because ``ecofac`` is not specified explicitly (assuming no ``morfac``/morphology), and so it is calculated from the inputs.
 In this case and in the case of using all default values, after doing this calculation, the user may decide to specify ``ecofac = 50`` as a rounder and more typical input.
@@ -335,10 +335,10 @@ Actual (applied) mortality is computed based on the following method (assuming n
 .. math::
 
    \begin{align*}
-   \small \text{applied_mort_flood} & = \small 0.4 * 1.0 = 0.4 \\
-   \small \text{applied_mort_uproot} & = \small 0.4 * 0.8 = 0.32 \\
-   \small \text{applied_mort_total} & = \small \text{applied_mort_flood} + \text{applied_mort_uproot} = 0.4 + 0.32 = 0.72 \\
-   \small \text{fraction_left} & = \small \text{max}(0.4 - \text{applied_mort_total}, 0) = \text{max}(0.4 - 0.72, 0) = \textbf{0}
+   \small \mathrm{applied_mort_flood} & = \small 0.4 * 1.0 = 0.4 \\
+   \small \mathrm{applied_mort_uproot} & = \small 0.4 * 0.8 = 0.32 \\
+   \small \mathrm{applied_mort_total} & = \small \mathrm{applied_mort_flood} + \mathrm{applied_mort_uproot} = 0.4 + 0.32 = 0.72 \\
+   \small \mathrm{fraction_left} & = \small \max(0.4 - \mathrm{applied_mort_total}, 0) = \max(0.4 - 0.72, 0) = \textbf{0}
    \end{align*}
 
 **Example 2**: A model grid cell is computed as having 50% “potential” mortality due to flooding AND 20% “potential” mortality due to uprooting. 
@@ -347,10 +347,10 @@ The species X fraction in this cell is currently 40%:
 .. math::
 
    \begin{align*}
-   \small \text{applied_mort_flood} & = \small 0.4 * 0.5 = 0.2 \\
-   \small \text{applied_mort_uproot} & = \small 0.4 * 0.2 = 0.08 \\
-   \small \text{applied_mort_total} & = \small \text{applied_mort_flood} + \text{applied_mort_uproot} = 0.2 + 0.08 = 0.28 \\
-   \small \text{fraction_left} & = \small \text{max}(0.4 - \text{applied_mort_total}, 0) = \text{max}(0.4 - 0.28, 0) = \textbf{0.12}
+   \small \mathrm{applied_mort_flood} & = \small 0.4 * 0.5 = 0.2 \\
+   \small \mathrm{applied_mort_uproot} & = \small 0.4 * 0.2 = 0.08 \\
+   \small \mathrm{applied_mort_total} & = \small \mathrm{applied_mort_flood} + \mathrm{applied_mort_uproot} = 0.2 + 0.08 = 0.28 \\
+   \small \mathrm{fraction_left} & = \small \max(0.4 - \mathrm{applied_mort_total}, 0) = \max(0.4 - 0.28, 0) = \textbf{0.12}
    \end{align*}
 
 
@@ -376,13 +376,13 @@ For example, if a single cohort has a stem height of 0.5 m in a grid cell with a
 
 .. math::
 
-   \small \text{stemht_eff} = \frac{0.4 * 0.5}{0.4} = 0.5\, \text{m}
+   \small \mathrm{stemht_eff} = \frac{0.4 * 0.5}{0.4} = 0.5\, \text{m}
 
 The general equation for any number of cohorts N in a cell is:
 
 .. math::
 
-   \small \text{stemht_eff} = \frac{\sum_{i=1}^{N} \text{fraction}_i * \text{stemht}_i}{\sum_{i=1}^{N} \text{fraction}_i}
+   \small \mathrm{stemht_eff} = \frac{\sum_{i=1}^{N} \mathrm{fraction}_i * \mathrm{stemht}_i}{\sum_{i=1}^{N} \mathrm{fraction}_i}
 
 This cellular averaging method differs from the method used in the previous model in Brückner et al. (2019).
 In that model, individual Chezy values were calculated for each vegetation fraction in a cell, and the overall Chezy value was calculated as a weighted average of the individual Chezy values.

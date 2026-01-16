@@ -153,28 +153,28 @@ In fact, for DYCOVE-DFM simulations with morphology active, we set the Ecologica
 <p>Because DYCOVE is most useful for modeling vegetation in the intertidal zone, it is convenient to structure simulations around full tidal cycles.
 We compute colonization and mortality by identifying wet/dry grid cells, and the fraction of time they are wet/dry during the previous ETS.
 For mortality, we also need to know the maximum velocity at each grid cell.
-Therefore, it makes the most sense to do these calculations after at least one full tidal cycle, and so the default value of <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code> is equal to the duration of a typical semi-diurnal tide, about 12 hours (43200 seconds), rounded down for simplicity.
-We must decide, then, whether we want to prescribe the <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> of our simulation or <code class="docutils literal notranslate"><span class="pre">n_ets</span></code>, and then the other variable will follow:</p>
+Therefore, it makes the most sense to do these calculations after at least one complete tidal cycle, and so the default value of <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code> is equal to the duration of a typical semi-diurnal tide, about 12 hours (43200 seconds), rounded down for simplicity.
+We must decide, then, whether we want to prescribe <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> or <code class="docutils literal notranslate"><span class="pre">n_ets</span></code>, and then the other variable will follow:</p>
 <div class="math notranslate nohighlight">
-\[\small \text{ecofac} \approx \frac{365 \times 86400}{\text{veg_interval} \times \text{n}_{\text{ets}}}\]</div>
+\[\small \mathrm{ecofac} = \frac{365 \times 86400}{\mathrm{veg_interval} \times \mathrm{n_ets}}\]</div>
 <p>The default value of <code class="docutils literal notranslate"><span class="pre">n_ets</span></code> is 14, which provides enough temporal resolution to describe seasonal growth patterns for many species.
 <code class="docutils literal notranslate"><span class="pre">n_ets</span></code> must be compatible with the growth and colonization ETS attributes defined in the <a class="reference internal" href="#input-json"><span class="std std-ref">input .json file</span></a> (see <strong>Example 2</strong> below for more detail).
 Based on these default values and the equation above:</p>
 <div class="math notranslate nohighlight">
-\[\small \text{ecofac} = \frac{365 \times 86400}{43200 \times 14} = 52.14 \approx 52\]</div>
+\[\small \mathrm{ecofac} = \frac{365 \times 86400}{43200 \times 14} = 52.14 \approx 52\]</div>
 <p>There is no default value for <code class="docutils literal notranslate"><span class="pre">ecofac</span></code>; if not provided, it is computed automatically as above.
 Alternatively, the user can provide <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> directly, or by running a morphological simulation with a specified <code class="docutils literal notranslate"><span class="pre">morfac</span></code>, but they must ensure that the other two inputs (whether default or provided) are compatible based on the above equation.
 It is recommended that users pre-compute these three values to make sure they make sense.
 Users can specify a more round value of <code class="docutils literal notranslate"><span class="pre">ecofac</span> <span class="pre">=</span> <span class="pre">50</span></code>, for example, which would correspond to 350 days per year in the model (rather than 365).
 It is fine, and in fact encouraged, to use a round value in this way, but keep in mind that DYCOVE has an internal variable <code class="docutils literal notranslate"><span class="pre">DAYS_PER_YEAR</span></code> with a required range between 350 and 380 to keep results reasonable.
 Below are a few examples of feasible and infeasible parameter combinations:</p>
-<p><strong>Example 1</strong>: Setting <code class="docutils literal notranslate"><span class="pre">ecofac</span> <span class="pre">=</span> <span class="pre">20</span></code> without adjusting <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code> or <code class="docutils literal notranslate"><span class="pre">n_ets</span></code> (infeasible).</p>
+<p><strong>Example 1</strong>: Setting <code class="docutils literal notranslate"><span class="pre">ecofac</span> <span class="pre">=</span> <span class="pre">20</span></code> without adjusting <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code> or <code class="docutils literal notranslate"><span class="pre">n_ets</span></code>  (infeasible).</p>
 <div class="math notranslate nohighlight">
-\[\small \text{DAYS_PER_YEAR} = \frac{20 \times 43200 \times 14}{86400} = \textbf{140}\]</div>
+\[\small \mathrm{DAYS\_PER\_YEAR} = \frac{20 \times 43200 \times 14}{86400} = \textbf{140}\]</div>
 <p>This example will throw an error because the combination of input parameters does not yield a realistic number of days per year.</p>
-<p><strong>Example 2</strong>: Setting <code class="docutils literal notranslate"><span class="pre">ecofac`</span> <span class="pre">=</span> <span class="pre">100</span></code> and <code class="docutils literal notranslate"><span class="pre">n_ets</span> <span class="pre">=</span> <span class="pre">7</span></code> (feasible).</p>
+<p><strong>Example 2</strong>: Setting <code class="docutils literal notranslate"><span class="pre">ecofac`</span> <span class="pre">=</span> <span class="pre">100</span></code> and <code class="docutils literal notranslate"><span class="pre">n_ets</span> <span class="pre">=</span> <span class="pre">7</span></code>  (feasible).</p>
 <div class="math notranslate nohighlight">
-\[\small \text{DAYS_PER_YEAR} = \frac{100 \times 43200 \times 7}{86400} = \textbf{350}\]</div>
+\[\small \mathrm{DAYS\_PER\_YEAR} = \frac{100 \times 43200 \times 7}{86400} = \textbf{350}\]</div>
 <p>This example works because the combination of input parameters yields a realistic number of days per year.
 In this case, the user will run a simulation where vegetation processes (e.g., growth) are accelerated by a factor of 100, and 12 hours of hydrodynamic time (one ETS) is equivalent to 50 days of ecological time.
 Note that if running a simulation with morphology turned on, users should not provide an <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> because the <code class="docutils literal notranslate"><span class="pre">morfac</span></code> value defined in the numerical model will be adopted instead.
@@ -182,11 +182,11 @@ Values of <code class="docutils literal notranslate"><span class="pre">veg_inter
 <p><em>Important Note</em>: Any changes to <code class="docutils literal notranslate"><span class="pre">n_ets</span></code> must be accompanied by changes to temporal/ETS parameters in the <a class="reference internal" href="#input-json"><span class="std std-ref">input .json file</span></a>, namely <code class="docutils literal notranslate"><span class="pre">'start_growth_ets'</span></code>, <code class="docutils literal notranslate"><span class="pre">'end_growth_ets'</span></code>, <code class="docutils literal notranslate"><span class="pre">'winter_ets'</span></code>, <code class="docutils literal notranslate"><span class="pre">'start_col_ets'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'end_col_ets'</span></code> (none of which can be larger than <code class="docutils literal notranslate"><span class="pre">n_ets</span></code>, by definition).
 These parameters are defined in various sections below, but the important point here is that <code class="docutils literal notranslate"><span class="pre">n_ets</span></code> should be a high enough value that the start and end of the growth and winter seasons can be defined with sufficient temporal resolution.
 The main reason to use a smaller <code class="docutils literal notranslate"><span class="pre">n_ets</span></code> (like 7) is to reduce the number of output files.</p>
-<p><strong>Example 3</strong>: Setting <code class="docutils literal notranslate"><span class="pre">n_ets</span> <span class="pre">=</span> <span class="pre">7</span></code> and <code class="docutils literal notranslate"><span class="pre">veg_interval</span> <span class="pre">=</span> <span class="pre">86400</span></code> (feasible).</p>
+<p><strong>Example 3</strong>: Setting <code class="docutils literal notranslate"><span class="pre">n_ets</span> <span class="pre">=</span> <span class="pre">7</span></code> and <code class="docutils literal notranslate"><span class="pre">veg_interval</span> <span class="pre">=</span> <span class="pre">86400</span></code>  (feasible).</p>
 <div class="math notranslate nohighlight">
-\[\small \text{ecofac} = \frac{365 \times 86400}{86400 \times 7} = 52.14 \approx 52\]</div>
+\[\small \mathrm{ecofac} = \frac{365 \times 86400}{86400 \times 7} = 52.14 \approx 52\]</div>
 <div class="math notranslate nohighlight">
-\[\small \text{DAYS_PER_YEAR} = \frac{26 \times 86400 \times 7}{86400} = \textbf{364}\]</div>
+\[\small \mathrm{DAYS\_PER\_YEAR} = \frac{26 \times 86400 \times 7}{86400} = \textbf{364}\]</div>
 <p>This example works because <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> is not specified explicitly (assuming no <code class="docutils literal notranslate"><span class="pre">morfac</span></code>/morphology), and so it is calculated from the inputs.
 In this case and in the case of using all default values, after doing this calculation, the user may decide to specify <code class="docutils literal notranslate"><span class="pre">ecofac</span> <span class="pre">=</span> <span class="pre">50</span></code> as a rounder and more typical input.
 <code class="docutils literal notranslate"><span class="pre">n_ets</span></code> and <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code> would remain the same, and only the internal value of <code class="docutils literal notranslate"><span class="pre">DAYS_PER_YEAR</span></code> will change to 350.</p>
@@ -370,19 +370,19 @@ The species X fraction in this cell is currently 40%.
 Actual (applied) mortality is computed based on the following method (assuming no other mortality modes are active/relevant):</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align*}
-\small \text{applied_mort_flood} &amp; = \small 0.4 * 1.0 = 0.4 \\
-\small \text{applied_mort_uproot} &amp; = \small 0.4 * 0.8 = 0.32 \\
-\small \text{applied_mort_total} &amp; = \small \text{applied_mort_flood} + \text{applied_mort_uproot} = 0.4 + 0.32 = 0.72 \\
-\small \text{fraction_left} &amp; = \small \text{max}(0.4 - \text{applied_mort_total}, 0) = \text{max}(0.4 - 0.72, 0) = \textbf{0}
+\small \mathrm{applied_mort_flood} &amp; = \small 0.4 * 1.0 = 0.4 \\
+\small \mathrm{applied_mort_uproot} &amp; = \small 0.4 * 0.8 = 0.32 \\
+\small \mathrm{applied_mort_total} &amp; = \small \mathrm{applied_mort_flood} + \mathrm{applied_mort_uproot} = 0.4 + 0.32 = 0.72 \\
+\small \mathrm{fraction_left} &amp; = \small \max(0.4 - \mathrm{applied_mort_total}, 0) = \max(0.4 - 0.72, 0) = \textbf{0}
 \end{align*}\end{split}\]</div>
 <p><strong>Example 2</strong>: A model grid cell is computed as having 50% “potential” mortality due to flooding AND 20% “potential” mortality due to uprooting.
 The species X fraction in this cell is currently 40%:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}\begin{align*}
-\small \text{applied_mort_flood} &amp; = \small 0.4 * 0.5 = 0.2 \\
-\small \text{applied_mort_uproot} &amp; = \small 0.4 * 0.2 = 0.08 \\
-\small \text{applied_mort_total} &amp; = \small \text{applied_mort_flood} + \text{applied_mort_uproot} = 0.2 + 0.08 = 0.28 \\
-\small \text{fraction_left} &amp; = \small \text{max}(0.4 - \text{applied_mort_total}, 0) = \text{max}(0.4 - 0.28, 0) = \textbf{0.12}
+\small \mathrm{applied_mort_flood} &amp; = \small 0.4 * 0.5 = 0.2 \\
+\small \mathrm{applied_mort_uproot} &amp; = \small 0.4 * 0.2 = 0.08 \\
+\small \mathrm{applied_mort_total} &amp; = \small \mathrm{applied_mort_flood} + \mathrm{applied_mort_uproot} = 0.2 + 0.08 = 0.28 \\
+\small \mathrm{fraction_left} &amp; = \small \max(0.4 - \mathrm{applied_mort_total}, 0) = \max(0.4 - 0.28, 0) = \textbf{0.12}
 \end{align*}\end{split}\]</div>
 </section>
 <section id="computing-vegetation">
@@ -400,10 +400,10 @@ In the case of <a class="reference internal" href="#multi-species"><span class="
 <p>Stem height and diameter are computed as weighted averages based on vegetation fraction as well, but the calculation ignores empty space in grid cells, unlike the stem density calculation.
 For example, if a single cohort has a stem height of 0.5 m in a grid cell with a vegetation fraction of 0.4, the effective stem height passed to the numerical model is:</p>
 <div class="math notranslate nohighlight">
-\[\small \text{stemht_eff} = \frac{0.4 * 0.5}{0.4} = 0.5\, \text{m}\]</div>
+\[\small \mathrm{stemht_eff} = \frac{0.4 * 0.5}{0.4} = 0.5\, \text{m}\]</div>
 <p>The general equation for any number of cohorts N in a cell is:</p>
 <div class="math notranslate nohighlight">
-\[\small \text{stemht_eff} = \frac{\sum_{i=1}^{N} \text{fraction}_i * \text{stemht}_i}{\sum_{i=1}^{N} \text{fraction}_i}\]</div>
+\[\small \mathrm{stemht_eff} = \frac{\sum_{i=1}^{N} \mathrm{fraction}_i * \mathrm{stemht}_i}{\sum_{i=1}^{N} \mathrm{fraction}_i}\]</div>
 <p>This cellular averaging method differs from the method used in the previous model in Brückner et al. (2019).
 In that model, individual Chezy values were calculated for each vegetation fraction in a cell, and the overall Chezy value was calculated as a weighted average of the individual Chezy values.
 The significance of this change is related to the different equation form depending on whether vegetation is submerged or not.</p>

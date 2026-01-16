@@ -106,7 +106,7 @@ The only change needed when modeling multiple species is in creating multiple <c
 <span class="gp">&gt;&gt;&gt; </span><span class="n">HydroModel</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">&quot;eco-morphodynamic years&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>In this example, optional inputs arguments <cite>rand_seed_frac</cite> and <cite>rand_seed_method</cite> have also been changed from their default values.
+<p>In this example, the optional argument <cite>rand_seed_frac</cite> has also been changed from its default value.
 By specifying <cite>rand_seed_frac=0.8</cite>, we are telling DYCOVE to only colonize vegetation of that species in 80 percent of eligible grid cells.</p>
 <p>Plotting results of simulations with multiple species is no different from plotting results of a single-species simulation.
 Plotting stem height using <a class="reference internal" href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>, for example, will average all stem heights in each grid cell among the various species and life stages present within that cell.
