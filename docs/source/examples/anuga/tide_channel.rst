@@ -8,7 +8,7 @@ This example corresponds to the Python file `tide_channel_ANUGA.py` located in t
 This example consists of a simple, symmetrical beach slope with a channel that bisects the dune and connects to a lagoon.
 A simple mesh is developed using one of ANUGA's built-in functions that creates a rectangular mesh of structured triangles.
 A tidal boundary condition is imposed on the left (ocean) side, that propagates through the channel and fills the lagoon behind the dune.
-A vegetation species, loosely based on Nelumbo Lutea (American lotus), is added to the model via a set of attributes defined in the file `veg1.json`.
+A vegetation species, loosely based on `Salicorniaspp.` (pioneer species, first life stage) and `Spartina anglica` (second life stage), is added to the model via a set of attributes defined in the file `veg1.json`.
 After the simulation is finished, we can inspect a variety of 2-D model results using :class:`~dycove.utils.plotting.ModelPlotter`.
 
 

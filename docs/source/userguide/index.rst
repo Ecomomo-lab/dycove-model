@@ -118,6 +118,7 @@ DYCOVE output consists of a series of `.npz` (`numpy`) files, one file per veget
 One `.npz` file represents the attribute state of a single vegetation cohort at a point in time.
 It contains all of the attributes that are stored in a :class:`~dycove.sim.vegetation_data.VegCohort` object (fractions, stem heights, mortality fractions, etc.).
 
+
 Plotting
 --------
 

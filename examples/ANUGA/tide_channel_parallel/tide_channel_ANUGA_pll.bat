@@ -11,7 +11,7 @@ REM 3. Navigate to the directory containing this batch file and your Python scri
 REM    cd C:\path\to\your\anuga\project
 REM 4. *** IMPORTANT: EDIT THE 'NUM_PROCESSES' VALUE BELOW! ***
 REM 5. Run the script by typing its name:
-REM    .\run_local_anuga.bat
+REM    .\tide_channel_ANUGA_pll.bat
 
 REM --- CONFIGURATION ---
 REM Set the number of processes for MPI run below (NUM_PROCESSES).

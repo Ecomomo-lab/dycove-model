@@ -1,30 +1,25 @@
-﻿"""
-Simple example script to run a Delft3D-FM hydrodynamic simulation with DYCOVE (with morphology).
-
-Adapted from ANUGA-DYCOVE example "simple_tide_ANUGA.py"
 """
+Simple example script to run an ANUGA hydrodynamic simulation with DYCOVE.
+
+Adapted from ANUGA example `channel1.py`.
+"""
+
 
 #------------------------------------------------------------------------------
 # Import necessary modules
 #------------------------------------------------------------------------------
 
-from pathlib import Path
-
-from dycove import VegetationSpecies, DFM_hydro
-
-#------------------------------------------------------------------------------
-# Define model file locations
-#------------------------------------------------------------------------------
-
-work_dir = Path(__file__).parent
-config_file = work_dir / 'dimr_config.xml'
-mdu_file    = work_dir / 'dflowfm/FlowFM.mdu'
-
-DFM_DLLs = Path('C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/'
-                'plugins/DeltaShell.Dimr/kernels/x64')  # path to the local Delft3D software folder
+from dycove import VegetationSpecies, ANUGA_hydro
+from gen_anuga_domain import RectangSlopeDomainGenerator as RectangDomain
 
 #------------------------------------------------------------------------------
-# Run Delft3D-FM with DYCOVE
+# Create a sloped rectangular ANUGA domain using anuga.rectangular_cross_domain
+#------------------------------------------------------------------------------
+
+HydroDomain = RectangDomain("rectang_beach")
+
+#------------------------------------------------------------------------------
+# Run ANUGA with DYCOVE
 #------------------------------------------------------------------------------
 
 # define simulation time period
@@ -32,10 +27,10 @@ sim_time = 4
 time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynamic years'
 
 # create vegetation species object
-veg_1 = VegetationSpecies("veg1.json", "veg1", mor=1)
+veg_1 = VegetationSpecies("veg1.json", "veg1")
 
-# instantiate DFM model
-HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=veg_1)
+# instantiate ANUGA model
+HydroModel = ANUGA_hydro.ANUGA(HydroDomain.domain, vegetation=veg_1)
 
 # do timestepping
 HydroModel.run_simulation(sim_time, sim_time_unit=time_unit)

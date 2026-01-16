@@ -20,5 +20,6 @@ Welcome to the DYCOVE documentation!
    background/index
    userguide/index
    examples/index
+   troubleshooting/index
    apiref/index
 

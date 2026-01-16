@@ -4,7 +4,8 @@ name: Build and deploy docs
 
 on:
   push:
-    branches: [ main ]
+    paths:
+      - 'docs/**'
 
 permissions:
   contents: write

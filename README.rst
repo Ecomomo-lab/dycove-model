@@ -23,6 +23,6 @@ The logic behind this model was developed as part of the following study, which 
 
     Brückner, M. Z. M., Schwarz, C., van Dijk, W. M., van Oorschot, M., Douma, H., & Kleinhans, M. G. (2019). Salt marsh establishment and eco-engineering effects in dynamic estuaries determined by species growth and mortality. Journal of Geophysical Research: Earth Surface, 124, 2962-2986. https://doi.org/10.1029/2019JF005092
 
-If you use DYCOVE in your work, please cite the following preprint on EarthArXiv, which is currently under review in JOSS:
+If you use DYCOVE in your work, please cite the Zenodo archive that holds the latest release:
 
-    Tull, N. & Brückner, M. Z. M. (2025). DYCOVE: A Python package for coupling dynamic vegetation processes with hydro-morphodynamic models. EarthArXiv (preprint). https://doi.org/10.31223/X52J29
+    Tull, N. & Brückner, M. Z. M. (2025). DYCOVE version 0.1.0 [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.18004302
