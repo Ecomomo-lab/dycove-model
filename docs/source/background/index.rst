@@ -73,7 +73,7 @@ We must decide, then, whether we want to prescribe ``ecofac`` or ``n_ets``, and 
 
 .. math::
 
-    \small \mathrm{ecofac} = \frac{365 \times 86400}{\mathrm{veg_interval} \times \mathrm{n_ets}}
+    \small \mathrm{ecofac} = \frac{365 \times 86400}{\mathrm{veg\_interval} \times \mathrm{n\_ets}}
 
 The default value of ``n_ets`` is 14, which provides enough temporal resolution to describe seasonal growth patterns for many species.
 ``n_ets`` must be compatible with the growth and colonization ETS attributes defined in the :ref:`input .json file <input-json>` (see **Example 2** below for more detail).
@@ -94,7 +94,7 @@ Below are a few examples of feasible and infeasible parameter combinations:
 
 .. math::
 
-    \small \mathrm{DAYS\_PER\_YEAR} = \frac{20 \times 43200 \times 14}{86400} = \textbf{140}
+    \small \mathrm{DAYS\_PER\_YEAR} = \frac{20 \times 43200 \times 14}{86400} = \mathbf{140}
 
 This example will throw an error because the combination of input parameters does not yield a realistic number of days per year.
 
@@ -102,7 +102,7 @@ This example will throw an error because the combination of input parameters doe
 
 .. math::
 
-    \small \mathrm{DAYS\_PER\_YEAR} = \frac{100 \times 43200 \times 7}{86400} = \textbf{350}
+    \small \mathrm{DAYS\_PER\_YEAR} = \frac{100 \times 43200 \times 7}{86400} = \mathbf{350}
 
 This example works because the combination of input parameters yields a realistic number of days per year.
 In this case, the user will run a simulation where vegetation processes (e.g., growth) are accelerated by a factor of 100, and 12 hours of hydrodynamic time (one ETS) is equivalent to 50 days of ecological time.
@@ -121,7 +121,7 @@ The main reason to use a smaller ``n_ets`` (like 7) is to reduce the number of o
 
 .. math::
 
-    \small \mathrm{DAYS\_PER\_YEAR} = \frac{26 \times 86400 \times 7}{86400} = \textbf{364}
+    \small \mathrm{DAYS\_PER\_YEAR} = \frac{26 \times 86400 \times 7}{86400} = \mathbf{364}
 
 This example works because ``ecofac`` is not specified explicitly (assuming no ``morfac``/morphology), and so it is calculated from the inputs.
 In this case and in the case of using all default values, after doing this calculation, the user may decide to specify ``ecofac = 50`` as a rounder and more typical input.
@@ -338,7 +338,7 @@ Actual (applied) mortality is computed based on the following method (assuming n
    \small \mathrm{applied_mort_flood} & = \small 0.4 * 1.0 = 0.4 \\
    \small \mathrm{applied_mort_uproot} & = \small 0.4 * 0.8 = 0.32 \\
    \small \mathrm{applied_mort_total} & = \small \mathrm{applied_mort_flood} + \mathrm{applied_mort_uproot} = 0.4 + 0.32 = 0.72 \\
-   \small \mathrm{fraction_left} & = \small \max(0.4 - \mathrm{applied_mort_total}, 0) = \max(0.4 - 0.72, 0) = \textbf{0}
+   \small \mathrm{fraction_left} & = \small \max(0.4 - \mathrm{applied_mort_total}, 0) = \max(0.4 - 0.72, 0) = \mathbf{0}
    \end{align*}
 
 **Example 2**: A model grid cell is computed as having 50% “potential” mortality due to flooding AND 20% “potential” mortality due to uprooting. 
@@ -350,7 +350,7 @@ The species X fraction in this cell is currently 40%:
    \small \mathrm{applied_mort_flood} & = \small 0.4 * 0.5 = 0.2 \\
    \small \mathrm{applied_mort_uproot} & = \small 0.4 * 0.2 = 0.08 \\
    \small \mathrm{applied_mort_total} & = \small \mathrm{applied_mort_flood} + \mathrm{applied_mort_uproot} = 0.2 + 0.08 = 0.28 \\
-   \small \mathrm{fraction_left} & = \small \max(0.4 - \mathrm{applied_mort_total}, 0) = \max(0.4 - 0.28, 0) = \textbf{0.12}
+   \small \mathrm{fraction_left} & = \small \max(0.4 - \mathrm{applied_mort_total}, 0) = \max(0.4 - 0.28, 0) = \mathbf{0.12}
    \end{align*}
 
 
