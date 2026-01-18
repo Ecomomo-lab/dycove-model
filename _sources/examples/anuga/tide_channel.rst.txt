@@ -19,15 +19,15 @@ The following import statement forms the basis of all DYCOVE-ANUGA coupling simu
 
 .. code-block:: python
 
-   >>> from dycove import VegetationSpecies, ANUGA_hydro
+   from dycove import VegetationSpecies, ANUGA_hydro
 
 The class ``RectangSlopeDomainGenerator`` in the file `gen_anuga_domain.py` is a utility class that was developed to generate the ANUGA domain for this example.
 The new variable ``HydroDomain`` holds the ANUGA domain object required to run ANUGA models:
 
 .. code-block:: python
 
-   >>> from gen_anuga_domain import RectangSlopeDomainGenerator as RectangDomain
-   >>> HydroDomain = RectangDomain("rectang_beach")
+   from gen_anuga_domain import RectangSlopeDomainGenerator as RectangDomain
+   HydroDomain = RectangDomain("rectang_beach")
 
 While this class is not part of DYCOVE, it demonstrates how to set up a simple domain in ANUGA.
 The majority of the inputs to this class are related to describing the exact geometry of the problem.
@@ -47,8 +47,8 @@ Instantiate a ``VegetationSpecies`` object using the vegetation attribute file, 
 
 .. code-block:: python
 
-   >>> veg_1 = VegetationSpecies("veg1.json", "veg1")
-   >>> HydroModel = ANUGA_hydro.ANUGA(HydroDomain.domain, vegetation=veg_1)
+   veg_1 = VegetationSpecies("veg1.json", "veg1")
+   HydroModel = ANUGA_hydro.ANUGA(HydroDomain.domain, vegetation=veg_1)
 
 The `veg1.json` attribute file found in the working example directory contains a number of parameters related to when/where this species will colonize, how it will grow, and under what conditions it will die off.
 The variables in this file map directly to :class:`~dycove.sim.vegetation_data.VegetationAttributes`, a class that contains the documentation for all required input variables.
@@ -57,7 +57,7 @@ Finally, run the simulation for a specified number of eco-morphodynamic years (h
 
 .. code-block:: python
 
-   >>> HydroModel.run_simulation(3, sim_time_unit="eco-morphodynamic years")
+   HydroModel.run_simulation(3, sim_time_unit="eco-morphodynamic years")
 
 Note that above command to run the simulation uses default values for ecological time scaling, namely, the number of ecological time steps per year ``n_ets``, hydrodynamic time between ecological time steps ``veg_interval``, and ecological scaling factor ``ecofac`` (see :meth:`~dycove.sim.base.HydroSimulationBase.run_simulation` for details and default values).
 For further explanation of the ecological time scaling logic used in DYCOVE, refer to the `background documentation <https://Ecomomo-lab.github.io/dycove-model/background/ecological_time_scaling.html>`_.
@@ -82,8 +82,8 @@ For example, we can plot vegetation stem heights over the entire 21-day (hydrody
 
 .. code-block:: python
 
-   >>> from dycove import plotting
-   >>> plotter = plotting.ModelPlotter(
+   from dycove import plotting
+   plotter = plotting.ModelPlotter(
          simdir = Path("."),
          quantity = "Stem Height",
          plot_times = {
@@ -96,6 +96,6 @@ For example, we can plot vegetation stem heights over the entire 21-day (hydrody
            "Bathymetry": (-0.5, 0.5),
          },
        )
-   >>> plotter.run()
+   plotter.run()
 
 This plotting code is located in the same example directory at `examples/ANUGA/tide_channel/plot_tide_channel_ANUGA.py`, where there are additional comments on how to use the code, as well as more ideas for quantities to plot.

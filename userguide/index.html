@@ -58,6 +58,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#running-the-simulation">Running the Simulation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#outputs">Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#plotting">Plotting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#plotting-results-with-multiple-species">Plotting Results with Multiple Species</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
@@ -200,6 +201,15 @@ Users can create an interpolation function directly using <a class="reference in
 This function is created and called as shown in <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_quantity_grids()</span></code>.
 Loading of vegetation output files is performed in <a class="reference internal" href="../_autosummary/dycove.utils.model_loader.BaseMapLoader.html#dycove.utils.model_loader.BaseMapLoader" title="dycove.utils.model_loader.BaseMapLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMapLoader</span></code></a>, while loading of numerical model outputs occurs in <a class="reference internal" href="../_autosummary/dycove.utils.model_loader.ANUGAMapLoader.html#dycove.utils.model_loader.ANUGAMapLoader" title="dycove.utils.model_loader.ANUGAMapLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ANUGAMapLoader</span></code></a> or <a class="reference internal" href="../_autosummary/dycove.utils.model_loader.DFMMapLoader.html#dycove.utils.model_loader.DFMMapLoader" title="dycove.utils.model_loader.DFMMapLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">DFMMapLoader</span></code></a>.
 Users can look through these functions and methods to develop their own plotting codes, if that is of interest.</p>
+</section>
+<section id="plotting-results-with-multiple-species">
+<span id="plot-multi-species"></span><h2>Plotting Results with Multiple Species<a class="headerlink" href="#plotting-results-with-multiple-species" title="Link to this heading"></a></h2>
+<p>Plotting results of simulations with multiple species is no different from plotting results of a single-species simulation.
+Plotting stem height using <a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>, for example, will average all stem heights in each grid cell among the various species and life stages present within that cell.
+When plotting vegetation fractions, however, the output images will alternate between fractions of each species.
+Example: A simulation of one ecological year and two species consists of one colonization event for each species in the second ecological time step (ETS) of the year.
+Plots of stem heights will consist of one plot per ETS, starting at ETS 2.
+Plots of fractions will consist of two plots per ETS, one for each species, starting at ETS 2.</p>
 </section>
 </section>
 

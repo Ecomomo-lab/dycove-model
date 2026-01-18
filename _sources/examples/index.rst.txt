@@ -20,6 +20,7 @@ ANUGA
 
    anuga/tide_channel
    anuga/tide_channel_parallel
+   anuga/tide_channel_from_regions_multiveg
 
 
 Delft3D FM

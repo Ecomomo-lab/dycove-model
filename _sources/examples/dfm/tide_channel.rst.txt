@@ -23,7 +23,7 @@ The following import statement forms the basis of all DYCOVE-DFM coupling simula
 
 .. code-block:: python
 
-   >>> from dycove import VegetationSpecies, DFM_hydro
+   from dycove import VegetationSpecies, DFM_hydro
 
 To run Delft3D FM, you will need to create and export your model outside of the coding environment.
 After creating a Delft3D model using Delta Shell, export the model as DIMR:
@@ -36,10 +36,10 @@ Next, identify the path to your Delft3D FM code library, which probably looks so
 
 .. code-block:: python
 
-   >>> from pathlib import Path
-   >>> config_file = 'dimr_config.xml'
-   >>> mdu_file = Path('dflowfm/FlowFM.mdu')
-   >>> DFM_DLLs = Path('C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/plugins/DeltaShell.Dimr/kernels/x64')
+   from pathlib import Path
+   config_file = 'dimr_config.xml'
+   mdu_file = Path('dflowfm/FlowFM.mdu')
+   DFM_DLLs = Path('C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/plugins/DeltaShell.Dimr/kernels/x64')
 
 To turn on the internal vegetation module in Delft3D FM, we must create an additional forcing `.ext` file and add a new block in the `.mdu` file with the `[veg]` heading.
 DYCOVE handles this automatically, as long as you supply a vegetation species to your DYCOVE model.
@@ -49,9 +49,9 @@ The only difference is the call to the hydrodynamic engine, which in this case i
 
 .. code-block:: python
 
-   >>> veg_1 = VegetationSpecies("veg1.json", "veg1")
-   >>> HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=veg_1)
-   >>> HydroModel.run_simulation(3, sim_time_unit="eco-morphodynamic years")
+   veg_1 = VegetationSpecies("veg1.json", "veg1")
+   HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=veg_1)
+   HydroModel.run_simulation(3, sim_time_unit="eco-morphodynamic years")
 
 
 Plot the Results
@@ -66,22 +66,22 @@ For example, we can plot vegetation stem heights over the entire 21-day (hydrody
 
 .. code-block:: python
 
-   >>> from dycove import plotting
-   >>> plotter = plotting.ModelPlotter(
-         simdir = Path("."),
-         #quantity = "Velocity",
-         quantity = "Stem Height",
-         plot_times = {
-           "plotHR_0": 0*24.,
-           "plotHR_f": 21*24.,
-           "mapHR_int": 1,
-           "plotHR_int": 1,
-         },
-         cmap_lims = {
-           "Bathymetry": (-0.5, 0.5),
-           "Velocity": (0, 0.3),
-         },
-       )
-   >>> plotter.run()
+   from dycove import plotting
+   plotter = plotting.ModelPlotter(
+      simdir = Path("."),
+      #quantity = "Velocity",
+      quantity = "Stem Height",
+      plot_times = {
+         "plotHR_0": 0*24.,
+         "plotHR_f": 21*24.,
+         "mapHR_int": 1,
+         "plotHR_int": 1,
+      },
+      cmap_lims = {
+         "Bathymetry": (-0.5, 0.5),
+         "Velocity": (0, 0.3),
+      },
+      )
+   plotter.run()
 
 This plotting code is located in the same example directory at `examples/DFM/tide_channel/plot_tide_channel_DFM.py`, where there are additional comments on how to use the code, as well as more ideas for quantities to plot.

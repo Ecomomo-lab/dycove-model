@@ -98,7 +98,7 @@ Below are a few examples of feasible and infeasible parameter combinations:
 
 This example will throw an error because the combination of input parameters does not yield a realistic number of days per year.
 
-**Example 2**: Setting ``ecofac` = 100`` and ``n_ets = 7``  (feasible).
+**Example 2**: Setting ``ecofac`` = 100`` and ``n_ets = 7``  (feasible).
 
 .. math::
 
@@ -334,24 +334,20 @@ Actual (applied) mortality is computed based on the following method (assuming n
 
 .. math::
 
-   \begin{align*}
-   \small \mathrm{applied_mort_flood} & = \small 0.4 * 1.0 = 0.4 \\
-   \small \mathrm{applied_mort_uproot} & = \small 0.4 * 0.8 = 0.32 \\
-   \small \mathrm{applied_mort_total} & = \small \mathrm{applied_mort_flood} + \mathrm{applied_mort_uproot} = 0.4 + 0.32 = 0.72 \\
-   \small \mathrm{fraction_left} & = \small \max(0.4 - \mathrm{applied_mort_total}, 0) = \max(0.4 - 0.72, 0) = \mathbf{0}
-   \end{align*}
+   \small \mathrm{applied\_mort\_flood} & = \small 0.4 \times 1.0 = 0.4 \\
+   \small \mathrm{applied\_mort\_uproot} & = \small 0.4 \times 0.8 = 0.32 \\
+   \small \mathrm{applied\_mort\_total} & = \small \mathrm{applied\_mort\_flood} + \mathrm{applied\_mort\_uproot} = 0.4 + 0.32 = 0.72 \\
+   \small \mathrm{fraction\_left} & = \small \max(0.4 - \mathrm{applied\_mort\_total}, 0) = \max(0.4 - 0.72, 0) = \mathbf{0}
 
 **Example 2**: A model grid cell is computed as having 50% “potential” mortality due to flooding AND 20% “potential” mortality due to uprooting. 
 The species X fraction in this cell is currently 40%:
 
 .. math::
 
-   \begin{align*}
-   \small \mathrm{applied_mort_flood} & = \small 0.4 * 0.5 = 0.2 \\
-   \small \mathrm{applied_mort_uproot} & = \small 0.4 * 0.2 = 0.08 \\
-   \small \mathrm{applied_mort_total} & = \small \mathrm{applied_mort_flood} + \mathrm{applied_mort_uproot} = 0.2 + 0.08 = 0.28 \\
-   \small \mathrm{fraction_left} & = \small \max(0.4 - \mathrm{applied_mort_total}, 0) = \max(0.4 - 0.28, 0) = \mathbf{0.12}
-   \end{align*}
+   \small \mathrm{applied\_mort\_flood} & = \small 0.4 \times 0.5 = 0.2 \\
+   \small \mathrm{applied\_mort\_uproot} & = \small 0.4 \times 0.2 = 0.08 \\
+   \small \mathrm{applied\_mort\_total} & = \small \mathrm{applied\_mort\_flood} + \mathrm{applied\_mort\_uproot} = 0.2 + 0.08 = 0.28 \\
+   \small \mathrm{fraction\_left} & = \small \max(0.4 - \mathrm{applied\_mort\_total}, 0) = \max(0.4 - 0.28, 0) = \mathbf{0.12}
 
 
 .. _compute-veg:
@@ -376,13 +372,13 @@ For example, if a single cohort has a stem height of 0.5 m in a grid cell with a
 
 .. math::
 
-   \small \mathrm{stemht_eff} = \frac{0.4 * 0.5}{0.4} = 0.5\, \text{m}
+   \small \mathrm{stemht_eff} = \frac{0.4 \times 0.5}{0.4} = 0.5\, \text{m}
 
 The general equation for any number of cohorts N in a cell is:
 
 .. math::
 
-   \small \mathrm{stemht_eff} = \frac{\sum_{i=1}^{N} \mathrm{fraction}_i * \mathrm{stemht}_i}{\sum_{i=1}^{N} \mathrm{fraction}_i}
+   \small \mathrm{stemht_eff} = \frac{\sum_{i=1}^{N} \mathrm{fraction}_i \times \mathrm{stemht}_i}{\sum_{i=1}^{N} \mathrm{fraction}_i}
 
 This cellular averaging method differs from the method used in the previous model in Brückner et al. (2019).
 In that model, individual Chezy values were calculated for each vegetation fraction in a cell, and the overall Chezy value was calculated as a weighted average of the individual Chezy values.

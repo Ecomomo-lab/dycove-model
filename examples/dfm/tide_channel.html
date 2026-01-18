@@ -22,7 +22,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Example - Simple beach and tide channel with discharge boundary and morphology (Delft3D FM)" href="tide_channel_w_discharge.html" />
-    <link rel="prev" title="Example - Simple beach and tide channel (ANUGA in parallel)" href="../anuga/tide_channel_parallel.html" /> 
+    <link rel="prev" title="Example - Simple beach and tide channel with two vegetation species (ANUGA)" href="../anuga/tide_channel_from_regions_multiveg.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -58,7 +58,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tide_channel_w_discharge.html">Example - Simple beach and tide channel with discharge boundary and morphology (Delft3D FM)</a></li>
-<li class="toctree-l3"><a class="reference internal" href="tide_channel_w_discharge_multiveg.html">Example - Simple beach and tide channel with discharge boundary and morphology, with two vegetation species (Delft3D FM)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tide_channel_w_discharge_multiveg.html">Example - Simple beach and tide channel with discharge, morphology, and two vegetation species (Delft3D FM)</a></li>
 </ul>
 </li>
 </ul>
@@ -106,7 +106,7 @@ After the simulation is finished, we can inspect a variety of 2-D model results 
 <section id="run-the-model">
 <h2>Run the Model<a class="headerlink" href="#run-the-model" title="Link to this heading"></a></h2>
 <p>The following import statement forms the basis of all DYCOVE-DFM coupling simulations:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">VegetationSpecies</span><span class="p">,</span> <span class="n">DFM_hydro</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">VegetationSpecies</span><span class="p">,</span> <span class="n">DFM_hydro</span>
 </pre></div>
 </div>
 <p>To run Delft3D FM, you will need to create and export your model outside of the coding environment.
@@ -119,19 +119,19 @@ After creating a Delft3D model using Delta Shell, export the model as DIMR:</p>
 </div></blockquote>
 <p>This will create an <cite>.xml</cite> file at the same level as a directory called <cite>dflowfm/</cite>, which contains the <cite>.mdu</cite> file inside.
 Next, identify the path to your Delft3D FM code library, which probably looks something like the path shown below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">config_file</span> <span class="o">=</span> <span class="s1">&#39;dimr_config.xml&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mdu_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;dflowfm/FlowFM.mdu&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">DFM_DLLs</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/plugins/DeltaShell.Dimr/kernels/x64&#39;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="n">config_file</span> <span class="o">=</span> <span class="s1">&#39;dimr_config.xml&#39;</span>
+<span class="n">mdu_file</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;dflowfm/FlowFM.mdu&#39;</span><span class="p">)</span>
+<span class="n">DFM_DLLs</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/plugins/DeltaShell.Dimr/kernels/x64&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To turn on the internal vegetation module in Delft3D FM, we must create an additional forcing <cite>.ext</cite> file and add a new block in the <cite>.mdu</cite> file with the <cite>[veg]</cite> heading.
 DYCOVE handles this automatically, as long as you supply a vegetation species to your DYCOVE model.</p>
 <p>After setting up the model and identifying the model file paths, DYCOVE-DFM models are run in much the same way as DYCOVE-ANUGA models.
 The only difference is the call to the hydrodynamic engine, which in this case is <a class="reference internal" href="../../_autosummary/dycove.sim.engines.DFM_hydro.DFM.html#dycove.sim.engines.DFM_hydro.DFM" title="dycove.sim.engines.DFM_hydro.DFM"><code class="xref py py-class docutils literal notranslate"><span class="pre">DFM</span></code></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;veg1.json&quot;</span><span class="p">,</span> <span class="s2">&quot;veg1&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">HydroModel</span> <span class="o">=</span> <span class="n">DFM_hydro</span><span class="o">.</span><span class="n">DFM</span><span class="p">(</span><span class="n">DFM_DLLs</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">mdu_file</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="n">veg_1</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">HydroModel</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">&quot;eco-morphodynamic years&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;veg1.json&quot;</span><span class="p">,</span> <span class="s2">&quot;veg1&quot;</span><span class="p">)</span>
+<span class="n">HydroModel</span> <span class="o">=</span> <span class="n">DFM_hydro</span><span class="o">.</span><span class="n">DFM</span><span class="p">(</span><span class="n">DFM_DLLs</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">mdu_file</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="n">veg_1</span><span class="p">)</span>
+<span class="n">HydroModel</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">&quot;eco-morphodynamic years&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -142,23 +142,23 @@ DYCOVE output is saved in <cite>.npz</cite> files, with one file per vegetation 
 For a list of outputs stored with each cohort, see <a class="reference internal" href="../../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a>.</p>
 <p>Plot 2-D maps of various model quantities over time using <a class="reference internal" href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>.
 For example, we can plot vegetation stem heights over the entire 21-day (hydrodynamic time) simulation period.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">plotting</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">plotter</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ModelPlotter</span><span class="p">(</span>
-<span class="go">      simdir = Path(&quot;.&quot;),</span>
-<span class="go">      #quantity = &quot;Velocity&quot;,</span>
-<span class="go">      quantity = &quot;Stem Height&quot;,</span>
-<span class="go">      plot_times = {</span>
-<span class="go">        &quot;plotHR_0&quot;: 0*24.,</span>
-<span class="go">        &quot;plotHR_f&quot;: 21*24.,</span>
-<span class="go">        &quot;mapHR_int&quot;: 1,</span>
-<span class="go">        &quot;plotHR_int&quot;: 1,</span>
-<span class="go">      },</span>
-<span class="go">      cmap_lims = {</span>
-<span class="go">        &quot;Bathymetry&quot;: (-0.5, 0.5),</span>
-<span class="go">        &quot;Velocity&quot;: (0, 0.3),</span>
-<span class="go">      },</span>
-<span class="go">    )</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">plotter</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">plotting</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ModelPlotter</span><span class="p">(</span>
+   <span class="n">simdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
+   <span class="c1">#quantity = &quot;Velocity&quot;,</span>
+   <span class="n">quantity</span> <span class="o">=</span> <span class="s2">&quot;Stem Height&quot;</span><span class="p">,</span>
+   <span class="n">plot_times</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s2">&quot;plotHR_0&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
+      <span class="s2">&quot;plotHR_f&quot;</span><span class="p">:</span> <span class="mi">21</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
+      <span class="s2">&quot;mapHR_int&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;plotHR_int&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+   <span class="p">},</span>
+   <span class="n">cmap_lims</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s2">&quot;Bathymetry&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+      <span class="s2">&quot;Velocity&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span>
+   <span class="p">},</span>
+   <span class="p">)</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>This plotting code is located in the same example directory at <cite>examples/DFM/tide_channel/plot_tide_channel_DFM.py</cite>, where there are additional comments on how to use the code, as well as more ideas for quantities to plot.</p>
@@ -169,7 +169,7 @@ For example, we can plot vegetation stem heights over the entire 21-day (hydrody
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../anuga/tide_channel_parallel.html" class="btn btn-neutral float-left" title="Example - Simple beach and tide channel (ANUGA in parallel)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../anuga/tide_channel_from_regions_multiveg.html" class="btn btn-neutral float-left" title="Example - Simple beach and tide channel with two vegetation species (ANUGA)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="tide_channel_w_discharge.html" class="btn btn-neutral float-right" title="Example - Simple beach and tide channel with discharge boundary and morphology (Delft3D FM)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

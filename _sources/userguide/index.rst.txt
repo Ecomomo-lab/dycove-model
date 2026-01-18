@@ -145,3 +145,16 @@ Users can create an interpolation function directly using :func:`~dycove.utils.p
 This function is created and called as shown in :meth:`~dycove.utils.plotting.ModelPlotter.get_quantity_grids`.
 Loading of vegetation output files is performed in :class:`~dycove.utils.model_loader.BaseMapLoader`, while loading of numerical model outputs occurs in :class:`~dycove.utils.model_loader.ANUGAMapLoader` or :class:`~dycove.utils.model_loader.DFMMapLoader`.
 Users can look through these functions and methods to develop their own plotting codes, if that is of interest.
+
+
+.. _plot-multi-species:
+
+Plotting Results with Multiple Species
+--------------------------------------
+
+Plotting results of simulations with multiple species is no different from plotting results of a single-species simulation.
+Plotting stem height using :class:`~dycove.utils.plotting.ModelPlotter`, for example, will average all stem heights in each grid cell among the various species and life stages present within that cell.
+When plotting vegetation fractions, however, the output images will alternate between fractions of each species.
+Example: A simulation of one ecological year and two species consists of one colonization event for each species in the second ecological time step (ETS) of the year.
+Plots of stem heights will consist of one plot per ETS, starting at ETS 2.
+Plots of fractions will consist of two plots per ETS, one for each species, starting at ETS 2.

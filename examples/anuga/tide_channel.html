@@ -57,6 +57,7 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="tide_channel_parallel.html">Example - Simple beach and tide channel (ANUGA in parallel)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tide_channel_from_regions_multiveg.html">Example - Simple beach and tide channel with two vegetation species (ANUGA)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#delft3d-fm">Delft3D FM</a></li>
@@ -102,13 +103,13 @@ After the simulation is finished, we can inspect a variety of 2-D model results 
 <section id="run-the-model">
 <h2>Run the Model<a class="headerlink" href="#run-the-model" title="Link to this heading"></a></h2>
 <p>The following import statement forms the basis of all DYCOVE-ANUGA coupling simulations:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">VegetationSpecies</span><span class="p">,</span> <span class="n">ANUGA_hydro</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">VegetationSpecies</span><span class="p">,</span> <span class="n">ANUGA_hydro</span>
 </pre></div>
 </div>
 <p>The class <code class="docutils literal notranslate"><span class="pre">RectangSlopeDomainGenerator</span></code> in the file <cite>gen_anuga_domain.py</cite> is a utility class that was developed to generate the ANUGA domain for this example.
 The new variable <code class="docutils literal notranslate"><span class="pre">HydroDomain</span></code> holds the ANUGA domain object required to run ANUGA models:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">gen_anuga_domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectangSlopeDomainGenerator</span> <span class="k">as</span> <span class="n">RectangDomain</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">HydroDomain</span> <span class="o">=</span> <span class="n">RectangDomain</span><span class="p">(</span><span class="s2">&quot;rectang_beach&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gen_anuga_domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectangSlopeDomainGenerator</span> <span class="k">as</span> <span class="n">RectangDomain</span>
+<span class="n">HydroDomain</span> <span class="o">=</span> <span class="n">RectangDomain</span><span class="p">(</span><span class="s2">&quot;rectang_beach&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>While this class is not part of DYCOVE, it demonstrates how to set up a simple domain in ANUGA.
@@ -124,14 +125,14 @@ In general, the most critical aspects of the ANUGA domain setup are the followin
 </div>
 <p>More important than the specifics of the domain geometry is the implementation of vegetation with DYCOVE.
 Instantiate a <code class="docutils literal notranslate"><span class="pre">VegetationSpecies</span></code> object using the vegetation attribute file, then pass that object to the <a class="reference internal" href="../../_autosummary/dycove.sim.engines.ANUGA_hydro.ANUGA.html#dycove.sim.engines.ANUGA_hydro.ANUGA" title="dycove.sim.engines.ANUGA_hydro.ANUGA"><code class="xref py py-class docutils literal notranslate"><span class="pre">ANUGA</span></code></a> hydrodynamic engine:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;veg1.json&quot;</span><span class="p">,</span> <span class="s2">&quot;veg1&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">HydroModel</span> <span class="o">=</span> <span class="n">ANUGA_hydro</span><span class="o">.</span><span class="n">ANUGA</span><span class="p">(</span><span class="n">HydroDomain</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="n">veg_1</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;veg1.json&quot;</span><span class="p">,</span> <span class="s2">&quot;veg1&quot;</span><span class="p">)</span>
+<span class="n">HydroModel</span> <span class="o">=</span> <span class="n">ANUGA_hydro</span><span class="o">.</span><span class="n">ANUGA</span><span class="p">(</span><span class="n">HydroDomain</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="n">veg_1</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <cite>veg1.json</cite> attribute file found in the working example directory contains a number of parameters related to when/where this species will colonize, how it will grow, and under what conditions it will die off.
 The variables in this file map directly to <a class="reference internal" href="../../_autosummary/dycove.sim.vegetation_data.VegetationAttributes.html#dycove.sim.vegetation_data.VegetationAttributes" title="dycove.sim.vegetation_data.VegetationAttributes"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationAttributes</span></code></a>, a class that contains the documentation for all required input variables.</p>
 <p>Finally, run the simulation for a specified number of eco-morphodynamic years (here, 3 years):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">HydroModel</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">&quot;eco-morphodynamic years&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">HydroModel</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">&quot;eco-morphodynamic years&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Note that above command to run the simulation uses default values for ecological time scaling, namely, the number of ecological time steps per year <code class="docutils literal notranslate"><span class="pre">n_ets</span></code>, hydrodynamic time between ecological time steps <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code>, and ecological scaling factor <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> (see <a class="reference internal" href="../../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase.run_simulation" title="dycove.sim.base.HydroSimulationBase.run_simulation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation()</span></code></a> for details and default values).
@@ -150,21 +151,21 @@ DYCOVE output is saved in <cite>.npz</cite> files, with one file per vegetation 
 For a list of outputs stored with each cohort, see <a class="reference internal" href="../../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a>.</p>
 <p>Plot 2-D maps of various model quantities over time using <a class="reference internal" href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>.
 For example, we can plot vegetation stem heights over the entire 21-day (hydrodynamic time) simulation period.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">plotting</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">plotter</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ModelPlotter</span><span class="p">(</span>
-<span class="go">      simdir = Path(&quot;.&quot;),</span>
-<span class="go">      quantity = &quot;Stem Height&quot;,</span>
-<span class="go">      plot_times = {</span>
-<span class="go">        &quot;plotHR_0&quot;: 0*24.,</span>
-<span class="go">        &quot;plotHR_f&quot;: 21*24.,</span>
-<span class="go">        &quot;mapHR_int&quot;: 1,</span>
-<span class="go">        &quot;plotHR_int&quot;: 1,</span>
-<span class="go">      },</span>
-<span class="go">      cmap_lims = {</span>
-<span class="go">        &quot;Bathymetry&quot;: (-0.5, 0.5),</span>
-<span class="go">      },</span>
-<span class="go">    )</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">plotter</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">plotting</span>
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ModelPlotter</span><span class="p">(</span>
+      <span class="n">simdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
+      <span class="n">quantity</span> <span class="o">=</span> <span class="s2">&quot;Stem Height&quot;</span><span class="p">,</span>
+      <span class="n">plot_times</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;plotHR_0&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
+        <span class="s2">&quot;plotHR_f&quot;</span><span class="p">:</span> <span class="mi">21</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
+        <span class="s2">&quot;mapHR_int&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;plotHR_int&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="p">},</span>
+      <span class="n">cmap_lims</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;Bathymetry&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+      <span class="p">},</span>
+    <span class="p">)</span>
+<span class="n">plotter</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>This plotting code is located in the same example directory at <cite>examples/ANUGA/tide_channel/plot_tide_channel_ANUGA.py</cite>, where there are additional comments on how to use the code, as well as more ideas for quantities to plot.</p>

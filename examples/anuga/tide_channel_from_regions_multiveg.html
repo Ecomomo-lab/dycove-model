@@ -1,0 +1,157 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Example - Simple beach and tide channel with two vegetation species (ANUGA) &mdash; DYCOVE 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+      <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+
+  
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Example - Simple beach and tide channel (Delft3D FM)" href="../dfm/tide_channel.html" />
+    <link rel="prev" title="Example - Simple beach and tide channel (ANUGA in parallel)" href="tide_channel_parallel.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            DYCOVE
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../installation/index.html">Installation Instructions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../background/index.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../userguide/index.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#id2">ANUGA</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="tide_channel.html">Example - Simple beach and tide channel (ANUGA)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tide_channel_parallel.html">Example - Simple beach and tide channel (ANUGA in parallel)</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Example - Simple beach and tide channel with two vegetation species (ANUGA)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../index.html#delft3d-fm">Delft3D FM</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting/index.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../apiref/index.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">DYCOVE</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Examples</a></li>
+      <li class="breadcrumb-item active">Example - Simple beach and tide channel with two vegetation species (ANUGA)</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/examples/anuga/tide_channel_from_regions_multiveg.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="example-simple-beach-and-tide-channel-with-two-vegetation-species-anuga">
+<span id="tide-channel-anuga-multiveg"></span><h1>Example - Simple beach and tide channel with two vegetation species (ANUGA)<a class="headerlink" href="#example-simple-beach-and-tide-channel-with-two-vegetation-species-anuga" title="Link to this heading"></a></h1>
+<p>This example corresponds to the Python file <cite>tide_channel_from_regions_multiveg.py</cite> located in the <cite>examples/ANUGA/tide_channel/</cite> directory, along with supporting input files.</p>
+<p>This example consists of a simple, symmetrical beach slope with a channel that bisects the dune and connects to a lagoon.
+An unstructured mesh is developed using ANUGA’s <code class="docutils literal notranslate"><span class="pre">create_domain_from_regions</span></code> method that creates a triangular mesh with variable resolution based on input polygons.
+A tidal boundary condition is imposed on the left (ocean) side, that propagates through the channel and fills the lagoon behind the dune.
+Two vegetation species, loosely based on <cite>Nelumbo Lutea</cite> and <cite>Colocascia Esculenta</cite>, are added to the model via a set of attributes defined in the files <cite>NelumboLutea.json</cite> and <cite>ColocasciaEsculenta.json</cite>.
+After the simulation is finished, we can inspect a variety of 2-D model results using <a class="reference internal" href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>.</p>
+<p>Running the model and plotting the results are handled mostly as described in the <a class="reference internal" href="tide_channel.html"><span class="doc">tide_channel example</span></a>.
+Users running this example can access the associated ANUGA domain creator class (different file name from previous examples), which uses the <code class="docutils literal notranslate"><span class="pre">create_domain_from_regions</span></code> method to construct a mesh:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gen_anuga_domain_from_regions</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectangSlopeDomainGenerator</span> <span class="k">as</span> <span class="n">RectangDomain</span>
+<span class="n">HydroDomain</span> <span class="o">=</span> <span class="n">RectangDomain</span><span class="p">(</span><span class="s2">&quot;rectang_beach&quot;</span><span class="p">,</span>
+                     <span class="p">[</span><span class="s2">&quot;exterior.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;interior.csv&quot;</span><span class="p">],</span>
+                     <span class="p">[</span><span class="mi">800</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span>
+                     <span class="n">plotting</span><span class="o">=</span><span class="kc">True</span>
+                     <span class="p">)</span>
+</pre></div>
+</div>
+<p>ANUGA’s <code class="docutils literal notranslate"><span class="pre">create_domain_from_regions</span></code> method requires input polygons (typically as <cite>.csv</cite> files) that define the exterior domain boundary as well as any number of non-overlapping, interior regions.
+Each polygon is assigned a maximum triangle area.
+In this example, we supply a file <cite>exterior.csv</cite> that contains relative vertex coordinates mimicking the dimensions of the <a class="reference internal" href="tide_channel.html"><span class="doc">tide_channel example</span></a>.
+The file <cite>interior.csv</cite> represents the boundary of the tidal channel, and we supply a smaller triangle size for this region to increase resolution.
+Interior boundaries can also be used to form breaklines in the mesh, which is one of its purposes in this domain.
+By setting <code class="docutils literal notranslate"><span class="pre">plotting=True</span></code>, <code class="docutils literal notranslate"><span class="pre">RectangSlopeDomainGenerator</span></code> will save images in the working directory showing the resulting mesh and mesh elevation.</p>
+<p>For modeling of multiple species, the only change needed is in creating multiple <code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationSpecies</span></code> objects:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">MultipleVegetationSpecies</span> <span class="k">as</span> <span class="n">MultiVeg</span>
+<span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;NelumboLutea.json&quot;</span><span class="p">,</span> <span class="s2">&quot;nelumbo&quot;</span><span class="p">)</span>
+<span class="n">veg_2</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;ColocasciaEsculenta.json&quot;</span><span class="p">,</span> <span class="s2">&quot;colocascia&quot;</span><span class="p">)</span>
+<span class="n">HydroModel</span> <span class="o">=</span> <span class="n">ANUGA_hydro</span><span class="o">.</span><span class="n">ANUGA</span><span class="p">(</span><span class="n">HydroDomain</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="n">MultiVeg</span><span class="p">([</span><span class="n">veg_1</span><span class="p">,</span> <span class="n">veg_2</span><span class="p">]))</span>
+<span class="n">HydroModel</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">&quot;eco-morphodynamic years&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For notes on plotting results with multiple vegetation species, see the <a class="reference internal" href="../../userguide/index.html#plot-multi-species"><span class="std std-ref">User Guide</span></a>.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="tide_channel_parallel.html" class="btn btn-neutral float-left" title="Example - Simple beach and tide channel (ANUGA in parallel)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../dfm/tide_channel.html" class="btn btn-neutral float-right" title="Example - Simple beach and tide channel (Delft3D FM)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, N. Tull, M. Brückner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

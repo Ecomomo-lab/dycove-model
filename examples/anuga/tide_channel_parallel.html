@@ -21,7 +21,7 @@
     <script src="../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="Example - Simple beach and tide channel (Delft3D FM)" href="../dfm/tide_channel.html" />
+    <link rel="next" title="Example - Simple beach and tide channel with two vegetation species (ANUGA)" href="tide_channel_from_regions_multiveg.html" />
     <link rel="prev" title="Example - Simple beach and tide channel (ANUGA)" href="tide_channel.html" /> 
 </head>
 
@@ -53,6 +53,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="../index.html#id2">ANUGA</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="tide_channel.html">Example - Simple beach and tide channel (ANUGA)</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Example - Simple beach and tide channel (ANUGA in parallel)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tide_channel_from_regions_multiveg.html">Example - Simple beach and tide channel with two vegetation species (ANUGA)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../index.html#delft3d-fm">Delft3D FM</a></li>
@@ -95,7 +96,7 @@ This example uses the same bathymetry and vegetation inputs as the <a class="ref
 DYCOVE commands remain the same, but the ANUGA domain must be generated in parallel using a slightly modified approach.
 For this example, the parallel domain generation approach is provided in <cite>gen_anuga_domain_pll.py</cite> in the working directory.
 Users with existing ANUGA model codes that run in parallel should be able to seemlessly integrate DYCOVE in those codes by passing their parallelized domain in the same way as the serial examples:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">HydroModel</span> <span class="o">=</span> <span class="n">ANUGA_hydro</span><span class="o">.</span><span class="n">ANUGA</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="n">veg_1</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">HydroModel</span> <span class="o">=</span> <span class="n">ANUGA_hydro</span><span class="o">.</span><span class="n">ANUGA</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="n">veg_1</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This example uses a Windows batch file <cite>tide_channel_ANUGA_pll.bat</cite> in the working directory, which contains instructions on how to run it.
@@ -112,7 +113,7 @@ If running on HPC, request a couple additional simulation hours just in case, un
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="tide_channel.html" class="btn btn-neutral float-left" title="Example - Simple beach and tide channel (ANUGA)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="../dfm/tide_channel.html" class="btn btn-neutral float-right" title="Example - Simple beach and tide channel (Delft3D FM)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="tide_channel_from_regions_multiveg.html" class="btn btn-neutral float-right" title="Example - Simple beach and tide channel with two vegetation species (ANUGA)" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
