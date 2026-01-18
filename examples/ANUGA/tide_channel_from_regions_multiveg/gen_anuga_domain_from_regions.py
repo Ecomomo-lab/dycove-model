@@ -1,7 +1,7 @@
 """
-A wrapper class for developing a simple rectangular ANUGA domain.
+A class for developing a rectangular ANUGA domain from regions.
 
-Used for `tide_channel` example.
+Used for `tide_channel_from_regions_multiveg` example.
 """
 
 import numpy as np
@@ -11,8 +11,8 @@ import anuga
 
 class RectangSlopeDomainGenerator:
     """
-    Generate an ANUGA rectangular coastal domain with a simple sloped beach,
-    a tidal channel, and a lagoon behind a dune.
+    Generate an ANUGA rectangular coastal domain "from regions" (input polygons)
+    with a simple sloped beach, a tidal channel, and a lagoon behind a dune.
 
     This utility class wraps the ANUGA mesh generator and assigns
     topography, boundary conditions, friction, and initial stage.  
@@ -23,10 +23,12 @@ class RectangSlopeDomainGenerator:
     ----------
     model_name : str
         Base name for the ANUGA model output file.
+    bndy_files : list of str or Path
+        ANUGA region CSV files, first must be exterior boundary
+    max_areas : list of int
+        Max triangle areas corresponding to each file in bndy_files
     rectang_dims : tuple of float, optional
         Domain dimensions ``(Lx, Ly)`` in meters.
-    mesh_spacing : float, optional
-        Target cell size (m) used in `rectangular_cross_domain`.
     min_elev : float, optional
         Elevation at the offshore boundary (left boundary).
     dune_elev : float, optional
@@ -63,8 +65,9 @@ class RectangSlopeDomainGenerator:
     def __init__(
         self,
         model_name,
-        rectang_dims=(1000.0, 600.0),
-        mesh_spacing=40.0,
+        bndy_files,
+        max_areas,
+        rectang_dims=[1000, 600],
         min_elev=-0.5,
         dune_elev=0.5,
         dune_location=0.65,
@@ -86,8 +89,11 @@ class RectangSlopeDomainGenerator:
             }
 
         self.model_name = model_name
+        # For mesh files generation
+        self.bndy_files = bndy_files
+        self.max_areas = max_areas
+        # For topography generation
         self.dims = rectang_dims
-        self.dx = mesh_spacing
         self.min_z = min_elev
         self.dune_z = dune_elev
         self.dune_loc = dune_location
@@ -98,6 +104,8 @@ class RectangSlopeDomainGenerator:
         self.friction = mannings_n
         self.WL_0 = WL_0
         self.plotting = plotting
+
+        self.bndy_tags = {'bay': [3], 'sides': [0, 1, 2]}
 
         self.create_domain()
         self.set_initial_quantities()
@@ -110,12 +118,25 @@ class RectangSlopeDomainGenerator:
 
         print("Creating ANUGA domain and mesh...")
 
-        # Create a rectangular domain with named boundaries "left", "right", "top" and "bottom"
-        self.domain = anuga.rectangular_cross_domain(self.dims[0]/self.dx,  # no. of cells in x-direction
-                                                     self.dims[1]/self.dx,  # no. of cells in y-direction
-                                                     len1=self.dims[0],     # length in x-direction
-                                                     len2=self.dims[1])     # length in y-direction
+        # Read domain exterior boundary file (.csv), first entry in the input list
+        ext_polygon = anuga.read_polygon(str(self.bndy_files[0]))
+
+        # Read interior region boundary files (.csv) and the corresponding max. triangle areas
+        interior_bndys = []
+        for file, res in zip(self.bndy_files[1:], self.max_areas[1:]):
+            interior_bndys.append([anuga.read_polygon(str(file)), res])
+
+        # Generate domain and mesh
+        self.domain = anuga.create_domain_from_regions(
+            ext_polygon, self.bndy_tags, 
+            maximum_triangle_area = self.max_areas[0],
+            minimum_triangle_angle = 30.0,
+            mesh_filename=str("mesh.tsh"),
+            interior_regions = interior_bndys,
+            )
+
         self.domain.set_name(self.model_name)  # ANUGA output name for .sww file
+        self.domain.set_datadir(".")           # Set to current directory
         self.domain.set_low_froude(1)          # Always set to 1 for low-froude flows
         self.domain.set_flow_algorithm('DE0')  # For stable solution, can always try 'DE1' but is twice as slow
         self.domain.set_CFL(0.9)               # A slightly lower CFL number combined with DE0 is usually sufficient
@@ -154,14 +175,14 @@ class RectangSlopeDomainGenerator:
             plt.savefig('mesh_elev.png', bbox_inches='tight')
             plt.close()
 
-            
+
     def set_boundary_conditions(self):
         print("Setting boundary conditions...\n")
 
         # Set initial stage at all cells, but only on the ocean side
         x = self.domain.quantities['x'].centroid_values
         topo = self.domain.quantities['elevation'].centroid_values
-        stage = np.where(x < self.dims[0]*self.dune_loc, self.WL_0, topo)  # left of the dune only
+        stage = np.where(x < 500, self.WL_0, topo)  # left of the dune only
         self.domain.set_quantity('stage', stage, location='centroids')
 
         # Solid reflective wall boundary
@@ -181,7 +202,7 @@ class RectangSlopeDomainGenerator:
         Bt = anuga.Time_boundary(self.domain, function=lambda t: [tidal_func(t), 0.0, 0.0])
 
         # Map boundary conditions to domain boundaries (names come from rectangular_cross_domain)
-        self.domain.set_boundary({'left': Bt, 'right': Br, 'top': Br, 'bottom': Br})
+        self.domain.set_boundary({'bay': Bt, 'sides': Br})
 
 
     def topography(self, x, y):

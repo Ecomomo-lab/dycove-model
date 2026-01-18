@@ -37,13 +37,11 @@ veg_1 = VegetationSpecies("NelumboLutea.json",
                           "nelumbo",
                           mor=1,
                           rand_seed_frac=0.8,
-                          rand_seed_method="random"
                           )
 veg_2 = VegetationSpecies("ColocasciaEsculenta.json", 
                           "colocascia",
                           mor=1,
                           rand_seed_frac=0.8,
-                          rand_seed_method="random"
                           )
 
 # instantiate DFM model

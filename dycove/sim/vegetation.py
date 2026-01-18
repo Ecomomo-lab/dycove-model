@@ -73,7 +73,7 @@ class VegetationSpecies(SharedVegMethods):
                  species_name="veg1",
                  mor=0,
                  rand_seed_frac=1.0,
-                 rand_seed_method="deterministic",
+                 rand_seed_method="random",
                  ):
 
         self.attrs       = self.load_vegetation_attributes(Path(input_veg_filename))

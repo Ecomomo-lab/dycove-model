@@ -13,7 +13,7 @@ Users with existing ANUGA model codes that run in parallel should be able to see
 
 .. code-block:: python
 
-   >>> HydroModel = ANUGA_hydro.ANUGA(domain, vegetation=veg_1)
+   HydroModel = ANUGA_hydro.ANUGA(domain, vegetation=veg_1)
 
 This example uses a Windows batch file `tide_channel_ANUGA_pll.bat` in the working directory, which contains instructions on how to run it.
 As with any batch file, view and edit it by alt-clicking and choosing the "Edit" option.

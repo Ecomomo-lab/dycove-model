@@ -231,3 +231,8 @@ hydro_output/
 figures/
 *.npy
 *.npz
+
+# JOSS paper
+paper.md
+paper.bib
+draft-pdf.yml
