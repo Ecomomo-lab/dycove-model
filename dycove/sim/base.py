@@ -101,7 +101,10 @@ class HydroSimulationBase(ABC):
                                             )
 
         # define object to hold all hydrodynamic statistics relevant for vegetation processes
-        self.hydrostats = HydrodynamicStats(fl_dr=fl_dr)
+        self.hydrostats = HydrodynamicStats(fl_dr=fl_dr, 
+                                            n_hydro_steps=self.simstate.n_hydro_steps,
+                                            n_cells=self.engine.get_cell_count()
+                                            )
 
         # perform some checks on simulation inputs
         self.engine.check_simulation_inputs(self.simstate)
@@ -135,7 +138,7 @@ class HydroSimulationBase(ABC):
         """
                 
         # add empty placeholders for hydro stats like hmin, vmax, etc
-        self.hydrostats.reset(self.engine.get_cell_count())
+        self.hydrostats.reset()
         # get bed level before hydro loop 
         # (TODO: morphodynamic simulations only, right now is irrelevent if mor=0)
         self.hydrostats.bedlevel_0 = self.engine.get_elevation()
@@ -147,7 +150,7 @@ class HydroSimulationBase(ABC):
             # get mean velocity and depth using model-specific methods
             velocity, depth = self.engine.get_velocity_and_depth()
             # update hydrostats counter
-            self.hydrostats.update(velocity, depth)
+            self.hydrostats.update(hts, velocity, depth)
 
         # get bed level changes (TODO: morphodynamic simulations only, right now is irrelevent if mor=0)
         self.hydrostats.bedlevel_f = self.engine.get_elevation()

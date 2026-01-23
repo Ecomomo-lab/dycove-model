@@ -235,7 +235,9 @@ class DFMEngine(HydroEngineBase):
 
         - Adds a filename next to 'ExtForceFile' if blank, creates the file too
         - Adds drag coefficient from VegetationAttributes if [veg] block is present
+        - Adds appropriate Baptist model number (1 if no morph, 2 if morph)
         - Adds [veg] block if it is not present, including drag coefficient from VegetationAttributes
+          and appropriate Baptist model number
 
         Creates empty text files for stem density, stem diameter, and stem height, if they don't 
         already exist. 
@@ -298,11 +300,15 @@ class DFMEngine(HydroEngineBase):
         veg_block_present = any(line.strip().startswith("[veg]") for line in self.mdu_lines)
         if not veg_block_present and self.veg is not None:
             self.mdu_modified = True
-            
+
+            # Choose appropriate Baptist model number depending on morphology
+            # If morphology is on, need momentum adjustment factor lambda
+            veg_model_num = 2 if self.veg.mor == 1 else 1
+                        
             self.mdu_lines.append("")
             self.mdu_lines.extend([
                 "[veg]",
-                "Vegetationmodelnr                 = 1               # 1: Baptist et al. (2007) equation for calculation of vegetation roughness",
+                f"Vegetationmodelnr                 = {veg_model_num}              # 1: Baptist et al. (2007) equation for calculation of vegetation roughness",
                 "Clveg                             = 0.8             # Stem distance factor, default=0.8",
                 f"Cdveg                             = {self.drag:.1f}             # Stem Cd coefficient, default=0.7",
                 "Cbveg                             = 0.7             # Stem stiffness coefficient, default=0.7",

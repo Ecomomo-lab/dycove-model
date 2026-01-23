@@ -130,7 +130,7 @@ class VegetationSpecies(SharedVegMethods):
             dry_cond = (min_depths <  fl_dr)
             fld_cond = (max_depths >= fl_dr)
             # get indices for potential colonization
-            potential_inds = np.where(dry_cond & fld_cond) #[0]
+            potential_inds = np.where(dry_cond & fld_cond)[0]
             # create mask for potential colonization based on input fraction and method
             rand_mask = self.create_seed_fraction_mask(len(min_depths))
             # apply potential inds to mask
@@ -193,7 +193,8 @@ class VegetationSpecies(SharedVegMethods):
         """ Delegate to internal methods. """
         self.mortality_hydrodynamic(**hydro_vars)
         self.mortality_morphodynamic(**morpho_vars)
-        self.apply_mortality()
+        #self.apply_mortality()
+        self.apply_mortality_using_initial_fractions()
 
     def mortality_hydrodynamic(self, fld_frac, dry_frac, vel_max):
         """
@@ -313,6 +314,30 @@ class VegetationSpecies(SharedVegMethods):
             # update fractions in cohort
             # for fractions that decay slowly over time, round down to zero when they get small enough
             c.fraction = np.where(fractions_left > 0.025, fractions_left, 0.)
+
+
+    def apply_mortality_using_initial_fractions(self):
+        """ Replacing `c.fraction` with `self.attrs.fraction_0`, always a function of initial colonization """
+        for c in self.cohorts:
+            # vegetation fractions lost to flooding
+            c.potential_mort_flood = self.potential_mort_flood[c.lifestage-1]
+            # for accounting purposes, no mortality if there is no fraction
+            c.applied_mort_flood  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_flood, 0.)
+            # vegetation fractions lost to dessication
+            c.potential_mort_desic = self.potential_mort_desic[c.lifestage-1]
+            c.applied_mort_desic  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_desic, 0.)
+            # vegetation fractions lost to uprooting
+            c.potential_mort_uproot = self.potential_mort_uproot[c.lifestage-1]
+            c.applied_mort_uproot = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_uproot, 0.)
+            # vegetation fractions lost to deposition
+            c.applied_mort_burial = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_burial, 0.)
+            # vegetation fractions lost to erosion
+            c.applied_mort_scour  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_scour, 0.)
+            # subtract all mortality fractions from actual fractions, but maintain minimum fraction of zero
+            c.applied_mort_total = c.applied_mort_flood + c.applied_mort_desic + c.applied_mort_uproot + \
+                                    c.applied_mort_burial + c.applied_mort_scour
+            fractions_left = c.fraction - c.applied_mort_total
+            c.fraction = np.maximum(fractions_left, 0)  # no negative fractions
 
 
     @staticmethod
@@ -468,9 +493,10 @@ class MultipleVegetationSpecies(SharedVegMethods):
         for sp in self.species_list:
             sp.mortality(hydro_vars, morpho_vars)
 
-    def apply_mortality(self):
-        for sp in self.species_list:
-            sp.apply_mortality()
+    ### Not called outside of vegetation module, so doesn't need a wrapper method
+    # def apply_mortality(self):
+    #     for sp in self.species_list:
+    #         sp.apply_mortality()
 
     def update_lifestage_and_stemdensity(self):
         for sp in self.species_list:

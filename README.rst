@@ -1,8 +1,7 @@
 DYCOVE
 ======
 
-**DYCOVE** (die-KOH-vee), short for DYnamic COastal VEgetation, is a Python package used for tightly coupling 
-dynamic vegetation processes with 2-D hydrodynamic models in coastal environments.
+**DYCOVE** (die-KOH-vee), short for DYnamic COastal VEgetation, is a Python package used for tightly coupling dynamic vegetation processes with 2-D hydrodynamic models in coastal environments.
 
 DYCOVE takes as input a set of vegetation characteristics for any number of species of interest and computes colonization, growth, and mortality of those species based on hydrodynamic (and morphodynamic) conditions present in each grid cell in the numerical model. 
 In turn, the evolving vegetation changes the flow resistance in the numerical model. 
@@ -26,3 +25,9 @@ The logic behind this model was developed as part of the following study, which 
 If you use DYCOVE in your work, please cite the Zenodo archive that holds the latest release:
 
     Tull, N. & Brückner, M. Z. M. (2025). DYCOVE version 0.1.0 [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.18004302
+
+**Disclaimer**: This project is still under development, and the current testing suite does not provide full coverage.
+A forthcoming release will consist of a more robust testing suite, complete installation instructions for each numerical model being used, and contribution instructions.
+For now, please open an `issue <https://github.com/Ecomomo-lab/dycove-model/issues>`_ if you experience any errors, difficulties, or anything else that does not seem right.
+We also encourage submitting issues for ideas on features to implement in the future.
+In any case, please provide a detailed description and error message (if applicable).

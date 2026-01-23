@@ -14,4 +14,9 @@ After the simulation is finished, we can inspect a variety of 2-D model results 
 
 This example differs from the :doc:`tide_channel example <tide_channel>` in that morphology is active, and to promote substantial bed level changes in the domain, a discharge boundary has been added to the right side that discharges water and sediment to the lagoon.
 
-Running the model and plotting the results are handled as described in the :doc:`tide_channel example <tide_channel>`.
+Running the model and plotting the results are handled mostly as described in the :doc:`tide_channel example <tide_channel>`.
+The only change needed (on the DYCOVE side) when morphology is turned on is to add ``mor = 1`` when instantiating :class:`~dycove.sim.vegetation_data.VegetationSpecies`:
+
+.. code-block:: python
+
+   veg_1 = VegetationSpecies("veg1.json", "veg1", mor=1)

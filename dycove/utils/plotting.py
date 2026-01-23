@@ -344,7 +344,7 @@ class ModelPlotter:
             'Bathymetry'      : ListedColormap(plt.colormaps["Greys_r"](np.linspace(0, 1.0, 256))),
             #'Bathymetry'      : ListedColormap(plt.colormaps["bone"](np.linspace(0, 1.0, 256))),
             'WSE'             : ListedColormap(plt.colormaps["Blues_r"](np.linspace(0.1, 1.0, 256))),
-            'Depth'           : ListedColormap(plt.colormaps["Blues_r"](np.linspace(0.1, 1.0, 256))),
+            'Depth'           : ListedColormap(plt.colormaps["Blues"](np.linspace(0.1, 1.0, 256))),
             'Velocity'        : ListedColormap(plt.colormaps["viridis"](np.linspace(0, 1.0, 256))),
             'Max Shear Stress': ListedColormap(plt.colormaps["plasma"](np.linspace(0, 1.0, 256))),
             'Fractions'       : ListedColormap(plt.colormaps["Greens"](np.linspace(0.2, 1.0, 256))),
@@ -359,6 +359,7 @@ class ModelPlotter:
         # second value: multiplier based on most standard units (meters, seconds, Newtons, fractions, etc)
         # third value: minimum value for plotting, anything below this value is masked out
         # examples given for some common conversions
+        # Note that the third value for Depth is used to mask out other quantities, e.g. Velocity and WSE
         # check cmap_lims dictionary to ensure units are consistent with colorbar plotting limits
         defaults = {
             'Bathymetry'      : ('[m]', 1, -99),  # use ('[ft]', 3.281, -99) for elevations in feet
@@ -571,10 +572,10 @@ class ModelPlotter:
             depth_grid = self.interp_func(map_vars['Depth']) * self.quantity_units[self.quantity][1]
             show_inds = depth_grid < self.quantity_units['Depth'][2]
             if self.quantity == 'Depth':
-                return z_grid, np.ma.masked_where(depth_grid < self.quantity_units['Depth'][2], depth_grid)
+                return z_grid, np.ma.masked_where(show_inds, depth_grid)
             elif self.quantity == 'WSE':
                 wse_grid = self.interp_func(map_vars[self.quantity]) * self.quantity_units[self.quantity][1]
-                return z_grid, np.ma.masked_where(depth_grid < self.quantity_units['Depth'][2], wse_grid)
+                return z_grid, np.ma.masked_where(show_inds, wse_grid)
             elif self.quantity == 'Velocity':
                 V_grid = self.interp_func(map_vars[self.quantity]) * self.quantity_units[self.quantity][1]
                 if self.plot_vectors:
@@ -583,7 +584,7 @@ class ModelPlotter:
                     self.vector_comps = (np.ma.masked_where(show_inds, Vx_grid),
                                          np.ma.masked_where(show_inds, Vy_grid),
                                          np.ma.masked_where(show_inds, V_grid))
-                return z_grid, np.ma.masked_where(depth_grid < self.quantity_units['Depth'][2], V_grid)
+                return z_grid, np.ma.masked_where(show_inds, V_grid)
             elif self.quantity == 'Max Shear Stress':
                 tau_grid = self.interp_func(map_vars[self.quantity]) * self.quantity_units[self.quantity][1]
                 return z_grid, np.ma.masked_where(tau_grid < self.quantity_units['Max Shear Stress'][2], tau_grid)

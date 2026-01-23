@@ -63,7 +63,7 @@ class SimulationTimeState:
     n_veg_steps : int
         Total number of ecological steps in the simulation.
     n_hydro_steps : int
-        Total number of hydrodynamic steps per ecological step.
+        Number of hydrodynamic steps per ecological step.
     hydrotime_date : datetime
         Current simulation date based on hydrodynamic time.
     """
@@ -196,12 +196,16 @@ class HydrodynamicStats:
     ----------
     fl_dr : float
         Flooding threshold (depth above which a cell is considered flooded).
+    n_hydro_steps : int
+        Number of hydrodynamic steps per ecological step. Passed from ``SimulationTimeState`` instance.
+    n_cells : int
+        Number of grid cell areas (length of model quantity arrays)
     h_min : numpy.ndarray
         Minimum water depth observed in each cell during the hydrodynamic interval.
     h_max : numpy.ndarray
         Maximum water depth observed in each cell during the hydrodynamic interval.
-    v_max : numpy.ndarray
-        Maximum velocity observed in each cell during the hydrodynamic interval.
+    v_maxs : numpy.ndarray
+        2-D array of max velocities observed during the hydrodynamic interval (``n_hydro_steps``, ``n_cells``).
     flood_counts : numpy.ndarray
         Number of timesteps each cell was flooded during the hydrodynamic interval.
     bedlevel_0 : numpy.ndarray
@@ -216,20 +220,24 @@ class HydrodynamicStats:
 
     Methods
     -------
-    flood_frac(n_substeps)
-        Compute the fraction of time each cell was flooded over ``n_substeps``.
-    dry_frac(n_substeps)
-        Compute the fraction of time each cell was dry over ``n_substeps``.
-    reset(n_cells)
-        Initialize or reset all arrays for ``n_cells`` grid cells.
-    update(vel, depth)
+    flood_frac()
+        Compute the fraction of time each cell was flooded over ``n_hydro_steps``.
+    dry_frac()
+        Compute the fraction of time each cell was dry over ``n_hydro_steps``.
+    v_max_95th()
+        Compute 95th percentile of velocity at each cell across ``n_hydro_steps``.
+    reset()
+        Initialize or reset all arrays.
+    update(i, vel, depth)
         Update minimum/maximum values and flood counts using new hydrodynamic data.
     """
     
     fl_dr: float
+    n_hydro_steps: int
+    n_cells: int
     h_min: Optional[np.ndarray] = None
     h_max: Optional[np.ndarray] = None
-    v_max: Optional[np.ndarray] = None
+    v_maxs: Optional[np.ndarray] = None
     flood_counts: Optional[np.ndarray] = None
     bedlevel_0: Optional[np.ndarray] = None
     bedlevel_f: Optional[np.ndarray] = None
@@ -238,24 +246,29 @@ class HydrodynamicStats:
     def bedlevel_diff(self) -> np.ndarray:
         return self.bedlevel_f - self.bedlevel_0
     
-    def flood_frac(self, n_substeps: int) -> np.ndarray:
+    def flood_frac(self) -> np.ndarray:
         # fraction of time cells were flooded over ets
-        return self.flood_counts/n_substeps
+        return self.flood_counts/self.n_hydro_steps
     
-    def dry_frac(self, n_substeps: int) -> np.ndarray:
+    def dry_frac(self) -> np.ndarray:
         # fraction of time cells were dry over ets
-        return (n_substeps - self.flood_counts)/n_substeps
+        return (self.n_hydro_steps - self.flood_counts)/self.n_hydro_steps
     
-    def reset(self, n_cells: int):
-        self.h_min = np.full(n_cells, np.inf)
-        self.h_max = np.full(n_cells, -np.inf)
-        self.v_max = np.full(n_cells, -np.inf)
-        self.flood_counts = np.zeros(n_cells)     
+    def v_max_95th(self) -> np.ndarray:
+        return np.percentile(self.v_maxs, 95, axis=0)
+    
+    def reset(self):
+        # Reset all entries to a non-limiting condition
+        self.h_min = np.full(self.n_cells, np.inf)
+        self.h_max = np.full(self.n_cells, -np.inf)
+        self.v_maxs = np.zeros((self.n_hydro_steps, self.n_cells))
+        self.flood_counts = np.zeros(self.n_cells)
 
-    def update(self, vel, depth):
+    def update(self, i, vel, depth):
         # update arrays of min/max hydro variables
-        np.maximum(self.v_max, vel, out=self.v_max)
         np.minimum(self.h_min, depth, out=self.h_min)
         np.maximum(self.h_max, depth, out=self.h_max)
+        # np.maximum(self.v_max, vel, out=self.v_max)
+        self.v_maxs[i] = vel
         # add to count of flooded/dry cells
         self.flood_counts[depth >= self.fl_dr] += 1

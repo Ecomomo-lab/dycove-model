@@ -1,7 +1,7 @@
 Installation Instructions
 =========================
 
-DYCOVE is compatible with Python 3.11+. 
+DYCOVE is compatible with Python 3.10-3.13. 
 There are technically only two general dependencies, which are `numpy <https://numpy.org/install/>`_ and `netCDF4 <https://pypi.org/project/netCDF4/>`_.
 However, there are additional dependencies depending on the underlying numerical model to be used, and if the :class:`~dycove.utils.plotting.ModelPlotter` will be used.
 
@@ -17,6 +17,8 @@ The easiest way to install ANUGA is to create a new ``conda`` environment and in
 
    conda install -c conda-forge anuga mpi4py
 
+**Update**: ANUGA is not currently importing with Python 3.12 and is causing Python to crash.
+For now, please use Python 3.10, 3.11, or 3.13, and let us know if it starts working again with 3.12 by responding to the Issue on GitHub.
 
 Install Delft3D FM
 ------------------
@@ -31,12 +33,13 @@ From a dedicated environment, the easiest way to install ``bmi`` is from source:
    cd bmi-python
    pip install -e .
 
-Windows users may also need to install `pypiwin32 <https://pypi.org/project/pypiwin32/>`_, which can be done via ``pip``:
+Windows users may also need to install `pypiwin32 <https://pypi.org/project/pypiwin32/>`_:
 
 .. code-block:: python
 
    pip install pypiwin32
 
+**Update**: The DYCOVE implementation of the DFM ``bmi`` library is not currently working with Python 3.11 and 3.12.
 
 Install Plotting Libraries
 --------------------------
