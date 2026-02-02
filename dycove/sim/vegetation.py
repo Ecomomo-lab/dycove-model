@@ -26,8 +26,8 @@ class SharedVegMethods:
         by both classes.
         """
 
-        # for single species, self.cohorts is a list of VegCohort objects
-        # for multiple species, self.cohorts is a flattened list of VegCohort objects for all species
+        # For single species, self.cohorts is a list of VegCohort objects
+        # For multiple species, self.cohorts is a flattened list of VegCohort objects for all species
         cohorts = self.cohorts
         if not self.cohorts:
             self.stemdensity  = None
@@ -35,15 +35,15 @@ class SharedVegMethods:
             self.stemheight   = None
             return
         
-        # get list of cohort fractions and other attributes
+        # Get list of cohort fractions and other attributes
         fractions = [c.fraction for c in cohorts]
         densities = [c.density for c in cohorts]
         diameters = [c.diameter for c in cohorts]
         heights   = [c.height   for c in cohorts]        
-        # stem density in a single cell: sum of n_i*frac_i over all fractions frac_i in cell
+        # Stem density in a single cell: sum of n_i*frac_i over all fractions frac_i in cell
         self.stemdensity  = sum_product(fractions, densities)
-        # for veg height/diameter we just need a weighted average value in each cell based on cell fractions.
-        # cells may have a sum of fractions less than 1, so we need to safely divide by the sum of fractions
+        # For veg height/diameter we just need a weighted average value in each cell based on cell fractions.
+        # Cells may have a sum of fractions less than 1, so we need to safely divide by the sum of fractions
         self.stemdiameter = cell_averaging(fractions, diameters)
         self.stemheight   = cell_averaging(fractions, heights)
 
@@ -82,10 +82,10 @@ class VegetationSpecies(SharedVegMethods):
         self.seed_frac   = rand_seed_frac
         self.seed_method = rand_seed_method
 
-        # will be come list of VegCohort objects, one for each cohort/colonization that occurs
+        # Will become list of VegCohort objects, one for each cohort/colonization that occurs
         self.cohorts: list[VegCohort] = []
 
-
+    
     @staticmethod
     def load_vegetation_attributes(filename: Path) -> VegetationAttributes:
         """ Parse vegetation input json file and store attributes in a dataclass. """
@@ -126,14 +126,14 @@ class VegetationSpecies(SharedVegMethods):
         if self.attrs.start_col_ets <= ets < self.attrs.end_col_ets:
             r.report(f"Doing colonization for species \"{self.name}\", at eco step {ets}")
 
-            # get conditions for colonization
+            # Get conditions for colonization
             dry_cond = (min_depths <  fl_dr)
             fld_cond = (max_depths >= fl_dr)
-            # get indices for potential colonization
+            # Get indices for potential colonization
             potential_inds = np.where(dry_cond & fld_cond)[0]
-            # create mask for potential colonization based on input fraction and method
+            # Create mask for potential colonization based on input fraction and method
             rand_mask = self.create_seed_fraction_mask(len(min_depths))
-            # apply potential inds to mask
+            # Apply potential inds to mask
             potential_inds_mask = np.zeros_like(rand_mask, dtype=bool)
             potential_inds_mask[potential_inds] = True
             selected_inds = potential_inds_mask & rand_mask
@@ -141,7 +141,7 @@ class VegetationSpecies(SharedVegMethods):
             existing_cohorts = combined_cohorts if combined_cohorts is not None else self.cohorts
             new_fraction = self.compute_new_fraction(existing_cohorts, selected_inds, len(min_depths))
 
-            # create new cohort for latest colonization
+            # Create new cohort for latest colonization
             # new_veg_fraction is an array, other quantities are scalars
             new_cohort = VegCohort(
                 fraction=new_fraction,
@@ -156,9 +156,10 @@ class VegetationSpecies(SharedVegMethods):
 
 
     def create_seed_fraction_mask(self, array_len):
-        # number of indices where we will allow colonization
+        """ Create a mask based on random seeding """
+        # Number of indices where we will allow colonization
         n_inds = int(np.floor(self.seed_frac*array_len))
-        # initialize mask with all False
+        # Initialize mask with all False
         rand_mask = np.zeros(array_len, dtype=bool)
         if self.seed_method == "deterministic":
             np.random.seed(0)            
@@ -168,22 +169,23 @@ class VegetationSpecies(SharedVegMethods):
 
 
     def compute_new_fraction(self, existing_cohorts, inds2colonize, array_len):
-        # compute a new cohort’s fractional cover based on available space
+        """ Compute a new cohort’s fractional cover based on available space. """
         new_fraction = np.zeros(array_len)
         existing_fractions = [c.fraction for c in existing_cohorts]
 
         if not existing_fractions:
-            # create vegetation fraction array based on the hydro conditions and random filtering
+            # Create vegetation fraction array based on the hydro conditions and random filtering
             new_fraction[inds2colonize] = self.attrs.fraction_0
         else:
             # TODO: Maybe find a better way of avoiding continuous appends with each colonization. 
-            #       E.g., avoid adding a new fraction if no space anywhere, etc. But that would mean that ZERO cells 
-            #       anywhere have favorable hydro conditions AND space available (not many cases).
-            # determine available space based on sum of fractions in each cell
+            #       E.g., avoid adding a new fraction if no space anywhere, etc. But that would mean 
+            #       that ZERO cells anywhere have favorable hydro conditions AND space available 
+            #       (not many cases).
+            # Determine available space based on sum of fractions in each cell
             fraction_uncovered = 1 - sum_elementwise(existing_fractions)
-            # compute new fraction to be colonized; min: space available, max: initial veg fraction
+            # Compute new fraction to be colonized; min: space available, max: initial veg fraction
             candidate_fraction = np.minimum(fraction_uncovered, self.attrs.fraction_0)
-            # we apply new fractions where partial flooding condition is met, and within cells selected via seed_frac
+            # We apply new fractions where partial flooding condition is met, and within cells selected via seed_frac
             new_fraction[inds2colonize] = candidate_fraction[inds2colonize]
 
         return new_fraction
@@ -217,11 +219,11 @@ class VegetationSpecies(SharedVegMethods):
             Array of maximum water velocities [m/s] at each cell over the previous period.
         """
 
-        # these arrays of potential mortality get saved as cohort attributes, along with applied mortality below
+        # These arrays of potential mortality get saved as cohort attributes, along with applied mortality below
         self.potential_mort_flood  = [None]*self.attrs.nls
         self.potential_mort_desic  = [None]*self.attrs.nls
         self.potential_mort_uproot = [None]*self.attrs.nls
-        # loop over life stages present in vegetation file, thresholds depend on lifestage
+        # Loop over life stages present in vegetation file, thresholds depend on lifestage
         for n in range(self.attrs.nls):
             if self.attrs.flood_no_mort[n] == 0:  # if flood mortality is turned off, flag = 0 (TODO: create a better flag)
                 self.potential_mort_flood[n] = np.zeros_like(fld_frac)
@@ -243,7 +245,7 @@ class VegetationSpecies(SharedVegMethods):
                                                                            self.attrs.uproot_all_mort[n])
                 
 
-    # TODO: verify that we want the default scour_frac to be 10%, previous codes have just used 100% same as stem burial
+    # TODO: Verify that we want the default scour_frac to be 10%, previous codes have just used 100% same as stem burial
     def mortality_morphodynamic(self, bl_diff=None, burial_frac=1.0, scour_frac=0.1):
         """
         Compute linear mortality functions for each morphodynamic stressor (if activated).
@@ -270,9 +272,9 @@ class VegetationSpecies(SharedVegMethods):
           bl_diff will be passed as zero-difference arrays, and scour/burial will be set to zero.
         """
 
-        # loop over fractions and their current shoot/root lengths and compare to erosion/sedimentation
+        # Loop over fractions and their current shoot/root lengths and compare to erosion/sedimentation
         for c in self.cohorts:
-            # if morphology is off, we still need these zero arrays for calculations in apply_mortality()
+            # If morphology is off, we still need these zero arrays for calculations in apply_mortality()
             if self.mor == 0:
                 c.potential_mort_burial = np.zeros_like(c.fraction)
                 c.potential_mort_scour  = np.zeros_like(c.fraction)
@@ -288,24 +290,24 @@ class VegetationSpecies(SharedVegMethods):
         Populate mortality-related fields of each active VegCohort object.
         """
 
-        # TODO: we track the fractions lost via each cause, but if all causes yield mortality fractions of 1,
+        # TODO: We track the fractions lost via each cause, but if all causes yield mortality fractions of 1,
         #       how should we track causes when, for instance, a cell only had a single fraction covering 40%?
         #       Is there an order of operations?
         for c in self.cohorts:
-            # vegetation fractions lost to flooding
+            # Vegetation fractions lost to flooding
             c.potential_mort_flood = self.potential_mort_flood[c.lifestage-1]
             c.applied_mort_flood  = c.fraction*c.potential_mort_flood
-            # vegetation fractions lost to dessication
+            # Vegetation fractions lost to dessication
             c.potential_mort_desic = self.potential_mort_desic[c.lifestage-1]
             c.applied_mort_desic  = c.fraction*c.potential_mort_desic 
-            # vegetation fractions lost to uprooting
+            # Vegetation fractions lost to uprooting
             c.potential_mort_uproot = self.potential_mort_uproot[c.lifestage-1]
             c.applied_mort_uproot = c.fraction*c.potential_mort_uproot
-            # vegetation fractions lost to deposition
+            # Vegetation fractions lost to deposition
             c.applied_mort_burial = c.fraction*c.potential_mort_burial
-            # vegetation fractions lost to erosion
+            # Vegetation fractions lost to erosion
             c.applied_mort_scour  = c.fraction*c.potential_mort_scour
-            # subtract all mortality fractions from actual fractions, but maintain minimum fraction of zero
+            # Subtract all mortality fractions from actual fractions, but maintain minimum fraction of zero
             c.applied_mort_total = c.applied_mort_flood + c.applied_mort_desic + c.applied_mort_uproot + \
                                    c.applied_mort_burial + c.applied_mort_scour
             fractions_left = c.fraction - c.applied_mort_total
@@ -317,23 +319,26 @@ class VegetationSpecies(SharedVegMethods):
 
 
     def apply_mortality_using_initial_fractions(self):
-        """ Replacing `c.fraction` with `self.attrs.fraction_0`, always a function of initial colonization """
+        """ 
+        Replacing `c.fraction` with `self.attrs.fraction_0`, 
+        always a function of initial colonization fraction .
+        """
         for c in self.cohorts:
-            # vegetation fractions lost to flooding
+            # Vegetation fractions lost to flooding
             c.potential_mort_flood = self.potential_mort_flood[c.lifestage-1]
-            # for accounting purposes, no mortality if there is no fraction
+            # For accounting purposes, no mortality if there is no fraction
             c.applied_mort_flood  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_flood, 0.)
-            # vegetation fractions lost to dessication
+            # Vegetation fractions lost to dessication
             c.potential_mort_desic = self.potential_mort_desic[c.lifestage-1]
             c.applied_mort_desic  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_desic, 0.)
-            # vegetation fractions lost to uprooting
+            # Vegetation fractions lost to uprooting
             c.potential_mort_uproot = self.potential_mort_uproot[c.lifestage-1]
             c.applied_mort_uproot = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_uproot, 0.)
-            # vegetation fractions lost to deposition
+            # Vegetation fractions lost to deposition
             c.applied_mort_burial = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_burial, 0.)
-            # vegetation fractions lost to erosion
+            # Vegetation fractions lost to erosion
             c.applied_mort_scour  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_scour, 0.)
-            # subtract all mortality fractions from actual fractions, but maintain minimum fraction of zero
+            # Subtract all mortality fractions from actual fractions, but maintain minimum fraction of zero
             c.applied_mort_total = c.applied_mort_flood + c.applied_mort_desic + c.applied_mort_uproot + \
                                     c.applied_mort_burial + c.applied_mort_scour
             fractions_left = c.fraction - c.applied_mort_total
@@ -357,20 +362,20 @@ class VegetationSpecies(SharedVegMethods):
             Stressor value above which there is total mortality. Comes from JSON input file.
         """
 
-        # compute fractional mortality based on linear interpolation
+        # Compute fractional mortality based on linear interpolation
         mort_frac = (stressor - th_min)/(th_max - th_min)
         
-        # updated, cleaner method to just bring all fractions outside the 0-1 range to 0 and 1
+        # Updated, cleaner method to just bring all fractions outside the 0-1 range to 0 and 1
         mort_frac[mort_frac > 1] = 1
         mort_frac[mort_frac < 0] = 0
 
         return mort_frac
 
 
-    # TODO: re-implement this, removed once the multi-species capability was added
-    # the likelihood of this being called is fairly low
+    # TODO: Re-implement this, removed once the multi-species capability was added
+    # The likelihood of this being called is fairly low
     def clean_out_old_fractions(self):
-        # if all fractions within a given cohort are zero, remove it from the list
+        # If all fractions within a given cohort are zero, remove it from the list
         cohorts_to_remove = []
         for i, c in enumerate(self.cohorts):
             if np.sum(c.fraction) < 0.001:
@@ -386,20 +391,20 @@ class VegetationSpecies(SharedVegMethods):
       
     def stemheight_growth(self, ets):
         """ Computes stem height based on growth functions in VegAttributes. """
-        # during first growth ets, height starts at previous winter value, so no need to loop
+        # During first growth ets, height starts at previous winter value, so no need to loop
         if ets > self.attrs.start_growth_ets:
             for c in self.cohorts:
-                # if none of these conditions are met, height stays the same
+                # If none of these conditions are met, height stays the same
                 if ets <= self.attrs.end_growth_ets and c.height < self.attrs.stemht_max[c.lifestage-1]:
                     c.height += self.attrs.ht_growth_rates[c.lifestage-1]
                 elif ets >= self.attrs.winter_ets:
-                    # drop down to winter height, but by some chance if we are already below winter max, do nothing
+                    # Drop down to winter height, but by some chance if we are already below winter max, do nothing
                     c.height = min(c.height, self.attrs.stemht_winter_max[c.lifestage-1])
 
 
     def stemdiam_growth(self, ets):
         """ Computes stem diameter based on growth functions in VegAttributes. """
-        # during first growth ets, height starts at previous winter value, so no need to loop
+        # During first growth ets, height starts at previous winter value, so no need to loop
         if ets > self.attrs.start_growth_ets:
             for c in self.cohorts:
                 if c.diameter < self.attrs.stemdiam_max[c.lifestage-1] and ets < self.attrs.winter_ets:
@@ -408,7 +413,7 @@ class VegetationSpecies(SharedVegMethods):
 
     def root_growth(self, ets):  
         """ Computes root length based on growth functions in VegAttributes. """
-        # during first growth ets, height starts at previous winter value, so no need to loop
+        # During first growth ETS, height starts at previous winter value, so no need to loop
         if ets > self.attrs.start_growth_ets:
             for c in self.cohorts:
                 if c.rootlength < self.attrs.rootlength_max[c.lifestage-1] and ets < self.attrs.winter_ets:
@@ -427,14 +432,14 @@ class VegetationSpecies(SharedVegMethods):
 
         cohorts_to_remove = []
         for i, c in enumerate(self.cohorts):
-            # if we have reached final year in the life stage
+            # If we have reached final year in the life stage
             if c.lifestage_year == self.attrs.years_max[c.lifestage-1]:
-                # if unit has not yet reached final life stage
+                # If unit has not yet reached final life stage
                 if c.lifestage != self.attrs.nls:
-                    c.lifestage   += 1  # move this fraction to next life stage
-                    c.lifestage_year = 1  # restart counter for years within life stage
-                    # TODO: consider moving this elsewhere?
-                    c.density = self.attrs.stemdens[c.lifestage-1]  # apply stemdens from the NEXT lifestage (lifestage was just increased by 1)
+                    c.lifestage   += 1    # Move this fraction to next life stage
+                    c.lifestage_year = 1  # Restart counter for years within life stage
+                    # TODO: Consider moving this elsewhere?
+                    c.density = self.attrs.stemdens[c.lifestage-1]  # Apply stemdens from the NEXT lifestage (lifestage was just increased by 1)
                 else:
                     # REMOVE FRACTION FROM LIST OF FRACTIONS, need to be careful with this
                     cohorts_to_remove.append(i)
@@ -443,6 +448,11 @@ class VegetationSpecies(SharedVegMethods):
         if cohorts_to_remove:
             self.remove_old_cohorts(cohorts_to_remove)
 
+
+    def get_drag(self):
+        # Return single drag coefficient for this species
+        return self.attrs.drag
+    
 
 class MultipleVegetationSpecies(SharedVegMethods):
     """
@@ -462,18 +472,18 @@ class MultipleVegetationSpecies(SharedVegMethods):
 
     def __init__(self, species_list: list[VegetationSpecies]):
 
-        # list of individual vegetation species objects
+        # List of individual vegetation species objects
         self.species_list = species_list
         self.check_species_consistency()
 
     @property
     def cohorts(self) -> list[VegCohort]:
-        # flatten vegetation cohorts across species into single list
+        # Flatten vegetation cohorts across species into single list
         return [c for sp in self.species_list for c in sp.cohorts]
 
     def colonization(self, ets, min_depths, max_depths, fl_dr):
         for sp in self.species_list:
-            # passing flattened list of all cohorts for all species for colonization calculation
+            # Passing flattened list of all cohorts for all species for colonization calculation
             sp.colonization(ets, min_depths, max_depths, fl_dr, combined_cohorts=self.cohorts)
         r.report(f"Number of veg fractions total: {len(self.cohorts)}")
 
@@ -493,20 +503,25 @@ class MultipleVegetationSpecies(SharedVegMethods):
         for sp in self.species_list:
             sp.mortality(hydro_vars, morpho_vars)
 
-    ### Not called outside of vegetation module, so doesn't need a wrapper method
-    # def apply_mortality(self):
-    #     for sp in self.species_list:
-    #         sp.apply_mortality()
-
     def update_lifestage_and_stemdensity(self):
         for sp in self.species_list:
             sp.update_lifestage_and_stemdensity()
 
     def check_species_consistency(self):
-        # inherit the "mor" input parameter from the individual species object
-        # we cannot have some species with mor=1 and others with mor=0
+        # Inherit the "mor" input parameter from the individual species object
+        # We cannot have some species with mor=1 and others with mor=0
         if len(set([sp.mor for sp in self.species_list])) != 1:
             msg = "All vegetation species inputs must have the same value for 'mor'"
             r.report(msg, level="ERROR")
             raise ValueError(msg)
         self.mor = self.species_list[0].mor
+
+    def get_drag(self):
+        """ 
+        Return average of drag coefficients for all species.
+
+        Theoretically, we could take the weighted average of drag attributes based on species and 
+        lifestage, but DFM can only accept a single value. So for consistency we use a constant
+        value throughout the simulation.
+        """
+        return np.mean([sp.get_drag() for sp in self.species_list])

@@ -32,7 +32,7 @@ class VegetationCoupler:
         self.lifestage_update(simstate)
         self.apply_growth(simstate)
         self.do_colonization(simstate, hydrostats)
-        self.compute_mortality(simstate, hydrostats)
+        self.compute_mortality(hydrostats)
         self.compute_veg_model_quantities()
         self.push_veg_to_hydro()
 
@@ -55,7 +55,7 @@ class VegetationCoupler:
         """ Compute colonization based on hydrodynamic conditions. """
         self.veg.colonization(simstate.ets, hydrostats.h_min, hydrostats.h_max, hydrostats.fl_dr)
 
-    def compute_mortality(self, simstate, hydrostats):
+    def compute_mortality(self, hydrostats):
         """ Compute mortality based on hydrodynamic statistics. """
         hydro_vars  = {"fld_frac"   : hydrostats.flood_frac(),
                        "dry_frac"   : hydrostats.dry_frac(),

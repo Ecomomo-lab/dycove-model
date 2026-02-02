@@ -84,18 +84,20 @@ For example, we can plot vegetation stem heights over the entire 21-day (hydrody
 
    from dycove import plotting
    plotter = plotting.ModelPlotter(
-         simdir = Path("."),
-         quantity = "Stem Height",
-         plot_times = {
-           "plotHR_0": 0*24.,
-           "plotHR_f": 21*24.,
-           "mapHR_int": 1,
-           "plotHR_int": 1,
-         },
-         cmap_lims = {
-           "Bathymetry": (-0.5, 0.5),
-         },
-       )
+      simdir = Path("."),
+      #quantity = "Velocity",
+      quantity = "Stem Height",
+      plot_times = {
+         "plotHR_0": 0*24.,
+         "plotHR_f": 28*24.,
+         "mapHR_int": 1,
+         "plotHR_int": 1,
+      },
+      cmap_lims = {
+         "Bathymetry": (-0.5, 0.5),
+         "Velocity": (0, 0.3),
+      },
+      )
    plotter.run()
 
 This plotting code is located in the same example directory at `examples/ANUGA/tide_channel/plot_tide_channel_ANUGA.py`, where there are additional comments on how to use the code, as well as more ideas for quantities to plot.

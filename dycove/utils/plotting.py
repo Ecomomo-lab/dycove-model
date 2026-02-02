@@ -4,6 +4,7 @@ Class for plotting various output quantites from DYCOVE-ANUGA/DFM
 
 from typing import Optional, Any, Union
 import numpy as np
+import math
 from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.colors import Colormap, ListedColormap
@@ -152,6 +153,12 @@ class ModelPlotter:
         - ``'plotHR_int'``: Sim. hours between consecutive plots, cannot be less than 
           map_output, unused if plotting vegetation.
 
+    hydro_plot_label_time : str, optional
+        Time scale to use for plot labels for hydro quantities (e.g., depth, velocity). 
+        Default is 'hydrodynamic'.
+    veg_plot_label_time : str, optional
+        Time scale to use for plot labels for veg quantities (e.g., stem height, fractions).
+        Default is 'eco-morphodynamic'.
     plot_label_time : str, optional
         Time scale to use in plot titles, either ``'eco-morphodynamic'`` (default) or
         ``'hydrodynamic'``.
@@ -162,6 +169,9 @@ class ModelPlotter:
     ecofac : int, optional
         Multiplicative factor converting hydro to eco time. If None, computed from
         ``n_ets_year`` and ``hr_ets``.
+    plot_method : str, optional
+        ``'interp'`` (default) for nearest-neighbor interpolation to a regular grid, or
+        ``'exact'`` for plotting on the original mesh nodes/cells (must be regular grid).
     plot_interp_vars : dict, optional
         Options for interpolating to 2D grid, e.g. ``{'cell_size': 5, 'n_neighbors': 3}``.
     plot_specs : dict, optional
@@ -261,10 +271,12 @@ class ModelPlotter:
                  simdir, 
                  quantity, 
                  plot_times,
-                 plot_label_time = 'eco-morphodynamic',
+                 hydro_plot_label_time='hydrodynamic',
+                 veg_plot_label_time='eco-morphodynamic',
                  n_ets_year = 14,
                  hr_ets = 12,
                  ecofac = None,
+                 plot_method = 'interp',
                  plot_interp_vars: Optional[dict[str, int]] = None,
                  plot_specs: Optional[dict[str, Any]] = None, 
                  cmap_lims: Optional[dict[str, tuple[float, float]]] = None, 
@@ -284,7 +296,7 @@ class ModelPlotter:
         self.simdir = Path(simdir)
         self.quantity = quantity
         self.plot_times = plot_times
-        self.plot_label_time = plot_label_time
+        self.plot_method = plot_method
         self.plot_vectors = plot_vectors
         self.show_title = show_title
         self.show_topo_cbar = show_topo_cbar
@@ -309,8 +321,10 @@ class ModelPlotter:
         # compute ecofac if not provided (based on n_ets_year and hr_ets)
         self.ecofac, self.days_per_year = self.compute_ecofac(ecofac)
 
-        # only relevant for ANUGA and DFM, must build an interpolation function for converting 1-D arrays to a grid
+        # if plot_method is 'interp', will build interpolation function for converting 1-D arrays to a grid
         self.interp_func = None
+        # if plot_method is 'exact', will build empty grid and x/y indices for mapping 1-D arrays to grid
+        self.empty_grid, self.x_idx, self.y_idx = None, None, None
             
         defaults = {
             'cell_size': 5,    # in meters
@@ -390,6 +404,9 @@ class ModelPlotter:
         self.model_name = self.get_model_name()
         self.eco_plot = self.quantity in ['Fractions', 'Stem Height', 'Stem Density', 'Stem Diameter', 'Mortality']
 
+        # change how we label time in our plots depending on if we are plotting vegetation (uses ecofac) or hydrodynamics (no morfac/ecofac)
+        self.plot_label_time = veg_plot_label_time if self.eco_plot else hydro_plot_label_time
+
         # load model output files using the appropriate loader class
         args = (self.modeldir, self.model_name, self.full_quantity_name, self.eco_plot, self.n_ets_year)
         if self.model_type == 'DFM': 
@@ -404,6 +421,7 @@ class ModelPlotter:
 
     def run(self):
         ti_0, ti_f, dti = self.get_time_indices()
+        self.check_time_inputs()
         for i in tqdm(range(ti_0, ti_f, dti)):
             self.create_timestrings(i)
             hydro_i, ets, eco_year = self.get_map_indices(i)
@@ -441,6 +459,7 @@ class ModelPlotter:
         title_timestring = self.format_title_time(time_parts)
         self.timestrings.append((fname_timestring, title_timestring))
 
+
     def get_time_breakdown(self, i):
         """Returns a dict with time components for formatting titles and filenames."""
         sim_hours = float(i*self.plotHR_int if self.eco_plot else i*self.plotHR_div)
@@ -456,12 +475,14 @@ class ModelPlotter:
                 "veg_days_rem": int(round(veg_days_rem)),
                 "veg_days_tot": int(round(veg_days_tot))}
     
+
     def format_fname_time(self, time_parts):
         # always use hydrodynamic time for the filenames
         if self.plotHR_int >= 1:
             return f"{time_parts['sim_days']}days_{time_parts['sim_hrs_rem']}hrs"
         else:
             return f"{time_parts['sim_days']}days_{time_parts['sim_hrs_rem']}hrs_{time_parts['sim_mins_rem']}mins"
+
 
     def format_title_time(self, time_parts):
         if self.plot_label_time == 'eco-morphodynamic':
@@ -474,6 +495,7 @@ class ModelPlotter:
         else:
             return f"{time_parts['sim_days']} days, {time_parts['sim_hrs_rem']} hrs, {time_parts['sim_mins_rem']} mins"    
     
+
     def get_time_indices(self):
         if self.eco_plot:
             self.plotHR_0 = max(self.plot_times['plotHR_0'], self.hr_ets)
@@ -492,6 +514,11 @@ class ModelPlotter:
         return ti_0, ti_f, dti
 
 
+    def check_time_inputs(self):
+        final_ind = int(math.ceil(self.plot_times['plotHR_f'] / self.plot_times['mapHR_int']))
+        self.map_loader.check_final_index(final_ind)
+
+
     def get_map_indices(self, i):
         # how we loop over the model time slices will depend on whether we are plotting hydro or veg quantities
         # first need to determine the year, ets, and hydro_ind based on the value of i
@@ -504,12 +531,10 @@ class ModelPlotter:
         
         return hydro_ind, ets, eco_year
 
-
     def get_eco_times(self, i):
         ets = ((i-1) % self.n_ets_year) + 1
         eco_year = ((i-1) // self.n_ets_year) + 1
         return ets, eco_year
-
 
     def get_hydro_eco_times(self, i):
         ets = ((i // self.hr_ets) % self.n_ets_year) + 1
@@ -550,7 +575,35 @@ class ModelPlotter:
                                            polygon_csv=self.mask_bndy_file, extents=self.extents,
                                            )
         return interp_func
-        
+
+    def get_exact_grid_idx(self, map_vars):
+        # Get number of unique x/y values 
+        x_unique = np.unique(map_vars['X'])
+        y_unique = np.unique(map_vars['Y'])
+        # Get number of rows and columns
+        nx = x_unique.size
+        ny = y_unique.size
+        # Create empty template grid
+        empty_grid = np.full((ny, nx), np.nan)
+        # Map 1-D points to grid indices
+        x_idx = np.searchsorted(x_unique, map_vars['X'])
+        y_idx = np.searchsorted(y_unique, map_vars['Y'])
+
+        return empty_grid, x_idx, y_idx
+    
+    def map_to_grid(self, var_1d):
+        grid = self.empty_grid.copy()
+        grid[self.y_idx, self.x_idx] = var_1d
+        return grid
+    
+    def create_grid(self, var):
+        # if plot_method is 'interp'
+        if self.interp_func is not None:
+            grid = self.interp_func(var)
+        # if plot_method is 'exact'
+        elif self.empty_grid is not None:
+            grid = self.map_to_grid(var)
+        return grid
 
     def get_quantity_grids(self, map_vars):
         # adjust "mortality" key if necessary, from full name to generic name
@@ -558,35 +611,39 @@ class ModelPlotter:
             map_vars["Mortality"] = map_vars.pop(self.full_quantity_name)
 
         # create interpolation function the first time -> quick interpolations for all other time steps
-        if self.interp_func is None:
+        if self.plot_method == 'interp' and self.interp_func is None:
             self.interp_func = self.create_interp_func(map_vars)
+
+        if self.plot_method == 'exact' and self.empty_grid is None:
+            self.empty_grid, self.x_idx, self.y_idx = self.get_exact_grid_idx(map_vars)
             
         # to be populated if we are doing vector plots
         self.vector_comps = None
 
         # for DFM, z_grid should be recomputed every step in case morphology is turned on. For ANUGA, oh well it's fast enough
-        z_grid = self.interp_func(map_vars['Bathymetry']) * self.quantity_units['Bathymetry'][1]
+        z_grid = self.create_grid(map_vars['Bathymetry']) * self.quantity_units['Bathymetry'][1]
+
         if self.quantity == 'Bathymetry':
             return z_grid, None
         elif not self.eco_plot:
-            depth_grid = self.interp_func(map_vars['Depth']) * self.quantity_units[self.quantity][1]
+            depth_grid = self.create_grid(map_vars['Depth']) * self.quantity_units[self.quantity][1]            
             show_inds = depth_grid < self.quantity_units['Depth'][2]
             if self.quantity == 'Depth':
                 return z_grid, np.ma.masked_where(show_inds, depth_grid)
             elif self.quantity == 'WSE':
-                wse_grid = self.interp_func(map_vars[self.quantity]) * self.quantity_units[self.quantity][1]
+                wse_grid = self.create_grid(map_vars[self.quantity]) * self.quantity_units[self.quantity][1]
                 return z_grid, np.ma.masked_where(show_inds, wse_grid)
             elif self.quantity == 'Velocity':
-                V_grid = self.interp_func(map_vars[self.quantity]) * self.quantity_units[self.quantity][1]
+                V_grid = self.create_grid(map_vars[self.quantity]) * self.quantity_units[self.quantity][1]
                 if self.plot_vectors:
-                    Vx_grid = self.interp_func(map_vars['Vel_x']) * self.quantity_units[self.quantity][1]
-                    Vy_grid = self.interp_func(map_vars['Vel_y']) * self.quantity_units[self.quantity][1]
+                    Vx_grid = self.create_grid(map_vars['Vel_x']) * self.quantity_units[self.quantity][1]
+                    Vy_grid = self.create_grid(map_vars['Vel_y']) * self.quantity_units[self.quantity][1]
                     self.vector_comps = (np.ma.masked_where(show_inds, Vx_grid),
                                          np.ma.masked_where(show_inds, Vy_grid),
                                          np.ma.masked_where(show_inds, V_grid))
                 return z_grid, np.ma.masked_where(show_inds, V_grid)
             elif self.quantity == 'Max Shear Stress':
-                tau_grid = self.interp_func(map_vars[self.quantity]) * self.quantity_units[self.quantity][1]
+                tau_grid = self.create_grid(map_vars[self.quantity]) * self.quantity_units[self.quantity][1]
                 return z_grid, np.ma.masked_where(tau_grid < self.quantity_units['Max Shear Stress'][2], tau_grid)
             else:
                 raise ValueError(f"Unexpected quantity name: {self.quantity}")
@@ -595,14 +652,14 @@ class ModelPlotter:
                 if self.quantity in ['Fractions', 'Mortality']:
                     fraction_grid_list = []
                     for frac in map_vars[self.quantity]:
-                        veg_grid = self.interp_func(frac) * self.quantity_units[self.quantity][1]
+                        veg_grid = self.create_grid(frac) * self.quantity_units[self.quantity][1]
                         fraction_grid_list.append(np.ma.masked_where(veg_grid < self.quantity_units[self.quantity][2], veg_grid))
                     return z_grid, fraction_grid_list
                 elif self.quantity == 'Stem Density':  # sum_product for 'Stem Density'
                     veg_data = sum_product(map_vars['Fractions'], map_vars[self.quantity])
                 else:  # cell_averaging for 'Stem Diameter', 'Stem Face Factor', and 'Stem Height'
                     veg_data = cell_averaging(map_vars['Fractions'], map_vars[self.quantity])
-                veg_grid = self.interp_func(veg_data) * self.quantity_units[self.quantity][1]
+                veg_grid = self.create_grid(veg_data) * self.quantity_units[self.quantity][1]
                 return z_grid, np.ma.masked_where(veg_grid < self.quantity_units[self.quantity][2], veg_grid)
             else:
                 # may not be any veg data at all in this time step, so return an empty grid
@@ -613,16 +670,16 @@ class ModelPlotter:
     def plot_quantity(self, base_grid, main_grid):
         if type(main_grid) is list:  # for veg fractions, we plot each fraction separately
             for i, grid in enumerate(main_grid):
-                self._plot_single_quantity(base_grid, grid, 
+                self.plot_single_quantity(base_grid, grid, 
                         title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]} -- i={i}",
                         fname=f"{self.full_quantity_name.replace(' ', '')}_{self.timestrings[-1][0]}_i={i}")
         else:
-            self._plot_single_quantity(base_grid, main_grid, 
+            self.plot_single_quantity(base_grid, main_grid, 
                         title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]}",
                         fname=f"{self.full_quantity_name.replace(' ', '')}_{self.timestrings[-1][0]}")
             
             
-    def _plot_single_quantity(self, base_grid, main_grid, title, fname):
+    def plot_single_quantity(self, base_grid, main_grid, title, fname):
 
         fig, ax = plt.subplots(figsize=self.plot_specs['figsize'])
 

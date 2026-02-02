@@ -73,7 +73,7 @@ For example, we can plot vegetation stem heights over the entire 21-day (hydrody
       quantity = "Stem Height",
       plot_times = {
          "plotHR_0": 0*24.,
-         "plotHR_f": 21*24.,
+         "plotHR_f": 28*24.,
          "mapHR_int": 1,
          "plotHR_int": 1,
       },

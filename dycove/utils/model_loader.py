@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 from pathlib import Path
-from netCDF4 import Dataset  # type: ignore
+import xarray as xr
 
 
 class BaseMapLoader(ABC):
@@ -76,10 +76,25 @@ class BaseMapLoader(ABC):
     def load(self, hydro_i, ets, eco_year):
         pass
 
+    @abstractmethod
+    def _load_outputs(self, modeldir):
+        pass
+
+    def check_final_index(self, index):
+        """ Raises error if final plot time exceeds simulation length """
+        try:
+            self._load_outputs(self._get_model_subdir())
+            wse = self.cached_map_vars[self.hydro_varnames['WSE']][index]
+        except IndexError as exc:
+            raise ValueError("Final plot time in 'plot_times' exceeds the length of the simulation!") from exc
+        
     def _load_veg(self, ets, eco_year):
-        # Read vegetation files, this function abstracts similar logic among DFM and ANUGA
-        # No. of vegetation cohorts present is equal to the eco year we are plotting
-        # No cached variable here because these files are written every ETS
+        """
+        Read vegetation files, this function abstracts similar logic among DFM and ANUGA
+        No. of vegetation cohorts present is equal to the eco year we are plotting
+        No cached variable here because these files are written every ETS
+        """
+
         veg_fractions, veg_quantity = [], []     
 
         # loop through all cohort files saved for this ETS, load file to running list
@@ -90,7 +105,6 @@ class BaseMapLoader(ABC):
 
         return veg_fractions, veg_quantity
 
-
     def _pass_veg(self, veg_data, data):
         # just for distributing veg data to correct keys in data dict
         data['Fractions'] = veg_data[0]
@@ -98,6 +112,7 @@ class BaseMapLoader(ABC):
             # for all other quantities, we need Fractions in order to do weighted averaging of cohorts in grid cells
             data[self.quantity] = veg_data[1]
         return data
+
 
 class ANUGAMapLoader(BaseMapLoader):
     """
@@ -127,41 +142,18 @@ class ANUGAMapLoader(BaseMapLoader):
         self.cached_map_vars = None
         self.cached_veg_mortality = None
 
-    def _load_anuga_outputs(self, subdir):
-        # only load hydro outputs if the subdirectory has changed 
-        # (for ANUGA, as of now, there will only be one file to load)
-        if self.cached_map_vars is None:
-
-            self.cached_map_vars = Dataset(subdir / f'{self.model_name}.sww').variables
-            assert self.cached_map_vars is not None  # for Pylance...
-
-            # only create the mesh centroid variables if they don't exist for this mesh
-            # -- this is a time consuming step, so save these files for future plotting with the same mesh
-            files_exist = False
-            x_fname = "xCentroidsSavedForFastRecomputation.npy"
-            y_fname = "yCentroidsSavedForFastRecomputation.npy"    
-            if (subdir / x_fname).exists() and (subdir / y_fname).exists():
-                self.xx_c = np.load(subdir / x_fname)
-                self.yy_c = np.load(subdir / y_fname)
-                # make sure existing files are not leftover from previous run
-                if len(self.xx_c) == len(self.cached_map_vars['elevation_c']):
-                    files_exist = True
-            if not files_exist:
-                # load mesh VERTEX coordinates (centroid coordinates not available in ANUGA netCDF file)
-                xx = self.cached_map_vars['x']
-                yy = self.cached_map_vars['y']
-                # convert vertex coordinates to centroid coordinates using 'volumes' variable
-                self.xx_c = [(xx[i]+xx[j]+xx[k])/3. for i, j, k in self.cached_map_vars['volumes']]
-                self.yy_c = [(yy[i]+yy[j]+yy[k])/3. for i, j, k in self.cached_map_vars['volumes']]
-                
-                np.save(subdir / x_fname, self.xx_c)
-                np.save(subdir / y_fname, self.yy_c)
-            
-            self.zz_c = self.cached_map_vars['elevation_c']
-
+        self.mesh_varnames = {'X': 'x', 
+                              'Y': 'y', 
+                              'Z': 'elevation_c',
+                              'triangles': 'volumes',
+                              }
+        self.hydro_varnames = {'WSE': 'stage_c', 
+                               'x-momentum': 'xmomentum_c',
+                               'y-momentum': 'ymomentum_c',
+                               }
             
     def load(self, hydro_i, ets, eco_year):
-        self._load_anuga_outputs(self.modeldir)
+        self._load_outputs(self._get_model_subdir())
         assert self.cached_map_vars is not None  # for Pylance...
 
         data = {'X': np.asarray(self.xx_c),
@@ -173,12 +165,12 @@ class ANUGAMapLoader(BaseMapLoader):
             pass
 
         elif not self.eco_plot:
-            data['WSE'] = np.asarray(self.cached_map_vars['stage_c'][hydro_i])
+            data['WSE'] = np.asarray(self.cached_map_vars[self.hydro_varnames['WSE']][hydro_i])
             data['Depth'] = data['WSE'] - data['Bathymetry']
             if self.quantity not in ['WSE', 'Depth']:
                 if self.quantity == 'Velocity':
-                    xmom = np.asarray(self.cached_map_vars['xmomentum_c'][hydro_i])
-                    ymom = np.asarray(self.cached_map_vars['ymomentum_c'][hydro_i])
+                    xmom = np.asarray(self.cached_map_vars[self.hydro_varnames['x-momentum']][hydro_i])
+                    ymom = np.asarray(self.cached_map_vars[self.hydro_varnames['y-momentum']][hydro_i])
                     with np.errstate(divide='ignore', invalid='ignore'):
                         data['Vel_x'] = xmom/data['Depth']
                         data['Vel_y'] = ymom/data['Depth']
@@ -189,6 +181,42 @@ class ANUGAMapLoader(BaseMapLoader):
 
         return data
 
+    def _load_outputs(self, subdir):
+        # Only load hydro outputs if the subdirectory has changed 
+        # (for ANUGA, as of now, there will only be one file to load)
+        if self.cached_map_vars is None:
+
+            self.cached_map_vars = xr.open_dataset(subdir / f'{self.model_name}.sww')
+            assert self.cached_map_vars is not None  # for Pylance...
+
+            # only create the mesh centroid variables if they don't exist for this mesh
+            # -- this is a time consuming step, so save these files for future plotting with the same mesh
+            files_exist = False
+            x_fname = "xCentroidsSavedForFastRecomputation.npy"
+            y_fname = "yCentroidsSavedForFastRecomputation.npy"    
+            if (subdir / x_fname).exists() and (subdir / y_fname).exists():
+                self.xx_c = np.load(subdir / x_fname)
+                self.yy_c = np.load(subdir / y_fname)
+                # make sure existing files are not leftover from previous run
+                if len(self.xx_c) == len(self.cached_map_vars[self.mesh_varnames['Z']]):
+                    files_exist = True
+            if not files_exist:
+                # load mesh VERTEX coordinates (centroid coordinates not available in ANUGA netCDF file)
+                xx = self.cached_map_vars[self.mesh_varnames['X']]
+                yy = self.cached_map_vars[self.mesh_varnames['Y']]
+                # convert vertex coordinates to centroid coordinates using 'volumes' variable
+                self.xx_c = [(xx[i]+xx[j]+xx[k])/3. for i, j, k in self.cached_map_vars[self.mesh_varnames['triangles']]]
+                self.yy_c = [(yy[i]+yy[j]+yy[k])/3. for i, j, k in self.cached_map_vars[self.mesh_varnames['triangles']]]
+                
+                np.save(subdir / x_fname, self.xx_c)
+                np.save(subdir / y_fname, self.yy_c)
+            
+            self.zz_c = self.cached_map_vars[self.mesh_varnames['Z']]
+
+    def _get_model_subdir(self):
+        # Needed because DYCOVE-DFM creates a separate folder containing the output
+        return self.modeldir
+    
 
 class DFMMapLoader(BaseMapLoader):
     """
@@ -205,9 +233,9 @@ class DFMMapLoader(BaseMapLoader):
     Returns
     -------
     dict
-        Dictionary of NumPy arrays with fields:
-        ``'X'``, ``'Y'``, ``'Bathymetry'``, ``'WSE'``, ``'Depth'``, and (if applicable)
-        ``'WSE'``, ``'Depth'``, ``'Velocity'``, or vegetation data.
+        Dictionary of NumPy arrays with fields among:
+        ``'X'``, ``'Y'``, ``'Bathymetry'``, ``'WSE'``, ``'Depth'``, ``'Velocity'``,
+        and vegetation fields.
     """
 
     def __init__(self, *args, **kwargs):
@@ -226,19 +254,8 @@ class DFMMapLoader(BaseMapLoader):
                                'Velocity': ('mesh2d_ucmag', 'mesh2d_ucx', 'mesh2d_ucy'),
                                'Max Shear Stress': 'mesh2d_tausmax'}
 
-    def _load_DFM_outputs(self, subdir):
-        # only load hydro outputs if the subdirectory has changed (for DFM, it will only change in restart mode)
-        if subdir != self.current_subdir:
-            ncfile = Dataset(subdir / f'{self.model_name}_map.nc')
-            self.cached_map_vars = ncfile.variables
-            self.current_subdir = subdir
-
-
     def load(self, hydro_i, ets, eco_year):
-        # get model output subdirectory and read data
-        singledir = self.modeldir / 'output'
-        multidir = self.modeldir / f'output_year{eco_year}_ets{ets}'
-        self._load_DFM_outputs(multidir if multidir.exists() else singledir)
+        self._load_outputs(self._get_model_subdir())
         assert self.cached_map_vars is not None  # for Pylance...
 
         # load mesh2d data
@@ -269,3 +286,14 @@ class DFMMapLoader(BaseMapLoader):
             data = self._pass_veg(veg_data, data)
 
         return data
+    
+    def _load_outputs(self, subdir):
+        # Only load hydro outputs if the subdirectory has changed 
+        # (for DFM, it will only change in restart mode)
+        if subdir != self.current_subdir:
+            self.cached_map_vars = xr.open_dataset(subdir / f'{self.model_name}_map.nc')
+            self.current_subdir = subdir
+
+    def _get_model_subdir(self):
+        # Needed because DYCOVE-DFM creates a separate folder containing the output
+        return self.modeldir / 'output'

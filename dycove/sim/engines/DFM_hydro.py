@@ -7,9 +7,11 @@ import os
 from datetime import datetime
 from pathlib import Path
 import numpy as np
+import xarray as xr
 
 from dycove.sim.base import HydroSimulationBase, HydroEngineBase
 from dycove.utils.simulation_reporting import Reporter
+#from dycove.utils.model_loader import read_netcdf
 
 r = Reporter()
 
@@ -83,29 +85,39 @@ class DFMEngine(HydroEngineBase):
     """
 
     def __init__(self, dfm_path, config_path, mdu_path, vegetation=None):
-        # lazy bmi loading
-        self.BMIWrapper = _import_bmi()
+        
+        self.BMIWrapper = _import_bmi()  # lazy bmi loading
 
-        # paths to Delft3D FM dll files
+        # Define paths to Delft3D FM .dll files
         self.dflowfm_path = Path(dfm_path) / ("dflowfm/bin/dflowfm.dll")
         self.dimr_path    = Path(dfm_path) / ("dimr/bin/dimr_dll.dll")
         self.mdu_path     = Path(mdu_path)  # location of MDU file that contains model directions/inputs
         self.model_dir    = mdu_path.parent  # model directory containing MDU and other model files
         self.config_path  = config_path  # location of config file used for running DFM using dimr
 
-        # currently only need this passed here for the file checks that happens under initialize()
-        # but we are keeping it and using it with all possible engines to make output writing more consistent
-        #   (accessing vegetation via engine rather than passing both to the outputs class)
         self.veg = vegetation
 
-        # vegetation drag is an input in the .json file
-        # unfortunately, DFM requires a single vegetation drag value in the .mdu file when vegetation is active
-        # so even if we have multiple species with different characteristics, we can only use one value
-        self.drag = self.get_drag()
+        self.add_dll_directories(dfm_path)
 
-        # add DLL paths to env before calling BMI
-        # NOTE: for versions of python 3.7 and earlier, you will need to set the env variables differently:
-        # os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" + os.path.join(dfm_path, 'dflowfm', 'bin') + ...
+        self.open_bmi_wrappers()
+
+
+    def open_bmi_wrappers(self):
+        """ Create BMI wrapper objects for DFM and DIMR """
+        # BMI wrapper object that interacts with the actual numerical model (e.g., getting and setting variables)
+        self.dflowfm = self.BMIWrapper(engine=str(self.dflowfm_path), configfile=str(self.mdu_path))
+        # BMI wrapper object that handles the deployment of the model executables
+        self.dimr = self.BMIWrapper(engine=str(self.dimr_path), configfile=str(self.config_path))
+
+
+    def add_dll_directories(self, dfm_path):
+        """ 
+        Add DLL paths to env before calling BMI .
+
+        Note that for versions of python 3.7 and earlier, you would need to set the env variables differently:
+            os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" + 
+                                    os.path.join(dfm_path, 'dflowfm', 'bin') + ";" + ... )
+        """
         os.add_dll_directory(dfm_path / Path("dflowfm/bin"))
         os.add_dll_directory(dfm_path / Path("dimr/bin"))
         os.add_dll_directory(dfm_path / Path("share/bin"))
@@ -113,71 +125,60 @@ class DFMEngine(HydroEngineBase):
         os.add_dll_directory(dfm_path / Path("esmf/scripts"))
         os.add_dll_directory(dfm_path / Path("swan/scripts"))
 
-        # BMI wrapper object that interacts with the actual numerical model (e.g., getting and setting variables)
-        self.dflowfm = self.BMIWrapper(engine=str(self.dflowfm_path), configfile=str(self.mdu_path))
-        # BMI wrapper object that handles the deployment of the model executables
-        self.dimr = self.BMIWrapper(engine=str(self.dimr_path), configfile=str(self.config_path))
 
     def initialize(self):
         ### ----- Required for vegetation module ----- ###
-        # get model inputs and assign to dictionaries
         self.mdu_vars = self.get_model_inputs()
         self.morphology, self.morph_vars = self.get_morphodynamic_inputs()
-        # create (empty) vegetation .xyz files for each of the three vegetation variables, if they don't exist
         self.vegetation_file_check()
         ### ----- Required for numerical model ----- ###
-        # initialize DFM dimr wrapper
         self.dimr.initialize()
 
+
     def step(self, seconds):
-        # advance model by specified number of seconds
         self.dimr.update(seconds)
 
+
     def cleanup(self):
-        # finalize/cleanup DFM dimr wrapper
         self.dimr.finalize()
+
 
     def get_rank(self):
         # TODO: implement parallel processing for DFM
         raise NotImplementedError("Parallel mode not currently implemented for Delft3D FM")
 
+
     def get_cell_count(self):
-        # get number of cells in numerical model grid
         return int(self.dflowfm.get_var("ndxi"))  # number of non-boundary boxes, i.e. within-domain boxes
 
+
     def get_refdate(self):
-        # dependent on input file string format
-        # this input has a line in the MDU file, but most other models probably don't care what the date is and we can just hardcode the date
+        # This input has a line in the MDU file, but most other models probably don't care what the date is and we can just hardcode the date
         refdatestr = self.mdu_vars["RefDate"]
         return datetime(int(refdatestr[:4]), int(refdatestr[4:6]), int(refdatestr[6:]))
     
+
     def get_elevation(self):
-        # return array of elevation values at cell centers
         # DFM returns arrays with boundary values included, slice those out first 
         n_cells = self.get_cell_count()
         return np.array(self.dflowfm.get_var("bl"))[:n_cells]
 
+
     def get_velocity_and_depth(self):
-        # get "accumulators" for time-varying quantities
-        # the BMI/DIMR uses this roundabout way of getting time-varying quantities (pull sums of values, divide by time interval)
-        is_dtint     = self.dflowfm.get_var("is_dtint")
-        is_sumvalsnd = self.dflowfm.get_var("is_sumvalsnd")        
-        vel_full     = np.array(is_sumvalsnd[:, 1]/is_dtint)
-        depth_full   = np.array(is_sumvalsnd[:, 2]/is_dtint)
-        # remove extra (boundary) cells from arrays
         n_cells = self.get_cell_count()
-        velocity, depth = vel_full[:n_cells], depth_full[:n_cells]   
-        # reset "accumulators" back to zero for next step
-        is_sumvalsnd.fill(0.0)
-        is_dtint.fill(0.0)
+        velocity = np.array(self.dflowfm.get_var("ucmag"))[:n_cells]
+        depth = np.array(self.dflowfm.get_var("hs"))[:n_cells]
+
         return velocity, depth
 
+
     def get_vegetation(self):
-        # convert to numpy arrays because DFM returns pointers and we don't want to accidentally modify them
+        # Convert to numpy arrays because DFM returns pointers and we don't want to accidentally modify them
         stemdensity = np.array(self.dflowfm.get_var("rnveg"))
         stemdiameter = np.array(self.dflowfm.get_var("diaveg"))
         stemheight = np.array(self.dflowfm.get_var("stemheight"))
         return stemdensity, stemdiameter, stemheight
+
 
     def set_vegetation(self, stemdensity, stemdiameter, stemheight):
         self.dflowfm.set_var("rnveg", stemdensity)
@@ -185,22 +186,31 @@ class DFMEngine(HydroEngineBase):
         self.dflowfm.set_var("stemheight", stemheight)
 
 
-    # --------------------------------------------------------
-    # Extra, required DFM methods related to input processing
-    # --------------------------------------------------------
+    def check_simulation_inputs(self, simstate):
+        """
+        Compare DYCOVE simulation time to MDU simulation time.
 
-    def get_drag(self):
-        if self.veg is not None:
-            if hasattr(self.veg, "attrs"):  # then it is a single species object
-                return self.veg.attrs.drag
-            else:  # then it is a multiple species object, take average
-                return np.mean([sp.attrs.drag for sp in self.veg.species_list])
-            
+        All MDU files (DFM models) will have a simulation time specifed, but DYCOVE will run
+        DFM for a period of time based on how many veg years we want to simulate. Basically, 
+        the time specified in the MDU needs to be arbitrarily large enough so that we never 
+        run into the issue of the model stopping prematurely.
+        """
+        if simstate.hydro_sim_days*86400 > int(self.mdu_vars["TStop"]):
+            msg = (f"Model simulation time specified in MDU file (TStop = {self.mdu_vars['TStop']}) not long enough based on "
+                   "the inputs provided for sim_years, n_ets, and veg_interval, which give simulation length of "
+                   f"{simstate.hydro_sim_days*86400}. Please provide an arbitrarily larger number for TStop in MDU file.")
+            r.report(msg, level="ERROR")
+            raise ValueError(msg)
+
+
+    # --------------------------------------------------------
+    # Some additional required, DFM-specific methods
+    # --------------------------------------------------------
+     
     def get_model_inputs(self):
-        # Read model file
+        """ Read lines from MDU file into a dictionary """
         mdu_lines = self.mdu_path.read_text().splitlines()
         mdu_vars = {}
-        # Parse lines into mdu_vars
         for line in mdu_lines:
             if "=" in line:
                 slist = re.split("=|#", line)
@@ -208,8 +218,8 @@ class DFMEngine(HydroEngineBase):
         return mdu_vars
 
     def get_morphodynamic_inputs(self):
-        # same filename as in above function, different extension
-        # morphology could be turned off, so we check if there are morph files in the model directory
+        """ Read lines from morphology file into a dictionary, if mprph files exist """
+        # Same filename as MDU, different extension
         mor_filepath = self.model_dir / (self.mdu_path.stem + ".mor")
         morph_vars = {}
         morphology = True
@@ -223,9 +233,10 @@ class DFMEngine(HydroEngineBase):
             msg = "Morphology file NOT FOUND; proceeding with morphology off."
             r.report(msg, level="WARNING")
             morphology = False
-            # if morphology is off, ensure that vegetation mor variable is set to 0 (no burial/scour)
-            if self.veg is not None:
-                self.veg.mor = 0
+            # # If morphology is off, ensure that vegetation mor variable is set to 0 (no burial/scour)
+            # # I don't think this is necessary, burial/scour will be zero (nelson)
+            # if self.veg is not None:
+            #     self.veg.mor = 0
         return morphology, morph_vars
     
 
@@ -256,18 +267,23 @@ class DFMEngine(HydroEngineBase):
         # Track for .mdu file modification
         self.mdu_modified = False
         
-        self.add_mdu_extforcefile()
-        self.add_mdu_veg_module()
-        self.create_ext_file()
+        self.add_extforcefile_to_mdu()
+        self.add_veg_module_to_mdu()
+        self.create_extforcefile()
         self.create_veg_xyz_files()
 
         if self.mdu_modified:
             self.write_modified_mdu()
 
 
-    def add_mdu_extforcefile(self):
+    def add_extforcefile_to_mdu(self):
+        """ 
+        Add ExtForceFile to .mdu line if it's not there (and if vegetation is active).
+        
+        [external forcing]
+        ExtForceFile = FlowFM.ext  # Old format for external forcings file *.ext, ...
+        """
 
-        # Add ExtForceFile to .mdu if not there (and if vegetation is active)
         if self.mdu_vars["ExtForceFile"] == "" and self.veg is not None:
             self.mdu_modified = True
 
@@ -291,39 +307,48 @@ class DFMEngine(HydroEngineBase):
                 # Replace drag coefficient value with the one provided in input .json file (if [veg] block is present)
                 if line.strip().startswith("Cdveg"):
                     slist = re.split("=|#", line)
-                    self.mdu_lines[i] = f"{slist[0]}= {self.drag:.1f}{' '*13}#{slist[2]}"
+                    drag = self.veg.get_drag()
+                    self.mdu_lines[i] = f"{slist[0]}= {drag:.1f}{' '*13}#{slist[2]}"
 
 
-    def add_mdu_veg_module(self):
+    def add_veg_module_to_mdu(self):
+        """ 
+        Add [veg] section to .mdu if it's not there (and if vegetation is active).
+        
+        Format:
+        [veg]
+        Vegetationmodelnr = 2     # 1: Baptist, 2: Baptist with morphology correction factor (lambda)
+        Clveg             = 0.8   # Stem distance factor, default=0.8
+        Cdveg             = 1.1   # Drag coefficient, pulled from input veg.json file
+        Cbveg             = 0.7   # Stem stiffness coefficient, default=0.7
+        """
 
-        # Add [veg] section to .mdu if not there (and if vegetation is active)
         veg_block_present = any(line.strip().startswith("[veg]") for line in self.mdu_lines)
         if not veg_block_present and self.veg is not None:
-            self.mdu_modified = True
-
-            # Choose appropriate Baptist model number depending on morphology
-            # If morphology is on, need momentum adjustment factor lambda
+            drag = self.veg.get_drag()
             veg_model_num = 2 if self.veg.mor == 1 else 1
-                        
+            self.mdu_modified = True
+                 
             self.mdu_lines.append("")
             self.mdu_lines.extend([
                 "[veg]",
-                f"Vegetationmodelnr                 = {veg_model_num}              # 1: Baptist et al. (2007) equation for calculation of vegetation roughness",
+                f"Vegetationmodelnr                 = {veg_model_num}               # 1: Baptist et al. (2007) equation for calculation of vegetation roughness",
                 "Clveg                             = 0.8             # Stem distance factor, default=0.8",
-                f"Cdveg                             = {self.drag:.1f}             # Stem Cd coefficient, default=0.7",
+                f"Cdveg                             = {drag:.1f}             # Stem Cd coefficient, default=0.7",
                 "Cbveg                             = 0.7             # Stem stiffness coefficient, default=0.7",
             ])
                 
 
     def write_modified_mdu(self):
+        """ Write modified .mdu lines back to file """
         self.mdu_path.write_text("\n".join(self.mdu_lines) + "\n")
         msg = "DFM MDU file updated and rewritten to include required inputs for vegetation module."
         r.report(msg)
 
 
+    def create_extforcefile(self):
+        """ Create .ext file in the model directory if it doesn't exist """
 
-    def create_ext_file(self):
-        # Create file in the model directory if it doesn't exist
         ext_force_file = self.model_dir / self.mdu_vars["ExtForceFile"]
         if not ext_force_file.exists():
             content = """QUANTITY=stemdensity
@@ -349,46 +374,20 @@ OPERAND=O
 
 
     def create_veg_xyz_files(self):
-        # get file names from vegetation boundary file, write blank files to model directory if they don't exist
-        #ext_force_file = self.model_dir / self.mdu_vars["ExtForceFile"]
+        """ Create required files for [veg] module to run, even if they are blank """
         req_veg_files = ["stemdensity.xyz", "stemdiameter.xyz", "stemheight.xyz"]
-        # if not ext_force_file.exists() or self.mdu_vars["ExtForceFile"] == "":
-        #     msg = ("An *.ext file for external forcing (old format) must be specified next to 'ExtForceFile' in the MDU file, "
-        #             "and that file must exist in the model folder (at the same level as the MDU file)")
-        #     r.report(msg, level="ERROR")
-        #     raise FileNotFoundError(msg)
-        # with open(ext_force_file, "r") as f:
-        #     for line in f:
-        #         slist = line.strip().split("=")
-        #         if slist[0] == "FILENAME" and slist[1] in req_veg_files:
-        #             veg_file = self.model_dir / slist[1]
-
         for filename in req_veg_files:
             veg_file = self.model_dir / filename
             if not veg_file.exists():
                 with open(veg_file, "w") as f:
                     f.write("")
+    
 
-
-    def check_simulation_inputs(self, simstate):
-        """
-        Compare DYCOVE simulation time to MDU simulation time.
-
-        All MDU files (DFM models) will have a simulation time specifed, but DYCOVE will run
-        DFM for a period of time based on how many veg years we want to simulate. Basically, 
-        the time specified in the MDU needs to be arbitrarily large enough so that we never 
-        run into the issue of the model stopping prematurely.
-        """
-
-        if simstate.hydro_sim_days*86400 > int(self.mdu_vars["TStop"]):
-            msg = (f"Model simulation time specified in MDU file (TStop = {self.mdu_vars['TStop']}) not long enough based on "
-                   "the inputs provided for sim_years, n_ets, and veg_interval, which give simulation length of "
-                   f"{simstate.hydro_sim_days*86400}. Please provide an arbitrarily larger number for TStop in MDU file.")
-            r.report(msg, level="ERROR")
-            raise ValueError(msg)
+    # --------------------------------------------------------
+    # Parallel methods
+    # --------------------------------------------------------
 
     def is_parallel(self):
-        # DFM not currently set up for parallel processing in this model, but setting this up for future use
         try:
             from mpi4py import MPI
             comm = MPI.COMM_WORLD
@@ -398,5 +397,5 @@ OPERAND=O
             return False
         
     def merge_parallel_veg(self, OutputManager):
+        # DYCOVE-DFM does not currently support parallel processing in this model, but setting up for future use.
         raise NotImplementedError("Parallel mode not currently implemented for Delft3D FM")
-    

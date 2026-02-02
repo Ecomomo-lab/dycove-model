@@ -31,7 +31,6 @@ Vegetation quantites to plot from DYCOVE (use exact names):
 plotter = plotting.ModelPlotter(
     simdir = Path('.'),
     quantity = 'Velocity',
-    plot_label_time = "hydrodynamic",
     plot_vectors = True,
     #quantity = 'Stem Height',
     #quantity = 'Mortality -- Total',

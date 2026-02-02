@@ -4,7 +4,7 @@
 
 from datetime import datetime
 import numpy as np
-from netCDF4 import Dataset  # type: ignore
+import xarray as xr
 from pathlib import Path
 import re
 from collections import defaultdict
@@ -95,11 +95,6 @@ class AnugaEngine(HydroEngineBase):
         # passing vegetation as attribute of the engine
         self.veg = vegetation
 
-        # Theoretically, we could take the weighted average of drag attributes based on species, lifestage
-        # But DFM can only acept a single value. So we copy that approach for ANUGA and set the Baptist_operator
-        #   with a constant value each time we do set_vegetation()
-        self.drag = self.get_drag()
-
         # With DYCOVE-ANUGA, we run many consecutive "domain.evolve" loops, rather than just one big loop.
         # We don't want to skip the first step for the first of these loops, but for every other loop, we do.
         # Otherwise, we get repeated steps.
@@ -113,32 +108,34 @@ class AnugaEngine(HydroEngineBase):
     def initialize(self):
         # ANUGA doesn't have an "initialize" method like DFM, 
         # but we can include some required steps here rather than just having an empty method
-        self.Baptist = Baptist_operator(self.domain, 
-                                        veg_diameter=0, 
-                                        veg_density=0, 
-                                        veg_height=0, 
-                                        drag=self.drag)
+        if self.veg is not None:
+            self.Baptist = Baptist_operator(self.domain, 
+                                            veg_diameter=0, 
+                                            veg_density=0, 
+                                            veg_height=0, 
+                                            drag=self.veg.get_drag())
         self.morphology = False
         
     def step(self, seconds):
-        # normally, all processes would be performed within this domain.evolve() loop, 
-        # but for consistency across all potential models, we wrap it up here under the "step" method.
-        yieldstep = min(seconds, self.save_interval)  # if performing a "big" step, reduce yieldstep so it equals save_interval
+        # Normally, all processes in ANUGA would be performed within the domain.evolve() loop at each
+        # yieldstep, but for consistency across all potential models, we wrap it up here under the 
+        # "step" method.
+        # If performing a "big" step, reduce yieldstep so it equals save_interval
+        yieldstep = min(seconds, self.save_interval)
         self.barrier()
         for t in self.domain.evolve(yieldstep=yieldstep, 
                                     outputstep=self.save_interval,
                                     duration=seconds,
                                     skip_initial_step=self.skip_step):
             if self.myid == 0:
-                r.report(self.domain.timestepping_statistics())
-                
-            # skip initial yieldstep for all future loops, to avoid rerunning yieldsteps at restart
+                r.report(self.domain.timestepping_statistics())    
+            # Skip initial yieldstep for all future loops, to avoid rerunning yieldsteps at "restart"
             self.skip_step = True
-        # barrier() enforces wait time for all cores so they catch up to each other when this is called (ignored if not parallel)
+
+        # Enforces wait time for all cores so they catch up to each other when this is called (ignored if not parallel)
         self.barrier()
 
     def cleanup(self):
-        # cleanup only required for parallel models
         if self.is_parallel():
             self.domain.sww_merge(delete_old=True)
             self.finalize()
@@ -148,25 +145,22 @@ class AnugaEngine(HydroEngineBase):
     def get_rank(self):
         return self.myid
 
-    def get_cell_count(self):
-        # get number of cells (not nodes) in numerical model grid
-        return len(self.get_elevation())
-
     def get_refdate(self):
-        # hardcoded for now, because DFM requires this in input file
-        # TODO: fix or remove
-        return datetime(2001, 1, 1)     
+        # Hardcoded for now, because DFM requires this in input file. TODO: fix or remove
+        return datetime(2001, 1, 1)   
+    
+    def get_cell_count(self):
+        return len(self.get_elevation())  
 
     def get_elevation(self):
-        # return array of elevation values at cell centers
         return self.domain.quantities["elevation"].centroid_values
 
     def get_velocity_and_depth(self):
-        # get time-varying quantities available in anuga and convert to velocity and depth
         stage = self.domain.quantities["stage"].centroid_values
         depth = stage - self.get_elevation()
         xmom = self.domain.quantities["xmomentum"].centroid_values
         ymom = self.domain.quantities["ymomentum"].centroid_values
+        # Convert depth-averaged momentum to velocity
         with np.errstate(divide="ignore", invalid="ignore"):
             h_lim = self.domain.get_minimum_storable_height()
             xvel = np.where(depth < h_lim, 0., xmom/depth)
@@ -175,29 +169,28 @@ class AnugaEngine(HydroEngineBase):
         return velocity, depth
 
     def get_vegetation(self):
-        # pull directly from Baptist operator
+        # Pull directly from Baptist operator
         stemdensity = self.Baptist.veg_density.centroid_values
         stemdiameter = self.Baptist.veg_diameter.centroid_values
         stemheight = self.Baptist.veg_height.centroid_values
         return stemdensity, stemdiameter, stemheight
     
     def set_vegetation(self, stemdensity, stemdiameter, stemheight):
+        # Update Baptist operator with new quantities
         self.Baptist.set_vegetation(veg_diameter=stemdiameter,
                                     veg_density=stemdensity,
                                     veg_height=stemheight,
                                     )
-
-    def get_drag(self):
-        if self.veg is not None:
-            if hasattr(self.veg, "attrs"):  # then it is a single species object
-                return self.veg.attrs.drag
-            else:  # then it is a multiple species object, take average
-                return np.mean([sp.attrs.drag for sp in self.veg.species_list])
             
     def check_simulation_inputs(self, simstate):
         # Nothing implemented yet
         pass
 
+
+    # --------------------------------------------------------
+    # Parallel methods
+    # --------------------------------------------------------
+    
     def is_parallel(self):
         return True if self.numprocs > 1 else False
     
@@ -224,7 +217,7 @@ class AnugaEngine(HydroEngineBase):
         # get subdomain index mapping arrays
         tri_l2g, tri_full_flag = [], []
         for sww_file in sww_file_list:
-            with Dataset(sww_file) as sww:
+            with xr.open_dataset(sww_file) as sww:
                 tri_l2g.append(sww["tri_l2g"][:])
                 tri_full_flag.append(sww["tri_full_flag"][:])
 
@@ -259,7 +252,6 @@ class AnugaEngine(HydroEngineBase):
             
             # all files for this cohort
             c_files = files_by_cohort.get(cohort_id, [])
-            #c_files = sorted(outputdir.glob(f"cohort{cohort_id}_proc*.npz"), key=lambda f: parse_file(f.name))
             
             if len(c_files) == 0:
                 msg = (f"Warning: No output files found for cohort {cohort_id}, skipping merge. "

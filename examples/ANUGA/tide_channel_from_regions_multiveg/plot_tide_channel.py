@@ -44,7 +44,6 @@ plotter = plotting.ModelPlotter(
         # hrs between consecutive plots, cannot be less than map_output, unused if plotting vegetation
         'plotHR_int': 2,
         },
-    plot_label_time = 'hydrodynamic',
     cmap_lims = {
         'Bathymetry': (-0.5, 0.5),
         },

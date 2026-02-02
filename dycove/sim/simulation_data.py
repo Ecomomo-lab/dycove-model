@@ -75,7 +75,7 @@ class SimulationTimeState:
     n_ets: int
     veg_interval: int
     hydro_interval: int
-    morfac: int
+    morfac: Optional[int] = None
     ecofac: Optional[int] = None
     refdate: dt.datetime = field(default_factory=lambda: dt.datetime.now())
     hydrotime_seconds: int = 0

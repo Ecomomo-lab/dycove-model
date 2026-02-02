@@ -33,10 +33,8 @@ class HydroSimulationBase(ABC):
     """
 
     def __init__(self, engine):
-        # Initialize the simulation with a hydrodynamic engine
         self.engine = engine
-        # Initialize coupler and output manager
-        self.veg_coupler = VegetationCoupler(engine) if engine.veg else None
+        self.veg_coupler = VegetationCoupler(engine) if self.engine.veg else None
         self.outputs = OutputManager(engine)
 
     def run_simulation(self, 
@@ -85,14 +83,13 @@ class HydroSimulationBase(ABC):
             to avoid thin-film issues/influence.
         """
 
-        # initialize model
         self.engine.initialize()
 
         # If engine has save_interval attribute (ANUGA), pass it here
         if hasattr(self.engine, "save_interval"):
             self.engine.save_interval = save_interval
 
-        # define object to hold all static and dynamic variables related to the simulation time frame
+        # Define object to hold all static and dynamic variables related to the simulation time frame
         self.simstate = SimulationTimeState(eco_year=1, ets=1, sim_time=sim_time, sim_time_unit=sim_time_unit,
                                             n_ets=n_ets, veg_interval=veg_interval, hydro_interval=hydro_interval,
                                             morfac=int(self.engine.morph_vars["MorFac"]) if self.engine.morphology else None,
@@ -100,34 +97,35 @@ class HydroSimulationBase(ABC):
                                             refdate=self.engine.get_refdate()
                                             )
 
-        # define object to hold all hydrodynamic statistics relevant for vegetation processes
+        # Define object to hold all hydrodynamic statistics relevant for vegetation processes
         self.hydrostats = HydrodynamicStats(fl_dr=fl_dr, 
                                             n_hydro_steps=self.simstate.n_hydro_steps,
                                             n_cells=self.engine.get_cell_count()
                                             )
 
-        # perform some checks on simulation inputs
         self.engine.check_simulation_inputs(self.simstate)
+
         r.print_model_time_info(self.simstate)
 
-        # loop over all vegetation time steps
+        # Loop over all Ecological Time Steps
         for vts in range(self.simstate.n_veg_steps):
-            # print runtime stats to the screen
             r.print_runtime_updates(self.simstate, vts)
+
             if self.engine.veg is None:
-                self.step_hydrodynamics(self.simstate.veg_interval)
+                self.step_hydrodynamics(self.simstate.veg_interval)  # run a big step
             else:
-                # get flooding, drying, velocity, bed level changes to be used for colonization and mortality calcs
+                # Get flooding, drying, velocity, bed level changes to be used for colonization and mortality calcs
                 self.loop_hydrodynamics()
-                # update vegetation and inject those updates back into hydrodynamic model
+                # Update vegetation and inject those updates back into hydrodynamic model
                 self.veg_coupler.update(self.simstate, self.hydrostats)
-                # write vegetation variables to output
+                # Write vegetation variables to output
                 self.outputs.save_vegetation_step(self.simstate.eco_year, self.simstate.ets)
         
         r.report("Merging outputs, cleaning up, and finalizing simulation...")
         self.outputs.reconcile_vegetation_output()
         self.engine.cleanup()
         r.report("Simulation complete!")
+
 
     def loop_hydrodynamics(self):
         """
@@ -137,27 +135,26 @@ class HydroSimulationBase(ABC):
         statistics (HydrodynamicStats) required for vegetation updates.
         """
                 
-        # add empty placeholders for hydro stats like hmin, vmax, etc
+        # Add empty placeholders for hydro stats like hmin, vmax, etc
         self.hydrostats.reset()
-        # get bed level before hydro loop 
-        # (TODO: morphodynamic simulations only, right now is irrelevent if mor=0)
+
+        # Get bed level before hydro loop (right now is irrelevent if mor=0)
         self.hydrostats.bedlevel_0 = self.engine.get_elevation()
 
-        # do inner loop of smaller hydrodynamic intervals
+        # Run inner loop of smaller hydrodynamic intervals
         for hts in range(self.simstate.n_hydro_steps):
-            # run hydrodynamic model for specified time interval
+            # Run hydrodynamic model for specified time interval
             self.step_hydrodynamics(self.simstate.hydro_interval)
-            # get mean velocity and depth using model-specific methods
+            # Get mean velocity and depth using model-specific methods
             velocity, depth = self.engine.get_velocity_and_depth()
-            # update hydrostats counter
+            # Update hydrostats counter
             self.hydrostats.update(hts, velocity, depth)
 
-        # get bed level changes (TODO: morphodynamic simulations only, right now is irrelevent if mor=0)
+        # Get bed level changes (right now is irrelevent if mor=0)
         self.hydrostats.bedlevel_f = self.engine.get_elevation()
 
     def step_hydrodynamics(self, seconds):
-        """Advance hydrodynamics by a specified interval"""
-        # By wrapping ANUGA's domain.evolve loop inside the engine.step method, step_hydrodynamics is model-agnostic
+        """ Advance hydrodynamics by a specified interval """
         self.engine.step(seconds)
         self.simstate.advance_time(seconds)
 
@@ -172,7 +169,7 @@ class HydroEngineBase(ABC):
 
     @abstractmethod
     def initialize(self):
-        """ Prepare engine to run (allocate memory, print start, etc.). """
+        """ Prepare engine to run (allocate memory, read/check inputs, print start, etc.) """
         pass
 
     @abstractmethod
@@ -195,31 +192,38 @@ class HydroEngineBase(ABC):
         pass
 
     @abstractmethod
+    def get_refdate(self):
+        """ 
+        Get model reference date as a datetime object. 
+        Required for now, only really used by DFM. 
+        """
+        pass
+    
+    @abstractmethod
     def get_cell_count(self) -> int:
         """ Return number of active grid cells in the model. """
         pass
 
     @abstractmethod
     def get_elevation(self) -> np.ndarray:
-        """ Return static bed elevation array (cell-centered). """
+        """ Return array of bed elevations at cell-centers. """
         pass
 
     @abstractmethod
     def get_velocity_and_depth(self) -> tuple[np.ndarray, np.ndarray]:
         """
-        Return velocity magnitude and depth arrays for each cell.
-        If applicable, velocity and depth arrays must be trimmed to active cells.
+        Return velocity magnitude and depth arrays at cell-centers.
         """
         pass
 
     @abstractmethod
     def get_vegetation(self) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """ Return stem density, diameter, and height arrays. """
+        """ Return stem dens., diam., and height arrays from numerical model. """
         pass
 
     @abstractmethod
     def set_vegetation(self, stemdens, stemdiam, stemheight):
-        """ Push vegetation arrays back into the hydro model. """
+        """ Push vegetation arrays back into the numerical model. """
         pass
 
     @abstractmethod
