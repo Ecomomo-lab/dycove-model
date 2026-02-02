@@ -13,6 +13,7 @@ from collections import defaultdict
 from dycove.sim.base import HydroSimulationBase, HydroEngineBase
 from dycove.sim.engines.ANUGA_baptist import Baptist_operator
 from dycove.utils.simulation_reporting import Reporter
+from dycove.constants import H_LIM_VELOCITY
 
 
 r = Reporter()
@@ -162,9 +163,9 @@ class AnugaEngine(HydroEngineBase):
         ymom = self.domain.quantities["ymomentum"].centroid_values
         # Convert depth-averaged momentum to velocity
         with np.errstate(divide="ignore", invalid="ignore"):
-            h_lim = self.domain.get_minimum_storable_height()
-            xvel = np.where(depth < h_lim, 0., xmom/depth)
-            yvel = np.where(depth < h_lim, 0., ymom/depth)
+            # Ignore velocities where depth is insufficient
+            xvel = np.where(depth < H_LIM_VELOCITY, 0., xmom/depth)
+            yvel = np.where(depth < H_LIM_VELOCITY, 0., ymom/depth)
         velocity = np.sqrt(xvel**2 + yvel**2)
         return velocity, depth
 

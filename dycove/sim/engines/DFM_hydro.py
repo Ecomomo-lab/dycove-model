@@ -11,7 +11,8 @@ import xarray as xr
 
 from dycove.sim.base import HydroSimulationBase, HydroEngineBase
 from dycove.utils.simulation_reporting import Reporter
-#from dycove.utils.model_loader import read_netcdf
+from dycove.constants import H_LIM_VELOCITY
+
 
 r = Reporter()
 
@@ -166,8 +167,10 @@ class DFMEngine(HydroEngineBase):
 
     def get_velocity_and_depth(self):
         n_cells = self.get_cell_count()
-        velocity = np.array(self.dflowfm.get_var("ucmag"))[:n_cells]
         depth = np.array(self.dflowfm.get_var("hs"))[:n_cells]
+        velocity = np.array(self.dflowfm.get_var("ucmag"))[:n_cells]
+        # Ignore velocities where depth is insufficient
+        velocity = np.where(depth < H_LIM_VELOCITY, 0., velocity)
 
         return velocity, depth
 
@@ -281,7 +284,7 @@ class DFMEngine(HydroEngineBase):
         Add ExtForceFile to .mdu line if it's not there (and if vegetation is active).
         
         [external forcing]
-        ExtForceFile = FlowFM.ext  # Old format for external forcings file *.ext, ...
+        ExtForceFile = FlowFM.ext  # Old format for external forcings file ...
         """
 
         if self.mdu_vars["ExtForceFile"] == "" and self.veg is not None:

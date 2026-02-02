@@ -46,7 +46,7 @@ _optional_import/_LazyEngine protect against those kinds of import errors.
 """
 
 
-# modules called by all entry-point scripts 
+# Modules called by all entry-point scripts 
 from dycove.sim.vegetation import VegetationSpecies, MultipleVegetationSpecies
 
 # Optional backends
@@ -59,8 +59,6 @@ __all__ = [
     ]
 
 import importlib
-# import sys
-# import types
 import warnings
 
 # ---------------------------------------------------------------------
