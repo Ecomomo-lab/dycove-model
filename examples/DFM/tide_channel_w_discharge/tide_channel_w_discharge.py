@@ -32,7 +32,7 @@ sim_time = 4
 time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynamic years'
 
 # create vegetation species object
-veg_1 = VegetationSpecies("veg1.json", "veg1", mor=1)
+veg_1 = VegetationSpecies("veg1.json", mor=1)
 
 # instantiate DFM model
 HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=veg_1)

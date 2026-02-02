@@ -35,8 +35,8 @@ For modeling of multiple species, the only change needed is in creating multiple
 .. code-block:: python
 
    from dycove import MultipleVegetationSpecies as MultiVeg
-   veg_1 = VegetationSpecies("NelumboLutea.json", "nelumbo")
-   veg_2 = VegetationSpecies("ColocasciaEsculenta.json", "colocascia")
+   veg_1 = VegetationSpecies("NelumboLutea.json")
+   veg_2 = VegetationSpecies("ColocasciaEsculenta.json")
    HydroModel = ANUGA_hydro.ANUGA(HydroDomain.domain, vegetation=MultiVeg([veg_1, veg_2]))
    HydroModel.run_simulation(4, sim_time_unit="eco-morphodynamic years")
 

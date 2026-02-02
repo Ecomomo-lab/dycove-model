@@ -19,4 +19,4 @@ The only change needed (on the DYCOVE side) when morphology is turned on is to a
 
 .. code-block:: python
 
-   veg_1 = VegetationSpecies("veg1.json", "veg1", mor=1)
+   veg_1 = VegetationSpecies("veg1.json", mor=1)

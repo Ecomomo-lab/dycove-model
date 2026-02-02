@@ -56,8 +56,6 @@ class VegetationSpecies(SharedVegMethods):
     ----------
     input_veg_filename : str or Path
         Path to JSON file containing vegetation attributes.
-    species_name : str
-        String representing name of species (can be anything).
     mor : int
         1 if we want to consider morphology (burial/scour) for this vegetation unit, else 0
     rand_seed_frac : float
@@ -70,14 +68,13 @@ class VegetationSpecies(SharedVegMethods):
 
     def __init__(self, 
                  input_veg_filename,
-                 species_name="veg1",
                  mor=0,
                  rand_seed_frac=1.0,
                  rand_seed_method="random",
                  ):
 
         self.attrs       = self.load_vegetation_attributes(Path(input_veg_filename))
-        self.name        = species_name
+        self.name        = input_veg_filename.split(".")[0]
         self.mor         = mor
         self.seed_frac   = rand_seed_frac
         self.seed_method = rand_seed_method

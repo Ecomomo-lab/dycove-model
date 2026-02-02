@@ -23,7 +23,7 @@ should import these high-level classes to get a DYCOVE model running:
 
 ...and then instantiate and run the coupled model:
 
->>> veg_1 = VegetationSpecies("veg1.json", "veg1")
+>>> veg_1 = VegetationSpecies("veg1.json")
 >>> model = ANUGA_hydro.ANUGA(domain, vegetation=veg_1)
 >>> model.run_simulation(3)
 
@@ -31,8 +31,8 @@ Or, for Delft3D FM users looking to model multiple species at once:
 
 >>> from dycove import VegetationSpecies, DFM_hydro
 >>> from dycove import MultipleVegetationSpecies as MultiVeg
->>> veg_1 = VegetationSpecies("veg1.json", "veg1")
->>> veg_2 = VegetationSpecies("veg2.json", "veg2")
+>>> veg_1 = VegetationSpecies("veg1.json")
+>>> veg_2 = VegetationSpecies("veg2.json")
 
 ...define paths to DFM executables, DIMR config file, and model MDU files, then run:
 

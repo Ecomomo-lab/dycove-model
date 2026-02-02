@@ -41,7 +41,7 @@ This object contains all of the vegetation attributes needed to run the simulati
 
 .. code-block:: python
 
-   veg = VegetationSpecies("path/to/vegetation_attributes.json", "species_name")
+   veg = VegetationSpecies("path/to/vegetation_attributes.json")
 
 Creating a :class:`~dycove.sim.vegetation.VegetationSpecies` object automatically creates a :class:`~dycove.sim.vegetation_data.VegetationAttributes` instance, which contains all of the vegetation attributes read from the input file.
 Following the first colonization of the simulation, a :class:`~dycove.sim.vegetation_data.VegCohort` object is also created.
@@ -90,7 +90,7 @@ A separate `.json` file and :class:`~dycove.sim.vegetation.VegetationSpecies` ob
 
 .. code-block:: python
 
-   veg_alt = VegetationSpecies("path/to/vegetation_attributes_alt.json", "species_name_alt")
+   veg_alt = VegetationSpecies("path/to/vegetation_attributes_alt.json")
    model = ANUGA_hydro.ANUGA(anuga_domain, vegetation=MultiVeg[veg, veg_alt])
 
 

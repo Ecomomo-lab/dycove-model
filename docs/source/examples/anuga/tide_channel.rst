@@ -47,7 +47,7 @@ Instantiate a ``VegetationSpecies`` object using the vegetation attribute file, 
 
 .. code-block:: python
 
-   veg_1 = VegetationSpecies("veg1.json", "veg1")
+   veg_1 = VegetationSpecies("veg1.json")
    HydroModel = ANUGA_hydro.ANUGA(HydroDomain.domain, vegetation=veg_1)
 
 The `veg1.json` attribute file found in the working example directory contains a number of parameters related to when/where this species will colonize, how it will grow, and under what conditions it will die off.
