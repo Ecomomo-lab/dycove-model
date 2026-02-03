@@ -425,9 +425,9 @@ class ModelPlotter:
         for i in tqdm(range(ti_0, ti_f, dti)):
             self.create_timestrings(i)
             hydro_i, ets, eco_year = self.get_map_indices(i)
-            map_vars = self.map_loader.load(hydro_i, ets, eco_year)
+            map_vars, species_names = self.map_loader.load(hydro_i, ets, eco_year)
             z_grid, grid2plot = self.get_quantity_grids(map_vars)
-            self.plot_quantity(z_grid, grid2plot)
+            self.plot_quantity(z_grid, grid2plot, species_names)
 
         if self.animate: 
             self.create_gif()
@@ -567,50 +567,12 @@ class ModelPlotter:
         return model_files[0].stem
 
 
-    def create_interp_func(self, map_vars):
-        # create interpolation function the first time -> quick interpolations for all other time steps
-        interp_func = create_nn_interpFunc(map_vars['X'], map_vars['Y'], 
-                                           grid_size=self.plot_interp_vars['cell_size'], 
-                                           k_nn=self.plot_interp_vars['n_neighbors'],
-                                           polygon_csv=self.mask_bndy_file, extents=self.extents,
-                                           )
-        return interp_func
-
-    def get_exact_grid_idx(self, map_vars):
-        # Get number of unique x/y values 
-        x_unique = np.unique(map_vars['X'])
-        y_unique = np.unique(map_vars['Y'])
-        # Get number of rows and columns
-        nx = x_unique.size
-        ny = y_unique.size
-        # Create empty template grid
-        empty_grid = np.full((ny, nx), np.nan)
-        # Map 1-D points to grid indices
-        x_idx = np.searchsorted(x_unique, map_vars['X'])
-        y_idx = np.searchsorted(y_unique, map_vars['Y'])
-
-        return empty_grid, x_idx, y_idx
-    
-    def map_to_grid(self, var_1d):
-        grid = self.empty_grid.copy()
-        grid[self.y_idx, self.x_idx] = var_1d
-        return grid
-    
-    def create_grid(self, var):
-        # if plot_method is 'interp'
-        if self.interp_func is not None:
-            grid = self.interp_func(var)
-        # if plot_method is 'exact'
-        elif self.empty_grid is not None:
-            grid = self.map_to_grid(var)
-        return grid
-
     def get_quantity_grids(self, map_vars):
-        # adjust "mortality" key if necessary, from full name to generic name
+        # Adjust "mortality" key if necessary, from full name to generic name
         if self.quantity == "Mortality":
             map_vars["Mortality"] = map_vars.pop(self.full_quantity_name)
 
-        # create interpolation function the first time -> quick interpolations for all other time steps
+        # Create interpolation function the first time -> quick interpolations for all other time steps
         if self.plot_method == 'interp' and self.interp_func is None:
             self.interp_func = self.create_interp_func(map_vars)
 
@@ -620,7 +582,7 @@ class ModelPlotter:
         # to be populated if we are doing vector plots
         self.vector_comps = None
 
-        # for DFM, z_grid should be recomputed every step in case morphology is turned on. For ANUGA, oh well it's fast enough
+        # For DFM, z_grid should be recomputed every step in case morphology is turned on. For ANUGA, oh well it's fast enough
         z_grid = self.create_grid(map_vars['Bathymetry']) * self.quantity_units['Bathymetry'][1]
 
         if self.quantity == 'Bathymetry':
@@ -662,17 +624,56 @@ class ModelPlotter:
                 veg_grid = self.create_grid(veg_data) * self.quantity_units[self.quantity][1]
                 return z_grid, np.ma.masked_where(veg_grid < self.quantity_units[self.quantity][2], veg_grid)
             else:
-                # may not be any veg data at all in this time step, so return an empty grid
+                # If no veg data at all in this time step, return an empty grid
                 empty_grid = np.ma.masked_all(z_grid.shape)
                 return z_grid, empty_grid
 
 
-    def plot_quantity(self, base_grid, main_grid):
+    def create_interp_func(self, map_vars):
+        # create interpolation function the first time -> quick interpolations for all other time steps
+        interp_func = create_nn_interpFunc(map_vars['X'], map_vars['Y'], 
+                                           grid_size=self.plot_interp_vars['cell_size'], 
+                                           k_nn=self.plot_interp_vars['n_neighbors'],
+                                           polygon_csv=self.mask_bndy_file, extents=self.extents,
+                                           )
+        return interp_func
+
+    def get_exact_grid_idx(self, map_vars):
+        # Get number of unique x/y values 
+        x_unique = np.unique(map_vars['X'])
+        y_unique = np.unique(map_vars['Y'])
+        # Get number of rows and columns
+        nx = x_unique.size
+        ny = y_unique.size
+        # Create empty template grid
+        empty_grid = np.full((ny, nx), np.nan)
+        # Map 1-D points to grid indices
+        x_idx = np.searchsorted(x_unique, map_vars['X'])
+        y_idx = np.searchsorted(y_unique, map_vars['Y'])
+
+        return empty_grid, x_idx, y_idx
+    
+    def map_to_grid(self, var_1d):
+        grid = self.empty_grid.copy()
+        grid[self.y_idx, self.x_idx] = var_1d
+        return grid
+    
+    def create_grid(self, var):
+        # if plot_method is 'interp'
+        if self.interp_func is not None:
+            grid = self.interp_func(var)
+        # if plot_method is 'exact'
+        elif self.empty_grid is not None:
+            grid = self.map_to_grid(var)
+        return grid
+
+
+    def plot_quantity(self, base_grid, main_grid, species_names):
         if type(main_grid) is list:  # for veg fractions, we plot each fraction separately
-            for i, grid in enumerate(main_grid):
+            for grid, name in zip(main_grid, species_names):
                 self.plot_single_quantity(base_grid, grid, 
-                        title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]} -- i={i}",
-                        fname=f"{self.full_quantity_name.replace(' ', '')}_{self.timestrings[-1][0]}_i={i}")
+                        title=f"{self.full_quantity_name} -- {name} -- {self.timestrings[-1][1]}",
+                        fname=f"{self.full_quantity_name.replace(' ', '')}_{name}_{self.timestrings[-1][0]}")
         else:
             self.plot_single_quantity(base_grid, main_grid, 
                         title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]}",
@@ -739,12 +740,12 @@ class ModelPlotter:
         gridX, gridY = np.meshgrid(np.linspace(0, nx, nx), np.linspace(0, ny, ny))
         # Identify mesh array indices where we want to show vectors (cut down number of arrows)
         dr = int(self.vector_props['vect_spacing']/self.plot_interp_vars['cell_size'])
-        quiver = ax.quiver(gridX[::dr,::dr], gridY[::dr,::dr], vx[::dr,::dr], vy[::dr,::dr],
-                           color=self.vector_props['color'],
-                           scale=self.vector_props['scale'],
-                           pivot=self.vector_props['pivot'],
-                           width=self.vector_props['width'],
-                           )
+        ax.quiver(gridX[::dr,::dr], gridY[::dr,::dr], vx[::dr,::dr], vy[::dr,::dr],
+                        color=self.vector_props['color'],
+                        scale=self.vector_props['scale'],
+                        pivot=self.vector_props['pivot'],
+                        width=self.vector_props['width'],
+                        )
     
 
     def create_gif(self):

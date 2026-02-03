@@ -173,6 +173,8 @@ class VegCohort:
 
     Attributes
     ----------
+    name : str
+        Name of species.
     fraction : numpy.ndarray
         Vegetation fractional cover per cell (0–1).
     density : float
@@ -193,22 +195,23 @@ class VegCohort:
         Represents actual loss per cell.
     """
 
-    fraction: np.ndarray  # array, length = n_cells
-    density: float        # stems/m²
-    diameter: float       # m
-    height: float         # m
-    rootlength: float     # m
-    lifestage: int        # current life stage index (1..nls)
-    lifestage_year: int   # years spent in this stage
+    name: str
+    fraction: np.ndarray
+    density: float
+    diameter: float
+    height: float
+    rootlength: float
+    lifestage: int
+    lifestage_year: int
 
-    # tracking mortality causes; potential = between 0 and 1, based on stressor not veg fraction
+    # Tracking mortality causes; potential = between 0 and 1, based on stressor not veg fraction
     potential_mort_flood: Optional[np.ndarray] = None
     potential_mort_desic: Optional[np.ndarray] = None
     potential_mort_uproot: Optional[np.ndarray] = None
     potential_mort_burial: Optional[np.ndarray] = None
     potential_mort_scour: Optional[np.ndarray] = None
 
-    # tracking mortality causes; applied = (veg fraction) * (potential mortality)
+    # Tracking mortality causes; applied = (veg fraction) * (potential mortality)
     applied_mort_flood: Optional[np.ndarray] = None
     applied_mort_desic: Optional[np.ndarray] = None
     applied_mort_uproot: Optional[np.ndarray] = None

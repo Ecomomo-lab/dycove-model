@@ -9,7 +9,6 @@ from dataclasses import asdict
 
 class OutputManager:
     """ For saving :class:`~dycove.sim.vegetation_data.VegCohort` instances to output files. """
-    
     def __init__(self, engine):
         self.engine = engine
         self.veg = engine.veg
@@ -23,14 +22,14 @@ class OutputManager:
             fname = f"cohort{n+1}_proc{self.engine.get_rank()}" if self.engine.is_parallel() else f"cohort{n+1}"
             self.save_binary(self.veg_dir, fname, asdict(cohort), year, ets)
 
-    def save_binary(self, directory: Path, name: str, data, year, ets):
-        """Save dict-like data as compressed numpy .npz file"""
+    def save_binary(self, directory: Path, filename: str, data: dict, year: int, ets: int):
+        """ Save dict-like data as compressed numpy .npz file """
         data_flat = self.make_numpy_friendly(data)
-        fname = f"{name}_year{year}_ets{ets}.npz"
+        fname = f"{filename}_year{year}_ets{ets}.npz"
         np.savez_compressed(directory / fname, **data_flat)
 
     def make_numpy_friendly(self, obj):
-        """Recursively convert arrays/lists to numpy arrays where possible"""
+        """ Recursively convert arrays/lists to numpy arrays where possible """
         if isinstance(obj, np.ndarray):
             return obj
         elif isinstance(obj, dict):

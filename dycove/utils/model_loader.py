@@ -95,23 +95,24 @@ class BaseMapLoader(ABC):
         No cached variable here because these files are written every ETS
         """
 
-        veg_fractions, veg_quantity = [], []     
+        veg_fractions, veg_quantity, veg_names = [], [], []     
 
-        # loop through all cohort files saved for this ETS, load file to running list
+        # Loop through all cohort files saved for this ETS, load file to running list
         for file in self.ecodir.glob(f'cohort*_year{eco_year}_ets{ets}.npz'):
             c = dict(np.load(file, allow_pickle=True))
+            veg_names.append(c["name"])
             veg_fractions.append(c["fraction"])
             veg_quantity.append(c[self.veg_varnames[self.quantity]])  # not used if quantity is 'Fractions'
 
-        return veg_fractions, veg_quantity
+        return veg_fractions, veg_quantity, veg_names
 
     def _pass_veg(self, veg_data, data):
-        # just for distributing veg data to correct keys in data dict
+        # For distributing veg data to correct keys in data dict
         data['Fractions'] = veg_data[0]
         if self.quantity != "Fractions":
-            # for all other quantities, we need Fractions in order to do weighted averaging of cohorts in grid cells
+            # For all other quantities, we need Fractions in order to do weighted averaging of cohorts in grid cells
             data[self.quantity] = veg_data[1]
-        return data
+        return data, veg_data[2]
 
 
 class ANUGAMapLoader(BaseMapLoader):
@@ -222,7 +223,7 @@ class DFMMapLoader(BaseMapLoader):
     """
     Loader for DFM hydrodynamic and DYCOVE vegetation output files.
 
-    Loads data from ANUGA ``*_map.nc`` NetCDF files and DYCOVE ``.npz`` vegetation cohort
+    Loads data from DFM ``*_map.nc`` NetCDF file and DYCOVE ``.npz`` vegetation cohort
     files.
 
     Notes

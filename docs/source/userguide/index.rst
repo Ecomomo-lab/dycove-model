@@ -127,15 +127,15 @@ However, DYCOVE provides a built-in plotting class :class:`~dycove.utils.plottin
 .. code-block:: python
 
    plotter = plotting.ModelPlotter(
-      simdir = Path("."),
-      # or: quantity = "Velocity", etc. See examples and ModelPlotter API for list of quantities
-      quantity = "Stem Height",
-      plot_times = {
-         "plotHR_0": 0*24.,
-         "plotHR_f": 21*24.,
-         "mapHR_int": 1,
-         "plotHR_int": 1,
-      },
+       simdir = Path("."),
+       # or: quantity = "Velocity", etc. See examples and ModelPlotter API for list of quantities
+       quantity = "Stem Height",
+       plot_times = {
+           "plotHR_0": 0*24.,
+           "plotHR_f": 21*24.,
+           "mapHR_int": 1,
+           "plotHR_int": 1,
+       },
    )
 
    plotter.run()
@@ -197,9 +197,9 @@ For example:
    # Loop through all cohort files saved for a given year and ETS, load quantities to running lists
    veg_fractions, veg_quantity = [], []
    for file in self.ecodir.glob(f'cohort*_year1_ets7.npz'):
-      c = dict(numpy.load("path/to/veg_output/cohort1_year1_ets7.npz", allow_pickle=True))
-      fractions.append(c["fraction"])
-      heights.append(c["height"])  # or "density", "applied_mort_flood", etc.
+       c = dict(numpy.load("path/to/veg_output/cohort1_year1_ets7.npz", allow_pickle=True))
+       fractions.append(c["fraction"])
+       heights.append(c["height"])  # or "density", "applied_mort_flood", etc.
 
 Note that for a given cohort, each ``c["fraction"]`` is an array with one value per grid cell, while other quantities like ``c["height"]`` have only a single value per cohort, which grows over time.
 Mortality outputs are arrays, similar to Fractions.

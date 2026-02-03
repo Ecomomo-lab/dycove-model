@@ -9,6 +9,7 @@ import json
 from dycove.sim.vegetation_data import VegetationAttributes, VegCohort
 from dycove.utils.simulation_reporting import Reporter
 from dycove.utils.array_math import cell_averaging, sum_product, sum_elementwise
+from dycove.constants import MIN_FRACTION
 
 r = Reporter()
 
@@ -68,17 +69,22 @@ class VegetationSpecies(SharedVegMethods):
 
     def __init__(self, 
                  input_veg_filename,
+                 species_name=None,
                  mor=0,
                  rand_seed_frac=1.0,
                  rand_seed_method="random",
                  ):
 
         self.attrs       = self.load_vegetation_attributes(Path(input_veg_filename))
-        self.name        = input_veg_filename.split(".")[0]
         self.mor         = mor
         self.seed_frac   = rand_seed_frac
         self.seed_method = rand_seed_method
 
+        if species_name is not None:
+            self.name = species_name
+        else:
+            self.name = input_veg_filename.split(".")[0]
+            
         # Will become list of VegCohort objects, one for each cohort/colonization that occurs
         self.cohorts: list[VegCohort] = []
 
@@ -141,6 +147,7 @@ class VegetationSpecies(SharedVegMethods):
             # Create new cohort for latest colonization
             # new_veg_fraction is an array, other quantities are scalars
             new_cohort = VegCohort(
+                name=self.name,
                 fraction=new_fraction,
                 density=self.attrs.stemdens[0],
                 diameter=self.attrs.stemdiam_0,
@@ -192,8 +199,8 @@ class VegetationSpecies(SharedVegMethods):
         """ Delegate to internal methods. """
         self.mortality_hydrodynamic(**hydro_vars)
         self.mortality_morphodynamic(**morpho_vars)
-        #self.apply_mortality()
-        self.apply_mortality_using_initial_fractions()
+        self.apply_mortality()
+        #self.apply_mortality_using_initial_fractions()
 
     def mortality_hydrodynamic(self, fld_frac, dry_frac, vel_max):
         """
@@ -310,15 +317,15 @@ class VegetationSpecies(SharedVegMethods):
             fractions_left = c.fraction - c.applied_mort_total
             fractions_left = np.maximum(fractions_left, 0)  # no negative fractions
 
-            # update fractions in cohort
-            # for fractions that decay slowly over time, round down to zero when they get small enough
-            c.fraction = np.where(fractions_left > 0.025, fractions_left, 0.)
+            # Update fractions in cohort
+            # For fractions that decay slowly over time, round down to zero when they get small enough
+            c.fraction = np.where(fractions_left > MIN_FRACTION, fractions_left, 0.)
 
 
     def apply_mortality_using_initial_fractions(self):
         """ 
-        Replacing `c.fraction` with `self.attrs.fraction_0`, 
-        always a function of initial colonization fraction .
+        Replacing `c.fraction` with `self.attrs.fraction_0`, so mortality is 
+        always a function of initial colonization fraction.
         """
         for c in self.cohorts:
             # Vegetation fractions lost to flooding
@@ -339,7 +346,11 @@ class VegetationSpecies(SharedVegMethods):
             c.applied_mort_total = c.applied_mort_flood + c.applied_mort_desic + c.applied_mort_uproot + \
                                     c.applied_mort_burial + c.applied_mort_scour
             fractions_left = c.fraction - c.applied_mort_total
-            c.fraction = np.maximum(fractions_left, 0)  # no negative fractions
+            fractions_left = np.maximum(fractions_left, 0)  # no negative fractions
+
+            # Update fractions in cohort
+            # For fractions that decay slowly over time, round down to zero when they get small enough
+            c.fraction = np.where(fractions_left > MIN_FRACTION, fractions_left, 0.)
 
 
     @staticmethod
