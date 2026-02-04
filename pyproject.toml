@@ -24,7 +24,7 @@ classifiers = [
 
 dependencies = [
     "numpy",
-    "netCDF4",
+    "xarray",
     "matplotlib",
     "tqdm",
     "scipy",

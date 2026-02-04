@@ -15,7 +15,6 @@ class OutputManager:
         self.veg_dir   = Path(engine.model_dir) / "veg_output"
         self.veg_dir.mkdir(parents=True, exist_ok=True)
 
-
     def save_vegetation_step(self, year: int, ets: int):
         """ Save vegetation cohort state for a given ecological timestep """
         for n, cohort in enumerate(self.veg.cohorts):

@@ -55,6 +55,7 @@ class Reporter:
 
     def print_model_time_info(self, simstate):
         """ Print duration of simulation in hydrodynamic days and eco-morphodynamic years. """
+        self.report(f"Running DYCOVE with {simstate.n_ets} Eco Time Steps per year with coupling interval of {int(simstate.veg_interval/3600.)} hours")
         self.report(f"Hydrodynamic model duration: {int(simstate.hydro_sim_days)} days")
         self.report(f"Eco-morphodynamic model duration: {simstate.veg_sim_years} years ")
 

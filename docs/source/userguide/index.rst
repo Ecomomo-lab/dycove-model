@@ -122,7 +122,7 @@ It contains all of the attributes that are stored in a :class:`~dycove.sim.veget
 Plotting
 --------
 
-However, DYCOVE provides a built-in plotting class :class:`~dycove.utils.plotting.ModelPlotter` that can be used to plot time series of 2-D quantities from both the numerical model and DYCOVE:
+DYCOVE features a built-in plotting class :class:`~dycove.utils.plotting.ModelPlotter` that can be used to plot time series of 2-D quantities from both the numerical model and DYCOVE:
 
 .. code-block:: python
 
@@ -144,6 +144,8 @@ Attributes in the `.npz` file that are 1-D arrays (fractions, mortality fraction
 Users can create an interpolation function directly using :func:`~dycove.utils.plotting.create_nn_interpFunc`.
 This function is created and called as shown in :meth:`~dycove.utils.plotting.ModelPlotter.get_quantity_grids`.
 Loading of vegetation output files is performed in :class:`~dycove.utils.model_loader.BaseMapLoader`, while loading of numerical model outputs occurs in :class:`~dycove.utils.model_loader.ANUGAMapLoader` or :class:`~dycove.utils.model_loader.DFMMapLoader`.
+
+:class:`~dycove.utils.plotting.ModelPlotter` is highly customizable and has many optional arguments, which are detailed in the API docs.
 
 
 .. _plot-multi-species:

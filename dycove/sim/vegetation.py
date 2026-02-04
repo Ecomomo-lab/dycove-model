@@ -127,7 +127,7 @@ class VegetationSpecies(SharedVegMethods):
         """
 
         if self.attrs.start_col_ets <= ets < self.attrs.end_col_ets:
-            r.report(f"Doing colonization for species \"{self.name}\", at eco step {ets}")
+            r.report(f"Doing colonization for species \"{self.name}\", at ETS {ets}")
 
             # Get conditions for colonization
             dry_cond = (min_depths <  fl_dr)
@@ -250,7 +250,7 @@ class VegetationSpecies(SharedVegMethods):
                 
 
     # TODO: Verify that we want the default scour_frac to be 10%, previous codes have just used 100% same as stem burial
-    def mortality_morphodynamic(self, bl_diff=None, burial_frac=1.0, scour_frac=0.1):
+    def mortality_morphodynamic(self, bl_diff, burial_frac=1.0, scour_frac=0.1):
         """
         Compute linear mortality functions for each morphodynamic stressor (if activated).
 

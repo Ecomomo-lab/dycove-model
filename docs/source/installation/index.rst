@@ -1,8 +1,8 @@
 Installation Instructions
 =========================
 
-DYCOVE is compatible with Python 3.10-3.13. 
-There are technically only two general dependencies, which are `numpy <https://numpy.org/install/>`_ and `netCDF4 <https://pypi.org/project/netCDF4/>`_.
+DYCOVE is compatible with Python 3.10-3.13 (see Issues for some current incompatibilities). 
+There are technically only two general dependencies, which are `numpy <https://numpy.org/install/>`_ and `xarray <https://pypi.org/project/xarray/>`_.
 However, there are additional dependencies depending on the underlying numerical model to be used, and if the :class:`~dycove.utils.plotting.ModelPlotter` will be used.
 
 
@@ -17,8 +17,9 @@ The easiest way to install ANUGA is to create a new ``conda`` environment and in
 
    conda install -c conda-forge anuga mpi4py
 
-**Update**: ANUGA is not currently importing with Python 3.12 and is causing Python to crash.
-For now, please use Python 3.10, 3.11, or 3.13, and let us know if it starts working again with 3.12 by responding to the Issue on GitHub.
+**Update**: ANUGA is not currently importing with Python 3.12 and is causing Python to crash without an error message.
+For now, use Python 3.10, 3.11, or 3.13, and let us know if it starts working again with 3.12 by responding to the relevant Issue on GitHub.
+
 
 Install Delft3D FM
 ------------------
@@ -41,11 +42,12 @@ Windows users may also need to install `pypiwin32 <https://pypi.org/project/pypi
 
 **Update**: The DYCOVE implementation of the DFM ``bmi`` library is not currently working with Python 3.11 and 3.12.
 
+
 Install Plotting Libraries
 --------------------------
 
 DYCOVE's :class:`~dycove.utils.plotting.ModelPlotter` is a convenient way to plot outputs.
-The dependencies are `matplotlib <https://matplotlib.org/3.2.2/users/installing.html>`_, `scipy <https://www.scipy.org/install.html>`_,  `tqdm <https://pypi.org/project/tqdm/>`_, and `imageio <https://pypi.org/project/ImageIO/>`_.
+The additional dependencies are `matplotlib <https://matplotlib.org/3.2.2/users/installing.html>`_, `scipy <https://www.scipy.org/install.html>`_,  `tqdm <https://pypi.org/project/tqdm/>`_, and `imageio <https://pypi.org/project/ImageIO/>`_.
 Of course, users will want to have some of these libraries installed whether or not they plan to use :class:`~dycove.utils.plotting.ModelPlotter`.
 
 
