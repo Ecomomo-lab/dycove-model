@@ -17,7 +17,6 @@
       ~AnugaEngine.check_simulation_inputs
       ~AnugaEngine.cleanup
       ~AnugaEngine.get_cell_count
-      ~AnugaEngine.get_drag
       ~AnugaEngine.get_elevation
       ~AnugaEngine.get_rank
       ~AnugaEngine.get_refdate

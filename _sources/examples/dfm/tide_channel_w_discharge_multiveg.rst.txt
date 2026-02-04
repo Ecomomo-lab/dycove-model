@@ -19,8 +19,8 @@ The only change needed when modeling multiple species is in creating multiple :c
 .. code-block:: python
 
    from dycove import MultipleVegetationSpecies as MultiVeg
-   veg_1 = VegetationSpecies("NelumboLutea.json", "nelumbo", mor=1, rand_seed_frac=0.8)
-   veg_2 = VegetationSpecies("ColocasciaEsculenta.json", "colocascia", mor=1, rand_seed_frac=0.8)
+   veg_1 = VegetationSpecies("NelumboLutea.json", mor=1, rand_seed_frac=0.8)
+   veg_2 = VegetationSpecies("ColocasciaEsculenta.json", mor=1, rand_seed_frac=0.8)
    HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=MultiVeg([veg_1, veg_2]))
    HydroModel.run_simulation(4, sim_time_unit="eco-morphodynamic years")
 

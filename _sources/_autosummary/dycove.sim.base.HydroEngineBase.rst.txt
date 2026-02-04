@@ -19,6 +19,7 @@
       ~HydroEngineBase.get_cell_count
       ~HydroEngineBase.get_elevation
       ~HydroEngineBase.get_rank
+      ~HydroEngineBase.get_refdate
       ~HydroEngineBase.get_vegetation
       ~HydroEngineBase.get_velocity_and_depth
       ~HydroEngineBase.initialize

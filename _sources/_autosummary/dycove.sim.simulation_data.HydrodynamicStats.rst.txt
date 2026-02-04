@@ -18,6 +18,7 @@
       ~HydrodynamicStats.flood_frac
       ~HydrodynamicStats.reset
       ~HydrodynamicStats.update
+      ~HydrodynamicStats.v_max_95th
    
    
 
@@ -33,7 +34,9 @@
       ~HydrodynamicStats.flood_counts
       ~HydrodynamicStats.h_max
       ~HydrodynamicStats.h_min
-      ~HydrodynamicStats.v_max
+      ~HydrodynamicStats.v_maxs
       ~HydrodynamicStats.fl_dr
+      ~HydrodynamicStats.n_hydro_steps
+      ~HydrodynamicStats.n_cells
    
    

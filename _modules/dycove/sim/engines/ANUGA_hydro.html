@@ -82,7 +82,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">netCDF4</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dataset</span>  <span class="c1"># type: ignore</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
@@ -91,6 +91,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.sim.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">HydroSimulationBase</span><span class="p">,</span> <span class="n">HydroEngineBase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.sim.engines.ANUGA_baptist</span><span class="w"> </span><span class="kn">import</span> <span class="n">Baptist_operator</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.simulation_reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reporter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">H_LIM_VELOCITY</span>
 
 
 <span class="n">r</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">()</span>
@@ -183,11 +184,6 @@
         <span class="c1"># passing vegetation as attribute of the engine</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="o">=</span> <span class="n">vegetation</span>
 
-        <span class="c1"># Theoretically, we could take the weighted average of drag attributes based on species, lifestage</span>
-        <span class="c1"># But DFM can only acept a single value. So we copy that approach for ANUGA and set the Baptist_operator</span>
-        <span class="c1">#   with a constant value each time we do set_vegetation()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">drag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_drag</span><span class="p">()</span>
-
         <span class="c1"># With DYCOVE-ANUGA, we run many consecutive &quot;domain.evolve&quot; loops, rather than just one big loop.</span>
         <span class="c1"># We don&#39;t want to skip the first step for the first of these loops, but for every other loop, we do.</span>
         <span class="c1"># Otherwise, we get repeated steps.</span>
@@ -204,38 +200,40 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># ANUGA doesn&#39;t have an &quot;initialize&quot; method like DFM, </span>
         <span class="c1"># but we can include some required steps here rather than just having an empty method</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">Baptist</span> <span class="o">=</span> <span class="n">Baptist_operator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> 
-                                        <span class="n">veg_diameter</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
-                                        <span class="n">veg_density</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
-                                        <span class="n">veg_height</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
-                                        <span class="n">drag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">drag</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Baptist</span> <span class="o">=</span> <span class="n">Baptist_operator</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> 
+                                            <span class="n">veg_diameter</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                                            <span class="n">veg_density</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                                            <span class="n">veg_height</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> 
+                                            <span class="n">drag</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">get_drag</span><span class="p">())</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">morphology</span> <span class="o">=</span> <span class="kc">False</span></div>
 
         
 <div class="viewcode-block" id="AnugaEngine.step">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.step">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="p">):</span>
-        <span class="c1"># normally, all processes would be performed within this domain.evolve() loop, </span>
-        <span class="c1"># but for consistency across all potential models, we wrap it up here under the &quot;step&quot; method.</span>
-        <span class="n">yieldstep</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">seconds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_interval</span><span class="p">)</span>  <span class="c1"># if performing a &quot;big&quot; step, reduce yieldstep so it equals save_interval</span>
+        <span class="c1"># Normally, all processes in ANUGA would be performed within the domain.evolve() loop at each</span>
+        <span class="c1"># yieldstep, but for consistency across all potential models, we wrap it up here under the </span>
+        <span class="c1"># &quot;step&quot; method.</span>
+        <span class="c1"># If performing a &quot;big&quot; step, reduce yieldstep so it equals save_interval</span>
+        <span class="n">yieldstep</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">seconds</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_interval</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">evolve</span><span class="p">(</span><span class="n">yieldstep</span><span class="o">=</span><span class="n">yieldstep</span><span class="p">,</span> 
                                     <span class="n">outputstep</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">save_interval</span><span class="p">,</span>
                                     <span class="n">duration</span><span class="o">=</span><span class="n">seconds</span><span class="p">,</span>
                                     <span class="n">skip_initial_step</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">skip_step</span><span class="p">):</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">myid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">timestepping_statistics</span><span class="p">())</span>
-                
-            <span class="c1"># skip initial yieldstep for all future loops, to avoid rerunning yieldsteps at restart</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">timestepping_statistics</span><span class="p">())</span>    
+            <span class="c1"># Skip initial yieldstep for all future loops, to avoid rerunning yieldsteps at &quot;restart&quot;</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">skip_step</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="c1"># barrier() enforces wait time for all cores so they catch up to each other when this is called (ignored if not parallel)</span>
+
+        <span class="c1"># Enforces wait time for all cores so they catch up to each other when this is called (ignored if not parallel)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">barrier</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="AnugaEngine.cleanup">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.cleanup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># cleanup only required for parallel models</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">sww_merge</span><span class="p">(</span><span class="n">delete_old</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span>
@@ -249,37 +247,37 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">myid</span></div>
 
 
+<div class="viewcode-block" id="AnugaEngine.get_refdate">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.get_refdate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_refdate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Hardcoded for now, because DFM requires this in input file. TODO: fix or remove</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2001</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>   </div>
+
+    
 <div class="viewcode-block" id="AnugaEngine.get_cell_count">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.get_cell_count">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># get number of cells (not nodes) in numerical model grid</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_elevation</span><span class="p">())</span></div>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_elevation</span><span class="p">())</span>  </div>
 
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_refdate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># hardcoded for now, because DFM requires this in input file</span>
-        <span class="c1"># TODO: fix or remove</span>
-        <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2001</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>     
 
 <div class="viewcode-block" id="AnugaEngine.get_elevation">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.get_elevation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># return array of elevation values at cell centers</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">quantities</span><span class="p">[</span><span class="s2">&quot;elevation&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">centroid_values</span></div>
 
 
 <div class="viewcode-block" id="AnugaEngine.get_velocity_and_depth">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.get_velocity_and_depth">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_velocity_and_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># get time-varying quantities available in anuga and convert to velocity and depth</span>
         <span class="n">stage</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">quantities</span><span class="p">[</span><span class="s2">&quot;stage&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">centroid_values</span>
         <span class="n">depth</span> <span class="o">=</span> <span class="n">stage</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_elevation</span><span class="p">()</span>
         <span class="n">xmom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">quantities</span><span class="p">[</span><span class="s2">&quot;xmomentum&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">centroid_values</span>
         <span class="n">ymom</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">quantities</span><span class="p">[</span><span class="s2">&quot;ymomentum&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">centroid_values</span>
+        <span class="c1"># Convert depth-averaged momentum to velocity</span>
         <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
-            <span class="n">h_lim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">get_minimum_storable_height</span><span class="p">()</span>
-            <span class="n">xvel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">depth</span> <span class="o">&lt;</span> <span class="n">h_lim</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">xmom</span><span class="o">/</span><span class="n">depth</span><span class="p">)</span>
-            <span class="n">yvel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">depth</span> <span class="o">&lt;</span> <span class="n">h_lim</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">ymom</span><span class="o">/</span><span class="n">depth</span><span class="p">)</span>
+            <span class="c1"># Ignore velocities where depth is insufficient</span>
+            <span class="n">xvel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">depth</span> <span class="o">&lt;</span> <span class="n">H_LIM_VELOCITY</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">xmom</span><span class="o">/</span><span class="n">depth</span><span class="p">)</span>
+            <span class="n">yvel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">depth</span> <span class="o">&lt;</span> <span class="n">H_LIM_VELOCITY</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">ymom</span><span class="o">/</span><span class="n">depth</span><span class="p">)</span>
         <span class="n">velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">xvel</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">yvel</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">depth</span></div>
 
@@ -287,7 +285,7 @@
 <div class="viewcode-block" id="AnugaEngine.get_vegetation">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.get_vegetation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_vegetation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># pull directly from Baptist operator</span>
+        <span class="c1"># Pull directly from Baptist operator</span>
         <span class="n">stemdensity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Baptist</span><span class="o">.</span><span class="n">veg_density</span><span class="o">.</span><span class="n">centroid_values</span>
         <span class="n">stemdiameter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Baptist</span><span class="o">.</span><span class="n">veg_diameter</span><span class="o">.</span><span class="n">centroid_values</span>
         <span class="n">stemheight</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Baptist</span><span class="o">.</span><span class="n">veg_height</span><span class="o">.</span><span class="n">centroid_values</span>
@@ -297,18 +295,12 @@
 <div class="viewcode-block" id="AnugaEngine.set_vegetation">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.set_vegetation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_vegetation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stemdensity</span><span class="p">,</span> <span class="n">stemdiameter</span><span class="p">,</span> <span class="n">stemheight</span><span class="p">):</span>
+        <span class="c1"># Update Baptist operator with new quantities</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Baptist</span><span class="o">.</span><span class="n">set_vegetation</span><span class="p">(</span><span class="n">veg_diameter</span><span class="o">=</span><span class="n">stemdiameter</span><span class="p">,</span>
                                     <span class="n">veg_density</span><span class="o">=</span><span class="n">stemdensity</span><span class="p">,</span>
                                     <span class="n">veg_height</span><span class="o">=</span><span class="n">stemheight</span><span class="p">,</span>
                                     <span class="p">)</span></div>
 
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_drag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="p">,</span> <span class="s2">&quot;attrs&quot;</span><span class="p">):</span>  <span class="c1"># then it is a single species object</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">drag</span>
-            <span class="k">else</span><span class="p">:</span>  <span class="c1"># then it is a multiple species object, take average</span>
-                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">sp</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">drag</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">species_list</span><span class="p">])</span>
             
 <div class="viewcode-block" id="AnugaEngine.check_simulation_inputs">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.check_simulation_inputs">[docs]</a>
@@ -317,6 +309,11 @@
         <span class="k">pass</span></div>
 
 
+
+    <span class="c1"># --------------------------------------------------------</span>
+    <span class="c1"># Parallel methods</span>
+    <span class="c1"># --------------------------------------------------------</span>
+    
 <div class="viewcode-block" id="AnugaEngine.is_parallel">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.is_parallel">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -348,7 +345,7 @@
         <span class="c1"># get subdomain index mapping arrays</span>
         <span class="n">tri_l2g</span><span class="p">,</span> <span class="n">tri_full_flag</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">sww_file</span> <span class="ow">in</span> <span class="n">sww_file_list</span><span class="p">:</span>
-            <span class="k">with</span> <span class="n">Dataset</span><span class="p">(</span><span class="n">sww_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">sww</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">sww_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">sww</span><span class="p">:</span>
                 <span class="n">tri_l2g</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sww</span><span class="p">[</span><span class="s2">&quot;tri_l2g&quot;</span><span class="p">][:])</span>
                 <span class="n">tri_full_flag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sww</span><span class="p">[</span><span class="s2">&quot;tri_full_flag&quot;</span><span class="p">][:])</span>
 
@@ -383,7 +380,6 @@
             
             <span class="c1"># all files for this cohort</span>
             <span class="n">c_files</span> <span class="o">=</span> <span class="n">files_by_cohort</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cohort_id</span><span class="p">,</span> <span class="p">[])</span>
-            <span class="c1">#c_files = sorted(outputdir.glob(f&quot;cohort{cohort_id}_proc*.npz&quot;), key=lambda f: parse_file(f.name))</span>
             
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Warning: No output files found for cohort </span><span class="si">{</span><span class="n">cohort_id</span><span class="si">}</span><span class="s2">, skipping merge. &quot;</span>

@@ -115,10 +115,8 @@
 <div class="viewcode-block" id="HydroSimulationBase.__init__">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
-        <span class="c1"># Initialize the simulation with a hydrodynamic engine</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">engine</span>
-        <span class="c1"># Initialize coupler and output manager</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">veg_coupler</span> <span class="o">=</span> <span class="n">VegetationCoupler</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span> <span class="k">if</span> <span class="n">engine</span><span class="o">.</span><span class="n">veg</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">veg_coupler</span> <span class="o">=</span> <span class="n">VegetationCoupler</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">veg</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span> <span class="o">=</span> <span class="n">OutputManager</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span></div>
 
 
@@ -170,14 +168,13 @@
 <span class="sd">            to avoid thin-film issues/influence.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># initialize model</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
 
         <span class="c1"># If engine has save_interval attribute (ANUGA), pass it here</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="s2">&quot;save_interval&quot;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">save_interval</span> <span class="o">=</span> <span class="n">save_interval</span>
 
-        <span class="c1"># define object to hold all static and dynamic variables related to the simulation time frame</span>
+        <span class="c1"># Define object to hold all static and dynamic variables related to the simulation time frame</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">simstate</span> <span class="o">=</span> <span class="n">SimulationTimeState</span><span class="p">(</span><span class="n">eco_year</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ets</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sim_time</span><span class="o">=</span><span class="n">sim_time</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="n">sim_time_unit</span><span class="p">,</span>
                                             <span class="n">n_ets</span><span class="o">=</span><span class="n">n_ets</span><span class="p">,</span> <span class="n">veg_interval</span><span class="o">=</span><span class="n">veg_interval</span><span class="p">,</span> <span class="n">hydro_interval</span><span class="o">=</span><span class="n">hydro_interval</span><span class="p">,</span>
                                             <span class="n">morfac</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">morph_vars</span><span class="p">[</span><span class="s2">&quot;MorFac&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">morphology</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
@@ -185,31 +182,35 @@
                                             <span class="n">refdate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_refdate</span><span class="p">()</span>
                                             <span class="p">)</span>
 
-        <span class="c1"># define object to hold all hydrodynamic statistics relevant for vegetation processes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hydrostats</span> <span class="o">=</span> <span class="n">HydrodynamicStats</span><span class="p">(</span><span class="n">fl_dr</span><span class="o">=</span><span class="n">fl_dr</span><span class="p">)</span>
+        <span class="c1"># Define object to hold all hydrodynamic statistics relevant for vegetation processes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hydrostats</span> <span class="o">=</span> <span class="n">HydrodynamicStats</span><span class="p">(</span><span class="n">fl_dr</span><span class="o">=</span><span class="n">fl_dr</span><span class="p">,</span> 
+                                            <span class="n">n_hydro_steps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="o">.</span><span class="n">n_hydro_steps</span><span class="p">,</span>
+                                            <span class="n">n_cells</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_cell_count</span><span class="p">()</span>
+                                            <span class="p">)</span>
 
-        <span class="c1"># perform some checks on simulation inputs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">check_simulation_inputs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="p">)</span>
+
         <span class="n">r</span><span class="o">.</span><span class="n">print_model_time_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="p">)</span>
 
-        <span class="c1"># loop over all vegetation time steps</span>
+        <span class="c1"># Loop over all Ecological Time Steps</span>
         <span class="k">for</span> <span class="n">vts</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="o">.</span><span class="n">n_veg_steps</span><span class="p">):</span>
-            <span class="c1"># print runtime stats to the screen</span>
             <span class="n">r</span><span class="o">.</span><span class="n">print_runtime_updates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="p">,</span> <span class="n">vts</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">step_hydrodynamics</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="o">.</span><span class="n">veg_interval</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">step_hydrodynamics</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="o">.</span><span class="n">veg_interval</span><span class="p">)</span>  <span class="c1"># run a big step</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># get flooding, drying, velocity, bed level changes to be used for colonization and mortality calcs</span>
+                <span class="c1"># Get flooding, drying, velocity, bed level changes to be used for colonization and mortality calcs</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">loop_hydrodynamics</span><span class="p">()</span>
-                <span class="c1"># update vegetation and inject those updates back into hydrodynamic model</span>
+                <span class="c1"># Update vegetation and inject those updates back into hydrodynamic model</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">veg_coupler</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">hydrostats</span><span class="p">)</span>
-                <span class="c1"># write vegetation variables to output</span>
+                <span class="c1"># Write vegetation variables to output</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">save_vegetation_step</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="o">.</span><span class="n">eco_year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="o">.</span><span class="n">ets</span><span class="p">)</span>
         
         <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;Merging outputs, cleaning up, and finalizing simulation...&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">reconcile_vegetation_output</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
         <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;Simulation complete!&quot;</span><span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="HydroSimulationBase.loop_hydrodynamics">
@@ -222,30 +223,29 @@
 <span class="sd">        statistics (HydrodynamicStats) required for vegetation updates.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
                 
-        <span class="c1"># add empty placeholders for hydro stats like hmin, vmax, etc</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hydrostats</span><span class="o">.</span><span class="n">reset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_cell_count</span><span class="p">())</span>
-        <span class="c1"># get bed level before hydro loop </span>
-        <span class="c1"># (TODO: morphodynamic simulations only, right now is irrelevent if mor=0)</span>
+        <span class="c1"># Add empty placeholders for hydro stats like hmin, vmax, etc</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hydrostats</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+        <span class="c1"># Get bed level before hydro loop (right now is irrelevent if mor=0)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hydrostats</span><span class="o">.</span><span class="n">bedlevel_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_elevation</span><span class="p">()</span>
 
-        <span class="c1"># do inner loop of smaller hydrodynamic intervals</span>
+        <span class="c1"># Run inner loop of smaller hydrodynamic intervals</span>
         <span class="k">for</span> <span class="n">hts</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="o">.</span><span class="n">n_hydro_steps</span><span class="p">):</span>
-            <span class="c1"># run hydrodynamic model for specified time interval</span>
+            <span class="c1"># Run hydrodynamic model for specified time interval</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">step_hydrodynamics</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="o">.</span><span class="n">hydro_interval</span><span class="p">)</span>
-            <span class="c1"># get mean velocity and depth using model-specific methods</span>
+            <span class="c1"># Get mean velocity and depth using model-specific methods</span>
             <span class="n">velocity</span><span class="p">,</span> <span class="n">depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_velocity_and_depth</span><span class="p">()</span>
-            <span class="c1"># update hydrostats counter</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">hydrostats</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">velocity</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span>
+            <span class="c1"># Update hydrostats counter</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">hydrostats</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">hts</span><span class="p">,</span> <span class="n">velocity</span><span class="p">,</span> <span class="n">depth</span><span class="p">)</span>
 
-        <span class="c1"># get bed level changes (TODO: morphodynamic simulations only, right now is irrelevent if mor=0)</span>
+        <span class="c1"># Get bed level changes (right now is irrelevent if mor=0)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hydrostats</span><span class="o">.</span><span class="n">bedlevel_f</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_elevation</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="HydroSimulationBase.step_hydrodynamics">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase.step_hydrodynamics">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">step_hydrodynamics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Advance hydrodynamics by a specified interval&quot;&quot;&quot;</span>
-        <span class="c1"># By wrapping ANUGA&#39;s domain.evolve loop inside the engine.step method, step_hydrodynamics is model-agnostic</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Advance hydrodynamics by a specified interval &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="o">.</span><span class="n">advance_time</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span></div>
 </div>
@@ -266,7 +266,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.initialize">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Prepare engine to run (allocate memory, print start, etc.). &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Prepare engine to run (allocate memory, read/check inputs, print start, etc.) &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 
@@ -298,6 +298,17 @@
         <span class="k">pass</span></div>
 
 
+<div class="viewcode-block" id="HydroEngineBase.get_refdate">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.get_refdate">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_refdate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Get model reference date as a datetime object. </span>
+<span class="sd">        Required for now, only really used by DFM. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+    
 <div class="viewcode-block" id="HydroEngineBase.get_cell_count">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.get_cell_count">[docs]</a>
     <span class="nd">@abstractmethod</span>
@@ -310,7 +321,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.get_elevation">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return static bed elevation array (cell-centered). &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return array of bed elevations at cell-centers. &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 
@@ -319,8 +330,7 @@
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_velocity_and_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Return velocity magnitude and depth arrays for each cell.</span>
-<span class="sd">        If applicable, velocity and depth arrays must be trimmed to active cells.</span>
+<span class="sd">        Return velocity magnitude and depth arrays at cell-centers.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
@@ -329,7 +339,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.get_vegetation">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_vegetation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return stem density, diameter, and height arrays. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return stem dens., diam., and height arrays from numerical model. &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 
@@ -337,7 +347,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.set_vegetation">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_vegetation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stemdens</span><span class="p">,</span> <span class="n">stemdiam</span><span class="p">,</span> <span class="n">stemheight</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Push vegetation arrays back into the hydro model. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Push vegetation arrays back into the numerical model. &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 

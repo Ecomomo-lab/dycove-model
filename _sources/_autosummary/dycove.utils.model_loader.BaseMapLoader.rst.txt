@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~BaseMapLoader.__init__
+      ~BaseMapLoader.check_final_index
       ~BaseMapLoader.load
    
    

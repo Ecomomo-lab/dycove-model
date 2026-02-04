@@ -125,7 +125,7 @@ In general, the most critical aspects of the ANUGA domain setup are the followin
 </div>
 <p>More important than the specifics of the domain geometry is the implementation of vegetation with DYCOVE.
 Instantiate a <code class="docutils literal notranslate"><span class="pre">VegetationSpecies</span></code> object using the vegetation attribute file, then pass that object to the <a class="reference internal" href="../../_autosummary/dycove.sim.engines.ANUGA_hydro.ANUGA.html#dycove.sim.engines.ANUGA_hydro.ANUGA" title="dycove.sim.engines.ANUGA_hydro.ANUGA"><code class="xref py py-class docutils literal notranslate"><span class="pre">ANUGA</span></code></a> hydrodynamic engine:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;veg1.json&quot;</span><span class="p">,</span> <span class="s2">&quot;veg1&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;veg1.json&quot;</span><span class="p">)</span>
 <span class="n">HydroModel</span> <span class="o">=</span> <span class="n">ANUGA_hydro</span><span class="o">.</span><span class="n">ANUGA</span><span class="p">(</span><span class="n">HydroDomain</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="n">veg_1</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -153,18 +153,20 @@ For a list of outputs stored with each cohort, see <a class="reference internal"
 For example, we can plot vegetation stem heights over the entire 21-day (hydrodynamic time) simulation period.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">plotting</span>
 <span class="n">plotter</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ModelPlotter</span><span class="p">(</span>
-      <span class="n">simdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
-      <span class="n">quantity</span> <span class="o">=</span> <span class="s2">&quot;Stem Height&quot;</span><span class="p">,</span>
-      <span class="n">plot_times</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;plotHR_0&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
-        <span class="s2">&quot;plotHR_f&quot;</span><span class="p">:</span> <span class="mi">21</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
-        <span class="s2">&quot;mapHR_int&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-        <span class="s2">&quot;plotHR_int&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-      <span class="p">},</span>
-      <span class="n">cmap_lims</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;Bathymetry&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
-      <span class="p">},</span>
-    <span class="p">)</span>
+   <span class="n">simdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
+   <span class="c1">#quantity = &quot;Velocity&quot;,</span>
+   <span class="n">quantity</span> <span class="o">=</span> <span class="s2">&quot;Stem Height&quot;</span><span class="p">,</span>
+   <span class="n">plot_times</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s2">&quot;plotHR_0&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
+      <span class="s2">&quot;plotHR_f&quot;</span><span class="p">:</span> <span class="mi">28</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
+      <span class="s2">&quot;mapHR_int&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">&quot;plotHR_int&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+   <span class="p">},</span>
+   <span class="n">cmap_lims</span> <span class="o">=</span> <span class="p">{</span>
+      <span class="s2">&quot;Bathymetry&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+      <span class="s2">&quot;Velocity&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span>
+   <span class="p">},</span>
+   <span class="p">)</span>
 <span class="n">plotter</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>

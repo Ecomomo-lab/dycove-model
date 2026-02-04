@@ -14,14 +14,14 @@
    .. autosummary::
    
       ~DFMEngine.__init__
-      ~DFMEngine.add_mdu_extforcefile
-      ~DFMEngine.add_mdu_veg_module
+      ~DFMEngine.add_dll_directories
+      ~DFMEngine.add_extforcefile_to_mdu
+      ~DFMEngine.add_veg_module_to_mdu
       ~DFMEngine.check_simulation_inputs
       ~DFMEngine.cleanup
-      ~DFMEngine.create_ext_file
+      ~DFMEngine.create_extforcefile
       ~DFMEngine.create_veg_xyz_files
       ~DFMEngine.get_cell_count
-      ~DFMEngine.get_drag
       ~DFMEngine.get_elevation
       ~DFMEngine.get_model_inputs
       ~DFMEngine.get_morphodynamic_inputs
@@ -32,6 +32,7 @@
       ~DFMEngine.initialize
       ~DFMEngine.is_parallel
       ~DFMEngine.merge_parallel_veg
+      ~DFMEngine.open_bmi_wrappers
       ~DFMEngine.set_vegetation
       ~DFMEngine.step
       ~DFMEngine.vegetation_file_check

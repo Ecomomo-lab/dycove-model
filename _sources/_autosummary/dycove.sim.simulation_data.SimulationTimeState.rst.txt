@@ -30,6 +30,7 @@
    
       ~SimulationTimeState.ecofac
       ~SimulationTimeState.hydrotime_seconds
+      ~SimulationTimeState.morfac
       ~SimulationTimeState.vegtime_date
       ~SimulationTimeState.eco_year
       ~SimulationTimeState.ets
@@ -38,7 +39,6 @@
       ~SimulationTimeState.n_ets
       ~SimulationTimeState.veg_interval
       ~SimulationTimeState.hydro_interval
-      ~SimulationTimeState.morfac
       ~SimulationTimeState.refdate
       ~SimulationTimeState.days_per_year
       ~SimulationTimeState.hydro_sim_days

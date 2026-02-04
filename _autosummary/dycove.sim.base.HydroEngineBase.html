@@ -123,30 +123,33 @@ hydrodynamic simulation class.</p>
 <td><p>Return number of active grid cells in the model.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.get_elevation" title="dycove.sim.base.HydroEngineBase.get_elevation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elevation</span></code></a>()</p></td>
-<td><p>Return static bed elevation array (cell-centered).</p></td>
+<td><p>Return array of bed elevations at cell-centers.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.get_rank" title="dycove.sim.base.HydroEngineBase.get_rank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_rank</span></code></a>()</p></td>
 <td><p>Get current parallel processor/rank.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.get_vegetation" title="dycove.sim.base.HydroEngineBase.get_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vegetation</span></code></a>()</p></td>
-<td><p>Return stem density, diameter, and height arrays.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.get_refdate" title="dycove.sim.base.HydroEngineBase.get_refdate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_refdate</span></code></a>()</p></td>
+<td><p>Get model reference date as a datetime object.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.get_velocity_and_depth" title="dycove.sim.base.HydroEngineBase.get_velocity_and_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_velocity_and_depth</span></code></a>()</p></td>
-<td><p>Return velocity magnitude and depth arrays for each cell.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.get_vegetation" title="dycove.sim.base.HydroEngineBase.get_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vegetation</span></code></a>()</p></td>
+<td><p>Return stem dens., diam., and height arrays from numerical model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.initialize" title="dycove.sim.base.HydroEngineBase.initialize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize</span></code></a>()</p></td>
-<td><p>Prepare engine to run (allocate memory, print start, etc.).</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.get_velocity_and_depth" title="dycove.sim.base.HydroEngineBase.get_velocity_and_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_velocity_and_depth</span></code></a>()</p></td>
+<td><p>Return velocity magnitude and depth arrays at cell-centers.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.is_parallel" title="dycove.sim.base.HydroEngineBase.is_parallel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_parallel</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.initialize" title="dycove.sim.base.HydroEngineBase.initialize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize</span></code></a>()</p></td>
+<td><p>Prepare engine to run (allocate memory, read/check inputs, print start, etc.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.is_parallel" title="dycove.sim.base.HydroEngineBase.is_parallel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_parallel</span></code></a>()</p></td>
 <td><p>Return True if model is running in parallel based on number of active processors.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.merge_parallel_veg" title="dycove.sim.base.HydroEngineBase.merge_parallel_veg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_parallel_veg</span></code></a>(OutputManager)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.merge_parallel_veg" title="dycove.sim.base.HydroEngineBase.merge_parallel_veg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_parallel_veg</span></code></a>(OutputManager)</p></td>
 <td><p>Merge vegetation output files across MPI subdomains into single files.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.set_vegetation" title="dycove.sim.base.HydroEngineBase.set_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vegetation</span></code></a>(stemdens, stemdiam, stemheight)</p></td>
-<td><p>Push vegetation arrays back into the hydro model.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.set_vegetation" title="dycove.sim.base.HydroEngineBase.set_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vegetation</span></code></a>(stemdens, stemdiam, stemheight)</p></td>
+<td><p>Push vegetation arrays back into the numerical model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.step" title="dycove.sim.base.HydroEngineBase.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(seconds)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.base.HydroEngineBase.step" title="dycove.sim.base.HydroEngineBase.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(seconds)</p></td>
 <td><p>Advance the hydrodynamic model forward by a given number of seconds.</p></td>
 </tr>
 </tbody>
@@ -172,7 +175,7 @@ hydrodynamic simulation class.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.base.HydroEngineBase.get_elevation">
 <span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_elevation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/dycove/sim/base.html#HydroEngineBase.get_elevation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.base.HydroEngineBase.get_elevation" title="Link to this definition"></a></dt>
-<dd><p>Return static bed elevation array (cell-centered).</p>
+<dd><p>Return array of bed elevations at cell-centers.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -182,22 +185,28 @@ hydrodynamic simulation class.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.base.HydroEngineBase.get_refdate">
+<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_refdate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/base.html#HydroEngineBase.get_refdate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.base.HydroEngineBase.get_refdate" title="Link to this definition"></a></dt>
+<dd><p>Get model reference date as a datetime object.
+Required for now, only really used by DFM.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.base.HydroEngineBase.get_vegetation">
 <span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_vegetation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/dycove/sim/base.html#HydroEngineBase.get_vegetation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.base.HydroEngineBase.get_vegetation" title="Link to this definition"></a></dt>
-<dd><p>Return stem density, diameter, and height arrays.</p>
+<dd><p>Return stem dens., diam., and height arrays from numerical model.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.base.HydroEngineBase.get_velocity_and_depth">
 <span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_velocity_and_depth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/dycove/sim/base.html#HydroEngineBase.get_velocity_and_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.base.HydroEngineBase.get_velocity_and_depth" title="Link to this definition"></a></dt>
-<dd><p>Return velocity magnitude and depth arrays for each cell.
-If applicable, velocity and depth arrays must be trimmed to active cells.</p>
+<dd><p>Return velocity magnitude and depth arrays at cell-centers.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.base.HydroEngineBase.initialize">
 <span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/base.html#HydroEngineBase.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.base.HydroEngineBase.initialize" title="Link to this definition"></a></dt>
-<dd><p>Prepare engine to run (allocate memory, print start, etc.).</p>
+<dd><p>Prepare engine to run (allocate memory, read/check inputs, print start, etc.)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -215,7 +224,7 @@ If applicable, velocity and depth arrays must be trimmed to active cells.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.base.HydroEngineBase.set_vegetation">
 <span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">set_vegetation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stemdens</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stemdiam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stemheight</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/base.html#HydroEngineBase.set_vegetation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.base.HydroEngineBase.set_vegetation" title="Link to this definition"></a></dt>
-<dd><p>Push vegetation arrays back into the hydro model.</p>
+<dd><p>Push vegetation arrays back into the numerical model.</p>
 </dd></dl>
 
 <dl class="py method">

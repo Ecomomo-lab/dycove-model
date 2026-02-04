@@ -14,10 +14,10 @@
    .. autosummary::
    
       ~MultipleVegetationSpecies.__init__
-      ~MultipleVegetationSpecies.apply_mortality
       ~MultipleVegetationSpecies.check_species_consistency
       ~MultipleVegetationSpecies.colonization
       ~MultipleVegetationSpecies.compute_veg_model_quantities
+      ~MultipleVegetationSpecies.get_drag
       ~MultipleVegetationSpecies.mortality
       ~MultipleVegetationSpecies.root_growth
       ~MultipleVegetationSpecies.stemdiam_growth

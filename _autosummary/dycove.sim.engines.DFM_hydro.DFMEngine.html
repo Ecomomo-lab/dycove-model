@@ -137,53 +137,53 @@ if missing.</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.__init__" title="dycove.sim.engines.DFM_hydro.DFMEngine.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(dfm_path, config_path, mdu_path[, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_mdu_extforcefile</span></code>()</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.add_dll_directories" title="dycove.sim.engines.DFM_hydro.DFMEngine.add_dll_directories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dll_directories</span></code></a>(dfm_path)</p></td>
+<td><p>Add DLL paths to env before calling BMI .</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_mdu_veg_module</span></code>()</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.add_extforcefile_to_mdu" title="dycove.sim.engines.DFM_hydro.DFMEngine.add_extforcefile_to_mdu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_extforcefile_to_mdu</span></code></a>()</p></td>
+<td><p>Add ExtForceFile to .mdu line if it's not there (and if vegetation is active).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.check_simulation_inputs" title="dycove.sim.engines.DFM_hydro.DFMEngine.check_simulation_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_simulation_inputs</span></code></a>(simstate)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.add_veg_module_to_mdu" title="dycove.sim.engines.DFM_hydro.DFMEngine.add_veg_module_to_mdu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_veg_module_to_mdu</span></code></a>()</p></td>
+<td><p>Add [veg] section to .mdu if it's not there (and if vegetation is active).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.check_simulation_inputs" title="dycove.sim.engines.DFM_hydro.DFMEngine.check_simulation_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">check_simulation_inputs</span></code></a>(simstate)</p></td>
 <td><p>Compare DYCOVE simulation time to MDU simulation time.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.cleanup" title="dycove.sim.engines.DFM_hydro.DFMEngine.cleanup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanup</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.cleanup" title="dycove.sim.engines.DFM_hydro.DFMEngine.cleanup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanup</span></code></a>()</p></td>
 <td><p>Clean up resources.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_ext_file</span></code>()</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.create_extforcefile" title="dycove.sim.engines.DFM_hydro.DFMEngine.create_extforcefile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_extforcefile</span></code></a>()</p></td>
+<td><p>Create .ext file in the model directory if it doesn't exist</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_veg_xyz_files</span></code>()</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.create_veg_xyz_files" title="dycove.sim.engines.DFM_hydro.DFMEngine.create_veg_xyz_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_veg_xyz_files</span></code></a>()</p></td>
+<td><p>Create required files for [veg] module to run, even if they are blank</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_cell_count" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_count</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_cell_count" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_count</span></code></a>()</p></td>
 <td><p>Return number of active grid cells in the model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_drag</span></code>()</p></td>
-<td><p></p></td>
-</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_elevation" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_elevation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elevation</span></code></a>()</p></td>
-<td><p>Return static bed elevation array (cell-centered).</p></td>
+<td><p>Return array of bed elevations at cell-centers.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_model_inputs</span></code>()</p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_model_inputs" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_model_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_model_inputs</span></code></a>()</p></td>
+<td><p>Read lines from MDU file into a dictionary</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_morphodynamic_inputs</span></code>()</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_morphodynamic_inputs" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_morphodynamic_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_morphodynamic_inputs</span></code></a>()</p></td>
+<td><p>Read lines from morphology file into a dictionary, if mprph files exist</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_rank" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_rank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_rank</span></code></a>()</p></td>
 <td><p>Get current parallel processor/rank.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_refdate</span></code>()</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_refdate" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_refdate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_refdate</span></code></a>()</p></td>
+<td><p>Get model reference date as a datetime object.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_vegetation" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vegetation</span></code></a>()</p></td>
-<td><p>Return stem density, diameter, and height arrays.</p></td>
+<td><p>Return stem dens., diam., and height arrays from numerical model.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_velocity_and_depth" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_velocity_and_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_velocity_and_depth</span></code></a>()</p></td>
-<td><p>Return velocity magnitude and depth arrays for each cell.</p></td>
+<td><p>Return velocity magnitude and depth arrays at cell-centers.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.initialize" title="dycove.sim.engines.DFM_hydro.DFMEngine.initialize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize</span></code></a>()</p></td>
-<td><p>Prepare engine to run (allocate memory, print start, etc.).</p></td>
+<td><p>Prepare engine to run (allocate memory, read/check inputs, print start, etc.)</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.is_parallel" title="dycove.sim.engines.DFM_hydro.DFMEngine.is_parallel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_parallel</span></code></a>()</p></td>
 <td><p>Return True if model is running in parallel based on number of active processors.</p></td>
@@ -191,20 +191,56 @@ if missing.</p></li>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg" title="dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_parallel_veg</span></code></a>(OutputManager)</p></td>
 <td><p>Merge vegetation output files across MPI subdomains into single files.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation" title="dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vegetation</span></code></a>(stemdensity, stemdiameter, ...)</p></td>
-<td><p>Push vegetation arrays back into the hydro model.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.open_bmi_wrappers" title="dycove.sim.engines.DFM_hydro.DFMEngine.open_bmi_wrappers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_bmi_wrappers</span></code></a>()</p></td>
+<td><p>Create BMI wrapper objects for DFM and DIMR</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.step" title="dycove.sim.engines.DFM_hydro.DFMEngine.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(seconds)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation" title="dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vegetation</span></code></a>(stemdensity, stemdiameter, ...)</p></td>
+<td><p>Push vegetation arrays back into the numerical model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.step" title="dycove.sim.engines.DFM_hydro.DFMEngine.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(seconds)</p></td>
 <td><p>Advance the hydrodynamic model forward by a given number of seconds.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.vegetation_file_check" title="dycove.sim.engines.DFM_hydro.DFMEngine.vegetation_file_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vegetation_file_check</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.vegetation_file_check" title="dycove.sim.engines.DFM_hydro.DFMEngine.vegetation_file_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">vegetation_file_check</span></code></a>()</p></td>
 <td><p>MODIFIES .mdu file if certain vegetation-related lines are not present:</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_modified_mdu</span></code>()</p></td>
-<td><p></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.write_modified_mdu" title="dycove.sim.engines.DFM_hydro.DFMEngine.write_modified_mdu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">write_modified_mdu</span></code></a>()</p></td>
+<td><p>Write modified .mdu lines back to file</p></td>
 </tr>
 </tbody>
 </table>
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.add_dll_directories">
+<span class="sig-name descname"><span class="pre">add_dll_directories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dfm_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.add_dll_directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.add_dll_directories" title="Link to this definition"></a></dt>
+<dd><p>Add DLL paths to env before calling BMI .</p>
+<dl class="simple">
+<dt>Note that for versions of python 3.7 and earlier, you would need to set the env variables differently:</dt><dd><dl class="simple">
+<dt>os.environ[‘PATH’] = os.path.join(dfm_path, ‘share’, ‘bin’) + “;” +</dt><dd><p>os.path.join(dfm_path, ‘dflowfm’, ‘bin’) + “;” + … )</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.add_extforcefile_to_mdu">
+<span class="sig-name descname"><span class="pre">add_extforcefile_to_mdu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.add_extforcefile_to_mdu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.add_extforcefile_to_mdu" title="Link to this definition"></a></dt>
+<dd><p>Add ExtForceFile to .mdu line if it’s not there (and if vegetation is active).</p>
+<p>[external forcing]
+ExtForceFile = FlowFM.ext  # Old format for external forcings file …</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.add_veg_module_to_mdu">
+<span class="sig-name descname"><span class="pre">add_veg_module_to_mdu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.add_veg_module_to_mdu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.add_veg_module_to_mdu" title="Link to this definition"></a></dt>
+<dd><p>Add [veg] section to .mdu if it’s not there (and if vegetation is active).</p>
+<p>Format:
+[veg]
+Vegetationmodelnr = 2     # 1: Baptist, 2: Baptist with morphology correction factor (lambda)
+Clveg             = 0.8   # Stem distance factor, default=0.8
+Cdveg             = 1.1   # Drag coefficient, pulled from input veg.json file
+Cbveg             = 0.7   # Stem stiffness coefficient, default=0.7</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.check_simulation_inputs">
 <span class="sig-name descname"><span class="pre">check_simulation_inputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simstate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.check_simulation_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.check_simulation_inputs" title="Link to this definition"></a></dt>
@@ -222,6 +258,18 @@ run into the issue of the model stopping prematurely.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.create_extforcefile">
+<span class="sig-name descname"><span class="pre">create_extforcefile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.create_extforcefile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.create_extforcefile" title="Link to this definition"></a></dt>
+<dd><p>Create .ext file in the model directory if it doesn’t exist</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.create_veg_xyz_files">
+<span class="sig-name descname"><span class="pre">create_veg_xyz_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.create_veg_xyz_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.create_veg_xyz_files" title="Link to this definition"></a></dt>
+<dd><p>Create required files for [veg] module to run, even if they are blank</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_cell_count">
 <span class="sig-name descname"><span class="pre">get_cell_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_cell_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_cell_count" title="Link to this definition"></a></dt>
 <dd><p>Return number of active grid cells in the model.</p>
@@ -230,7 +278,19 @@ run into the issue of the model stopping prematurely.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_elevation">
 <span class="sig-name descname"><span class="pre">get_elevation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_elevation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_elevation" title="Link to this definition"></a></dt>
-<dd><p>Return static bed elevation array (cell-centered).</p>
+<dd><p>Return array of bed elevations at cell-centers.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_model_inputs">
+<span class="sig-name descname"><span class="pre">get_model_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_model_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_model_inputs" title="Link to this definition"></a></dt>
+<dd><p>Read lines from MDU file into a dictionary</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_morphodynamic_inputs">
+<span class="sig-name descname"><span class="pre">get_morphodynamic_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_morphodynamic_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_morphodynamic_inputs" title="Link to this definition"></a></dt>
+<dd><p>Read lines from morphology file into a dictionary, if mprph files exist</p>
 </dd></dl>
 
 <dl class="py method">
@@ -240,22 +300,28 @@ run into the issue of the model stopping prematurely.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_refdate">
+<span class="sig-name descname"><span class="pre">get_refdate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_refdate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_refdate" title="Link to this definition"></a></dt>
+<dd><p>Get model reference date as a datetime object.
+Required for now, only really used by DFM.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_vegetation">
 <span class="sig-name descname"><span class="pre">get_vegetation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_vegetation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_vegetation" title="Link to this definition"></a></dt>
-<dd><p>Return stem density, diameter, and height arrays.</p>
+<dd><p>Return stem dens., diam., and height arrays from numerical model.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_velocity_and_depth">
 <span class="sig-name descname"><span class="pre">get_velocity_and_depth</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_velocity_and_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_velocity_and_depth" title="Link to this definition"></a></dt>
-<dd><p>Return velocity magnitude and depth arrays for each cell.
-If applicable, velocity and depth arrays must be trimmed to active cells.</p>
+<dd><p>Return velocity magnitude and depth arrays at cell-centers.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.initialize">
 <span class="sig-name descname"><span class="pre">initialize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.initialize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.initialize" title="Link to this definition"></a></dt>
-<dd><p>Prepare engine to run (allocate memory, print start, etc.).</p>
+<dd><p>Prepare engine to run (allocate memory, read/check inputs, print start, etc.)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -271,9 +337,15 @@ If applicable, velocity and depth arrays must be trimmed to active cells.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.open_bmi_wrappers">
+<span class="sig-name descname"><span class="pre">open_bmi_wrappers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.open_bmi_wrappers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.open_bmi_wrappers" title="Link to this definition"></a></dt>
+<dd><p>Create BMI wrapper objects for DFM and DIMR</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation">
 <span class="sig-name descname"><span class="pre">set_vegetation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stemdensity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stemdiameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stemheight</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.set_vegetation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation" title="Link to this definition"></a></dt>
-<dd><p>Push vegetation arrays back into the hydro model.</p>
+<dd><p>Push vegetation arrays back into the numerical model.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -290,7 +362,9 @@ If applicable, velocity and depth arrays must be trimmed to active cells.</p>
 <ul class="simple">
 <li><p>Adds a filename next to ‘ExtForceFile’ if blank, creates the file too</p></li>
 <li><p>Adds drag coefficient from VegetationAttributes if [veg] block is present</p></li>
-<li><p>Adds [veg] block if it is not present, including drag coefficient from VegetationAttributes</p></li>
+<li><p>Adds appropriate Baptist model number (1 if no morph, 2 if morph)</p></li>
+<li><p>Adds [veg] block if it is not present, including drag coefficient from VegetationAttributes
+and appropriate Baptist model number</p></li>
 </ul>
 <p>Creates empty text files for stem density, stem diameter, and stem height, if they don’t
 already exist.</p>
@@ -298,6 +372,12 @@ already exist.</p>
 (e.g., “FlowFM_veg.ext”).</p>
 <p>These files can be created beforehand if prior vegetation establishment is desired.</p>
 <p>Otherwise, blank files are required so that DFM knows to store these variables through time.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.write_modified_mdu">
+<span class="sig-name descname"><span class="pre">write_modified_mdu</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.write_modified_mdu"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.write_modified_mdu" title="Link to this definition"></a></dt>
+<dd><p>Write modified .mdu lines back to file</p>
 </dd></dl>
 
 </dd></dl>

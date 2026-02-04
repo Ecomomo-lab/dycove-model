@@ -41,7 +41,7 @@ This object contains all of the vegetation attributes needed to run the simulati
 
 .. code-block:: python
 
-   veg = VegetationSpecies("path/to/vegetation_attributes.json", "species_name")
+   veg = VegetationSpecies("path/to/vegetation_attributes.json")
 
 Creating a :class:`~dycove.sim.vegetation.VegetationSpecies` object automatically creates a :class:`~dycove.sim.vegetation_data.VegetationAttributes` instance, which contains all of the vegetation attributes read from the input file.
 Following the first colonization of the simulation, a :class:`~dycove.sim.vegetation_data.VegCohort` object is also created.
@@ -90,7 +90,7 @@ A separate `.json` file and :class:`~dycove.sim.vegetation.VegetationSpecies` ob
 
 .. code-block:: python
 
-   veg_alt = VegetationSpecies("path/to/vegetation_attributes_alt.json", "species_name_alt")
+   veg_alt = VegetationSpecies("path/to/vegetation_attributes_alt.json")
    model = ANUGA_hydro.ANUGA(anuga_domain, vegetation=MultiVeg[veg, veg_alt])
 
 
@@ -122,20 +122,20 @@ It contains all of the attributes that are stored in a :class:`~dycove.sim.veget
 Plotting
 --------
 
-Users can plot numerical model results using their existing plotting tools.
-However, DYCOVE provides a built-in plotting class :class:`~dycove.utils.plotting.ModelPlotter` that can be used to plot time series of 2-D quantities from both the numerical model and DYCOVE:
+DYCOVE features a built-in plotting class :class:`~dycove.utils.plotting.ModelPlotter` that can be used to plot time series of 2-D quantities from both the numerical model and DYCOVE:
 
 .. code-block:: python
 
    plotter = plotting.ModelPlotter(
-      simdir = Path("."),
-      quantity = "Stem Height",  # or: quantity = "Velocity", see examples and ModelPlotter API for list of quantities
-      plot_times = {
-         "plotHR_0": 0*24.,
-         "plotHR_f": 21*24.,
-         "mapHR_int": 1,
-         "plotHR_int": 1,
-      },
+       simdir = Path("."),
+       # or: quantity = "Velocity", etc. See examples and ModelPlotter API for list of quantities
+       quantity = "Stem Height",
+       plot_times = {
+           "plotHR_0": 0*24.,
+           "plotHR_f": 21*24.,
+           "mapHR_int": 1,
+           "plotHR_int": 1,
+       },
    )
 
    plotter.run()
@@ -144,7 +144,8 @@ Attributes in the `.npz` file that are 1-D arrays (fractions, mortality fraction
 Users can create an interpolation function directly using :func:`~dycove.utils.plotting.create_nn_interpFunc`.
 This function is created and called as shown in :meth:`~dycove.utils.plotting.ModelPlotter.get_quantity_grids`.
 Loading of vegetation output files is performed in :class:`~dycove.utils.model_loader.BaseMapLoader`, while loading of numerical model outputs occurs in :class:`~dycove.utils.model_loader.ANUGAMapLoader` or :class:`~dycove.utils.model_loader.DFMMapLoader`.
-Users can look through these functions and methods to develop their own plotting codes, if that is of interest.
+
+:class:`~dycove.utils.plotting.ModelPlotter` is highly customizable and has many optional arguments, which are detailed in the API docs.
 
 
 .. _plot-multi-species:
@@ -158,3 +159,59 @@ When plotting vegetation fractions, however, the output images will alternate be
 Example: A simulation of one ecological year and two species consists of one colonization event for each species in the second ecological time step (ETS) of the year.
 Plots of stem heights will consist of one plot per ETS, starting at ETS 2.
 Plots of fractions will consist of two plots per ETS, one for each species, starting at ETS 2.
+
+
+Accessing and Plotting Outputs Directly
+---------------------------------------
+
+The following explanations and examples are for those users that prefer to develop their own plotting codes.
+ANUGA model quantities can be read from the output `.sww` file using the ``xarray`` library (also ``netCDF4``):
+
+.. code-block:: python
+
+   map_vars = xr.open_dataset("path/to/anuga_model.sww")
+   x_nodes = map_vars["x"]
+   y_nodes = map_vars["y"]
+   z_nodes = map_vars["elevation"]
+   stage = map_vars["stage"]
+   depth = stage - elevation
+
+These are 1-D arrays, that can be interpolated using :func:`~dycove.utils.plotting.create_nn_interpFunc` or other tools.
+Note that `stage` and other time-varying quantities have a time axis as the first axis (same with DFM).
+Centroid data is also included in the `.sww` file, but `x` and `y` values at centroids would need to be computed as they are in ``~dycove.utils.model_loader.ANUGAMapLoader._load_outputs``.
+Similarly, DFM model (centroid) quantities can be read from the output `_map.nc` file:
+
+.. code-block:: python
+
+   map_vars = xarray.open_dataset("path/to/dflowfm/output/FlowFM_map.nc")
+   x_nodes = map_vars["x"]
+   y_nodes = map_vars["y"]
+   z_nodes = map_vars["elevation"]
+   stage = map_vars["stage"]
+   depth = stage - elevation
+
+Vegetation quantities can be accessed via the files in the `veg_output` directory.
+Quantities that are saved in these output files are listed as attributes of the :class:`~dycove.sim.vegetation_data.VegCohort` class.
+For example:
+
+.. code-block:: python
+
+   # Loop through all cohort files saved for a given year and ETS, load quantities to running lists
+   veg_fractions, veg_quantity = [], []
+   for file in self.ecodir.glob(f'cohort*_year1_ets7.npz'):
+       c = dict(numpy.load("path/to/veg_output/cohort1_year1_ets7.npz", allow_pickle=True))
+       fractions.append(c["fraction"])
+       heights.append(c["height"])  # or "density", "applied_mort_flood", etc.
+
+Note that for a given cohort, each ``c["fraction"]`` is an array with one value per grid cell, while other quantities like ``c["height"]`` have only a single value per cohort, which grows over time.
+Mortality outputs are arrays, similar to Fractions.
+While vegetation fractions and cohorts are tracked individually in DYCOVE, we typically plot them as a weighted average in each grid cell, with weights determined by the fractions present in the cell.
+First, we convert the data to a grid using :func:`~dycove.utils.plotting.create_nn_interpFunc`, then we use the helper functions in :py:mod:`~dycove.utils.array_math` to compute weighted averages:
+
+.. code-block:: python
+
+   from dycove.utils.array_math import cell_averaging, sum_product
+   grid_data = cell_averaging(fractions, heights)
+
+With the data as a 2-D array, it can be plotted as usual using ``imshow``.
+Users can (and should) loop over "years" and "ETS" to view species evolution through time.

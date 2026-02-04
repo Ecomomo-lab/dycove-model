@@ -349,6 +349,12 @@ The species X fraction in this cell is currently 40%:
    \small \mathrm{applied\_mort\_total} & = \small \mathrm{applied\_mort\_flood} + \mathrm{applied\_mort\_uproot} = 0.2 + 0.08 = 0.28 \\
    \small \mathrm{fraction\_left} & = \small \max(0.4 - \mathrm{applied\_mort\_total}, 0) = \max(0.4 - 0.28, 0) = \mathbf{0.12}
 
+Users should keep in mind that the parameter ``n_ets`` may also have a minor effect on mortality.
+Vegetated cells that experience partial mortality can die off completely after enough successive ETS, due to cumulative mortality, assuming conditions in those cells remain more or less consistent.
+For example, a cell that starts as 40% vegetated and experiences 50% potential mortality will be 20% vegetated after one ETS, then 10%, then 5%, then 2.5% after the fourth ETS, beyond which DYCOVE will round down the vegetated fraction to zero.
+The upshot is that the number of ETS in an ecological year may affect the total mortality experienced by any number of cells by the end of that year.
+This feature does not necessarily need to factor into the simulation design, but it is something to keep in mind.
+
 
 .. _compute-veg:
 

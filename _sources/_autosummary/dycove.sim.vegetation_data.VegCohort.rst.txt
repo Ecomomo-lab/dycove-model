@@ -34,6 +34,7 @@
       ~VegCohort.potential_mort_flood
       ~VegCohort.potential_mort_scour
       ~VegCohort.potential_mort_uproot
+      ~VegCohort.name
       ~VegCohort.fraction
       ~VegCohort.density
       ~VegCohort.diameter

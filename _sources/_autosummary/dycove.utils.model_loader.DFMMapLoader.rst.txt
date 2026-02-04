@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~DFMMapLoader.__init__
+      ~DFMMapLoader.check_final_index
       ~DFMMapLoader.load
    
    

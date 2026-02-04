@@ -14,6 +14,7 @@
    .. autosummary::
    
       ~ANUGAMapLoader.__init__
+      ~ANUGAMapLoader.check_final_index
       ~ANUGAMapLoader.load
    
    

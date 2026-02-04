@@ -129,7 +129,7 @@ Next, identify the path to your Delft3D FM code library, which probably looks so
 DYCOVE handles this automatically, as long as you supply a vegetation species to your DYCOVE model.</p>
 <p>After setting up the model and identifying the model file paths, DYCOVE-DFM models are run in much the same way as DYCOVE-ANUGA models.
 The only difference is the call to the hydrodynamic engine, which in this case is <a class="reference internal" href="../../_autosummary/dycove.sim.engines.DFM_hydro.DFM.html#dycove.sim.engines.DFM_hydro.DFM" title="dycove.sim.engines.DFM_hydro.DFM"><code class="xref py py-class docutils literal notranslate"><span class="pre">DFM</span></code></a>:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;veg1.json&quot;</span><span class="p">,</span> <span class="s2">&quot;veg1&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;veg1.json&quot;</span><span class="p">)</span>
 <span class="n">HydroModel</span> <span class="o">=</span> <span class="n">DFM_hydro</span><span class="o">.</span><span class="n">DFM</span><span class="p">(</span><span class="n">DFM_DLLs</span><span class="p">,</span> <span class="n">config_file</span><span class="p">,</span> <span class="n">mdu_file</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="n">veg_1</span><span class="p">)</span>
 <span class="n">HydroModel</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">&quot;eco-morphodynamic years&quot;</span><span class="p">)</span>
 </pre></div>
@@ -149,7 +149,7 @@ For example, we can plot vegetation stem heights over the entire 21-day (hydrody
    <span class="n">quantity</span> <span class="o">=</span> <span class="s2">&quot;Stem Height&quot;</span><span class="p">,</span>
    <span class="n">plot_times</span> <span class="o">=</span> <span class="p">{</span>
       <span class="s2">&quot;plotHR_0&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
-      <span class="s2">&quot;plotHR_f&quot;</span><span class="p">:</span> <span class="mi">21</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
+      <span class="s2">&quot;plotHR_f&quot;</span><span class="p">:</span> <span class="mi">28</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
       <span class="s2">&quot;mapHR_int&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
       <span class="s2">&quot;plotHR_int&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
    <span class="p">},</span>

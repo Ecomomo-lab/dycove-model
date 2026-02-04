@@ -98,7 +98,11 @@ A tidal boundary condition is imposed on the left (ocean) side, that propagates 
 A vegetation species, loosely based on <cite>Salicorniaspp.</cite> (pioneer species, first life stage) and <cite>Spartina anglica</cite> (second life stage), is added to the model via a set of attributes defined in the file <cite>veg1.json</cite>.
 After the simulation is finished, we can inspect a variety of 2-D model results using <a class="reference internal" href="../../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>.</p>
 <p>This example differs from the <a class="reference internal" href="tide_channel.html"><span class="doc">tide_channel example</span></a> in that morphology is active, and to promote substantial bed level changes in the domain, a discharge boundary has been added to the right side that discharges water and sediment to the lagoon.</p>
-<p>Running the model and plotting the results are handled as described in the <a class="reference internal" href="tide_channel.html"><span class="doc">tide_channel example</span></a>.</p>
+<p>Running the model and plotting the results are handled mostly as described in the <a class="reference internal" href="tide_channel.html"><span class="doc">tide_channel example</span></a>.
+The only change needed (on the DYCOVE side) when morphology is turned on is to add <code class="docutils literal notranslate"><span class="pre">mor</span> <span class="pre">=</span> <span class="pre">1</span></code> when instantiating <code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationSpecies</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;veg1.json&quot;</span><span class="p">,</span> <span class="n">mor</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
 </section>
 
 

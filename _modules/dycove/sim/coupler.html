@@ -117,7 +117,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">lifestage_update</span><span class="p">(</span><span class="n">simstate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">apply_growth</span><span class="p">(</span><span class="n">simstate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">do_colonization</span><span class="p">(</span><span class="n">simstate</span><span class="p">,</span> <span class="n">hydrostats</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">compute_mortality</span><span class="p">(</span><span class="n">simstate</span><span class="p">,</span> <span class="n">hydrostats</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_mortality</span><span class="p">(</span><span class="n">hydrostats</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compute_veg_model_quantities</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">push_veg_to_hydro</span><span class="p">()</span></div>
 
@@ -152,12 +152,11 @@
 
 <div class="viewcode-block" id="VegetationCoupler.compute_mortality">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.coupler.VegetationCoupler.html#dycove.sim.coupler.VegetationCoupler.compute_mortality">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">compute_mortality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simstate</span><span class="p">,</span> <span class="n">hydrostats</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_mortality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hydrostats</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Compute mortality based on hydrodynamic statistics. &quot;&quot;&quot;</span>
-        <span class="n">n_substeps</span> <span class="o">=</span> <span class="n">simstate</span><span class="o">.</span><span class="n">n_hydro_steps</span>
-        <span class="n">hydro_vars</span>  <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fld_frac&quot;</span>   <span class="p">:</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">flood_frac</span><span class="p">(</span><span class="n">n_substeps</span><span class="p">),</span>
-                       <span class="s2">&quot;dry_frac&quot;</span>   <span class="p">:</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">dry_frac</span><span class="p">(</span><span class="n">n_substeps</span><span class="p">),</span>
-                       <span class="s2">&quot;vel_max&quot;</span>    <span class="p">:</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">v_max</span><span class="o">*</span><span class="mf">0.95</span><span class="p">}</span>
+        <span class="n">hydro_vars</span>  <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fld_frac&quot;</span>   <span class="p">:</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">flood_frac</span><span class="p">(),</span>
+                       <span class="s2">&quot;dry_frac&quot;</span>   <span class="p">:</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">dry_frac</span><span class="p">(),</span>
+                       <span class="s2">&quot;vel_max&quot;</span>    <span class="p">:</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">v_max_95th</span><span class="p">()}</span>
         <span class="n">morpho_vars</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;bl_diff&quot;</span>    <span class="p">:</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">bedlevel_diff</span><span class="p">,</span>
                        <span class="s2">&quot;burial_frac&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
                        <span class="s2">&quot;scour_frac&quot;</span> <span class="p">:</span> <span class="mf">0.1</span><span class="p">}</span>

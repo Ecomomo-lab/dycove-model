@@ -15,11 +15,13 @@
    
       ~VegetationSpecies.__init__
       ~VegetationSpecies.apply_mortality
+      ~VegetationSpecies.apply_mortality_using_initial_fractions
       ~VegetationSpecies.clean_out_old_fractions
       ~VegetationSpecies.colonization
       ~VegetationSpecies.compute_new_fraction
       ~VegetationSpecies.compute_veg_model_quantities
       ~VegetationSpecies.create_seed_fraction_mask
+      ~VegetationSpecies.get_drag
       ~VegetationSpecies.linear_mortality_func
       ~VegetationSpecies.load_vegetation_attributes
       ~VegetationSpecies.mortality
