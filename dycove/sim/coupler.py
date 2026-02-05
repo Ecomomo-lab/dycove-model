@@ -22,38 +22,38 @@ class VegetationCoupler:
         self.engine = engine
         self.veg = engine.veg
 
-    def update(self, simstate, hydrostats):
+    def update(self, sim, hydro):
         """
         Advance vegetation by one eco timestep.
 
         These are all the steps that need to be performed within one ecological 
         time step.
         """
-        self.lifestage_update(simstate)
-        self.apply_growth(simstate)
-        self.do_colonization(simstate, hydrostats)
-        self.compute_mortality(hydrostats)
+        self.lifestage_update(sim)
+        self.apply_growth(sim)
+        self.do_colonization(sim, hydro)
+        self.compute_mortality(hydro)
         self.compute_veg_model_quantities()
         self.push_veg_to_hydro()
 
-    def lifestage_update(self, simstate):
+    def lifestage_update(self, sim):
         """
         Update ETS and eco_year counter, then update vegetation life stage and stem density 
         if we started a new eco year.
         """
-        simstate.update_ets()
-        if simstate.ets == 1:
+        sim.update_ets()
+        if sim.ets == 1:
             self.veg.update_lifestage_and_stemdensity()
 
-    def apply_growth(self, simstate):
+    def apply_growth(self, sim):
         """ Apply precomputed growth rates for stem height, diameter, and root depth. """
-        self.veg.stemheight_growth(simstate.ets)
-        self.veg.stemdiam_growth(simstate.ets)
-        self.veg.root_growth(simstate.ets)
+        self.veg.stemheight_growth(sim.ets)
+        self.veg.stemdiam_growth(sim.ets)
+        self.veg.root_growth(sim.ets)
 
-    def do_colonization(self, simstate, hydrostats):
+    def do_colonization(self, sim, hydro):
         """ Compute colonization based on hydrodynamic conditions. """
-        self.veg.colonization(simstate.ets, hydrostats.h_min, hydrostats.h_max, hydrostats.fl_dr)
+        self.veg.colonization(sim.ets, hydro.h_min, hydro.h_max, hydro.fl_dr)
 
     def compute_mortality(self, hydrostats):
         """ Compute mortality based on hydrodynamic statistics. """

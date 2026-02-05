@@ -5,10 +5,10 @@
 import datetime as dt
 import numpy as np
 import time
-from typing import Optional
 from dataclasses import dataclass, field
 
 from dycove.utils.simulation_reporting import Reporter
+from dycove.constants import FL_DR
 
 r = Reporter()
 
@@ -75,8 +75,8 @@ class SimulationTimeState:
     n_ets: int
     veg_interval: int
     hydro_interval: int
-    morfac: Optional[int] = None
-    ecofac: Optional[int] = None
+    morfac: int | None = None
+    ecofac: int | None = None
     refdate: dt.datetime = field(default_factory=lambda: dt.datetime.now())
     hydrotime_seconds: int = 0
     
@@ -194,12 +194,12 @@ class HydrodynamicStats:
 
     Attributes
     ----------
-    fl_dr : float
-        Flooding threshold (depth above which a cell is considered flooded).
     n_hydro_steps : int
         Number of hydrodynamic steps per ecological step. Passed from ``SimulationTimeState`` instance.
     n_cells : int
         Number of grid cell areas (length of model quantity arrays)
+    fl_dr : float
+        Wet/dry threshold [m]; passed from constants.py).   
     h_min : numpy.ndarray
         Minimum water depth observed in each cell during the hydrodynamic interval.
     h_max : numpy.ndarray
@@ -232,15 +232,15 @@ class HydrodynamicStats:
         Update minimum/maximum values and flood counts using new hydrodynamic data.
     """
     
-    fl_dr: float
     n_hydro_steps: int
     n_cells: int
-    h_min: Optional[np.ndarray] = None
-    h_max: Optional[np.ndarray] = None
-    v_maxs: Optional[np.ndarray] = None
-    flood_counts: Optional[np.ndarray] = None
-    bedlevel_0: Optional[np.ndarray] = None
-    bedlevel_f: Optional[np.ndarray] = None
+    fl_dr: float = FL_DR
+    h_min: np.ndarray | None = None
+    h_max: np.ndarray | None = None
+    v_maxs: np.ndarray | None = None
+    flood_counts: np.ndarray | None = None
+    bedlevel_0: np.ndarray | None = None
+    bedlevel_f: np.ndarray | None = None
 
     @property
     def bedlevel_diff(self) -> np.ndarray:

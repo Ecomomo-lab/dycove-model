@@ -3,7 +3,6 @@
 ###############################################################
 
 import numpy as np
-from typing import Optional
 from dataclasses import dataclass, field
 
 
@@ -77,6 +76,7 @@ class VegetationAttributes:
         (Zero disables uprooting mortality.)
     uproot_all_mort : list[float]
         Flow velocity above which there is total uprooting mortality.
+    
     stemht_winter_max : list[float]
         Maximum stem height during winter for each life stage.
 
@@ -205,16 +205,16 @@ class VegCohort:
     lifestage_year: int
 
     # Tracking mortality causes; potential = between 0 and 1, based on stressor not veg fraction
-    potential_mort_flood: Optional[np.ndarray] = None
-    potential_mort_desic: Optional[np.ndarray] = None
-    potential_mort_uproot: Optional[np.ndarray] = None
-    potential_mort_burial: Optional[np.ndarray] = None
-    potential_mort_scour: Optional[np.ndarray] = None
+    potential_mort_flood: np.ndarray | None = None
+    potential_mort_desic: np.ndarray | None = None
+    potential_mort_uproot: np.ndarray | None = None
+    potential_mort_burial: np.ndarray | None = None
+    potential_mort_scour: np.ndarray | None = None
 
     # Tracking mortality causes; applied = (veg fraction) * (potential mortality)
-    applied_mort_flood: Optional[np.ndarray] = None
-    applied_mort_desic: Optional[np.ndarray] = None
-    applied_mort_uproot: Optional[np.ndarray] = None
-    applied_mort_burial: Optional[np.ndarray] = None
-    applied_mort_scour: Optional[np.ndarray] = None
-    applied_mort_total: Optional[np.ndarray] = None
+    applied_mort_flood: np.ndarray | None = None
+    applied_mort_desic: np.ndarray | None = None
+    applied_mort_uproot: np.ndarray | None = None
+    applied_mort_burial: np.ndarray | None = None
+    applied_mort_scour: np.ndarray | None = None
+    applied_mort_total: np.ndarray | None = None

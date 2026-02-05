@@ -427,9 +427,9 @@ class ModelPlotter:
         for i in tqdm(range(ti_0, ti_f, dti)):
             self.create_timestrings(i)
             hydro_i, ets, eco_year = self.get_map_indices(i)
-            map_vars, species_names = self.map_loader.load(hydro_i, ets, eco_year)
+            map_vars = self.map_loader.load(hydro_i, ets, eco_year)
             z_grid, grid2plot = self.get_quantity_grids(map_vars)
-            self.plot_quantity(z_grid, grid2plot, species_names)
+            self.plot_quantity(z_grid, grid2plot, map_vars["Cohort Names"])
 
         if self.animate: 
             self.create_gif()
@@ -518,6 +518,7 @@ class ModelPlotter:
 
 
     def check_time_inputs(self):
+        # veg_plot or not, need to check times against length of actual hydrodynamic simulation
         final_ind = int(math.ceil(self.plot_times['plotHR_f'] / self.plot_times['mapHR_int']))
         self.map_loader.check_final_index(final_ind)
 
@@ -671,12 +672,13 @@ class ModelPlotter:
         return grid
 
 
-    def plot_quantity(self, base_grid, main_grid, species_names):
-        if type(main_grid) is list:  # for veg fractions, we plot each fraction separately
-            for grid, name in zip(main_grid, species_names):
+    def plot_quantity(self, base_grid, main_grid, cohort_IDs):
+        # For veg fractions and mortality only, we plot each fraction separately
+        if type(main_grid) is list:
+            for grid, c_id in zip(main_grid, cohort_IDs):
                 self.plot_single_quantity(base_grid, grid, 
-                        title=f"{self.full_quantity_name} -- {name} -- {self.timestrings[-1][1]}",
-                        fname=f"{self.full_quantity_name.replace(' ', '')}_{name}_{self.timestrings[-1][0]}")
+                    title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]}\n{c_id[0]} (cohort {c_id[1]+1})",
+                    fname=f"{self.full_quantity_name.replace(' ', '')}_{c_id[0]}{c_id[1]}_{self.timestrings[-1][0]}")
         else:
             self.plot_single_quantity(base_grid, main_grid, 
                         title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]}",

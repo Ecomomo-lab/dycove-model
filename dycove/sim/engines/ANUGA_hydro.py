@@ -207,106 +207,81 @@ class AnugaEngine(HydroEngineBase):
         delete local files.
         """
         outputdir = OutputManager.veg_dir
+        cohort_count = OutputManager.cohort_count
 
         sww_name = self.domain.get_name()  # this is the specific name for myid 0, so it has suffix "_0"
         base_name = sww_name[:-2]  # remove the suffix for myid 0
         sww_dir = Path(self.domain.get_datadir())
 
-        # put sww variables from each processor into list
+        # Put sww variables from each processor into list
         sww_file_list = [f"{sww_dir}/{base_name}_{p}.sww" for p in range(self.numprocs)]
 
-        # get subdomain index mapping arrays
+        # Get subdomain index mapping arrays
         tri_l2g, tri_full_flag = [], []
         for sww_file in sww_file_list:
             with xr.open_dataset(sww_file) as sww:
                 tri_l2g.append(sww["tri_l2g"][:])
                 tri_full_flag.append(sww["tri_full_flag"][:])
 
-        # get no. global grid cells -- this must happen prior to loops b/c we need to know n_global beforehand
+        # Get no. global grid cells -- this must happen prior to loops b/c we need to know n_global beforehand
         # get_cell_count() method would return only local processor cell count
-        n_global = max([tri.max() for tri in tri_l2g]) + 1
+        n_global = int(max([tri.max() for tri in tri_l2g]) + 1)
 
-        # get indices for full (non-ghost) cells
+        # Get indices for full (non-ghost) cells
         f_ids = [np.where(tri_full_flag[p]==1)[0] for p in range(self.numprocs)]
         f_gids = [tri_l2g[p][f_ids[p]] for p in range(self.numprocs)]
 
-        # Regex to extract cohort, proc, year, ets from output file names
-        # file names are like: 'cohort1_proc0_year1_ets2.npz'
-        # we want to merge them so they are like: 'cohort1_year1_ets2.npz'
-        pattern = re.compile(
-            r"cohort(?P<cohort>\d+)_proc(?P<proc>\d+)_year(?P<year>\d+)_ets(?P<ets>\d+)\.npz"
-        )
-
-        files_by_cohort = defaultdict(list)
-        
-        for f in outputdir.iterdir():
-            m = pattern.match(f.name)
-            if not m:
-                continue  # ignore non-matching files
-            info = m.groupdict()
-            info = {k: int(v) for k, v in info.items()}
-            info["path"] = f
-            files_by_cohort[info["cohort"]].append(info)
-
-        # loop over vegetation cohorts (we want one file per cohort)
-        for cohort_id in range(1, len(self.veg.cohorts) + 1):
+        # Loop over vegetation cohorts
+        for cohort_id in range(len(self.veg.cohorts)):
+            # Loop over snapshot files for this cohort
+            for file_num in range(cohort_count[cohort_id]):
+                c_files = [f for f in outputdir.iterdir() if f"cohort{cohort_id}_{file_num:02d}" in f.stem]
             
-            # all files for this cohort
-            c_files = files_by_cohort.get(cohort_id, [])
+                if len(c_files) == 0 and file_num == 0:
+                    msg = (f"No output files found for cohort {cohort_id}, skipping merge. "
+                            "This could be due to the simulation ending in the middle of an ETS, "
+                            "where the last cohort has not been written to an output file yet.")
+                    r.report(msg, level="WARNING")
+                    continue
+
+                c_merged = {}
             
-            if len(c_files) == 0:
-                msg = (f"Warning: No output files found for cohort {cohort_id}, skipping merge. "
-                        "This could be due to the simulation ending in the middle of an ETS, "
-                        "where the last cohort has not been written to an output file yet.")
-                r.report(msg, level="WARNING")
-                continue
+                for p in range(self.numprocs):
+                    c_file_sub = outputdir / f"cohort{cohort_id}_{file_num:02d}_proc{p}.nc"
 
-            # sort by (ets, year, cohort)   <-- your required sorting
-            c_files_sorted = sorted(c_files, key=lambda d: (d["ets"], d["year"], d["cohort"]))
+                    if not c_file_sub.exists():
+                        msg = ("No individual processor (proc) output files found for this "
+                                "cohort, year, and ETS combination")
+                        r.report(msg, level="ERROR")
+                        raise FileNotFoundError(msg)
 
-            # build structure: years → ets → list of dicts
-            years = defaultdict(lambda: defaultdict(list))
-            for info in c_files_sorted:
-                years[info["year"]][info["ets"]].append(info)
+                    # Load output .nc file and convert to dictionary
+                    with xr.open_dataset(c_file_sub) as c_sub:
 
-            # --- Double loop: years then ETS (note: ETS may not start at 1) ---
-            for year in sorted(years.keys()):
-                for ets in sorted(years[year].keys()):
-
-                    # for storing merged arrays
-                    merged = {}
-                
-                    for p in range(self.numprocs):
-                        # find matching file
-                        match = next((fi for fi in years[year][ets] if fi["proc"] == p), None)
-
-                        if match:
-                            fname = match["path"]
-                        else:
-                            msg = ("No individual processor (proc) output files found for this "
-                                   "cohort, year, and ETS combination")
-                            r.report(msg, level="ERROR")
-                            raise FileNotFoundError(msg)
-
-                        # load numpy and convert to dictionary
-                        cohort_local = dict(np.load(fname, allow_pickle=True))
-
-                        # loop over cohort quantities that are array-like
-                        for key, values in cohort_local.items():
+                        # Capture non-array attributes once
+                        if p == 0:
+                            c_merged_attrs = dict(c_sub.attrs)
+                            
+                        # Loop over cohort quantities that are array-like
+                        for key, values in c_sub.data_vars.items():
                             if np.ndim(values) > 0:
-                                if key not in merged:  # allocate global array only once
-                                    merged[key] = np.zeros(n_global, dtype=float)
+                                if key not in c_merged:  # allocate global array only once
+                                    c_merged[key] = np.zeros(n_global, dtype=float)
 
-                                # merge into global array using local-to-global index mapping
-                                merged[key][f_gids[p]] = values[f_ids[p]]
+                                # Merge into global array using local-to-global index mapping
+                                c_merged[key][f_gids[p]] = values[f_ids[p]]
 
-                            # for scalar quantities, just pass the output (only need to do it once since it doesn not vary spatially)
-                            elif p == 0:
-                                merged[key] = values
+                            # # For scalar quantities, just pass the output (only need to do it once since it doesn not vary spatially)
+                            # elif p == 0:
+                            #     c_merged[key] = values.item()
 
-                        # remove local file
-                        fname.unlink()
+                    # Remove local parallel file
+                    c_file_sub.unlink()
 
-                    # save merged output (basically just remove the "proc" part of the filename)
-                    OutputManager.save_binary(outputdir, f"cohort{cohort_id}", merged, year, ets)
 
+                # Save merged output (basically just remove the "proc" part of the filename)
+                OutputManager.save_netcdf(outputdir, 
+                                          f"cohort{cohort_id}_{file_num:02d}", 
+                                          c_merged, 
+                                          saved_attrs = c_merged_attrs
+                                          )

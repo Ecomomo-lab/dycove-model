@@ -1,8 +1,59 @@
 
 from abc import ABC, abstractmethod
+from typing import Mapping, Any
 import numpy as np
 from pathlib import Path
 import xarray as xr
+
+
+# ------------------------------------------------------------ #
+# Some utility functions first, for internal and external use
+# ------------------------------------------------------------ #
+
+def get_veg_file_index(eco_dir: Path | str) -> dict:
+    """ 
+    Lightweight first pass to read eco year & ETS from output and generate file index.
+
+    Parameters
+    ----------
+    eco_dir : Path or str
+        Path to DYCOVE's ``veg_output`` directory.
+     
+    """
+    eco_dir = Path(eco_dir)
+    index = {}
+    old_file_format = list(eco_dir.glob(".npz"))
+    if not old_file_format:
+        for fpath in eco_dir.iterdir():
+            with xr.open_dataset(fpath) as ds:
+                year = ds.attrs["eco_year"]
+                ets = ds.attrs["ets"]
+            if (year, ets) not in index:
+                index[(year, ets)] = [fpath]
+            else:
+                index[(year, ets)].append(fpath)
+    # return empty index if using old format, won't be used
+    return index
+
+
+def get_anuga_centroid_coords(anuga_vars: xr.Dataset) -> tuple[list, list]:
+    """ 
+    Convert ANUGA vertex coordinates to centroid coordinates (centroid coordinates 
+    not available in ANUGA sww file).
+
+    Parameters
+    ----------
+    anuga_vars : xr.Dataset
+        Dataset containing netCDF variables.
+    """
+    # Load mesh vertex coordinates
+    xx = anuga_vars['x']
+    yy = anuga_vars['y']
+    # Convert vertex coordinates to centroid coordinates using 'volumes' variable
+    xx_c = [(xx[i]+xx[j]+xx[k])/3. for i, j, k in anuga_vars['volumes']]
+    yy_c = [(yy[i]+yy[j]+yy[k])/3. for i, j, k in anuga_vars['volumes']]
+
+    return xx_c, yy_c
 
 
 class BaseMapLoader(ABC):
@@ -53,12 +104,14 @@ class BaseMapLoader(ABC):
         self.n_ets_year = n_ets_year
         self.ecodir = self.modeldir / 'veg_output'
 
-        # single location for storing names of vegetation variables stored in class `VegCohort`
-        # since this is DYCOVE related, this isn't dependent on the numerical model being used
+        # Single location for storing names of vegetation variables stored in class `VegCohort`
+        # DYCOVE related and independent on the numerical model being used
         self.veg_varnames = {'Fractions': 'fraction', 
                              'Stem Density': 'density', 
                              'Stem Diameter': 'diameter', 
                              'Stem Height': 'height',
+                             'Species': 'name',
+                             'Cohort': 'cohort',
                              'Potential Mortality -- Flooding': 'potential_mort_flood',
                              'Potential Mortality -- Desiccation': 'potential_mort_desic',
                              'Potential Mortality -- Uprooting': 'potential_mort_uproot',
@@ -70,7 +123,11 @@ class BaseMapLoader(ABC):
                              'Mortality -- Burial': 'applied_mort_burial',
                              'Mortality -- Scour': 'applied_mort_scour',
                              'Mortality -- Total': 'applied_mort_total',
-                             }   
+                             }
+        
+        if self.eco_plot:
+            self.veg_file_index = get_veg_file_index(self.ecodir)
+
         
     @abstractmethod
     def load(self, hydro_i, ets, eco_year):
@@ -79,14 +136,13 @@ class BaseMapLoader(ABC):
     @abstractmethod
     def _load_outputs(self, modeldir):
         pass
-
+    
     def check_final_index(self, index):
         """ Raises error if final plot time exceeds simulation length """
-        try:
-            self._load_outputs(self._get_model_subdir())
-            wse = self.cached_map_vars[self.hydro_varnames['WSE']][index]
-        except IndexError as exc:
-            raise ValueError("Final plot time in 'plot_times' exceeds the length of the simulation!") from exc
+        self._load_outputs(self._get_model_subdir())
+        wse = self.cached_map_vars[self.hydro_varnames['WSE']]
+        if index >= len(wse):
+            raise ValueError("Final plot time in 'plot_times' exceeds the length of the simulation!")
         
     def _load_veg(self, ets, eco_year):
         """
@@ -95,24 +151,54 @@ class BaseMapLoader(ABC):
         No cached variable here because these files are written every ETS
         """
 
-        veg_fractions, veg_quantity, veg_names = [], [], []     
+        veg_data = {"fractions": [],
+                    "quantities": [],
+                    "cohorts": [],
+                    }
 
-        # Loop through all cohort files saved for this ETS, load file to running list
-        for file in self.ecodir.glob(f'cohort*_year{eco_year}_ets{ets}.npz'):
+        old_file_format = list(self.ecodir.glob(".npz"))
+        if old_file_format:
+            return self._load_veg_old_format(veg_data, ets, eco_year)
+        else:
+            return self._load_veg_new_format(veg_data, ets, eco_year)
+        
+        
+    def _load_veg_new_format(self, veg_data, ets, eco_year):
+        if (eco_year, ets) in self.veg_file_index:
+            for fpath in self.veg_file_index[(eco_year, ets)]:
+                c = xr.load_dataset(fpath)
+
+                veg_data["cohorts"].append((c.attrs[self.veg_varnames["Species"]], 
+                                            c.attrs[self.veg_varnames["Cohort"]]))
+                veg_data["fractions"].append(c.data_vars[self.veg_varnames["Fractions"]])
+                if self.veg_varnames[self.quantity] in c.attrs:
+                    veg_data["quantities"].append(c.attrs[self.veg_varnames[self.quantity]])
+                else:  # redundant if quantity is 'Fractions'
+                    veg_data["quantities"].append(c.data_vars[self.veg_varnames[self.quantity]])
+
+        return veg_data
+
+
+    def _load_veg_old_format(self, veg_data, ets, eco_year):
+        # Loop through all cohort files saved for this ETS, load attributes to running list
+        for file in self.ecodir.glob(f"cohort*_year{eco_year}_ets{ets}.npz"):
             c = dict(np.load(file, allow_pickle=True))
-            veg_names.append(c["name"])
-            veg_fractions.append(c["fraction"])
-            veg_quantity.append(c[self.veg_varnames[self.quantity]])  # not used if quantity is 'Fractions'
+            c_id = file.stem.split("_")[0][6:]  # old format didn't have species name, give generic name
+            veg_data["cohorts"].append(f"Cohort {c_id}") 
+            #veg_data["species"].append(c[self.veg_varnames["Species"]])
+            veg_data["fractions"].append(c[self.veg_varnames["Fractions"]])
+            veg_data["quantities"].append(c[self.veg_varnames[self.quantity]])  # not used if quantity is 'Fractions'
 
-        return veg_fractions, veg_quantity, veg_names
+        return veg_data
+
 
     def _pass_veg(self, veg_data, data):
-        # For distributing veg data to correct keys in data dict
-        data['Fractions'] = veg_data[0]
-        if self.quantity != "Fractions":
-            # For all other quantities, we need Fractions in order to do weighted averaging of cohorts in grid cells
-            data[self.quantity] = veg_data[1]
-        return data, veg_data[2]
+        # Distribute veg_data to correct keys in data dict
+        data["Cohort Names"] = veg_data["cohorts"]
+        data["Fractions"] = veg_data["fractions"]
+        # For all other quantities, we still need Fractions in order to do weighted averaging of cohorts in grid cells
+        data[self.quantity] = veg_data["quantities"]  # if quantity is Fractions, this line is redundant
+        return data
 
 
 class ANUGAMapLoader(BaseMapLoader):
@@ -160,7 +246,9 @@ class ANUGAMapLoader(BaseMapLoader):
         data = {'X': np.asarray(self.xx_c),
                 'Y': np.asarray(self.yy_c),
                 # change from DFM: removed index because no time dimension for elevation in ANUGA
-                'Bathymetry': np.asarray(self.zz_c)}
+                'Bathymetry': np.asarray(self.zz_c),
+                'Cohort Names': None  # need this for output consistency
+                }
         
         if self.quantity == 'Bathymetry':
             pass
@@ -187,10 +275,10 @@ class ANUGAMapLoader(BaseMapLoader):
         # (for ANUGA, as of now, there will only be one file to load)
         if self.cached_map_vars is None:
 
-            self.cached_map_vars = xr.open_dataset(subdir / f'{self.model_name}.sww')
+            self.cached_map_vars = xr.load_dataset(subdir / f'{self.model_name}.sww')
             assert self.cached_map_vars is not None  # for Pylance...
 
-            # only create the mesh centroid variables if they don't exist for this mesh
+            # Only create the mesh centroid variables if they don't exist for this mesh
             # -- this is a time consuming step, so save these files for future plotting with the same mesh
             files_exist = False
             x_fname = "xCentroidsSavedForFastRecomputation.npy"
@@ -198,17 +286,11 @@ class ANUGAMapLoader(BaseMapLoader):
             if (subdir / x_fname).exists() and (subdir / y_fname).exists():
                 self.xx_c = np.load(subdir / x_fname)
                 self.yy_c = np.load(subdir / y_fname)
-                # make sure existing files are not leftover from previous run
+                # Make sure existing files are not leftover from previous run
                 if len(self.xx_c) == len(self.cached_map_vars[self.mesh_varnames['Z']]):
                     files_exist = True
             if not files_exist:
-                # load mesh VERTEX coordinates (centroid coordinates not available in ANUGA netCDF file)
-                xx = self.cached_map_vars[self.mesh_varnames['X']]
-                yy = self.cached_map_vars[self.mesh_varnames['Y']]
-                # convert vertex coordinates to centroid coordinates using 'volumes' variable
-                self.xx_c = [(xx[i]+xx[j]+xx[k])/3. for i, j, k in self.cached_map_vars[self.mesh_varnames['triangles']]]
-                self.yy_c = [(yy[i]+yy[j]+yy[k])/3. for i, j, k in self.cached_map_vars[self.mesh_varnames['triangles']]]
-                
+                self.xx_c, self.yy_c = get_anuga_centroid_coords(self.cached_map_vars)
                 np.save(subdir / x_fname, self.xx_c)
                 np.save(subdir / y_fname, self.yy_c)
             
@@ -261,7 +343,9 @@ class DFMMapLoader(BaseMapLoader):
 
         # load mesh2d data
         data = {'X': np.asarray(self.cached_map_vars[self.mesh_varnames['X']]),
-                'Y': np.asarray(self.cached_map_vars[self.mesh_varnames['Y']])}
+                'Y': np.asarray(self.cached_map_vars[self.mesh_varnames['Y']]),
+                'Cohort Names': None  # need this for output consistency
+                }
         
         # need to handle case where morphology is off, then this variable won't be present in output file
         if self.mesh_varnames['Bathymetry mor'] in self.cached_map_vars:
@@ -292,7 +376,7 @@ class DFMMapLoader(BaseMapLoader):
         # Only load hydro outputs if the subdirectory has changed 
         # (for DFM, it will only change in restart mode)
         if subdir != self.current_subdir:
-            self.cached_map_vars = xr.open_dataset(subdir / f'{self.model_name}_map.nc')
+            self.cached_map_vars = xr.load_dataset(subdir / f'{self.model_name}_map.nc')
             self.current_subdir = subdir
 
     def _get_model_subdir(self):

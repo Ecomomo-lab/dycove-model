@@ -10,8 +10,8 @@ from dycove.sim.simulation_data import SimulationTimeState, HydrodynamicStats
 from dycove.sim.outputs import OutputManager
 from dycove.utils.simulation_reporting import Reporter
 
-
 r = Reporter()
+
 
 class HydroSimulationBase(ABC):
     """
@@ -44,8 +44,8 @@ class HydroSimulationBase(ABC):
                        veg_interval=43200, 
                        hydro_interval=900, 
                        save_interval=3600,
-                       ecofac=None,
-                       fl_dr=0.15):
+                       ecofac=None
+                       ):
         """
         Run a full simulation over the specified time period.
 
@@ -78,9 +78,6 @@ class HydroSimulationBase(ABC):
             Ecological (vegetation) acceleration factor relative to hydrodynamics.
             Must equal ``MORFAC`` if Delft3D morphology is enabled. If ``None``,
             it is computed automatically.
-        fl_dr : float, optional
-            Wet/dry threshold in meters. Cells below this depth are considered dry
-            to avoid thin-film issues/influence.
         """
 
         self.engine.initialize()
@@ -98,8 +95,7 @@ class HydroSimulationBase(ABC):
                                             )
 
         # Define object to hold all hydrodynamic statistics relevant for vegetation processes
-        self.hydrostats = HydrodynamicStats(fl_dr=fl_dr, 
-                                            n_hydro_steps=self.simstate.n_hydro_steps,
+        self.hydrostats = HydrodynamicStats(n_hydro_steps=self.simstate.n_hydro_steps,
                                             n_cells=self.engine.get_cell_count()
                                             )
 
@@ -119,7 +115,7 @@ class HydroSimulationBase(ABC):
                 # Update vegetation and inject those updates back into hydrodynamic model
                 self.veg_coupler.update(self.simstate, self.hydrostats)
                 # Write vegetation variables to output
-                self.outputs.save_vegetation_step(self.simstate.eco_year, self.simstate.ets)
+                self.outputs.save_vegetation_step(self.simstate)
         
         r.report("Merging outputs, cleaning up, and finalizing simulation...")
         self.outputs.reconcile_vegetation_output()

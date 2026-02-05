@@ -9,7 +9,7 @@ import json
 from dycove.sim.vegetation_data import VegetationAttributes, VegCohort
 from dycove.utils.simulation_reporting import Reporter
 from dycove.utils.array_math import cell_averaging, sum_product, sum_elementwise
-from dycove.constants import MIN_FRACTION
+from dycove.constants import MIN_FRACTION, BURIAL_FRACTION, SCOUR_FRACTION
 
 r = Reporter()
 
@@ -119,7 +119,7 @@ class VegetationSpecies(SharedVegMethods):
         max_depths : numpy.ndarray
             Array of maximum water depths [m] at each cell over the previous period.
         fl_dr : float
-            Wet/dry threshold [m]; cells with depth above this value are considered wet.
+            Wet/dry threshold [m]; passed from constants.py).  
         combined_cohorts : list of VegetationSpecies or None, optional
             Relevant only if multiple species are present. Provides information about
             other species occupying space in cells. See colonization method of 
@@ -250,7 +250,7 @@ class VegetationSpecies(SharedVegMethods):
                 
 
     # TODO: Verify that we want the default scour_frac to be 10%, previous codes have just used 100% same as stem burial
-    def mortality_morphodynamic(self, bl_diff, burial_frac=1.0, scour_frac=0.1):
+    def mortality_morphodynamic(self, bl_diff, burial_frac=BURIAL_FRACTION, scour_frac=SCOUR_FRACTION):
         """
         Compute linear mortality functions for each morphodynamic stressor (if activated).
 
