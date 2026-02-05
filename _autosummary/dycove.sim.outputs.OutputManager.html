@@ -112,26 +112,20 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.__init__" title="dycove.sim.outputs.OutputManager.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(engine)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.make_numpy_friendly" title="dycove.sim.outputs.OutputManager.make_numpy_friendly"><code class="xref py py-obj docutils literal notranslate"><span class="pre">make_numpy_friendly</span></code></a>(obj)</p></td>
-<td><p>Recursively convert arrays/lists to numpy arrays where possible</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.reconcile_vegetation_output" title="dycove.sim.outputs.OutputManager.reconcile_vegetation_output"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconcile_vegetation_output</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.reconcile_vegetation_output" title="dycove.sim.outputs.OutputManager.reconcile_vegetation_output"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reconcile_vegetation_output</span></code></a>()</p></td>
 <td><p>Merge vegetation outputs across MPI subdomains into single files.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.save_binary" title="dycove.sim.outputs.OutputManager.save_binary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_binary</span></code></a>(directory, filename, data, year, ets)</p></td>
-<td><p>Save dict-like data as compressed numpy .npz file</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.save_netcdf" title="dycove.sim.outputs.OutputManager.save_netcdf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_netcdf</span></code></a>(directory, filename, data[, ...])</p></td>
+<td><p>Save dict-like data as a NetCDF file using xarray</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.save_vegetation_step" title="dycove.sim.outputs.OutputManager.save_vegetation_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_vegetation_step</span></code></a>(year, ets)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.save_vegetation_step" title="dycove.sim.outputs.OutputManager.save_vegetation_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_vegetation_step</span></code></a>(sim)</p></td>
 <td><p>Save vegetation cohort state for a given ecological timestep</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.outputs.OutputManager.update_file_counts" title="dycove.sim.outputs.OutputManager.update_file_counts"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_file_counts</span></code></a>()</p></td>
+<td><p>Update file count for each cohort based on current number of cohorts.</p></td>
 </tr>
 </tbody>
 </table>
-<dl class="py method">
-<dt class="sig sig-object py" id="dycove.sim.outputs.OutputManager.make_numpy_friendly">
-<span class="sig-name descname"><span class="pre">make_numpy_friendly</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/outputs.html#OutputManager.make_numpy_friendly"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.outputs.OutputManager.make_numpy_friendly" title="Link to this definition"></a></dt>
-<dd><p>Recursively convert arrays/lists to numpy arrays where possible</p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.outputs.OutputManager.reconcile_vegetation_output">
 <span class="sig-name descname"><span class="pre">reconcile_vegetation_output</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/outputs.html#OutputManager.reconcile_vegetation_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.outputs.OutputManager.reconcile_vegetation_output" title="Link to this definition"></a></dt>
@@ -139,21 +133,27 @@
 <p>We want one output file per cohort, per ecological timestep.</p>
 <p>This executes on main processor only and can take a while for giant domains.</p>
 <p>Method is part of the engine class because it uses domain-specific info to
-re-map files, but we should keep this in OutputManager for now because we may
-add other similar tasks here later (and b/c it involves I/O and directory
-access).</p>
+re-map files, but we should keep this access point in OutputManager for now
+because we may add other similar tasks here later (and b/c it involves I/O
+and directory access).</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="dycove.sim.outputs.OutputManager.save_binary">
-<span class="sig-name descname"><span class="pre">save_binary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/outputs.html#OutputManager.save_binary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.outputs.OutputManager.save_binary" title="Link to this definition"></a></dt>
-<dd><p>Save dict-like data as compressed numpy .npz file</p>
+<dt class="sig sig-object py" id="dycove.sim.outputs.OutputManager.save_netcdf">
+<span class="sig-name descname"><span class="pre">save_netcdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eco_year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cohort_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">saved_attrs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/outputs.html#OutputManager.save_netcdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.outputs.OutputManager.save_netcdf" title="Link to this definition"></a></dt>
+<dd><p>Save dict-like data as a NetCDF file using xarray</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.outputs.OutputManager.save_vegetation_step">
-<span class="sig-name descname"><span class="pre">save_vegetation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/outputs.html#OutputManager.save_vegetation_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.outputs.OutputManager.save_vegetation_step" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">save_vegetation_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/outputs.html#OutputManager.save_vegetation_step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.outputs.OutputManager.save_vegetation_step" title="Link to this definition"></a></dt>
 <dd><p>Save vegetation cohort state for a given ecological timestep</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.outputs.OutputManager.update_file_counts">
+<span class="sig-name descname"><span class="pre">update_file_counts</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/outputs.html#OutputManager.update_file_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.outputs.OutputManager.update_file_counts" title="Link to this definition"></a></dt>
+<dd><p>Update file count for each cohort based on current number of cohorts.</p>
 </dd></dl>
 
 </dd></dl>

@@ -107,47 +107,47 @@
 
 <div class="viewcode-block" id="VegetationCoupler.update">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.coupler.VegetationCoupler.html#dycove.sim.coupler.VegetationCoupler.update">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simstate</span><span class="p">,</span> <span class="n">hydrostats</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">,</span> <span class="n">hydro</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Advance vegetation by one eco timestep.</span>
 
 <span class="sd">        These are all the steps that need to be performed within one ecological </span>
 <span class="sd">        time step.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">lifestage_update</span><span class="p">(</span><span class="n">simstate</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">apply_growth</span><span class="p">(</span><span class="n">simstate</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">do_colonization</span><span class="p">(</span><span class="n">simstate</span><span class="p">,</span> <span class="n">hydrostats</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">compute_mortality</span><span class="p">(</span><span class="n">hydrostats</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lifestage_update</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apply_growth</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">do_colonization</span><span class="p">(</span><span class="n">sim</span><span class="p">,</span> <span class="n">hydro</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_mortality</span><span class="p">(</span><span class="n">hydro</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compute_veg_model_quantities</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">push_veg_to_hydro</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="VegetationCoupler.lifestage_update">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.coupler.VegetationCoupler.html#dycove.sim.coupler.VegetationCoupler.lifestage_update">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">lifestage_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simstate</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">lifestage_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Update ETS and eco_year counter, then update vegetation life stage and stem density </span>
 <span class="sd">        if we started a new eco year.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">simstate</span><span class="o">.</span><span class="n">update_ets</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">simstate</span><span class="o">.</span><span class="n">ets</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">sim</span><span class="o">.</span><span class="n">update_ets</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">sim</span><span class="o">.</span><span class="n">ets</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">update_lifestage_and_stemdensity</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="VegetationCoupler.apply_growth">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.coupler.VegetationCoupler.html#dycove.sim.coupler.VegetationCoupler.apply_growth">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">apply_growth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simstate</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_growth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Apply precomputed growth rates for stem height, diameter, and root depth. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">stemheight_growth</span><span class="p">(</span><span class="n">simstate</span><span class="o">.</span><span class="n">ets</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">stemdiam_growth</span><span class="p">(</span><span class="n">simstate</span><span class="o">.</span><span class="n">ets</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">root_growth</span><span class="p">(</span><span class="n">simstate</span><span class="o">.</span><span class="n">ets</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">stemheight_growth</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">ets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">stemdiam_growth</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">ets</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">root_growth</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">ets</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="VegetationCoupler.do_colonization">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.coupler.VegetationCoupler.html#dycove.sim.coupler.VegetationCoupler.do_colonization">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">do_colonization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simstate</span><span class="p">,</span> <span class="n">hydrostats</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">do_colonization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">,</span> <span class="n">hydro</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Compute colonization based on hydrodynamic conditions. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">colonization</span><span class="p">(</span><span class="n">simstate</span><span class="o">.</span><span class="n">ets</span><span class="p">,</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">h_min</span><span class="p">,</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">h_max</span><span class="p">,</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">fl_dr</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">colonization</span><span class="p">(</span><span class="n">sim</span><span class="o">.</span><span class="n">ets</span><span class="p">,</span> <span class="n">hydro</span><span class="o">.</span><span class="n">h_min</span><span class="p">,</span> <span class="n">hydro</span><span class="o">.</span><span class="n">h_max</span><span class="p">,</span> <span class="n">hydro</span><span class="o">.</span><span class="n">fl_dr</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="VegetationCoupler.compute_mortality">

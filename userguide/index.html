@@ -175,14 +175,17 @@ A separate <cite>.json</cite> file and <a class="reference internal" href="../_a
 For Delft3D FM, the <cite>_his.nc</cite> file for point output and <cite>_map.nc</cite> file for map output are found in the <cite>/dflowfm/output</cite> directory.
 For ANUGA, the output <cite>.sww</cite> file is located in the working directory.</p>
 <p>DYCOVE vegetation outputs are found in <cite>/dflowfm/veg_output</cite> for Delft3D FM and in <cite>/veg_output</cite> for ANUGA.
-DYCOVE output consists of a series of <cite>.npz</cite> (<cite>numpy</cite>) files, one file per vegetation cohort per ecological time step.
-One <cite>.npz</cite> file represents the attribute state of a single vegetation cohort at a point in time.
-It contains all of the attributes that are stored in a <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> object (fractions, stem heights, mortality fractions, etc.).</p>
+DYCOVE output consists of a series of <cite>.nc</cite> (<cite>netCDF</cite>) files, one file per vegetation cohort per ecological time step.
+One <cite>.nc</cite> file represents the attribute state of a single vegetation cohort at a point in time.
+It contains all of the attributes that are stored in a <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> object (fractions, stem heights, mortality fractions, etc.).
+It also contains metadata with the current ecological year and Ecological Time Step (ETS), species name, and cohort ID number.</p>
 </section>
 <section id="plotting">
 <h2>Plotting<a class="headerlink" href="#plotting" title="Link to this heading"></a></h2>
 <p>DYCOVE features a built-in plotting class <a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a> that can be used to plot time series of 2-D quantities from both the numerical model and DYCOVE:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plotter</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ModelPlotter</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">plotter</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ModelPlotter</span><span class="p">(</span>
     <span class="n">simdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
     <span class="c1"># or: quantity = &quot;Velocity&quot;, etc. See examples and ModelPlotter API for list of quantities</span>
     <span class="n">quantity</span> <span class="o">=</span> <span class="s2">&quot;Stem Height&quot;</span><span class="p">,</span>
@@ -197,26 +200,28 @@ It contains all of the attributes that are stored in a <a class="reference inter
 <span class="n">plotter</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Attributes in the <cite>.npz</cite> file that are 1-D arrays (fractions, mortality fractions) use the same indexing as the underlying mesh, and can be interpolated to 2-D grids using the 1-D <code class="docutils literal notranslate"><span class="pre">X</span></code> and <code class="docutils literal notranslate"><span class="pre">Y</span></code> arrays in the numerical model output files.
+<p>Attributes in the <cite>.nc</cite> file that are 1-D arrays (fractions, mortality fractions) use the same indexing as the underlying mesh, and can be interpolated to 2-D grids using the 1-D <code class="docutils literal notranslate"><span class="pre">X</span></code> and <code class="docutils literal notranslate"><span class="pre">Y</span></code> arrays in the numerical model output files.
 Users can create an interpolation function directly using <a class="reference internal" href="../_autosummary/dycove.utils.plotting.create_nn_interpFunc.html#dycove.utils.plotting.create_nn_interpFunc" title="dycove.utils.plotting.create_nn_interpFunc"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_nn_interpFunc()</span></code></a>.
 This function is created and called as shown in <code class="xref py py-meth docutils literal notranslate"><span class="pre">get_quantity_grids()</span></code>.
 Loading of vegetation output files is performed in <a class="reference internal" href="../_autosummary/dycove.utils.model_loader.BaseMapLoader.html#dycove.utils.model_loader.BaseMapLoader" title="dycove.utils.model_loader.BaseMapLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMapLoader</span></code></a>, while loading of numerical model outputs occurs in <a class="reference internal" href="../_autosummary/dycove.utils.model_loader.ANUGAMapLoader.html#dycove.utils.model_loader.ANUGAMapLoader" title="dycove.utils.model_loader.ANUGAMapLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">ANUGAMapLoader</span></code></a> or <a class="reference internal" href="../_autosummary/dycove.utils.model_loader.DFMMapLoader.html#dycove.utils.model_loader.DFMMapLoader" title="dycove.utils.model_loader.DFMMapLoader"><code class="xref py py-class docutils literal notranslate"><span class="pre">DFMMapLoader</span></code></a>.</p>
-<p><a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a> is highly customizable and has many optional arguments, which are detailed in the API docs.</p>
+<p><a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a> is customizable and has many optional arguments, which are detailed in the API docs.</p>
 </section>
 <section id="plotting-results-with-multiple-species">
 <span id="plot-multi-species"></span><h2>Plotting Results with Multiple Species<a class="headerlink" href="#plotting-results-with-multiple-species" title="Link to this heading"></a></h2>
-<p>Plotting results of simulations with multiple species is no different from plotting results of a single-species simulation.
-Plotting stem height using <a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>, for example, will average all stem heights in each grid cell among the various species and life stages present within that cell.
-When plotting vegetation fractions, however, the output images will alternate between fractions of each species.
-Example: A simulation of one ecological year and two species consists of one colonization event for each species in the second ecological time step (ETS) of the year.
+<p>Plotting results of simulations with multiple species using <a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a> is no different from plotting results of a single-species simulation.
+Plotting stem height, for example, will average all stem heights in each grid cell among the various species and life stages present within that cell.
+When plotting vegetation fractions or mortality, however, <a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a> will create individual plots for each species.
+Example: A simulation of one ecological year and two species consists of, say, one colonization event for each species in the second ETS of the year.
 Plots of stem heights will consist of one plot per ETS, starting at ETS 2.
 Plots of fractions will consist of two plots per ETS, one for each species, starting at ETS 2.</p>
 </section>
 <section id="accessing-and-plotting-outputs-directly">
 <h2>Accessing and Plotting Outputs Directly<a class="headerlink" href="#accessing-and-plotting-outputs-directly" title="Link to this heading"></a></h2>
-<p>The following explanations and examples are for those users that prefer to develop their own plotting codes.
+<p>The following explanations and examples are for users who prefer to develop their own plotting codes.
 ANUGA model quantities can be read from the output <cite>.sww</cite> file using the <code class="docutils literal notranslate"><span class="pre">xarray</span></code> library (also <code class="docutils literal notranslate"><span class="pre">netCDF4</span></code>):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s2">&quot;path/to/anuga_model.sww&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;path/to/anuga_model.sww&quot;</span><span class="p">)</span>
 <span class="n">x_nodes</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
 <span class="n">y_nodes</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
 <span class="n">z_nodes</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;elevation&quot;</span><span class="p">]</span>
@@ -226,9 +231,9 @@ ANUGA model quantities can be read from the output <cite>.sww</cite> file using 
 </div>
 <p>These are 1-D arrays, that can be interpolated using <a class="reference internal" href="../_autosummary/dycove.utils.plotting.create_nn_interpFunc.html#dycove.utils.plotting.create_nn_interpFunc" title="dycove.utils.plotting.create_nn_interpFunc"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_nn_interpFunc()</span></code></a> or other tools.
 Note that <cite>stage</cite> and other time-varying quantities have a time axis as the first axis (same with DFM).
-Centroid data is also included in the <cite>.sww</cite> file, but <cite>x</cite> and <cite>y</cite> values at centroids would need to be computed as they are in <code class="docutils literal notranslate"><span class="pre">~dycove.utils.model_loader.ANUGAMapLoader._load_outputs</span></code>.
-Similarly, DFM model (centroid) quantities can be read from the output <cite>_map.nc</cite> file:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">map_vars</span> <span class="o">=</span> <span class="n">xarray</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s2">&quot;path/to/dflowfm/output/FlowFM_map.nc&quot;</span><span class="p">)</span>
+Centroid data is also included in the <cite>.sww</cite> file, but <cite>x</cite> and <cite>y</cite> values at centroids would need to be computed as they are in <code class="docutils literal notranslate"><span class="pre">~dycove.utils.model_loader.ANUGAMapLoader._load_outputs</span></code>.</p>
+<p>Similarly, DFM model (centroid) quantities can be read from the output <cite>_map.nc</cite> file:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;path/to/dflowfm/output/FlowFM_map.nc&quot;</span><span class="p">)</span>
 <span class="n">x_nodes</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
 <span class="n">y_nodes</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
 <span class="n">z_nodes</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;elevation&quot;</span><span class="p">]</span>
@@ -238,25 +243,63 @@ Similarly, DFM model (centroid) quantities can be read from the output <cite>_ma
 </div>
 <p>Vegetation quantities can be accessed via the files in the <cite>veg_output</cite> directory.
 Quantities that are saved in these output files are listed as attributes of the <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> class.
-For example:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Loop through all cohort files saved for a given year and ETS, load quantities to running lists</span>
-<span class="n">veg_fractions</span><span class="p">,</span> <span class="n">veg_quantity</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
-<span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;cohort*_year1_ets7.npz&#39;</span><span class="p">):</span>
-    <span class="n">c</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">numpy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;path/to/veg_output/cohort1_year1_ets7.npz&quot;</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-    <span class="n">fractions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;fraction&quot;</span><span class="p">])</span>
-    <span class="n">heights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">])</span>  <span class="c1"># or &quot;density&quot;, &quot;applied_mort_flood&quot;, etc.</span>
+The simplest way to load and plot quantities (outside of <a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>) is provided below.
+While vegetation fractions and cohorts are tracked individually in DYCOVE, we typically plot quantities as a weighted average in each grid cell, with weights determined by the fractions present in the cell.
+It also involves reading in the underlying hydrodynamic model file for interpolating to a grid:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.array_math</span><span class="w"> </span><span class="kn">import</span> <span class="n">cell_averaging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_nn_interpFunc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.model_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_veg_file_index</span><span class="p">,</span> <span class="n">get_anuga_centroid_coords</span>
+
+<span class="n">model_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./anuga_model&quot;</span><span class="p">)</span>
+<span class="n">veg_dir</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;veg_output&quot;</span>
+
+<span class="c1"># Load ANUGA (or DFM) output, read X and Y coordinate arrays</span>
+<span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;rectang_beach.sww&quot;</span><span class="p">)</span>
+
+<span class="c1"># Convert ANUGA vertex coordinates to centroids (may take a little time)</span>
+<span class="n">x_c</span><span class="p">,</span> <span class="n">y_c</span> <span class="o">=</span> <span class="n">get_anuga_centroid_coords</span><span class="p">(</span><span class="n">map_vars</span><span class="p">)</span>
+
+<span class="c1"># Create interpolation function for 10-m grid. Can also provide as an argument a polygon .csv file to mask outside domain.</span>
+<span class="n">interp_func</span> <span class="o">=</span> <span class="n">create_nn_interpFunc</span><span class="p">(</span><span class="n">x_c</span><span class="p">,</span> <span class="n">y_c</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># Interpolate model bathymetry to use as a base map (using centroids)</span>
+<span class="n">z_grid</span> <span class="o">=</span> <span class="n">interp_func</span><span class="p">(</span><span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;elevation_c&quot;</span><span class="p">])</span>
+
+<span class="c1"># Do preliminary sweep through cohort files to find year/ETS information</span>
+<span class="n">file_mapping</span> <span class="o">=</span> <span class="n">get_veg_file_index</span><span class="p">(</span><span class="n">veg_dir</span><span class="p">)</span>
+
+<span class="c1"># Loop through all saved cohort files saved for a given year and ETS, load and plot data</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">ets</span><span class="p">)</span> <span class="ow">in</span> <span class="n">file_mapping</span><span class="p">:</span>
+    <span class="n">fractions</span><span class="p">,</span> <span class="n">stem_heights</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">file_mapping</span><span class="p">[(</span><span class="n">year</span><span class="p">,</span> <span class="n">ets</span><span class="p">)]:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+        <span class="c1"># Append to list all data from this ETS</span>
+        <span class="n">fractions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;fraction&#39;</span><span class="p">])</span>
+        <span class="n">stem_heights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">])</span>
+
+    <span class="c1"># Do weighted average based on vegetation fractions in each cell</span>
+    <span class="n">stemht_avg</span> <span class="o">=</span> <span class="n">cell_averaging</span><span class="p">(</span><span class="n">fractions</span><span class="p">,</span> <span class="n">stem_heights</span><span class="p">)</span>
+
+    <span class="c1"># Interpolate to grid and mask out non-vegetated cells</span>
+    <span class="n">stemht_grid</span> <span class="o">=</span> <span class="n">interp_func</span><span class="p">(</span><span class="n">stemht_avg</span><span class="p">)</span>
+    <span class="n">stemht_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">stemht_grid</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">stemht_grid</span><span class="p">)</span>
+
+    <span class="c1"># Do plotting</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+    <span class="n">im_base</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">z_grid</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greys_r&quot;</span><span class="p">)</span>
+    <span class="n">im_veg</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">stemht_grid</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greens&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stem height [m] -- Eco year </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">, ETS </span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Note that for a given cohort, each <code class="docutils literal notranslate"><span class="pre">c[&quot;fraction&quot;]</span></code> is an array with one value per grid cell, while other quantities like <code class="docutils literal notranslate"><span class="pre">c[&quot;height&quot;]</span></code> have only a single value per cohort, which grows over time.
-Mortality outputs are arrays, similar to Fractions.
-While vegetation fractions and cohorts are tracked individually in DYCOVE, we typically plot them as a weighted average in each grid cell, with weights determined by the fractions present in the cell.
-First, we convert the data to a grid using <a class="reference internal" href="../_autosummary/dycove.utils.plotting.create_nn_interpFunc.html#dycove.utils.plotting.create_nn_interpFunc" title="dycove.utils.plotting.create_nn_interpFunc"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_nn_interpFunc()</span></code></a>, then we use the helper functions in <code class="xref py py-mod docutils literal notranslate"><span class="pre">array_math</span></code> to compute weighted averages:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.array_math</span><span class="w"> </span><span class="kn">import</span> <span class="n">cell_averaging</span><span class="p">,</span> <span class="n">sum_product</span>
-<span class="n">grid_data</span> <span class="o">=</span> <span class="n">cell_averaging</span><span class="p">(</span><span class="n">fractions</span><span class="p">,</span> <span class="n">heights</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>With the data as a 2-D array, it can be plotted as usual using <code class="docutils literal notranslate"><span class="pre">imshow</span></code>.
-Users can (and should) loop over “years” and “ETS” to view species evolution through time.</p>
+<p>Note that for a given cohort, each <code class="docutils literal notranslate"><span class="pre">c['fraction']</span></code> is an array with one value per grid cell, while other quantities like <code class="docutils literal notranslate"><span class="pre">c.attrs['height']</span></code> are stored under <code class="docutils literal notranslate"><span class="pre">attrs</span></code> because they have only a single value per cohort, which grows over time.
+Mortality outputs are arrays, similar to Fractions.</p>
 </section>
 </section>
 

@@ -83,6 +83,11 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.simulation_reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reporter</span>
+
+<span class="n">r</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="OutputManager">
@@ -95,42 +100,75 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">engine</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">veg</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">veg_dir</span>   <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">model_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;veg_output&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">veg_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">veg_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cohort_count</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># for numbering output files</span></div>
 
 
 <div class="viewcode-block" id="OutputManager.save_vegetation_step">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.outputs.OutputManager.html#dycove.sim.outputs.OutputManager.save_vegetation_step">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">save_vegetation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">ets</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_vegetation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Save vegetation cohort state for a given ecological timestep &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">cohort</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">cohorts</span><span class="p">):</span>
-            <span class="n">fname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;cohort</span><span class="si">{</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">_proc</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">()</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;cohort</span><span class="si">{</span><span class="n">n</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">save_binary</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_dir</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">asdict</span><span class="p">(</span><span class="n">cohort</span><span class="p">),</span> <span class="n">year</span><span class="p">,</span> <span class="n">ets</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_file_counts</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cohort</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">cohorts</span><span class="p">):</span>
+
+            <span class="n">fname</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cohort</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cohort_count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">_proc</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span> 
+                     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">()</span> 
+                     <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;cohort_data_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cohort_count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+                     <span class="p">)</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">save_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_dir</span><span class="p">,</span> 
+                             <span class="n">fname</span><span class="p">,</span> 
+                             <span class="n">asdict</span><span class="p">(</span><span class="n">cohort</span><span class="p">),</span> 
+                             <span class="n">eco_year</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">eco_year</span><span class="p">,</span> 
+                             <span class="n">ets</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">ets</span><span class="p">,</span> 
+                             <span class="n">cohort_id</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span>
+                             <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cohort_count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
 
-<div class="viewcode-block" id="OutputManager.save_binary">
-<a class="viewcode-back" href="../../../_autosummary/dycove.sim.outputs.OutputManager.html#dycove.sim.outputs.OutputManager.save_binary">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">save_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">directory</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">year</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">ets</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Save dict-like data as compressed numpy .npz file &quot;&quot;&quot;</span>
-        <span class="n">data_flat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_numpy_friendly</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="n">fname</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">_year</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">_ets</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">.npz&quot;</span>
-        <span class="n">np</span><span class="o">.</span><span class="n">savez_compressed</span><span class="p">(</span><span class="n">directory</span> <span class="o">/</span> <span class="n">fname</span><span class="p">,</span> <span class="o">**</span><span class="n">data_flat</span><span class="p">)</span></div>
+<div class="viewcode-block" id="OutputManager.update_file_counts">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.outputs.OutputManager.html#dycove.sim.outputs.OutputManager.update_file_counts">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_file_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Update file count for each cohort based on current number of cohorts. &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">cohorts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cohort_count</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cohort_count</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">cohorts</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cohort_count</span><span class="p">)))</span></div>
 
 
-<div class="viewcode-block" id="OutputManager.make_numpy_friendly">
-<a class="viewcode-back" href="../../../_autosummary/dycove.sim.outputs.OutputManager.html#dycove.sim.outputs.OutputManager.make_numpy_friendly">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">make_numpy_friendly</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Recursively convert arrays/lists to numpy arrays where possible &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">obj</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-            <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_numpy_friendly</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">make_numpy_friendly</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">obj</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">obj</span></div>
+<div class="viewcode-block" id="OutputManager.save_netcdf">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.outputs.OutputManager.html#dycove.sim.outputs.OutputManager.save_netcdf">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                    <span class="n">directory</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+                    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                    <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+                    <span class="n">eco_year</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">ets</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">cohort_id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="n">saved_attrs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Save dict-like data as a NetCDF file using xarray &quot;&quot;&quot;</span>
+
+        <span class="n">data_vars</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">attrs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1">#for key, value in data_flat.items():</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="c1"># Let xarray infer dimensions</span>
+                <span class="n">data_vars</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Scalars / metadata go into attributes</span>
+                <span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">data_vars</span><span class="o">=</span><span class="n">data_vars</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">saved_attrs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># do this when call comes from save_vegetation_step()</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">eco_year</span><span class="o">=</span><span class="n">eco_year</span><span class="p">,</span> <span class="n">ets</span><span class="o">=</span><span class="n">ets</span><span class="p">,</span> <span class="n">cohort</span><span class="o">=</span><span class="n">cohort_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>                    <span class="c1"># do this when call comes from merge_parallel_veg()</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">saved_attrs</span><span class="p">)</span>
+
+        <span class="n">ds</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="n">directory</span> <span class="o">/</span> <span class="p">(</span><span class="n">filename</span> <span class="o">+</span> <span class="s2">&quot;.nc&quot;</span><span class="p">))</span></div>
+
 
 
 <div class="viewcode-block" id="OutputManager.reconcile_vegetation_output">
@@ -144,9 +182,9 @@
 <span class="sd">        This executes on main processor only and can take a while for giant domains.</span>
 <span class="sd">        </span>
 <span class="sd">        Method is part of the engine class because it uses domain-specific info to </span>
-<span class="sd">        re-map files, but we should keep this in OutputManager for now because we may </span>
-<span class="sd">        add other similar tasks here later (and b/c it involves I/O and directory </span>
-<span class="sd">        access).</span>
+<span class="sd">        re-map files, but we should keep this access point in OutputManager for now </span>
+<span class="sd">        because we may add other similar tasks here later (and b/c it involves I/O </span>
+<span class="sd">        and directory access).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>

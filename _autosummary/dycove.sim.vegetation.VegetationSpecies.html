@@ -206,7 +206,7 @@ computed elsewhere.</p>
 <li><p><strong>ets</strong> (<em>int</em>) – Current ecological timestep within current ecological year.</p></li>
 <li><p><strong>min_depths</strong> (<em>numpy.ndarray</em>) – Array of minimum water depths [m] at each cell over the previous period.</p></li>
 <li><p><strong>max_depths</strong> (<em>numpy.ndarray</em>) – Array of maximum water depths [m] at each cell over the previous period.</p></li>
-<li><p><strong>fl_dr</strong> (<em>float</em>) – Wet/dry threshold [m]; cells with depth above this value are considered wet.</p></li>
+<li><p><strong>fl_dr</strong> (<em>float</em>) – Wet/dry threshold [m]; passed from constants.py).</p></li>
 <li><p><strong>combined_cohorts</strong> (<em>list</em><em> of </em><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies" title="dycove.sim.vegetation.VegetationSpecies"><em>VegetationSpecies</em></a><em> or </em><em>None</em><em>, </em><em>optional</em>) – Relevant only if multiple species are present. Provides information about
 other species occupying space in cells. See colonization method of
 <a class="reference internal" href="dycove.sim.vegetation.MultipleVegetationSpecies.html#dycove.sim.vegetation.MultipleVegetationSpecies" title="dycove.sim.vegetation.MultipleVegetationSpecies"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleVegetationSpecies</span></code></a> for the use-case.</p></li>

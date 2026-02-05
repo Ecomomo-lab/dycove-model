@@ -14,10 +14,10 @@
    .. autosummary::
    
       ~OutputManager.__init__
-      ~OutputManager.make_numpy_friendly
       ~OutputManager.reconcile_vegetation_output
-      ~OutputManager.save_binary
+      ~OutputManager.save_netcdf
       ~OutputManager.save_vegetation_step
+      ~OutputManager.update_file_counts
    
    
 

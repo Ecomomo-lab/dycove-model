@@ -120,7 +120,7 @@ distrubuted to each individual species under the methods of
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.__init__" title="dycove.sim.coupler.VegetationCoupler.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(engine)</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.apply_growth" title="dycove.sim.coupler.VegetationCoupler.apply_growth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_growth</span></code></a>(simstate)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.apply_growth" title="dycove.sim.coupler.VegetationCoupler.apply_growth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_growth</span></code></a>(sim)</p></td>
 <td><p>Apply precomputed growth rates for stem height, diameter, and root depth.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.compute_mortality" title="dycove.sim.coupler.VegetationCoupler.compute_mortality"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_mortality</span></code></a>(hydrostats)</p></td>
@@ -129,23 +129,23 @@ distrubuted to each individual species under the methods of
 <tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.compute_veg_model_quantities" title="dycove.sim.coupler.VegetationCoupler.compute_veg_model_quantities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_veg_model_quantities</span></code></a>()</p></td>
 <td><p>Compute vegetation quantities (stem density, diameter, height), to be pushed to hydro model as single values at each grid cell</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.do_colonization" title="dycove.sim.coupler.VegetationCoupler.do_colonization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">do_colonization</span></code></a>(simstate, hydrostats)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.do_colonization" title="dycove.sim.coupler.VegetationCoupler.do_colonization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">do_colonization</span></code></a>(sim, hydro)</p></td>
 <td><p>Compute colonization based on hydrodynamic conditions.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.lifestage_update" title="dycove.sim.coupler.VegetationCoupler.lifestage_update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lifestage_update</span></code></a>(simstate)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.lifestage_update" title="dycove.sim.coupler.VegetationCoupler.lifestage_update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lifestage_update</span></code></a>(sim)</p></td>
 <td><p>Update ETS and eco_year counter, then update vegetation life stage and stem density if we started a new eco year.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.push_veg_to_hydro" title="dycove.sim.coupler.VegetationCoupler.push_veg_to_hydro"><code class="xref py py-obj docutils literal notranslate"><span class="pre">push_veg_to_hydro</span></code></a>()</p></td>
 <td><p>Inject updated vegetation properties into hydrodynamic model arrays.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.update" title="dycove.sim.coupler.VegetationCoupler.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>(simstate, hydrostats)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.coupler.VegetationCoupler.update" title="dycove.sim.coupler.VegetationCoupler.update"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update</span></code></a>(sim, hydro)</p></td>
 <td><p>Advance vegetation by one eco timestep.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.coupler.VegetationCoupler.apply_growth">
-<span class="sig-name descname"><span class="pre">apply_growth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simstate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.apply_growth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.apply_growth" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">apply_growth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.apply_growth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.apply_growth" title="Link to this definition"></a></dt>
 <dd><p>Apply precomputed growth rates for stem height, diameter, and root depth.</p>
 </dd></dl>
 
@@ -164,13 +164,13 @@ hydro model as single values at each grid cell</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.coupler.VegetationCoupler.do_colonization">
-<span class="sig-name descname"><span class="pre">do_colonization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simstate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydrostats</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.do_colonization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.do_colonization" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">do_colonization</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydro</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.do_colonization"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.do_colonization" title="Link to this definition"></a></dt>
 <dd><p>Compute colonization based on hydrodynamic conditions.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.coupler.VegetationCoupler.lifestage_update">
-<span class="sig-name descname"><span class="pre">lifestage_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simstate</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.lifestage_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.lifestage_update" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">lifestage_update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.lifestage_update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.lifestage_update" title="Link to this definition"></a></dt>
 <dd><p>Update ETS and eco_year counter, then update vegetation life stage and stem density
 if we started a new eco year.</p>
 </dd></dl>
@@ -186,7 +186,7 @@ colonization, total mortality, or absence on this subdomain).</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.coupler.VegetationCoupler.update">
-<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">simstate</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydrostats</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.update" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">update</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydro</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/coupler.html#VegetationCoupler.update"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.coupler.VegetationCoupler.update" title="Link to this definition"></a></dt>
 <dd><p>Advance vegetation by one eco timestep.</p>
 <p>These are all the steps that need to be performed within one ecological
 time step.</p>

@@ -87,7 +87,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.sim.vegetation_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">VegetationAttributes</span><span class="p">,</span> <span class="n">VegCohort</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.simulation_reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reporter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.array_math</span><span class="w"> </span><span class="kn">import</span> <span class="n">cell_averaging</span><span class="p">,</span> <span class="n">sum_product</span><span class="p">,</span> <span class="n">sum_elementwise</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">MIN_FRACTION</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">MIN_FRACTION</span><span class="p">,</span> <span class="n">BURIAL_FRACTION</span><span class="p">,</span> <span class="n">SCOUR_FRACTION</span>
 
 <span class="n">r</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">()</span>
 
@@ -213,7 +213,7 @@
 <span class="sd">        max_depths : numpy.ndarray</span>
 <span class="sd">            Array of maximum water depths [m] at each cell over the previous period.</span>
 <span class="sd">        fl_dr : float</span>
-<span class="sd">            Wet/dry threshold [m]; cells with depth above this value are considered wet.</span>
+<span class="sd">            Wet/dry threshold [m]; passed from constants.py).  </span>
 <span class="sd">        combined_cohorts : list of VegetationSpecies or None, optional</span>
 <span class="sd">            Relevant only if multiple species are present. Provides information about</span>
 <span class="sd">            other species occupying space in cells. See colonization method of </span>
@@ -359,7 +359,7 @@
     <span class="c1"># TODO: Verify that we want the default scour_frac to be 10%, previous codes have just used 100% same as stem burial</span>
 <div class="viewcode-block" id="VegetationSpecies.mortality_morphodynamic">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.mortality_morphodynamic">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">mortality_morphodynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bl_diff</span><span class="p">,</span> <span class="n">burial_frac</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">scour_frac</span><span class="o">=</span><span class="mf">0.1</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">mortality_morphodynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bl_diff</span><span class="p">,</span> <span class="n">burial_frac</span><span class="o">=</span><span class="n">BURIAL_FRACTION</span><span class="p">,</span> <span class="n">scour_frac</span><span class="o">=</span><span class="n">SCOUR_FRACTION</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute linear mortality functions for each morphodynamic stressor (if activated).</span>
 
