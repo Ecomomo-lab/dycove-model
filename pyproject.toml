@@ -25,28 +25,26 @@ classifiers = [
 dependencies = [
     "numpy",
     "xarray",
+]
+
+[project.optional-dependencies]
+# for DYCOVE's plotting module
+plot = [
     "matplotlib",
     "tqdm",
     "scipy",
     "imageio",
-    "pytest"
 ]
-
-[project.optional-dependencies]
-# for coupling with ANUGA
-anuga = [
-    "anuga>=3.1"
-]
-# for coupling with Delft3D FM
-dfm = [
-    "bmi",        # Python-DFM interface
-    "pypiwin32",  # needed for BMI
-    ]
 
 dev = [
     "pytest",
     "pytest-cov",
     "coveralls"
+]
+
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
 ]
 
 

@@ -7,7 +7,6 @@ import os
 from datetime import datetime
 from pathlib import Path
 import numpy as np
-import xarray as xr
 
 from dycove.sim.base import HydroSimulationBase, HydroEngineBase
 from dycove.utils.simulation_reporting import Reporter

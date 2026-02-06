@@ -6,8 +6,6 @@ from datetime import datetime
 import numpy as np
 import xarray as xr
 from pathlib import Path
-import re
-from collections import defaultdict
 
 
 from dycove.sim.base import HydroSimulationBase, HydroEngineBase

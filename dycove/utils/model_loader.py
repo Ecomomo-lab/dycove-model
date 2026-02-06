@@ -1,6 +1,5 @@
 
 from abc import ABC, abstractmethod
-from typing import Mapping, Any
 import numpy as np
 from pathlib import Path
 import xarray as xr

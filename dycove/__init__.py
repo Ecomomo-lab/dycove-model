@@ -76,9 +76,12 @@ def _optional_import(name: str):
     try:
         return importlib.import_module(import_paths[name])
     except ImportError as e:
-        warnings.warn(
-            f"Optional dependency for '{name}' not found. "
-            f"For dependency checks, install with: pip install dycove[{name.lower()}]",
+        if name == "plot":
+            msg = ("one or more dependencies are missing. "
+                   "Install dependencies invidivually or with: pip install dycove[plot]")
+        else:
+            msg = "see installation instructions in documentation for installing dependencies for ANUGA or DFM."
+        warnings.warn(f"'{name}' module could not be imported; " + msg,
             ImportWarning,
             stacklevel=2,
         )

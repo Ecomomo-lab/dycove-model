@@ -11,8 +11,7 @@ from matplotlib.colors import Colormap, ListedColormap
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 from matplotlib import path as mpath
-from tqdm import tqdm
-from scipy.spatial import cKDTree  # type: ignore
+from scipy.spatial import cKDTree
 
 from dycove.utils.array_math import cell_averaging, sum_product
 from dycove.utils.model_loader import DFMMapLoader, ANUGAMapLoader
@@ -261,6 +260,7 @@ class ModelPlotter:
 
     """
 
+
     def __init__(self, 
                  simdir, 
                  quantity, 
@@ -422,8 +422,11 @@ class ModelPlotter:
 
 
     def run(self):
+        from tqdm import tqdm
+
         ti_0, ti_f, dti = self.get_time_indices()
         self.check_time_inputs()
+
         for i in tqdm(range(ti_0, ti_f, dti)):
             self.create_timestrings(i)
             hydro_i, ets, eco_year = self.get_map_indices(i)
