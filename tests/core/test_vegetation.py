@@ -5,6 +5,9 @@ from dycove.sim.vegetation_data import VegetationAttributes
 from dycove.sim.vegetation_data import VegCohort
 
 
+# ------------------------------------------------------------ #
+# colonization
+# ------------------------------------------------------------ #
 def test_colonization(constants, attributes):
     c = constants
     a = attributes
@@ -43,8 +46,145 @@ def test_colonization(constants, attributes):
     fractions = veg.cohorts[0].fraction
     expected = np.array([0., 0., a["fraction_0"], 0.])
     assert (fractions == expected).all()
+   
+
+# ------------------------------------------------------------ #
+# tests for create_seed_fraction_mask()
+# ------------------------------------------------------------ #
+def test_seed_mask_deterministic(array_len):
+    veg = VegetationSpecies.__new__(VegetationSpecies)
+    veg.seed_method = "deterministic"
+    veg.seed_frac = 0.3
+    
+    mask1 = veg.create_seed_fraction_mask(array_len)
+    mask2 = veg.create_seed_fraction_mask(array_len)
+
+    assert mask1.dtype == bool
+    assert np.sum(mask1) == int(np.floor(0.3 * array_len))
+    assert np.array_equal(mask1, mask2)
 
 
+def test_seed_mask_random(array_len):
+    veg = VegetationSpecies.__new__(VegetationSpecies)
+    veg.seed_method = "random"
+    veg.seed_frac = 0.3
+    
+    mask = veg.create_seed_fraction_mask(array_len)
+
+    assert mask.shape == (array_len,)
+    assert mask.dtype == bool
+    assert mask.sum() == int(np.floor(0.3 * array_len))
+
+
+def test_seed_mask_zero_fraction(array_len):
+    veg = VegetationSpecies.__new__(VegetationSpecies)
+    veg.seed_method = "random"
+    veg.seed_frac = 0.0
+
+    mask = veg.create_seed_fraction_mask(array_len)
+
+    assert not mask.any()
+    assert mask.sum() == 0
+
+
+def test_seed_mask_full_fraction(array_len):
+    veg = VegetationSpecies.__new__(VegetationSpecies)
+    veg.seed_method = "random"
+    veg.seed_frac = 1.0
+
+    mask = veg.create_seed_fraction_mask(array_len)
+
+    assert mask.all()
+    assert mask.sum() == array_len
+
+
+# ------------------------------------------------------------ #
+# tests for compute_new_fraction()
+# ------------------------------------------------------------ #
+class TestComputeNewFraction:
+    """ Tests for the create_seed_fraction_mask method """
+
+    @staticmethod
+    def mock_attrs(a):
+        class MockAttr:  # only need this one attribute
+            fraction_0 = a["fraction_0"]
+        return MockAttr()
+    
+    @staticmethod
+    def mock_cohort(frac):
+        class MockCohort:
+            fraction = frac
+        return MockCohort()
+    
+    def test_compute_new_fraction_no_existing_cohorts(self, attributes):
+        veg = VegetationSpecies.__new__(VegetationSpecies)
+        veg.attrs = self.mock_attrs(attributes)
+
+        inds2colonize = np.array([True, False, True, False, False])
+        existing_cohorts = []
+
+        new_frac = veg.compute_new_fraction(
+            existing_cohorts=existing_cohorts,
+            inds2colonize=inds2colonize,
+        )
+
+        expected = np.zeros(len(inds2colonize))
+        expected[inds2colonize] = veg.attrs.fraction_0
+
+        assert np.allclose(new_frac, expected)
+        
+
+    def test_compute_new_fraction_with_existing_cohorts(self, attributes):
+        veg = VegetationSpecies.__new__(VegetationSpecies)
+        veg.attrs = self.mock_attrs(attributes)
+
+        inds2colonize = np.array([True, True, False, True])
+
+        # Existing fractions sum to less than 1 everywhere
+        existing_cohorts = [
+            self.mock_cohort(np.array([0.2, 0.1, 0.3, 0.4])),
+            self.mock_cohort(np.array([0.3, 0.2, 0.1, 0.1])),
+        ]
+
+        new_frac = veg.compute_new_fraction(
+            existing_cohorts=existing_cohorts,
+            inds2colonize=inds2colonize,
+        )
+
+        fraction_uncovered = 1 - (
+            existing_cohorts[0].fraction + existing_cohorts[1].fraction
+        )
+        candidate = np.minimum(fraction_uncovered, veg.attrs.fraction_0)
+
+        expected = np.zeros(len(inds2colonize))
+        expected[inds2colonize] = candidate[inds2colonize]
+
+        assert np.allclose(new_frac, expected)
+
+
+    def test_compute_new_fraction_no_available_space(self, attributes):    
+        veg = VegetationSpecies.__new__(VegetationSpecies)
+        veg.attrs = self.mock_attrs(attributes)
+
+        inds2colonize = np.array([True, True, True])
+
+        # Fractions sum to 1 everywhere
+        existing_cohorts = [
+            self.mock_cohort(np.array([0.6, 0.5, 0.7])),
+            self.mock_cohort(np.array([0.4, 0.5, 0.3])),
+        ]
+
+        new_frac = veg.compute_new_fraction(
+            existing_cohorts=existing_cohorts,
+            inds2colonize=inds2colonize,
+        )
+
+        assert np.allclose(new_frac, 0.0)
+
+
+# ------------------------------------------------------------ #
+# tests for mortality methods
+# ------------------------------------------------------------ #
 def test_hydrodynamic_mortality(attributes):
     a = attributes
 
@@ -66,7 +206,6 @@ def test_hydrodynamic_mortality(attributes):
     # Define wet/dry fractions and max velocity
     vel_max  = np.array([0.8, 1.1, 1.3, 1.5, 1.8])
     fld_frac = np.array([0.1, 0.4, 0.5, 0.6, 0.9])
-    #dry_frac = np.array([1 - f for f in fld_frac])
     dry_frac = np.array([0.9, 0.6, 0.5, 0.4, 0.1])
 
     # Test method

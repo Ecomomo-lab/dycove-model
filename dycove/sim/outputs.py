@@ -19,16 +19,16 @@ class OutputManager:
         self.veg = engine.veg
         self.veg_dir   = Path(engine.model_dir) / "veg_output"
         self.veg_dir.mkdir(parents=True, exist_ok=True)
-        self.cohort_count = []  # for numbering output files
+        self.n_cohort_steps = []  # for numbering output files
 
     def save_vegetation_step(self, sim):
         """ Save vegetation cohort state for a given ecological timestep """
         self.update_file_counts()
         for i, cohort in enumerate(self.veg.cohorts):
 
-            fname = (f"cohort{i}_{self.cohort_count[i]:02d}_proc{self.engine.get_rank()}" 
+            fname = (f"cohort{i}_{self.n_cohort_steps[i]:02d}_proc{self.engine.get_rank()}" 
                      if self.engine.is_parallel() 
-                     else f"cohort_data_{self.cohort_count[i]:02d}"
+                     else f"cohort_data_{self.n_cohort_steps[i]:02d}"
                      )
             
             self.save_netcdf(self.veg_dir, 
@@ -38,12 +38,12 @@ class OutputManager:
                              ets = sim.ets, 
                              cohort_id = i,
                              )
-            self.cohort_count[i] += 1
+            self.n_cohort_steps[i] += 1
 
     def update_file_counts(self):
         """ Update file count for each cohort based on current number of cohorts. """
-        if len(self.veg.cohorts) > len(self.cohort_count):
-            self.cohort_count.extend([0]*(len(self.veg.cohorts) - len(self.cohort_count)))
+        if len(self.veg.cohorts) > len(self.n_cohort_steps):
+            self.n_cohort_steps.extend([0]*(len(self.veg.cohorts) - len(self.n_cohort_steps)))
 
     def save_netcdf(self,
                     directory: Path,
@@ -59,13 +59,11 @@ class OutputManager:
         data_vars = {}
         attrs = {}
 
-        #for key, value in data_flat.items():
         for key, value in data.items():
+            # Pass arrays and scalars separately
             if isinstance(value, np.ndarray):
-                # Let xarray infer dimensions
                 data_vars[key] = xr.DataArray(value)
             else:
-                # Scalars / metadata go into attributes
                 attrs[key] = value
 
         ds = xr.Dataset(data_vars=data_vars)

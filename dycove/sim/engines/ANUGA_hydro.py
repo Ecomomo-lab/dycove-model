@@ -205,7 +205,7 @@ class AnugaEngine(HydroEngineBase):
         delete local files.
         """
         outputdir = OutputManager.veg_dir
-        cohort_count = OutputManager.cohort_count
+        n_cohort_steps = OutputManager.n_cohort_steps
 
         sww_name = self.domain.get_name()  # this is the specific name for myid 0, so it has suffix "_0"
         base_name = sww_name[:-2]  # remove the suffix for myid 0
@@ -232,7 +232,7 @@ class AnugaEngine(HydroEngineBase):
         # Loop over vegetation cohorts
         for cohort_id in range(len(self.veg.cohorts)):
             # Loop over snapshot files for this cohort
-            for file_num in range(cohort_count[cohort_id]):
+            for file_num in range(n_cohort_steps[cohort_id]):
                 c_files = [f for f in outputdir.iterdir() if f"cohort{cohort_id}_{file_num:02d}" in f.stem]
             
                 if len(c_files) == 0 and file_num == 0:
