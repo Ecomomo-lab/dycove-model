@@ -2,14 +2,14 @@
 import numpy as np
 from pytest import approx, mark
 
-from conftest import anuga_domain_and_engine
+from conftest import make_anuga_domain_and_engine as make_anuga
 
 
 @mark.anuga
 def test_baptist_quantities():
     from dycove.sim.engines.ANUGA_baptist import Baptist_operator
 
-    domain, engine = anuga_domain_and_engine()
+    domain, engine = make_anuga()
 
     Baptist = Baptist_operator(domain)
 
@@ -31,7 +31,7 @@ def test_baptist_Cv_calculation(constants):
     from dycove.sim.engines.ANUGA_baptist import Baptist_operator
 
     c = constants
-    domain, engine = anuga_domain_and_engine()
+    domain, engine = make_anuga()
 
     Baptist = Baptist_operator(domain,
         veg_diameter=c["D"],
@@ -54,7 +54,7 @@ def test_baptist_set_vegetation(constants):
     from dycove.sim.engines.ANUGA_baptist import Baptist_operator
 
     c = constants
-    domain, engine = anuga_domain_and_engine()
+    domain, engine = make_anuga()
     
     Baptist = Baptist_operator(domain)
 
@@ -71,7 +71,7 @@ def test_baptist_update_quantities_reduces_momentum(constants):
     from dycove.sim.engines.ANUGA_baptist import Baptist_operator
 
     c = constants
-    domain, engine = anuga_domain_and_engine(momentum=True)
+    domain, engine = make_anuga(momentum=True)
 
     Baptist = Baptist_operator(domain,
         veg_diameter=c["D"],

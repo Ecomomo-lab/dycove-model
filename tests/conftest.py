@@ -2,6 +2,10 @@ from pytest import fixture
 from pathlib import Path
 
 @fixture
+def array_len():
+    return 100
+
+@fixture
 def constants():
     # Vegetation test parameters (Baptist)
     return {
@@ -64,11 +68,11 @@ def tmp_data_path():
     return Path(__file__).parent / "tmp_data"
 
 
-def anuga_domain_and_engine(*, friction=False, momentum=False, dirichlet=False):
+def make_anuga_domain_and_engine(*, friction=False, momentum=False, dirichlet=False):
     import anuga
     from dycove import ANUGA_hydro
 
-    # Minimal ANUGA domain object
+    # Minimal ANUGA domain object (very large elements to speed up time steps)
     domain = anuga.rectangular_cross_domain(5, 5, 1000, 1000)
 
     # Set uniform depth and momentum for tests that check quantities

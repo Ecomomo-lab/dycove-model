@@ -142,7 +142,7 @@ class VegetationSpecies(SharedVegMethods):
             selected_inds = potential_inds_mask & rand_mask
 
             existing_cohorts = combined_cohorts if combined_cohorts is not None else self.cohorts
-            new_fraction = self.compute_new_fraction(existing_cohorts, selected_inds, len(min_depths))
+            new_fraction = self.compute_new_fraction(existing_cohorts, selected_inds)
 
             # Create new cohort for latest colonization
             # new_veg_fraction is an array, other quantities are scalars
@@ -159,22 +159,25 @@ class VegetationSpecies(SharedVegMethods):
             self.cohorts.append(new_cohort)
 
 
-    def create_seed_fraction_mask(self, array_len):
+    def create_seed_fraction_mask(self, array_len: int):
         """ Create a mask based on random seeding """
         # Number of indices where we will allow colonization
         n_inds = int(np.floor(self.seed_frac*array_len))
         # Initialize mask with all False
         rand_mask = np.zeros(array_len, dtype=bool)
+        # Set RNG depending on seeding style choice
         if self.seed_method == "deterministic":
-            np.random.seed(0)            
-        inds = np.random.choice(array_len, n_inds, replace=False)
+            rng = np.random.default_rng(0) 
+        else:
+            rng = np.random.default_rng()
+        inds = rng.choice(array_len, n_inds, replace=False)
         rand_mask[inds] = True
         return rand_mask
 
 
-    def compute_new_fraction(self, existing_cohorts, inds2colonize, array_len):
+    def compute_new_fraction(self, existing_cohorts: list, inds2colonize: np.ndarray):
         """ Compute a new cohort’s fractional cover based on available space. """
-        new_fraction = np.zeros(array_len)
+        new_fraction = np.zeros(len(inds2colonize))
         existing_fractions = [c.fraction for c in existing_cohorts]
 
         if not existing_fractions:
