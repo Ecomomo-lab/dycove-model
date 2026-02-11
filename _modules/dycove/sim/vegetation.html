@@ -236,7 +236,7 @@
             <span class="n">selected_inds</span> <span class="o">=</span> <span class="n">potential_inds_mask</span> <span class="o">&amp;</span> <span class="n">rand_mask</span>
 
             <span class="n">existing_cohorts</span> <span class="o">=</span> <span class="n">combined_cohorts</span> <span class="k">if</span> <span class="n">combined_cohorts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span>
-            <span class="n">new_fraction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_new_fraction</span><span class="p">(</span><span class="n">existing_cohorts</span><span class="p">,</span> <span class="n">selected_inds</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_depths</span><span class="p">))</span>
+            <span class="n">new_fraction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_new_fraction</span><span class="p">(</span><span class="n">existing_cohorts</span><span class="p">,</span> <span class="n">selected_inds</span><span class="p">)</span>
 
             <span class="c1"># Create new cohort for latest colonization</span>
             <span class="c1"># new_veg_fraction is an array, other quantities are scalars</span>
@@ -256,15 +256,18 @@
 
 <div class="viewcode-block" id="VegetationSpecies.create_seed_fraction_mask">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.create_seed_fraction_mask">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">create_seed_fraction_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array_len</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_seed_fraction_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array_len</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a mask based on random seeding &quot;&quot;&quot;</span>
         <span class="c1"># Number of indices where we will allow colonization</span>
         <span class="n">n_inds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed_frac</span><span class="o">*</span><span class="n">array_len</span><span class="p">))</span>
         <span class="c1"># Initialize mask with all False</span>
         <span class="n">rand_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">array_len</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+        <span class="c1"># Set RNG depending on seeding style choice</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed_method</span> <span class="o">==</span> <span class="s2">&quot;deterministic&quot;</span><span class="p">:</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>            
-        <span class="n">inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">array_len</span><span class="p">,</span> <span class="n">n_inds</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> 
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span>
+        <span class="n">inds</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">array_len</span><span class="p">,</span> <span class="n">n_inds</span><span class="p">,</span> <span class="n">replace</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="n">rand_mask</span><span class="p">[</span><span class="n">inds</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">return</span> <span class="n">rand_mask</span></div>
 
@@ -272,9 +275,9 @@
 
 <div class="viewcode-block" id="VegetationSpecies.compute_new_fraction">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.compute_new_fraction">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">compute_new_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">existing_cohorts</span><span class="p">,</span> <span class="n">inds2colonize</span><span class="p">,</span> <span class="n">array_len</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">compute_new_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">existing_cohorts</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">inds2colonize</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Compute a new cohort’s fractional cover based on available space. &quot;&quot;&quot;</span>
-        <span class="n">new_fraction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">array_len</span><span class="p">)</span>
+        <span class="n">new_fraction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inds2colonize</span><span class="p">))</span>
         <span class="n">existing_fractions</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">existing_cohorts</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">existing_fractions</span><span class="p">:</span>

@@ -164,8 +164,8 @@ Plots of stem heights will consist of one plot per ETS, starting at ETS 2.
 Plots of fractions will consist of two plots per ETS, one for each species, starting at ETS 2.
 
 
-Accessing and Plotting Outputs Directly
----------------------------------------
+Accessing and Plotting Outputs Without ``ModelPlotter``
+-------------------------------------------------------
 
 The following explanations and examples are for users who prefer to develop their own plotting codes.
 ANUGA model quantities can be read from the output `.sww` file using the ``xarray`` library (also ``netCDF4``):
@@ -175,30 +175,46 @@ ANUGA model quantities can be read from the output `.sww` file using the ``xarra
    import xarray as xr
 
    map_vars = xr.load_dataset("path/to/anuga_model.sww")
-   x_nodes = map_vars["x"]
-   y_nodes = map_vars["y"]
-   z_nodes = map_vars["elevation"]
+
+   # Vertex quantities
+   x = map_vars["x"]
+   y = map_vars["y"]
+   z = map_vars["elevation"]
+
+   # Time-varying vertex quantities
    stage = map_vars["stage"]
-   depth = stage - elevation
+   xmom = map_vars["xmomentum"]
+   depth = stage - z
+
+   # Some quantities are available directly as centroids
+   z_c = map_vars["elevation_c"]
+   stage_c = map_vars["stage_c"]
+   xmom_c = map_vars["xmomentum_c"]
+
 
 These are 1-D arrays, that can be interpolated using :func:`~dycove.utils.plotting.create_nn_interpFunc` or other tools.
 Note that `stage` and other time-varying quantities have a time axis as the first axis (same with DFM).
-Centroid data is also included in the `.sww` file, but `x` and `y` values at centroids would need to be computed as they are in ``~dycove.utils.model_loader.ANUGAMapLoader._load_outputs``.
+Centroid data is also included in the `.sww` file, but `x` and `y` values at centroids would need to be computed as they are in ``dycove.utils.model_loader.ANUGAMapLoader._load_outputs`` (or ``anuga.utilities.plot_utils._get_centroid_values``).
+Note that DYCOVE vegetation arrays are based on centroids.
 
-Similarly, DFM model (centroid) quantities can be read from the output `_map.nc` file:
+Similarly, DFM model centroid quantities can be read from the output `_map.nc` file:
 
 .. code-block:: python
 
    map_vars = xr.load_dataset("path/to/dflowfm/output/FlowFM_map.nc")
-   x_nodes = map_vars["x"]
-   y_nodes = map_vars["y"]
-   z_nodes = map_vars["elevation"]
-   stage = map_vars["stage"]
+   x_c = map_vars["mesh2d_face_x"]
+   y_c = map_vars["mesh2d_face_y"]
+   z_c = map_vars["mesh2d_flowelem_bl"]
+
+   # Time-varying quantities
+   bedlevel = map_vars["mesh2d_mor_bl"]
+   stage = map_vars["mesh2d_s1"]
+   velocity = map_vars["mesh2d_ucmag"]
    depth = stage - elevation
 
 Vegetation quantities can be accessed via the files in the `veg_output` directory.
 Quantities that are saved in these output files are listed as attributes of the :class:`~dycove.sim.vegetation_data.VegCohort` class.
-The simplest way to load and plot quantities (outside of :class:`~dycove.utils.plotting.ModelPlotter`) is provided below.
+An example of how to load and plot quantities (outside of :class:`~dycove.utils.plotting.ModelPlotter`) is provided below (based on ANUGA).
 While vegetation fractions and cohorts are tracked individually in DYCOVE, we typically plot quantities as a weighted average in each grid cell, with weights determined by the fractions present in the cell.
 It also involves reading in the underlying hydrodynamic model file for interpolating to a grid:
 
@@ -212,11 +228,8 @@ It also involves reading in the underlying hydrodynamic model file for interpola
    from dycove.utils.plotting import create_nn_interpFunc
    from dycove.utils.model_loader import get_veg_file_index, get_anuga_centroid_coords
 
-   model_dir = Path("./anuga_model")
-   veg_dir = model_dir / "veg_output"
-
    # Load ANUGA (or DFM) output, read X and Y coordinate arrays
-   map_vars = xr.load_dataset(model_dir / "rectang_beach.sww")
+   map_vars = xr.load_dataset(Path("./rectang_beach.sww"))
 
    # Convert ANUGA vertex coordinates to centroids (may take a little time)
    x_c, y_c = get_anuga_centroid_coords(map_vars)
@@ -228,7 +241,7 @@ It also involves reading in the underlying hydrodynamic model file for interpola
    z_grid = interp_func(map_vars["elevation_c"])
 
    # Do preliminary sweep through cohort files to find year/ETS information
-   file_mapping = get_veg_file_index(veg_dir)
+   file_mapping = get_veg_file_index(Path("./veg_output"))
 
    # Loop through all saved cohort files saved for a given year and ETS, load and plot data
    for (year, ets) in file_mapping:
@@ -237,7 +250,7 @@ It also involves reading in the underlying hydrodynamic model file for interpola
            c = xr.load_dataset(file)
 
            # Append to list all data from this ETS
-           fractions.append(c.data_vars['fraction'])
+           fractions.append(c['fraction'])
            stem_heights.append(c.attrs["height"])
 
        # Do weighted average based on vegetation fractions in each cell
@@ -256,5 +269,6 @@ It also involves reading in the underlying hydrodynamic model file for interpola
        plt.close()
 
 
-Note that for a given cohort, each ``c['fraction']`` is an array with one value per grid cell, while other quantities like ``c.attrs['height']`` are stored under ``attrs`` because they have only a single value per cohort, which grows over time.
-Mortality outputs are arrays, similar to Fractions.
+For each cohort output file, the ecological year ``'eco_year'`` and ETS ``'ets'`` are stored as metadata under ``attrs``, along with other quantities that only have a single value per cohort per ETS, like ``'height'``.
+These can be accessed with ``c.attrs['eco_year']``, etc.
+Array quantities can be accessed directly from the object, like ``c['fraction']``.

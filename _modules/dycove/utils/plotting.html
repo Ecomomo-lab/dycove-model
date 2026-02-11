@@ -89,8 +89,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.axes_grid1</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_axes_locatable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">mpl_toolkits.axes_grid1.anchored_artists</span><span class="w"> </span><span class="kn">import</span> <span class="n">AnchoredSizeBar</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">path</span> <span class="k">as</span> <span class="n">mpath</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>  <span class="c1"># type: ignore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.array_math</span><span class="w"> </span><span class="kn">import</span> <span class="n">cell_averaging</span><span class="p">,</span> <span class="n">sum_product</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.model_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">DFMMapLoader</span><span class="p">,</span> <span class="n">ANUGAMapLoader</span>
@@ -344,6 +343,7 @@
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
+
 <div class="viewcode-block" id="ModelPlotter.__init__">
 <a class="viewcode-back" href="../../../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> 
@@ -508,8 +508,11 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
         <span class="n">ti_0</span><span class="p">,</span> <span class="n">ti_f</span><span class="p">,</span> <span class="n">dti</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_time_indices</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">check_time_inputs</span><span class="p">()</span>
+
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">ti_0</span><span class="p">,</span> <span class="n">ti_f</span><span class="p">,</span> <span class="n">dti</span><span class="p">)):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">create_timestrings</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
             <span class="n">hydro_i</span><span class="p">,</span> <span class="n">ets</span><span class="p">,</span> <span class="n">eco_year</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_map_indices</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>

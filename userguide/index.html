@@ -59,7 +59,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#outputs">Outputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#plotting">Plotting</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#plotting-results-with-multiple-species">Plotting Results with Multiple Species</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#accessing-and-plotting-outputs-directly">Accessing and Plotting Outputs Directly</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#accessing-and-plotting-outputs-without-modelplotter">Accessing and Plotting Outputs Without <code class="docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Examples</a></li>
@@ -215,35 +215,50 @@ Example: A simulation of one ecological year and two species consists of, say, o
 Plots of stem heights will consist of one plot per ETS, starting at ETS 2.
 Plots of fractions will consist of two plots per ETS, one for each species, starting at ETS 2.</p>
 </section>
-<section id="accessing-and-plotting-outputs-directly">
-<h2>Accessing and Plotting Outputs Directly<a class="headerlink" href="#accessing-and-plotting-outputs-directly" title="Link to this heading"></a></h2>
+<section id="accessing-and-plotting-outputs-without-modelplotter">
+<h2>Accessing and Plotting Outputs Without <code class="docutils literal notranslate"><span class="pre">ModelPlotter</span></code><a class="headerlink" href="#accessing-and-plotting-outputs-without-modelplotter" title="Link to this heading"></a></h2>
 <p>The following explanations and examples are for users who prefer to develop their own plotting codes.
 ANUGA model quantities can be read from the output <cite>.sww</cite> file using the <code class="docutils literal notranslate"><span class="pre">xarray</span></code> library (also <code class="docutils literal notranslate"><span class="pre">netCDF4</span></code>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;path/to/anuga_model.sww&quot;</span><span class="p">)</span>
-<span class="n">x_nodes</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
-<span class="n">y_nodes</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
-<span class="n">z_nodes</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;elevation&quot;</span><span class="p">]</span>
+
+<span class="c1"># Vertex quantities</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
+<span class="n">y</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;elevation&quot;</span><span class="p">]</span>
+
+<span class="c1"># Time-varying vertex quantities</span>
 <span class="n">stage</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;stage&quot;</span><span class="p">]</span>
-<span class="n">depth</span> <span class="o">=</span> <span class="n">stage</span> <span class="o">-</span> <span class="n">elevation</span>
+<span class="n">xmom</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;xmomentum&quot;</span><span class="p">]</span>
+<span class="n">depth</span> <span class="o">=</span> <span class="n">stage</span> <span class="o">-</span> <span class="n">z</span>
+
+<span class="c1"># Some quantities are available directly as centroids</span>
+<span class="n">z_c</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;elevation_c&quot;</span><span class="p">]</span>
+<span class="n">stage_c</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;stage_c&quot;</span><span class="p">]</span>
+<span class="n">xmom_c</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;xmomentum_c&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>These are 1-D arrays, that can be interpolated using <a class="reference internal" href="../_autosummary/dycove.utils.plotting.create_nn_interpFunc.html#dycove.utils.plotting.create_nn_interpFunc" title="dycove.utils.plotting.create_nn_interpFunc"><code class="xref py py-func docutils literal notranslate"><span class="pre">create_nn_interpFunc()</span></code></a> or other tools.
 Note that <cite>stage</cite> and other time-varying quantities have a time axis as the first axis (same with DFM).
-Centroid data is also included in the <cite>.sww</cite> file, but <cite>x</cite> and <cite>y</cite> values at centroids would need to be computed as they are in <code class="docutils literal notranslate"><span class="pre">~dycove.utils.model_loader.ANUGAMapLoader._load_outputs</span></code>.</p>
-<p>Similarly, DFM model (centroid) quantities can be read from the output <cite>_map.nc</cite> file:</p>
+Centroid data is also included in the <cite>.sww</cite> file, but <cite>x</cite> and <cite>y</cite> values at centroids would need to be computed as they are in <code class="docutils literal notranslate"><span class="pre">dycove.utils.model_loader.ANUGAMapLoader._load_outputs</span></code> (or <code class="docutils literal notranslate"><span class="pre">anuga.utilities.plot_utils._get_centroid_values</span></code>).
+Note that DYCOVE vegetation arrays are based on centroids.</p>
+<p>Similarly, DFM model centroid quantities can be read from the output <cite>_map.nc</cite> file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;path/to/dflowfm/output/FlowFM_map.nc&quot;</span><span class="p">)</span>
-<span class="n">x_nodes</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
-<span class="n">y_nodes</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span>
-<span class="n">z_nodes</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;elevation&quot;</span><span class="p">]</span>
-<span class="n">stage</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;stage&quot;</span><span class="p">]</span>
+<span class="n">x_c</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_face_x&quot;</span><span class="p">]</span>
+<span class="n">y_c</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_face_y&quot;</span><span class="p">]</span>
+<span class="n">z_c</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_flowelem_bl&quot;</span><span class="p">]</span>
+
+<span class="c1"># Time-varying quantities</span>
+<span class="n">bedlevel</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_mor_bl&quot;</span><span class="p">]</span>
+<span class="n">stage</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_s1&quot;</span><span class="p">]</span>
+<span class="n">velocity</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_ucmag&quot;</span><span class="p">]</span>
 <span class="n">depth</span> <span class="o">=</span> <span class="n">stage</span> <span class="o">-</span> <span class="n">elevation</span>
 </pre></div>
 </div>
 <p>Vegetation quantities can be accessed via the files in the <cite>veg_output</cite> directory.
 Quantities that are saved in these output files are listed as attributes of the <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> class.
-The simplest way to load and plot quantities (outside of <a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>) is provided below.
+An example of how to load and plot quantities (outside of <a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>) is provided below (based on ANUGA).
 While vegetation fractions and cohorts are tracked individually in DYCOVE, we typically plot quantities as a weighted average in each grid cell, with weights determined by the fractions present in the cell.
 It also involves reading in the underlying hydrodynamic model file for interpolating to a grid:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -254,11 +269,8 @@ It also involves reading in the underlying hydrodynamic model file for interpola
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_nn_interpFunc</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.model_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_veg_file_index</span><span class="p">,</span> <span class="n">get_anuga_centroid_coords</span>
 
-<span class="n">model_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./anuga_model&quot;</span><span class="p">)</span>
-<span class="n">veg_dir</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;veg_output&quot;</span>
-
 <span class="c1"># Load ANUGA (or DFM) output, read X and Y coordinate arrays</span>
-<span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;rectang_beach.sww&quot;</span><span class="p">)</span>
+<span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./rectang_beach.sww&quot;</span><span class="p">))</span>
 
 <span class="c1"># Convert ANUGA vertex coordinates to centroids (may take a little time)</span>
 <span class="n">x_c</span><span class="p">,</span> <span class="n">y_c</span> <span class="o">=</span> <span class="n">get_anuga_centroid_coords</span><span class="p">(</span><span class="n">map_vars</span><span class="p">)</span>
@@ -270,7 +282,7 @@ It also involves reading in the underlying hydrodynamic model file for interpola
 <span class="n">z_grid</span> <span class="o">=</span> <span class="n">interp_func</span><span class="p">(</span><span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;elevation_c&quot;</span><span class="p">])</span>
 
 <span class="c1"># Do preliminary sweep through cohort files to find year/ETS information</span>
-<span class="n">file_mapping</span> <span class="o">=</span> <span class="n">get_veg_file_index</span><span class="p">(</span><span class="n">veg_dir</span><span class="p">)</span>
+<span class="n">file_mapping</span> <span class="o">=</span> <span class="n">get_veg_file_index</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./veg_output&quot;</span><span class="p">))</span>
 
 <span class="c1"># Loop through all saved cohort files saved for a given year and ETS, load and plot data</span>
 <span class="k">for</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">ets</span><span class="p">)</span> <span class="ow">in</span> <span class="n">file_mapping</span><span class="p">:</span>
@@ -279,7 +291,7 @@ It also involves reading in the underlying hydrodynamic model file for interpola
         <span class="n">c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
 
         <span class="c1"># Append to list all data from this ETS</span>
-        <span class="n">fractions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">data_vars</span><span class="p">[</span><span class="s1">&#39;fraction&#39;</span><span class="p">])</span>
+        <span class="n">fractions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;fraction&#39;</span><span class="p">])</span>
         <span class="n">stem_heights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">])</span>
 
     <span class="c1"># Do weighted average based on vegetation fractions in each cell</span>
@@ -298,8 +310,9 @@ It also involves reading in the underlying hydrodynamic model file for interpola
     <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>Note that for a given cohort, each <code class="docutils literal notranslate"><span class="pre">c['fraction']</span></code> is an array with one value per grid cell, while other quantities like <code class="docutils literal notranslate"><span class="pre">c.attrs['height']</span></code> are stored under <code class="docutils literal notranslate"><span class="pre">attrs</span></code> because they have only a single value per cohort, which grows over time.
-Mortality outputs are arrays, similar to Fractions.</p>
+<p>For each cohort output file, the ecological year <code class="docutils literal notranslate"><span class="pre">'eco_year'</span></code> and ETS <code class="docutils literal notranslate"><span class="pre">'ets'</span></code> are stored as metadata under <code class="docutils literal notranslate"><span class="pre">attrs</span></code>, along with other quantities that only have a single value per cohort per ETS, like <code class="docutils literal notranslate"><span class="pre">'height'</span></code>.
+These can be accessed with <code class="docutils literal notranslate"><span class="pre">c.attrs['eco_year']</span></code>, etc.
+Array quantities can be accessed directly from the object, like <code class="docutils literal notranslate"><span class="pre">c['fraction']</span></code>.</p>
 </section>
 </section>
 

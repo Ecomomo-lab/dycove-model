@@ -84,8 +84,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaultdict</span>
 
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.sim.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">HydroSimulationBase</span><span class="p">,</span> <span class="n">HydroEngineBase</span>
@@ -334,7 +332,8 @@
 <span class="sd">        delete local files.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">outputdir</span> <span class="o">=</span> <span class="n">OutputManager</span><span class="o">.</span><span class="n">veg_dir</span>
-        <span class="n">cohort_count</span> <span class="o">=</span> <span class="n">OutputManager</span><span class="o">.</span><span class="n">cohort_count</span>
+        <span class="n">n_cohort_steps</span> <span class="o">=</span> <span class="n">OutputManager</span><span class="o">.</span><span class="n">n_cohort_steps</span>
+        <span class="n">fname_base</span> <span class="o">=</span> <span class="n">OutputManager</span><span class="o">.</span><span class="n">fname_base</span>
 
         <span class="n">sww_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>  <span class="c1"># this is the specific name for myid 0, so it has suffix &quot;_0&quot;</span>
         <span class="n">base_name</span> <span class="o">=</span> <span class="n">sww_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># remove the suffix for myid 0</span>
@@ -361,8 +360,8 @@
         <span class="c1"># Loop over vegetation cohorts</span>
         <span class="k">for</span> <span class="n">cohort_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">cohorts</span><span class="p">)):</span>
             <span class="c1"># Loop over snapshot files for this cohort</span>
-            <span class="k">for</span> <span class="n">file_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cohort_count</span><span class="p">[</span><span class="n">cohort_id</span><span class="p">]):</span>
-                <span class="n">c_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">outputdir</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span> <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;cohort</span><span class="si">{</span><span class="n">cohort_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">file_num</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">stem</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">file_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cohort_steps</span><span class="p">[</span><span class="n">cohort_id</span><span class="p">]):</span>
+                <span class="n">c_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">outputdir</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span> <span class="k">if</span> <span class="n">fname_base</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">stem</span><span class="p">]</span>
             
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">file_num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                     <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No output files found for cohort </span><span class="si">{</span><span class="n">cohort_id</span><span class="si">}</span><span class="s2">, skipping merge. &quot;</span>

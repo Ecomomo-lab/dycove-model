@@ -2,7 +2,7 @@ Installation Instructions
 =========================
 
 DYCOVE is compatible with Python 3.10-3.13 (see Issues for some current incompatibilities). 
-There are technically only two general dependencies, which are `numpy <https://numpy.org/install/>`_ and `xarray <https://pypi.org/project/xarray/>`_.
+There are three general dependencies, which are `numpy <https://numpy.org/install/>`_, `xarray <https://pypi.org/project/xarray/>`_, and `scipy <https://www.scipy.org/install.html>`_.
 However, there are additional dependencies depending on the underlying numerical model to be used, and if the :class:`~dycove.utils.plotting.ModelPlotter` will be used.
 
 
@@ -47,7 +47,7 @@ Install Plotting Libraries
 --------------------------
 
 DYCOVE's :class:`~dycove.utils.plotting.ModelPlotter` is a convenient way to plot outputs.
-The additional dependencies are `matplotlib <https://matplotlib.org/3.2.2/users/installing.html>`_, `scipy <https://www.scipy.org/install.html>`_,  `tqdm <https://pypi.org/project/tqdm/>`_, and `imageio <https://pypi.org/project/ImageIO/>`_.
+The additional dependencies are `matplotlib <https://matplotlib.org/3.2.2/users/installing.html>`_, `tqdm <https://pypi.org/project/tqdm/>`_, and `imageio <https://pypi.org/project/ImageIO/>`_.
 Of course, users will want to have some of these libraries installed whether or not they plan to use :class:`~dycove.utils.plotting.ModelPlotter`.
 
 
