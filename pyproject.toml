@@ -25,6 +25,7 @@ classifiers = [
 dependencies = [
     "numpy",
     "xarray",
+    "scipy",
 ]
 
 [project.optional-dependencies]
@@ -32,7 +33,6 @@ dependencies = [
 plot = [
     "matplotlib",
     "tqdm",
-    "scipy",
     "imageio",
 ]
 

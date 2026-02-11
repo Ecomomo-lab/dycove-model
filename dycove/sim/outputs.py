@@ -20,15 +20,17 @@ class OutputManager:
         self.veg_dir   = Path(engine.model_dir) / "veg_output"
         self.veg_dir.mkdir(parents=True, exist_ok=True)
         self.n_cohort_steps = []  # for numbering output files
+        self.fname_base = "cohort0_01"
 
     def save_vegetation_step(self, sim):
         """ Save vegetation cohort state for a given ecological timestep """
         self.update_file_counts()
         for i, cohort in enumerate(self.veg.cohorts):
 
-            fname = (f"cohort{i}_{self.n_cohort_steps[i]:02d}_proc{self.engine.get_rank()}" 
+            self.fname_base = f"cohort{i}_{self.n_cohort_steps[i]:02d}"
+            fname = (self.fname_base + f"_proc{self.engine.get_rank()}" 
                      if self.engine.is_parallel() 
-                     else f"cohort_data_{self.n_cohort_steps[i]:02d}"
+                     else self.fname_base
                      )
             
             self.save_netcdf(self.veg_dir, 
@@ -74,7 +76,8 @@ class OutputManager:
         else:                    # do this when call comes from merge_parallel_veg()
             ds.attrs.update(saved_attrs)
 
-        ds.to_netcdf(directory / (filename + ".nc"))
+        # Need engine='scipy' because the DFM BMI ctypes wrapper has a path conflict with netCDF
+        ds.to_netcdf(directory / (filename + ".nc"), engine="scipy")
 
 
     def reconcile_vegetation_output(self):

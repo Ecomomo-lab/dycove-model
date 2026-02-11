@@ -206,6 +206,7 @@ class AnugaEngine(HydroEngineBase):
         """
         outputdir = OutputManager.veg_dir
         n_cohort_steps = OutputManager.n_cohort_steps
+        fname_base = OutputManager.fname_base
 
         sww_name = self.domain.get_name()  # this is the specific name for myid 0, so it has suffix "_0"
         base_name = sww_name[:-2]  # remove the suffix for myid 0
@@ -233,7 +234,7 @@ class AnugaEngine(HydroEngineBase):
         for cohort_id in range(len(self.veg.cohorts)):
             # Loop over snapshot files for this cohort
             for file_num in range(n_cohort_steps[cohort_id]):
-                c_files = [f for f in outputdir.iterdir() if f"cohort{cohort_id}_{file_num:02d}" in f.stem]
+                c_files = [f for f in outputdir.iterdir() if fname_base in f.stem]
             
                 if len(c_files) == 0 and file_num == 0:
                     msg = (f"No output files found for cohort {cohort_id}, skipping merge. "
