@@ -46,4 +46,4 @@ veg_2 = VegetationSpecies("ColocasciaEsculenta.json",
 HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=MultiVeg([veg_1, veg_2]))
 
 # do timestepping
-HydroModel.run_simulation(sim_time, sim_time_unit=time_unit)
+HydroModel.run_simulation(sim_time, time_unit)

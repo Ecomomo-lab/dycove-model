@@ -34,12 +34,13 @@ class HydroSimulationBase(ABC):
 
     def __init__(self, engine):
         self.engine = engine
-        self.veg_coupler = VegetationCoupler(engine) if self.engine.veg else None
+        self.veg_active = True if self.engine.veg else False
+        self.veg_coupler = VegetationCoupler(engine) if self.veg_active else None
         self.outputs = OutputManager(engine)
 
     def run_simulation(self, 
                        sim_time,
-                       sim_time_unit='eco-morphodynamic years',
+                       sim_time_unit,
                        n_ets=14, 
                        veg_interval=43200, 
                        hydro_interval=900, 
@@ -61,7 +62,7 @@ class HydroSimulationBase(ABC):
         ----------
         sim_time : float
             Simulation duration in units of ``sim_time_unit``.
-        sim_time_unit : str, optional
+        sim_time_unit : str
             Either ``'hydrodynamic days'`` or ``'eco-morphodynamic years'``.
             Determines interpretation of ``sim_time``.
         n_ets : int, optional
@@ -80,6 +81,12 @@ class HydroSimulationBase(ABC):
             it is computed automatically.
         """
 
+        eco_args = {"n_ets": (n_ets, 14),  # actual vs. default arguments
+                    "veg_interval": (veg_interval, 43200),
+                    "ecofac": (ecofac, None)
+                    }
+        self.verify_eco_args(eco_args)       
+
         self.engine.initialize()
 
         # If engine has save_interval attribute (ANUGA), pass it here
@@ -89,48 +96,63 @@ class HydroSimulationBase(ABC):
         # Define object to hold all static and dynamic variables related to the simulation time frame
         self.simstate = SimulationTimeState(eco_year=1, ets=1, sim_time=sim_time, sim_time_unit=sim_time_unit,
                                             n_ets=n_ets, veg_interval=veg_interval, hydro_interval=hydro_interval,
+                                            veg_active=self.veg_active,
                                             morfac=int(self.engine.morph_vars["MorFac"]) if self.engine.morphology else None,
                                             ecofac=ecofac,
                                             refdate=self.engine.get_refdate()
                                             )
 
         # Define object to hold all hydrodynamic statistics relevant for vegetation processes
-        self.hydrostats = HydrodynamicStats(n_hydro_steps=self.simstate.n_hydro_steps,
+        self.hydrostats = HydrodynamicStats(n_hydro_substeps=self.simstate.n_hydro_substeps,
                                             n_cells=self.engine.get_cell_count()
                                             )
 
         self.engine.check_simulation_inputs(self.simstate)
 
-        r.print_model_time_info(self.simstate)
+        r.print_model_time_info(self.simstate, self.veg_active)
 
         # Loop over all Ecological Time Steps
-        for vts in range(self.simstate.n_veg_steps):
-            r.print_runtime_updates(self.simstate, vts)
+        if not self.veg_active:
+            self.run_simulation_without_vegetation()
+        else:
+            self.run_simulation_with_vegetation()
 
-            if self.engine.veg is None:
-                self.step_hydrodynamics(self.simstate.veg_interval)  # run a big step
-            else:
-                # Get flooding, drying, velocity, bed level changes to be used for colonization and mortality calcs
-                self.loop_hydrodynamics()
-                # Update vegetation and inject those updates back into hydrodynamic model
-                self.veg_coupler.update(self.simstate, self.hydrostats)
-                # Write vegetation variables to output
-                self.outputs.save_vegetation_step(self.simstate)
+
+    def verify_eco_args(self, inputs: dict):
+        default_inputs = [values[0] != values[1] for name, values in inputs.items()]
+        if any(default_inputs) and not self.veg_active:
+            msg = ("No vegetation object was specified for this simulation but one or "
+                   "vegetation-related inputs to run_simulation() were given non-default "
+                   "values. If the intent was to run a non-vegetation simulation, please "
+                   "leave vegetation-related inputs as their default values.")
+            r.report(msg, level="ERROR")
+            raise ValueError(msg)   
         
-        r.report("Merging outputs, cleaning up, and finalizing simulation...")
-        self.outputs.reconcile_vegetation_output()
-        self.engine.cleanup()
-        r.report("Simulation complete!")
+
+    def run_simulation_without_vegetation(self):
+        for hts in range(self.simstate.n_hydro_steps):
+            r.print_runtime_updates(self.simstate, hts, self.veg_active)
+            self.hydro_step(self.simstate.veg_interval)  # run a big step
+        self.finalize_simulation()
 
 
-    def loop_hydrodynamics(self):
+    def run_simulation_with_vegetation(self):
+        for vts in range(self.simstate.n_veg_steps):
+            r.print_runtime_updates(self.simstate, vts, self.veg_active)
+            self.eco_hydro_loop(self.simstate.n_hydro_substeps, self.simstate.hydro_interval)
+            self.veg_coupler.update(self.simstate, self.hydrostats)
+            self.outputs.save_vegetation_step(self.simstate)
+        self.finalize_simulation()
+
+
+    def eco_hydro_loop(self, n_substeps, interval):
         """
         Advance hydrodynamics over all substeps within the current vegetation step.
 
         Computes min/max water depths, maximum velocities, and flooding
         statistics (HydrodynamicStats) required for vegetation updates.
         """
-                
+        
         # Add empty placeholders for hydro stats like hmin, vmax, etc
         self.hydrostats.reset()
 
@@ -138,21 +160,26 @@ class HydroSimulationBase(ABC):
         self.hydrostats.bedlevel_0 = self.engine.get_elevation()
 
         # Run inner loop of smaller hydrodynamic intervals
-        for hts in range(self.simstate.n_hydro_steps):
-            # Run hydrodynamic model for specified time interval
-            self.step_hydrodynamics(self.simstate.hydro_interval)
-            # Get mean velocity and depth using model-specific methods
+        for hts in range(n_substeps):
+            self.hydro_step(interval)
             velocity, depth = self.engine.get_velocity_and_depth()
-            # Update hydrostats counter
             self.hydrostats.update(hts, velocity, depth)
 
         # Get bed level changes (right now is irrelevent if mor=0)
         self.hydrostats.bedlevel_f = self.engine.get_elevation()
 
-    def step_hydrodynamics(self, seconds):
+
+    def hydro_step(self, seconds):
         """ Advance hydrodynamics by a specified interval """
         self.engine.step(seconds)
         self.simstate.advance_time(seconds)
+
+
+    def finalize_simulation(self):
+        r.report("Merging outputs, cleaning up, and finalizing simulation...")
+        self.outputs.reconcile_vegetation_output()
+        self.engine.cleanup()
+        r.report("Simulation complete!")
 
 
 class HydroEngineBase(ABC):

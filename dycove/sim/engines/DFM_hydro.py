@@ -269,6 +269,7 @@ class DFMEngine(HydroEngineBase):
         # Track for .mdu file modification
         self.mdu_modified = False
         
+        # All only execute if self.veg is not None
         self.add_extforcefile_to_mdu()
         self.add_veg_module_to_mdu()
         self.create_extforcefile()
@@ -339,20 +340,13 @@ class DFMEngine(HydroEngineBase):
                 f"Cdveg                             = {drag:.1f}             # Stem Cd coefficient, default=0.7",
                 "Cbveg                             = 0.7             # Stem stiffness coefficient, default=0.7",
             ])
-                
-
-    def write_modified_mdu(self):
-        """ Write modified .mdu lines back to file """
-        self.mdu_path.write_text("\n".join(self.mdu_lines) + "\n")
-        msg = "DFM MDU file updated and rewritten to include required inputs for vegetation module."
-        r.report(msg)
 
 
     def create_extforcefile(self):
         """ Create .ext file in the model directory if it doesn't exist """
 
         ext_force_file = self.model_dir / self.mdu_vars["ExtForceFile"]
-        if not ext_force_file.exists():
+        if not ext_force_file.exists() and self.veg is not None:
             content = """QUANTITY=stemdensity
 FILENAME=stemdensity.xyz
 FILETYPE=7
@@ -380,10 +374,17 @@ OPERAND=O
         req_veg_files = ["stemdensity.xyz", "stemdiameter.xyz", "stemheight.xyz"]
         for filename in req_veg_files:
             veg_file = self.model_dir / filename
-            if not veg_file.exists():
+            if not veg_file.exists() and self.veg is not None:
                 with open(veg_file, "w") as f:
                     f.write("")
     
+
+    def write_modified_mdu(self):
+        """ Write modified .mdu lines back to file """
+        self.mdu_path.write_text("\n".join(self.mdu_lines) + "\n")
+        msg = "DFM MDU file updated and rewritten to include required inputs for vegetation module."
+        r.report(msg)
+
 
     # --------------------------------------------------------
     # Parallel methods

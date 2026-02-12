@@ -39,4 +39,4 @@ veg_1 = VegetationSpecies("veg1.json")
 HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=veg_1)
 
 # do timestepping
-HydroModel.run_simulation(sim_time, sim_time_unit=time_unit)
+HydroModel.run_simulation(sim_time, time_unit)

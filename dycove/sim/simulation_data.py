@@ -39,6 +39,8 @@ class SimulationTimeState:
     hydro_interval : int
         Time interval (in seconds) between hydrodynamic updates 
         (updates to :class:`HydrodynamicStats`).
+    veg_active : bool
+        Flag if vegetation is active.
     morfac : int
         Morphological acceleration factor from the morphodynamic model.
     vegfac : int, optional
@@ -62,8 +64,10 @@ class SimulationTimeState:
         List of elapsed wall-clock times at updates.
     n_veg_steps : int
         Total number of ecological steps in the simulation.
-    n_hydro_steps : int
+    n_hydro_substeps : int
         Number of hydrodynamic steps per ecological step.
+    n_hydro_steps : int
+        Number of loops for non-vegetation simulations.
     hydrotime_date : datetime
         Current simulation date based on hydrodynamic time.
     """
@@ -75,6 +79,7 @@ class SimulationTimeState:
     n_ets: int
     veg_interval: int
     hydro_interval: int
+    veg_active: bool
     morfac: int | None = None
     ecofac: int | None = None
     refdate: dt.datetime = field(default_factory=lambda: dt.datetime.now())
@@ -87,8 +92,10 @@ class SimulationTimeState:
     time_0: float = field(init=False)
     times_elapsed: list = field(init=False)
     n_veg_steps: int = field(init=False)
+    n_hydro_substeps: int = field(init=False)
     n_hydro_steps: int = field(init=False)
     hydrotime_date: dt.datetime = field(init=False)
+    
 
     def __post_init__(self):
         """ Initialize computed attributes and validate inputs. """
@@ -102,18 +109,20 @@ class SimulationTimeState:
         self.compute_days_per_year()
         
         # Use days_per_year to compute time conversions
-        self.compute_time_conversions()
+        self.hydro_sim_days, self.veg_sim_years = self.compute_time_conversions()
         
-        # Compute step counts
-        self.n_veg_steps = int(self.veg_sim_years * self.n_ets)
-        self.n_hydro_steps = int(self.veg_interval / self.hydro_interval)
+        # Compute step counts for vegetation simulations
+        self.n_veg_steps, self.n_hydro_substeps, self.n_hydro_steps = self.compute_step_counts()
+
 
     @property
     def vegtime_date(self) -> dt.datetime:
         return self.refdate + dt.timedelta(seconds=self.hydrotime_seconds * self.ecofac)
 
+
     def advance_time(self, seconds: int):
         self.hydrotime_seconds += seconds
+
 
     def update_ets(self):
         if self.ets < self.n_ets:
@@ -121,6 +130,7 @@ class SimulationTimeState:
         else:
             self.ets = 1
             self.eco_year += 1
+
 
     def compute_ecofac(self):
         """
@@ -131,7 +141,7 @@ class SimulationTimeState:
         if self.ecofac is not None:
             if self.morfac and self.morfac != self.ecofac:
                 msg = ("MORFAC mismatch: when morphology is on (.mor file exists), input ecofac must "
-                       "either equal the DFM morfac value or be left as None.")
+                        "either equal the DFM morfac value or be left as None.")
                 r.report(msg, level="ERROR")
                 raise ValueError(msg)
         else:
@@ -141,49 +151,76 @@ class SimulationTimeState:
                 r.report(msg, level="INFO")
                 self.ecofac = self.morfac
             # Otherwise, compute ecofac implied from vegetation coupling times
-            else:
+            elif self.veg_active:
                 # Compute ideal (continuous) ecofac
                 ecofac_est = (86400 * 365.) / (self.veg_interval * self.n_ets)
                 # Round to nearest whole number
                 self.ecofac = int(round(ecofac_est))
                 
                 msg = (f"Computed ecofac = {self.ecofac:d}, derived from veg_interval and n_ets "
-                       f"(rounded from {ecofac_est:.3f})")
+                        f"(rounded from {ecofac_est:.3f})")
                 r.report(msg, level="INFO")
     
+
     def compute_days_per_year(self):
         """
         Compute the implied 'days per year' from ecofac, veg_interval, and n_ets.
-
-        Validates that the result is reasonable (350-380 days).
+        Validate that the result is reasonable (350-380 days).
         """
-        self.days_per_year = (self.ecofac * self.veg_interval * self.n_ets) / 86400.
-        
-        if 350 <= self.days_per_year <= 380:
-            msg = f"ecofac = {self.ecofac:d} corresponds to {self.days_per_year:.2f} days per year."
-            r.report(msg, level="INFO")
-        else:
-            msg = (f"Input parameters (ecofac = {self.ecofac:d}, veg_interval = {self.veg_interval}, "
-                   f"and n_ets = {self.n_ets}) correspond to {self.days_per_year:.2f} days per year. "
-                   "Please check these three inputs for consistency. "
-                   "Note that the ecofac input can be left out (None) to have it computed automatically "
-                   "based on veg_interval and n_ets.")
-            r.report(msg, level="ERROR")
-            raise ValueError(msg)
+        if self.ecofac:  # no ecofac at this point only if veg is not active and no morphology
+            self.days_per_year = (self.ecofac * self.veg_interval * self.n_ets) / 86400.
+            
+            if 350 <= self.days_per_year <= 380:
+                msg = f"ecofac = {self.ecofac:d} corresponds to {self.days_per_year:.2f} days per year, OK."
+                r.report(msg, level="INFO")
+            else:
+                msg = (f"Input parameters (ecofac = {self.ecofac:d}, veg_interval = {self.veg_interval}, "
+                        f"and n_ets = {self.n_ets}) correspond to {self.days_per_year:.2f} days per year. "
+                        "Please check these three inputs for consistency. "
+                        "Note that the ecofac input argument can be left out (None) to have it computed "
+                        "automatically based on veg_interval and n_ets.")
+                r.report(msg, level="ERROR")
+                raise ValueError(msg)
     
+
     def compute_time_conversions(self):
         """ Convert between hydrodynamic days and eco-morphodynamic years. """
+        veg_sim_years = 0.
         if self.sim_time_unit == 'hydrodynamic days':
-            self.hydro_sim_days = self.sim_time
-            self.veg_sim_years = self.sim_time * self.ecofac / self.days_per_year
+            hydro_sim_days = self.sim_time
+            if self.ecofac:
+                veg_sim_years = self.sim_time * self.ecofac / self.days_per_year
         elif self.sim_time_unit == 'eco-morphodynamic years':
-            self.veg_sim_years = self.sim_time
-            self.hydro_sim_days = self.sim_time * self.days_per_year / self.ecofac
+            if self.ecofac:
+                veg_sim_years = self.sim_time
+                hydro_sim_days = self.sim_time * self.days_per_year / self.ecofac
+            else:
+                msg = ("No vegetation object was specified for this simulation and morphology "
+                       "is not active/available, but sim_time_unit == 'eco-morphodynamic years'. "
+                       "Either rerun the simulation using sim_time_unit == 'hydrodynamic days', "
+                       "activate morphology/MORFAC, or add a vegetation object.")
+                r.report(msg, level="ERROR")
+                raise ValueError(msg)   
         else:
             msg = f"Invalid sim_time_unit: '{self.sim_time_unit}'. Must be 'hydrodynamic days' or 'eco-morphodynamic years'."
             r.report(msg, level="ERROR")
             raise ValueError(msg)
+        
+        return hydro_sim_days, veg_sim_years
 
+
+    def compute_step_counts(self):
+        n_veg_steps = 0
+        n_hydro_substeps = 0
+        n_hydro_steps = 0
+        if self.veg_active:
+            n_veg_steps = int(self.veg_sim_years * self.n_ets)
+            n_hydro_substeps = int(self.veg_interval / self.hydro_interval)
+        else:
+            # Compute step counts for non-vegetation simulations
+            n_hydro_steps = int(self.hydro_sim_days/self.veg_interval*86400.)
+        return n_veg_steps, n_hydro_substeps, n_hydro_steps
+    
 
 @dataclass
 class HydrodynamicStats:
@@ -194,7 +231,7 @@ class HydrodynamicStats:
 
     Attributes
     ----------
-    n_hydro_steps : int
+    n_hydro_substeps : int
         Number of hydrodynamic steps per ecological step. Passed from ``SimulationTimeState`` instance.
     n_cells : int
         Number of grid cell areas (length of model quantity arrays)
@@ -205,7 +242,7 @@ class HydrodynamicStats:
     h_max : numpy.ndarray
         Maximum water depth observed in each cell during the hydrodynamic interval.
     v_maxs : numpy.ndarray
-        2-D array of max velocities observed during the hydrodynamic interval (``n_hydro_steps``, ``n_cells``).
+        2-D array of max velocities observed during the hydrodynamic interval (``n_hydro_substeps``, ``n_cells``).
     flood_counts : numpy.ndarray
         Number of timesteps each cell was flooded during the hydrodynamic interval.
     bedlevel_0 : numpy.ndarray
@@ -221,18 +258,18 @@ class HydrodynamicStats:
     Methods
     -------
     flood_frac()
-        Compute the fraction of time each cell was flooded over ``n_hydro_steps``.
+        Compute the fraction of time each cell was flooded over ``n_hydro_substeps``.
     dry_frac()
-        Compute the fraction of time each cell was dry over ``n_hydro_steps``.
+        Compute the fraction of time each cell was dry over ``n_hydro_substeps``.
     v_max_95th()
-        Compute 95th percentile of velocity at each cell across ``n_hydro_steps``.
+        Compute 95th percentile of velocity at each cell across ``n_hydro_substeps``.
     reset()
         Initialize or reset all arrays.
     update(i, vel, depth)
         Update minimum/maximum values and flood counts using new hydrodynamic data.
     """
     
-    n_hydro_steps: int
+    n_hydro_substeps: int
     n_cells: int
     fl_dr: float = FL_DR
     h_min: np.ndarray | None = None
@@ -248,11 +285,11 @@ class HydrodynamicStats:
     
     def flood_frac(self) -> np.ndarray:
         # fraction of time cells were flooded over ets
-        return self.flood_counts/self.n_hydro_steps
+        return self.flood_counts/self.n_hydro_substeps
     
     def dry_frac(self) -> np.ndarray:
         # fraction of time cells were dry over ets
-        return (self.n_hydro_steps - self.flood_counts)/self.n_hydro_steps
+        return (self.n_hydro_substeps - self.flood_counts)/self.n_hydro_substeps
     
     def v_max_95th(self) -> np.ndarray:
         return np.percentile(self.v_maxs, 95, axis=0)
@@ -261,7 +298,7 @@ class HydrodynamicStats:
         # Reset all entries to a non-limiting condition
         self.h_min = np.full(self.n_cells, np.inf)
         self.h_max = np.full(self.n_cells, -np.inf)
-        self.v_maxs = np.zeros((self.n_hydro_steps, self.n_cells))
+        self.v_maxs = np.zeros((self.n_hydro_substeps, self.n_cells))
         self.flood_counts = np.zeros(self.n_cells)
 
     def update(self, i, vel, depth):

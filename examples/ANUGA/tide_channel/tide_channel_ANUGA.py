@@ -33,4 +33,4 @@ veg_1 = VegetationSpecies("veg1.json")
 HydroModel = ANUGA_hydro.ANUGA(HydroDomain.domain, vegetation=veg_1)
 
 # do timestepping
-HydroModel.run_simulation(sim_time, sim_time_unit=time_unit)
+HydroModel.run_simulation(sim_time, time_unit)

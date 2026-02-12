@@ -311,6 +311,15 @@ class ModelPlotter:
         if "Mortality" in self.full_quantity_name.split():
             self.quantity = "Mortality"
 
+        self.output_plot_dir = self.simdir / 'figures' / self.full_quantity_name.replace(' ', '')
+        self.model_type = self.get_model_type()
+        self.modeldir = self.get_modeldir()
+        self.model_name = self.get_model_name()
+        self.eco_plot = self.quantity in ['Fractions', 'Stem Height', 'Stem Density', 'Stem Diameter', 'Mortality']
+
+        # Change how we label time in our plots depending on if we are plotting vegetation (uses ecofac) or hydrodynamics (no morfac/ecofac)
+        self.plot_label_time = veg_plot_label_time if self.eco_plot else hydro_plot_label_time
+        
         # Ecological time inputs
         self.n_ets = n_ets
         self.veg_int_hr = int(veg_interval/3600.)
@@ -400,15 +409,6 @@ class ModelPlotter:
         }
         self.scalebar_props = {**default_scalebar_props, **(scalebar_props or {})}  # merge provided custom values with default values
 
-        self.output_plot_dir = self.simdir / 'figures' / self.full_quantity_name.replace(' ', '')
-        self.model_type = self.get_model_type()
-        self.modeldir = self.get_modeldir()
-        self.model_name = self.get_model_name()
-        self.eco_plot = self.quantity in ['Fractions', 'Stem Height', 'Stem Density', 'Stem Diameter', 'Mortality']
-
-        # Change how we label time in our plots depending on if we are plotting vegetation (uses ecofac) or hydrodynamics (no morfac/ecofac)
-        self.plot_label_time = veg_plot_label_time if self.eco_plot else hydro_plot_label_time
-
         # Load model output files using the appropriate loader class
         args = (self.modeldir, self.model_name, self.full_quantity_name, self.eco_plot, self.n_ets)
         if self.model_type == 'DFM': 
@@ -452,9 +452,11 @@ class ModelPlotter:
         # Compute associated days_per_year after ecofac rounding
         days_per_year = (ecofac * self.veg_int_hr * self.n_ets) / 24.
 
-        r.report(f"Computing simulation times based on n_ets = {self.n_ets} and veg_interval = {self.veg_int_hr*3600}")
-        r.report(msg)
-        r.report(f"ecofac = {ecofac:d} corresponds to {days_per_year:.1f} days per year.")
+        # Print ecofac calculation results only if vegetation output is present
+        if list((self.modeldir / "veg_output").glob("*.nc")):
+            r.report(f"Computing simulation times based on n_ets = {self.n_ets} and veg_interval = {self.veg_int_hr*3600}")
+            r.report(msg)
+            r.report(f"ecofac = {ecofac:d} corresponds to {days_per_year:.1f} days per year.")
 
         return ecofac, days_per_year
         
