@@ -87,12 +87,6 @@ class BaseMapLoader(ABC):
       we would also want to plot bathymetry as a layer underneath, which is dependent
       on numerical model load methods.
 
-    Example
-    -------
-    >>> loader = ANUGAMapLoader(modeldir, model_name, 'Depth', False, 14)
-    >>> data = loader.load(hydro_i=0, ets=None, eco_year=None)
-    >>> print(data.keys())
-    dict_keys(['X', 'Y', 'Bathymetry', 'WSE', 'Depth'])
     """
 
     def __init__(self, modeldir, model_name, quantity_name, eco_plot, n_ets_year):
@@ -125,6 +119,7 @@ class BaseMapLoader(ABC):
                              }
         
         if self.eco_plot:
+
             self.veg_file_index = get_veg_file_index(self.ecodir)
 
         

@@ -85,21 +85,41 @@ class DFMEngine(HydroEngineBase):
     """
 
     def __init__(self, dfm_path, config_path, mdu_path, vegetation=None):
-        
+
+        self.dll_dirs = self.add_dll_directories(dfm_path)  # do this first to setup PATH before loading
+
         self.BMIWrapper = _import_bmi()  # lazy bmi loading
 
         # Define paths to Delft3D FM .dll files
         self.dflowfm_path = Path(dfm_path) / ("dflowfm/bin/dflowfm.dll")
         self.dimr_path    = Path(dfm_path) / ("dimr/bin/dimr_dll.dll")
-        self.mdu_path     = Path(mdu_path)  # location of MDU file that contains model directions/inputs
+        self.mdu_path     = mdu_path  # location of MDU file that contains model directions/inputs
         self.model_dir    = mdu_path.parent  # model directory containing MDU and other model files
         self.config_path  = config_path  # location of config file used for running DFM using dimr
 
         self.veg = vegetation
 
-        self.add_dll_directories(dfm_path)
-
         self.open_bmi_wrappers()
+
+
+    def add_dll_directories(self, dfm_path):
+        """ 
+        Add DLL paths to env before calling BMI.
+
+        Return list to retain handle and avoid accidental garbage collecting.
+
+        Note that for versions of python 3.7 and earlier, you would need to set the env 
+        variables differently:
+            os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" + 
+                                    os.path.join(dfm_path, 'dflowfm', 'bin') + ";" + ... )
+        """
+        return [os.add_dll_directory(dfm_path / Path("dflowfm/bin")),
+                os.add_dll_directory(dfm_path / Path("dimr/bin")),
+                os.add_dll_directory(dfm_path / Path("share/bin")),
+                os.add_dll_directory(dfm_path / Path("dwaves/bin")),
+                os.add_dll_directory(dfm_path / Path("esmf/scripts")),
+                os.add_dll_directory(dfm_path / Path("swan/scripts")),
+                ]
 
 
     def open_bmi_wrappers(self):
@@ -108,22 +128,6 @@ class DFMEngine(HydroEngineBase):
         self.dflowfm = self.BMIWrapper(engine=str(self.dflowfm_path), configfile=str(self.mdu_path))
         # BMI wrapper object that handles the deployment of the model executables
         self.dimr = self.BMIWrapper(engine=str(self.dimr_path), configfile=str(self.config_path))
-
-
-    def add_dll_directories(self, dfm_path):
-        """ 
-        Add DLL paths to env before calling BMI .
-
-        Note that for versions of python 3.7 and earlier, you would need to set the env variables differently:
-            os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" + 
-                                    os.path.join(dfm_path, 'dflowfm', 'bin') + ";" + ... )
-        """
-        os.add_dll_directory(dfm_path / Path("dflowfm/bin"))
-        os.add_dll_directory(dfm_path / Path("dimr/bin"))
-        os.add_dll_directory(dfm_path / Path("share/bin"))
-        os.add_dll_directory(dfm_path / Path("dwaves/bin"))
-        os.add_dll_directory(dfm_path / Path("esmf/scripts"))
-        os.add_dll_directory(dfm_path / Path("swan/scripts"))
 
 
     def initialize(self):

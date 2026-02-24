@@ -410,6 +410,7 @@ class ModelPlotter:
         self.scalebar_props = {**default_scalebar_props, **(scalebar_props or {})}  # merge provided custom values with default values
 
         # Load model output files using the appropriate loader class
+        r.report("Loading model output files...")
         args = (self.modeldir, self.model_name, self.full_quantity_name, self.eco_plot, self.n_ets)
         if self.model_type == 'DFM': 
             self.map_loader = DFMMapLoader(*args)

@@ -192,95 +192,86 @@ class AnugaEngine(HydroEngineBase):
     
     def is_parallel(self):
         return True if self.numprocs > 1 else False
-    
+
+
     def merge_parallel_veg(self, OutputManager):
-        """
-        Merge vegetation output files from parallel ANUGA runs into single files per cohort.
-        
-        This involves reading local-to-global index mapping from each ANUGA subdomain's 
-        ``sww`` file, then using that mapping to merge local vegetation arrays into global 
-        arrays.
-        
-        Finally, save merged arrays using :class:`~dycove.sim.outputs.OutputManager` and 
-        delete local files.
-        """
+
         outputdir = OutputManager.veg_dir
         n_cohort_steps = OutputManager.n_cohort_steps
         fname_base = OutputManager.fname_base
 
-        sww_name = self.domain.get_name()  # this is the specific name for myid 0, so it has suffix "_0"
-        base_name = sww_name[:-2]  # remove the suffix for myid 0
+        sww_name = self.domain.get_name()
+        base_name = sww_name[:-2]
         sww_dir = Path(self.domain.get_datadir())
 
-        # Put sww variables from each processor into list
         sww_file_list = [f"{sww_dir}/{base_name}_{p}.sww" for p in range(self.numprocs)]
 
-        # Get subdomain index mapping arrays
         tri_l2g, tri_full_flag = [], []
         for sww_file in sww_file_list:
             with xr.open_dataset(sww_file) as sww:
-                tri_l2g.append(sww["tri_l2g"][:])
-                tri_full_flag.append(sww["tri_full_flag"][:])
+                tri_l2g.append(sww["tri_l2g"].values)
+                tri_full_flag.append(sww["tri_full_flag"].values)
 
-        # Get no. global grid cells -- this must happen prior to loops b/c we need to know n_global beforehand
-        # get_cell_count() method would return only local processor cell count
-        n_global = int(max([tri.max() for tri in tri_l2g]) + 1)
+        n_global = int(max(tri.max() for tri in tri_l2g) + 1)
 
-        # Get indices for full (non-ghost) cells
-        f_ids = [np.where(tri_full_flag[p]==1)[0] for p in range(self.numprocs)]
+        f_ids = [np.where(tri_full_flag[p] == 1)[0] for p in range(self.numprocs)]
         f_gids = [tri_l2g[p][f_ids[p]] for p in range(self.numprocs)]
 
-        # Loop over vegetation cohorts
         for cohort_id in range(len(self.veg.cohorts)):
-            # Loop over snapshot files for this cohort
             for file_num in range(n_cohort_steps[cohort_id]):
-                c_files = [f for f in outputdir.iterdir() if fname_base in f.stem]
-            
-                if len(c_files) == 0 and file_num == 0:
-                    msg = (f"No output files found for cohort {cohort_id}, skipping merge. "
-                            "This could be due to the simulation ending in the middle of an ETS, "
-                            "where the last cohort has not been written to an output file yet.")
-                    r.report(msg, level="WARNING")
-                    continue
 
-                c_merged = {}
-            
+                local_data = []
+                c_merged_attrs = None
+
                 for p in range(self.numprocs):
                     c_file_sub = outputdir / f"cohort{cohort_id}_{file_num:02d}_proc{p}.nc"
 
                     if not c_file_sub.exists():
                         msg = ("No individual processor (proc) output files found for this "
-                                "cohort, year, and ETS combination")
+                            "cohort, year, and ETS combination")
                         r.report(msg, level="ERROR")
                         raise FileNotFoundError(msg)
 
-                    # Load output .nc file and convert to dictionary
                     with xr.open_dataset(c_file_sub) as c_sub:
-
-                        # Capture non-array attributes once
                         if p == 0:
                             c_merged_attrs = dict(c_sub.attrs)
-                            
-                        # Loop over cohort quantities that are array-like
-                        for key, values in c_sub.data_vars.items():
-                            if np.ndim(values) > 0:
-                                if key not in c_merged:  # allocate global array only once
-                                    c_merged[key] = np.zeros(n_global, dtype=float)
 
-                                # Merge into global array using local-to-global index mapping
-                                c_merged[key][f_gids[p]] = values[f_ids[p]]
+                        local_data.append(
+                            {k: v.values for k, v in c_sub.data_vars.items()}
+                        )
 
-                            # # For scalar quantities, just pass the output (only need to do it once since it doesn not vary spatially)
-                            # elif p == 0:
-                            #     c_merged[key] = values.item()
-
-                    # Remove local parallel file
                     c_file_sub.unlink()
 
+                c_merged = self.merge_local_to_global(local_data=local_data,
+                                                      f_gids=f_gids,
+                                                      f_ids=f_ids,
+                                                      n_global=n_global,
+                                                      )
 
-                # Save merged output (basically just remove the "proc" part of the filename)
-                OutputManager.save_netcdf(outputdir, 
-                                          f"cohort{cohort_id}_{file_num:02d}", 
-                                          c_merged, 
-                                          saved_attrs = c_merged_attrs
+                OutputManager.save_netcdf(outputdir,
+                                          f"cohort{cohort_id}_{file_num:02d}",
+                                          c_merged,
+                                          saved_attrs=c_merged_attrs,
                                           )
+
+
+    @staticmethod
+    def merge_local_to_global(local_data: list[dict[str, np.ndarray]],
+                              f_gids: list[np.ndarray],
+                              f_ids: list[np.ndarray],
+                              n_global: int,
+                              ) -> dict[str, np.ndarray]:
+        """
+        Merge per-processor local arrays into global arrays using
+        local-to-global index mappings.
+        """
+        merged: dict[str, np.ndarray] = {}
+
+        for p, local_vars in enumerate(local_data):
+            for key, values in local_vars.items():
+                if key not in merged:
+                    merged[key] = np.zeros(n_global, dtype=float)
+
+                merged[key][f_gids[p]] = values[f_ids[p]]
+
+        return merged

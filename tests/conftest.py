@@ -1,13 +1,31 @@
 from pytest import fixture
 from pathlib import Path
+import numpy as np
+
+
+@fixture
+def dfm_dll_path():
+    # Update this if necessary/desired, to run Delft3D FM tests
+    return Path(
+        "C:/Program Files (x86)/"
+        "Deltares/"
+        "Delft3D Flexible Mesh Suite HM (2021.03)/"
+        "plugins/"
+        "DeltaShell.Dimr/"
+        "kernels/"
+        "x64"
+        )
+
 
 @fixture
 def array_len():
     return 100
 
+
 @fixture
 def constants():
     # Vegetation test parameters (Baptist)
+    # Don't update these; many tests depend on them
     return {
         "D" : 0.01,
         "m" : 100,
@@ -17,13 +35,15 @@ def constants():
         "K" : 0.41,
     }
 
+
 @fixture
 def attributes():
     # Vegetation test parameters (attributes)
+    # Don't update these; many tests depend on them
     return {
         "fraction_0"     : 0.5,
         "start_col_ets"  : 2,
-        "end_col_ets"    : 3,
+        "end_col_ets"    : 4,
         "rootlength_0"   : 0.5,
         "nls"            : 1,
         "flood_no_mort"  : 0.4,
@@ -63,33 +83,31 @@ def required_engine_methods():
 def sample_data_path():
     return Path(__file__).parent / "sample_data"
 
-@fixture
-def tmp_data_path():
-    return Path(__file__).parent / "tmp_data"
 
-
-def make_anuga_domain_and_engine(*, friction=False, momentum=False, dirichlet=False):
+def make_anuga_domain_and_engine(*, friction=False, momentum=False, tide=False, datadir=None):
     import anuga
     from dycove import ANUGA_hydro
 
     # Minimal ANUGA domain object (very large elements to speed up time steps)
-    domain = anuga.rectangular_cross_domain(5, 5, 1000, 1000)
+    domain = anuga.rectangular_cross_domain(5, 5, 100, 100)
+    domain.set_datadir(str(datadir))
 
     # Set uniform depth and momentum for tests that check quantities
-    domain.set_quantity("stage", 1.0)
+    domain.set_quantity("stage", 0.5)
     domain.set_quantity("elevation", 0.0)
     if friction:
         domain.set_quantity("friction", 0.3)
     if momentum:
-        domain.set_quantity("xmomentum", 1.0)
-        domain.set_quantity("ymomentum", 0.5)
+        domain.set_quantity("xmomentum", 0.2)
+        domain.set_quantity("ymomentum", 0.1)
 
     # Set all reflective boundaries for tests that evolve domain
     Br = anuga.Reflective_boundary(domain)
-    if dirichlet:
-        Bd_1 = anuga.Dirichlet_boundary([1.0, 0, 0])
-        Bd_2 = anuga.Dirichlet_boundary([0.5, 0, 0])
-        domain.set_boundary({'left': Bd_1, 'right': Bd_2, 'top': Br, 'bottom': Br})     
+    if tide:
+        def tide_func(t, A=0.5, T=43200):
+            return A*np.cos(2*np.pi * t/T)
+        Bt = anuga.Time_boundary(domain, function=lambda t: [tide_func(t), 0.0, 0.0])
+        domain.set_boundary({'left': Bt, 'right': Bt, 'top': Br, 'bottom': Br}) 
     else:   
         domain.set_boundary({'left': Br, 'right': Br, 'top': Br, 'bottom': Br})
 

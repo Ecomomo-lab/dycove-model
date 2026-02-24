@@ -83,7 +83,7 @@ class VegetationSpecies(SharedVegMethods):
         if species_name is not None:
             self.name = species_name
         else:
-            self.name = input_veg_filename.split(".")[0]
+            self.name = str(Path(input_veg_filename).stem)
             
         # Will become list of VegCohort objects, one for each cohort/colonization that occurs
         self.cohorts: list[VegCohort] = []
@@ -141,7 +141,7 @@ class VegetationSpecies(SharedVegMethods):
             potential_inds_mask[potential_inds] = True
             selected_inds = potential_inds_mask & rand_mask
 
-            existing_cohorts = combined_cohorts if combined_cohorts is not None else self.cohorts
+            existing_cohorts = combined_cohorts if combined_cohorts else self.cohorts
             new_fraction = self.compute_new_fraction(existing_cohorts, selected_inds)
 
             # Create new cohort for latest colonization
@@ -204,6 +204,7 @@ class VegetationSpecies(SharedVegMethods):
         self.mortality_morphodynamic(**morpho_vars)
         self.apply_mortality()
         #self.apply_mortality_using_initial_fractions()
+
 
     def mortality_hydrodynamic(self, fld_frac, dry_frac, vel_max):
         """
@@ -329,6 +330,8 @@ class VegetationSpecies(SharedVegMethods):
         """ 
         Replacing `c.fraction` with `self.attrs.fraction_0`, so mortality is 
         always a function of initial colonization fraction.
+
+        ! ---------- NOT CURRENTLY IN USE OR TESTED ----------- !
         """
         for c in self.cohorts:
             # Vegetation fractions lost to flooding
@@ -383,21 +386,17 @@ class VegetationSpecies(SharedVegMethods):
         return mort_frac
 
 
-    # TODO: Re-implement this, removed once the multi-species capability was added
-    # The likelihood of this being called is fairly low
-    def clean_out_old_fractions(self):
-        # If all fractions within a given cohort are zero, remove it from the list
-        cohorts_to_remove = []
-        for i, c in enumerate(self.cohorts):
-            if np.sum(c.fraction) < 0.001:
-                cohorts_to_remove.append(i)
-                r.report("Removed a cohort that has disappeared.")
-        if cohorts_to_remove:
-            self.remove_old_cohorts(cohorts_to_remove)
-
-
-    def remove_old_cohorts(self, list_of_inds):
-        self.cohorts = [x for i, x in enumerate(self.cohorts) if i not in list_of_inds]
+    # # TODO: Re-implement this, removed once the multi-species capability was added
+    # # The likelihood of this being called is fairly low
+    # def clean_out_old_fractions(self):
+    #     # If all fractions within a given cohort are zero, remove it from the list
+    #     cohorts_to_remove = []
+    #     for i, c in enumerate(self.cohorts):
+    #         if np.sum(c.fraction) < 0.001:
+    #             cohorts_to_remove.append(i)
+    #             r.report("Removed a cohort that has disappeared.")
+    #     if cohorts_to_remove:
+    #         self.remove_old_cohorts(cohorts_to_remove)
 
       
     def stemheight_growth(self, ets):
@@ -416,7 +415,8 @@ class VegetationSpecies(SharedVegMethods):
     def stemdiam_growth(self, ets):
         """ Computes stem diameter based on growth functions in VegAttributes. """
         # During first growth ets, height starts at previous winter value, so no need to loop
-        if ets > self.attrs.start_growth_ets:
+        # (growth realized by next ETS)
+        if self.attrs.start_growth_ets < ets <= self.attrs.end_growth_ets:
             for c in self.cohorts:
                 if c.diameter < self.attrs.stemdiam_max[c.lifestage-1] and ets < self.attrs.winter_ets:
                     c.diameter += self.attrs.diam_growth_rates[c.lifestage-1]  # else, remains constant
@@ -425,7 +425,8 @@ class VegetationSpecies(SharedVegMethods):
     def root_growth(self, ets):  
         """ Computes root length based on growth functions in VegAttributes. """
         # During first growth ETS, height starts at previous winter value, so no need to loop
-        if ets > self.attrs.start_growth_ets:
+        # (growth realized by next ETS)
+        if self.attrs.start_growth_ets < ets <= self.attrs.end_growth_ets:
             for c in self.cohorts:
                 if c.rootlength < self.attrs.rootlength_max[c.lifestage-1] and ets < self.attrs.winter_ets:
                     c.rootlength += self.attrs.root_growth_rates[c.lifestage-1]  # else, remain constant
@@ -458,6 +459,10 @@ class VegetationSpecies(SharedVegMethods):
                 c.lifestage_year += 1
         if cohorts_to_remove:
             self.remove_old_cohorts(cohorts_to_remove)
+
+
+    def remove_old_cohorts(self, list_of_inds):
+        self.cohorts = [x for i, x in enumerate(self.cohorts) if i not in list_of_inds]
 
 
     def get_drag(self):

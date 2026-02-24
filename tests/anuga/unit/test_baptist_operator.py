@@ -6,6 +6,7 @@ from conftest import make_anuga_domain_and_engine as make_anuga
 
 
 @mark.anuga
+@mark.unit
 def test_baptist_quantities():
     from dycove.sim.engines.ANUGA_baptist import Baptist_operator
 
@@ -27,6 +28,7 @@ def test_baptist_quantities():
 
 
 @mark.anuga
+@mark.unit
 def test_baptist_Cv_calculation(constants):
     from dycove.sim.engines.ANUGA_baptist import Baptist_operator
 
@@ -50,6 +52,7 @@ def test_baptist_Cv_calculation(constants):
 
 
 @mark.anuga
+@mark.unit
 def test_baptist_set_vegetation(constants):
     from dycove.sim.engines.ANUGA_baptist import Baptist_operator
 
@@ -67,6 +70,7 @@ def test_baptist_set_vegetation(constants):
 
 
 @mark.anuga
+@mark.unit
 def test_baptist_update_quantities_reduces_momentum(constants):
     from dycove.sim.engines.ANUGA_baptist import Baptist_operator
 

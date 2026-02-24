@@ -3,7 +3,8 @@
 ###############################################################
 
 import numpy as np
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
+from typing import List, get_type_hints
 
 
 @dataclass
@@ -120,9 +121,15 @@ class VegetationAttributes:
     diam_growth_rates: list[float] = field(init=False)
     root_growth_rates: list[float] = field(init=False)
 
+
     def __post_init__(self):
-        """ Initialize computed growth rate attributes. """
+        # Initialize computed growth rate attributes
         self.compute_growth_rates()
+
+        # Check validity of inputs
+        self.validate_input_list_lengths()
+        self.validate_mortality_limits()
+
 
     def compute_growth_rates(self):
         """
@@ -145,6 +152,7 @@ class VegetationAttributes:
             self.diam_growth_rates.append(rates['diameter'])
             self.root_growth_rates.append(rates['root'])
 
+
     def _compute_stage_0_rates(self) -> dict:
         # TODO: verify we want all 3 growth rates based on start_growth_ets,
         #       which was technically described initially as being for shoot growth.
@@ -155,6 +163,7 @@ class VegetationAttributes:
             'root': (self.rootlength_max[0] - self.rootlength_0) / (self.winter_ets - self.start_growth_ets) / self.years_max[0]
         }
 
+
     def _compute_stage_n_rates(self, n: int) -> dict:
         return {
             'height': (self.stemht_max[n] - self.stemht_winter_max[n-1]) / (self.end_growth_ets - self.start_growth_ets),
@@ -162,6 +171,31 @@ class VegetationAttributes:
             'root': (self.rootlength_max[n] - self.rootlength_max[n-1]) / (self.winter_ets - self.start_growth_ets) / self.years_max[n]
         }
     
+
+    def validate_input_list_lengths(self):
+        """ Check all list fields have length == nls """
+        for f in fields(self):
+            val = getattr(self, f.name)
+            if isinstance(val, list):
+                if len(val) != self.nls:
+                    msg = (f"One of more life stage attributes have length {len(val)}, but nls == {self.nls}. "
+                           "Check that the number of life stage dictionaries in the input .json file equals "
+                           "the number of life stages 'nls'.")
+                    raise ValueError(msg)
+                
+    def validate_mortality_limits(self):
+        """ Check <stressor>_no_mort < <stressor>_all_mort for each stressor """
+        zero_mort_fields = {f.name for f in fields(self) if f.name.endswith('_no_mort')}
+        for zero_field in zero_mort_fields:
+            all_field = zero_field.replace('_no_mort', '_all_mort')
+            zero_vals = getattr(self, zero_field)
+            all_vals = getattr(self, all_field)
+            for i, (zero, all_) in enumerate(zip(zero_vals, all_vals)):
+                if zero != 0 and zero >= all_:
+                    msg = (f"'{zero_field}[{i}]' (= {zero}) must be < '{all_field}[{i}]' (= {all_}) "
+                        f"or equal to 0 (disabled)")
+                    raise ValueError(msg)
+
 
 @dataclass
 class VegCohort:
