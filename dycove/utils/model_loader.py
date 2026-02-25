@@ -178,8 +178,8 @@ class BaseMapLoader(ABC):
         for file in self.ecodir.glob(f"cohort*_year{eco_year}_ets{ets}.npz"):
             c = dict(np.load(file, allow_pickle=True))
             c_id = file.stem.split("_")[0][6:]  # old format didn't have species name, give generic name
-            veg_data["cohorts"].append(f"Cohort {c_id}") 
-            #veg_data["species"].append(c[self.veg_varnames["Species"]])
+            veg_data["cohorts"].append(("Species X", 
+                                        f"Cohort {c_id}"))
             veg_data["fractions"].append(c[self.veg_varnames["Fractions"]])
             veg_data["quantities"].append(c[self.veg_varnames[self.quantity]])  # not used if quantity is 'Fractions'
 

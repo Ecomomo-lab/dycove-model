@@ -169,6 +169,9 @@ class ModelPlotter:
     ecofac : int, optional
         Multiplicative factor converting hydro to eco time. If None, computed from
         ``n_ets`` and ``veg_interval``.
+    plot_separate_species : bool, optional
+        If True, vegetation quantities are plotted separately for each species (multi-species only).
+        Vegetation fractions are plotted by species, rather than by cohort.
     plot_method : str, optional
         ``'interp'`` (default) for nearest-neighbor interpolation to a regular grid, or
         ``'exact'`` for plotting on the original mesh nodes/cells (must be regular grid).
@@ -270,6 +273,7 @@ class ModelPlotter:
                  n_ets = 14,
                  veg_interval = 43200,
                  ecofac = None,
+                 plot_separate_species = True,
                  plot_method = 'interp',
                  plot_interp_vars: Optional[dict[str, int]] = None,
                  plot_specs: Optional[dict[str, Any]] = None, 
@@ -292,6 +296,7 @@ class ModelPlotter:
         self.simdir = Path(simdir)
         self.quantity = quantity
         self.plot_times = plot_times
+        self.plot_separate_species = plot_separate_species
         self.plot_method = plot_method
         self.plot_vectors = plot_vectors
         self.show_title = show_title
@@ -386,7 +391,7 @@ class ModelPlotter:
             'Velocity'        : ('[m/s]', 1, 0),  # use ('[cm/s]', 100, 0) for velocities in cm/s
             'Max Shear Stress': ('[N/m$^2$]', 1, 0.001),
             'Fractions'       : ('[--]', 1, 0.01),
-            'Stem Height'     : ('[m]', 1, 0.1),
+            'Stem Height'     : ('[m]', 1, 0.05),
             'Stem Density'    : ('[stems/m$^2$]', 1, 5),
             'Stem Diameter'   : ('[mm]', 1000, 1),  # use ('[m]', 1, 0.001) for diameter in meters
             'Mortality'       : ('[%]', 100, 1),  # use ('[--]', 1, 0.01) for fraction between 0 and 1
@@ -433,7 +438,7 @@ class ModelPlotter:
             hydro_i, ets, eco_year = self.get_map_indices(i)
             map_vars = self.map_loader.load(hydro_i, ets, eco_year)
             z_grid, grid2plot = self.get_quantity_grids(map_vars)
-            self.plot_quantity(z_grid, grid2plot, map_vars["Cohort Names"])
+            self.plot_quantity(z_grid, grid2plot) #, map_vars["Cohort Names"])
 
         if self.animate: 
             self.create_gif()
@@ -619,24 +624,45 @@ class ModelPlotter:
                 return z_grid, np.ma.masked_where(tau_grid < self.quantity_units['Max Shear Stress'][2], tau_grid)
             else:
                 raise ValueError(f"Unexpected quantity name: {self.quantity}")
-        else:
-            if len(map_vars[self.quantity]) > 0:
-                if self.quantity in ['Fractions', 'Mortality']:
-                    fraction_grid_list = []
-                    for frac in map_vars[self.quantity]:
+        # ----- Eco plots below here ----- #
+        elif len(map_vars[self.quantity]) > 0:
+            if self.quantity in ['Fractions', 'Mortality']:
+                frac_grid_list = []
+                # --- Plot fractional quantities by species (summation) --- #
+                if self.plot_separate_species:
+                    species_list = list(set(spec[0] for spec in map_vars['Cohort Names']))  # exhaustive set of species names
+                    for species in species_list:
+                        fractions = [frac for frac, c in zip(map_vars[self.quantity], map_vars['Cohort Names']) if c[0]==species]
+                        fractions_sum = np.sum(fractions, axis=0)
+                        veg_grid = self.create_grid(fractions_sum) * self.quantity_units[self.quantity][1]
+                        frac_grid_list.append((np.ma.masked_where(veg_grid < self.quantity_units[self.quantity][2], veg_grid),
+                                               species))
+                # --- Plot fractional quantities by cohort --- #
+                else:
+                    for frac, cohort in zip(map_vars[self.quantity], map_vars['Cohort Names']):
                         veg_grid = self.create_grid(frac) * self.quantity_units[self.quantity][1]
-                        fraction_grid_list.append(np.ma.masked_where(veg_grid < self.quantity_units[self.quantity][2], veg_grid))
-                    return z_grid, fraction_grid_list
-                elif self.quantity == 'Stem Density':  # sum_product for 'Stem Density'
-                    veg_data = sum_product(map_vars['Fractions'], map_vars[self.quantity])
-                else:  # cell_averaging for 'Stem Diameter', 'Stem Face Factor', and 'Stem Height'
-                    veg_data = cell_averaging(map_vars['Fractions'], map_vars[self.quantity])
-                veg_grid = self.create_grid(veg_data) * self.quantity_units[self.quantity][1]
-                return z_grid, np.ma.masked_where(veg_grid < self.quantity_units[self.quantity][2], veg_grid)
+                        frac_grid_list.append((np.ma.masked_where(veg_grid < self.quantity_units[self.quantity][2], veg_grid),
+                                               cohort))
+                return z_grid, frac_grid_list
+            # --- Separate quantities (stem height, diameter, etc) by species --- #
+            elif self.plot_separate_species:
+                veg_grid_list = []
+                species_list = list(set(spec[0] for spec in map_vars['Cohort Names']))  # exhaustive set of species names
+                for species in species_list:
+                    fractions = [frac for frac, c in zip(map_vars['Fractions'], map_vars['Cohort Names']) if c[0]==species]
+                    quantities = [q for q, c in zip(map_vars[self.quantity], map_vars['Cohort Names']) if c[0]==species]
+                    veg_grid = self.compute_stem_quantity_grid(fractions, quantities)
+                    veg_grid_list.append((np.ma.masked_where(veg_grid < self.quantity_units[self.quantity][2], veg_grid),
+                                          species))
+                return z_grid, veg_grid_list
+            # --- Combine quantities (stem height, diameter, etc), single value per grid cell --- #
             else:
-                # If no veg data at all in this time step, return an empty grid
-                empty_grid = np.ma.masked_all(z_grid.shape)
-                return z_grid, empty_grid
+                veg_grid = self.compute_stem_quantity_grid(map_vars['Fractions'], map_vars[self.quantity])
+                return z_grid, np.ma.masked_where(veg_grid < self.quantity_units[self.quantity][2], veg_grid)
+        else:
+            # If no veg data at all in this time step, return an empty grid
+            empty_grid = np.ma.masked_all(z_grid.shape)
+            return z_grid, empty_grid
 
 
     def create_interp_func(self, map_vars):
@@ -644,9 +670,9 @@ class ModelPlotter:
         interp_func = create_nn_interpFunc(map_vars['X'], map_vars['Y'], 
                                            grid_size=self.plot_interp_vars['cell_size'], 
                                            k_nn=self.plot_interp_vars['n_neighbors'],
-                                           polygon_csv=self.mask_bndy_file, extents=self.extents,
-                                           )
+                                           polygon_csv=self.mask_bndy_file, extents=self.extents)
         return interp_func
+
 
     def get_exact_grid_idx(self, map_vars):
         # Get number of unique x/y values 
@@ -663,10 +689,6 @@ class ModelPlotter:
 
         return empty_grid, x_idx, y_idx
     
-    def map_to_grid(self, var_1d):
-        grid = self.empty_grid.copy()
-        grid[self.y_idx, self.x_idx] = var_1d
-        return grid
     
     def create_grid(self, var):
         # if plot_method is 'interp'
@@ -678,13 +700,35 @@ class ModelPlotter:
         return grid
 
 
-    def plot_quantity(self, base_grid, main_grid, cohort_IDs):
+    def map_to_grid(self, var_1d):
+        grid = self.empty_grid.copy()
+        grid[self.y_idx, self.x_idx] = var_1d
+        return grid
+
+
+    def compute_stem_quantity_grid(self, frac, q):
+        if self.quantity == 'Stem Density':  # sum_product for 'Stem Density'
+            veg_data = sum_product(frac, q)
+        else:  # cell_averaging for 'Stem Diameter', 'Stem Face Factor', and 'Stem Height'
+            veg_data = cell_averaging(frac, q)
+        return self.create_grid(veg_data) * self.quantity_units[self.quantity][1]
+    
+
+    def plot_quantity(self, base_grid, main_grid): #, cohort_ID):
         # For veg fractions and mortality only, we plot each fraction separately
         if type(main_grid) is list:
-            for grid, c_id in zip(main_grid, cohort_IDs):
+            for cohort in main_grid:
+                grid = cohort[0]
+                c_id = cohort[1]  # species name, or (species name, cohort ID)
+                if self.plot_separate_species:
+                    c_str = c_id
+                    c_fstr = c_id
+                else:
+                    c_str = f"{c_id[0]} (cohort {c_id[1]+1})"
+                    c_fstr = f"{c_id[0]}{c_id[1]}"                   
                 self.plot_single_quantity(base_grid, grid, 
-                    title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]}\n{c_id[0]} (cohort {c_id[1]+1})",
-                    fname=f"{self.full_quantity_name.replace(' ', '')}_{c_id[0]}{c_id[1]}_{self.timestrings[-1][0]}")
+                    title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]}\n{c_str}",
+                    fname=f"{self.full_quantity_name.replace(' ', '')}_{c_fstr}_{self.timestrings[-1][0]}")
         else:
             self.plot_single_quantity(base_grid, main_grid, 
                         title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]}",
@@ -734,18 +778,17 @@ class ModelPlotter:
             bar_text = self.scalebar_props['distance']
             if bar_text.split()[1] == 'km': unit_conv = 1000.
             elif bar_text.split()[1] == 'mi': unit_conv = 1609.
-            scalebar = AnchoredSizeBar(ax.transData,
-                                    float(bar_text.split()[0])/self.plot_interp_vars['cell_size']*unit_conv, 
-                                    bar_text, 
-                                    self.scalebar_props['loc'],
-                                    pad=0.5,
-                                    color='k',
-                                    frameon=self.scalebar_props['frameon'],
-                                    sep=4,
-                                    size_vertical=2,
-                        # fontproperties=FontProperties(size=fontsizes['ax_tix'], #weight='bold'
-                        #                                             )
-                                                                    )
+            scalebar = AnchoredSizeBar(
+                ax.transData,
+                float(bar_text.split()[0])/self.plot_interp_vars['cell_size']*unit_conv, 
+                bar_text, 
+                self.scalebar_props['loc'],
+                pad=0.5,
+                color='k',
+                frameon=self.scalebar_props['frameon'],
+                sep=4,
+                size_vertical=2,
+            )
             ax.add_artist(scalebar)
 
         fig.tight_layout()
