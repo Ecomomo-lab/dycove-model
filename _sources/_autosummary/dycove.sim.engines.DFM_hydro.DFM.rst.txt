@@ -14,9 +14,13 @@
    .. autosummary::
    
       ~DFM.__init__
-      ~DFM.loop_hydrodynamics
+      ~DFM.eco_hydro_loop
+      ~DFM.finalize_simulation
+      ~DFM.hydro_step
       ~DFM.run_simulation
-      ~DFM.step_hydrodynamics
+      ~DFM.run_simulation_with_vegetation
+      ~DFM.run_simulation_without_vegetation
+      ~DFM.verify_eco_args
    
    
 

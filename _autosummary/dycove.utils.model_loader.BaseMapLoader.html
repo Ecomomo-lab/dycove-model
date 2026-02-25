@@ -126,13 +126,6 @@ of the numerical model being used. But even in the case of plotting vegetation,
 we would also want to plot bathymetry as a layer underneath, which is dependent
 on numerical model load methods.</p></li>
 </ul>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">loader</span> <span class="o">=</span> <span class="n">ANUGAMapLoader</span><span class="p">(</span><span class="n">modeldir</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="s1">&#39;Depth&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">14</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">loader</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">hydro_i</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">ets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">eco_year</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-<span class="go">dict_keys([&#39;X&#39;, &#39;Y&#39;, &#39;Bathymetry&#39;, &#39;WSE&#39;, &#39;Depth&#39;])</span>
-</pre></div>
-</div>
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.utils.model_loader.BaseMapLoader.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modeldir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quantity_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eco_plot</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ets_year</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/utils/model_loader.html#BaseMapLoader.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.utils.model_loader.BaseMapLoader.__init__" title="Link to this definition"></a></dt>

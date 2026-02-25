@@ -167,12 +167,6 @@
 <span class="sd">      we would also want to plot bathymetry as a layer underneath, which is dependent</span>
 <span class="sd">      on numerical model load methods.</span>
 
-<span class="sd">    Example</span>
-<span class="sd">    -------</span>
-<span class="sd">    &gt;&gt;&gt; loader = ANUGAMapLoader(modeldir, model_name, &#39;Depth&#39;, False, 14)</span>
-<span class="sd">    &gt;&gt;&gt; data = loader.load(hydro_i=0, ets=None, eco_year=None)</span>
-<span class="sd">    &gt;&gt;&gt; print(data.keys())</span>
-<span class="sd">    dict_keys([&#39;X&#39;, &#39;Y&#39;, &#39;Bathymetry&#39;, &#39;WSE&#39;, &#39;Depth&#39;])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="BaseMapLoader.__init__">
@@ -207,6 +201,7 @@
                              <span class="p">}</span>
         
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco_plot</span><span class="p">:</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">veg_file_index</span> <span class="o">=</span> <span class="n">get_veg_file_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span><span class="p">)</span></div>
 
 
@@ -269,8 +264,8 @@
         <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cohort*_year</span><span class="si">{</span><span class="n">eco_year</span><span class="si">}</span><span class="s2">_ets</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">.npz&quot;</span><span class="p">):</span>
             <span class="n">c</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
             <span class="n">c_id</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">6</span><span class="p">:]</span>  <span class="c1"># old format didn&#39;t have species name, give generic name</span>
-            <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;cohorts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cohort </span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> 
-            <span class="c1">#veg_data[&quot;species&quot;].append(c[self.veg_varnames[&quot;Species&quot;]])</span>
+            <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;cohorts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;Species X&quot;</span><span class="p">,</span> 
+                                        <span class="sa">f</span><span class="s2">&quot;Cohort </span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
             <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;fractions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="s2">&quot;Fractions&quot;</span><span class="p">]])</span>
             <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;quantities&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">]])</span>  <span class="c1"># not used if quantity is &#39;Fractions&#39;</span>
 

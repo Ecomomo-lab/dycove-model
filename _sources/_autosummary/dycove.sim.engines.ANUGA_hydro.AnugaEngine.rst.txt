@@ -24,6 +24,7 @@
       ~AnugaEngine.get_velocity_and_depth
       ~AnugaEngine.initialize
       ~AnugaEngine.is_parallel
+      ~AnugaEngine.merge_local_to_global
       ~AnugaEngine.merge_parallel_veg
       ~AnugaEngine.set_vegetation
       ~AnugaEngine.step

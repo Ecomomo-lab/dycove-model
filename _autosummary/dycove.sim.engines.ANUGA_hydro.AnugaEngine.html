@@ -167,13 +167,16 @@ after simulation; see
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.is_parallel" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.is_parallel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_parallel</span></code></a>()</p></td>
 <td><p>Return True if model is running in parallel based on number of active processors.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_parallel_veg</span></code></a>(OutputManager)</p></td>
-<td><p>Merge vegetation output files from parallel ANUGA runs into single files per cohort.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_local_to_global" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_local_to_global"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_local_to_global</span></code></a>(local_data, f_gids, ...)</p></td>
+<td><p>Merge per-processor local arrays into global arrays using local-to-global index mappings.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.set_vegetation" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.set_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vegetation</span></code></a>(stemdensity, stemdiameter, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_parallel_veg</span></code></a>(OutputManager)</p></td>
+<td><p>Merge vegetation output files across MPI subdomains into single files.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.set_vegetation" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.set_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vegetation</span></code></a>(stemdensity, stemdiameter, ...)</p></td>
 <td><p>Push vegetation arrays back into the numerical model.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.step" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(seconds)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.step" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(seconds)</p></td>
 <td><p>Advance the hydrodynamic model forward by a given number of seconds.</p></td>
 </tr>
 </tbody>
@@ -240,14 +243,16 @@ Required for now, only really used by DFM.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_local_to_global">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">merge_local_to_global</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">local_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_gids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_global</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/dycove/sim/engines/ANUGA_hydro.html#AnugaEngine.merge_local_to_global"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_local_to_global" title="Link to this definition"></a></dt>
+<dd><p>Merge per-processor local arrays into global arrays using
+local-to-global index mappings.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg">
 <span class="sig-name descname"><span class="pre">merge_parallel_veg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">OutputManager</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/ANUGA_hydro.html#AnugaEngine.merge_parallel_veg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg" title="Link to this definition"></a></dt>
-<dd><p>Merge vegetation output files from parallel ANUGA runs into single files per cohort.</p>
-<p>This involves reading local-to-global index mapping from each ANUGA subdomain’s
-<code class="docutils literal notranslate"><span class="pre">sww</span></code> file, then using that mapping to merge local vegetation arrays into global
-arrays.</p>
-<p>Finally, save merged arrays using <a class="reference internal" href="dycove.sim.outputs.OutputManager.html#dycove.sim.outputs.OutputManager" title="dycove.sim.outputs.OutputManager"><code class="xref py py-class docutils literal notranslate"><span class="pre">OutputManager</span></code></a> and
-delete local files.</p>
+<dd><p>Merge vegetation output files across MPI subdomains into single files.</p>
 </dd></dl>
 
 <dl class="py method">

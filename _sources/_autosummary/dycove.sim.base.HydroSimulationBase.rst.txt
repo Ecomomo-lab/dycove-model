@@ -14,9 +14,13 @@
    .. autosummary::
    
       ~HydroSimulationBase.__init__
-      ~HydroSimulationBase.loop_hydrodynamics
+      ~HydroSimulationBase.eco_hydro_loop
+      ~HydroSimulationBase.finalize_simulation
+      ~HydroSimulationBase.hydro_step
       ~HydroSimulationBase.run_simulation
-      ~HydroSimulationBase.step_hydrodynamics
+      ~HydroSimulationBase.run_simulation_with_vegetation
+      ~HydroSimulationBase.run_simulation_without_vegetation
+      ~HydroSimulationBase.verify_eco_args
    
    
 

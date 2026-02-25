@@ -16,6 +16,7 @@
       ~ModelPlotter.__init__
       ~ModelPlotter.check_time_inputs
       ~ModelPlotter.compute_ecofac
+      ~ModelPlotter.compute_stem_quantity_grid
       ~ModelPlotter.create_gif
       ~ModelPlotter.create_grid
       ~ModelPlotter.create_interp_func

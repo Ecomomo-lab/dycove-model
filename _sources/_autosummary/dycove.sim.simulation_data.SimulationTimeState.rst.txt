@@ -17,6 +17,7 @@
       ~SimulationTimeState.advance_time
       ~SimulationTimeState.compute_days_per_year
       ~SimulationTimeState.compute_ecofac
+      ~SimulationTimeState.compute_step_counts
       ~SimulationTimeState.compute_time_conversions
       ~SimulationTimeState.update_ets
    
@@ -39,6 +40,7 @@
       ~SimulationTimeState.n_ets
       ~SimulationTimeState.veg_interval
       ~SimulationTimeState.hydro_interval
+      ~SimulationTimeState.veg_active
       ~SimulationTimeState.refdate
       ~SimulationTimeState.days_per_year
       ~SimulationTimeState.hydro_sim_days
@@ -46,6 +48,7 @@
       ~SimulationTimeState.time_0
       ~SimulationTimeState.times_elapsed
       ~SimulationTimeState.n_veg_steps
+      ~SimulationTimeState.n_hydro_substeps
       ~SimulationTimeState.n_hydro_steps
       ~SimulationTimeState.hydrotime_date
    

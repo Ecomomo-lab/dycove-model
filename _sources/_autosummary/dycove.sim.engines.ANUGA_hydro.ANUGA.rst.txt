@@ -14,9 +14,13 @@
    .. autosummary::
    
       ~ANUGA.__init__
-      ~ANUGA.loop_hydrodynamics
+      ~ANUGA.eco_hydro_loop
+      ~ANUGA.finalize_simulation
+      ~ANUGA.hydro_step
       ~ANUGA.run_simulation
-      ~ANUGA.step_hydrodynamics
+      ~ANUGA.run_simulation_with_vegetation
+      ~ANUGA.run_simulation_without_vegetation
+      ~ANUGA.verify_eco_args
    
    
 

@@ -138,7 +138,7 @@ if missing.</p></li>
 <td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.add_dll_directories" title="dycove.sim.engines.DFM_hydro.DFMEngine.add_dll_directories"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_dll_directories</span></code></a>(dfm_path)</p></td>
-<td><p>Add DLL paths to env before calling BMI .</p></td>
+<td><p>Add DLL paths to env before calling BMI.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.add_extforcefile_to_mdu" title="dycove.sim.engines.DFM_hydro.DFMEngine.add_extforcefile_to_mdu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_extforcefile_to_mdu</span></code></a>()</p></td>
 <td><p>Add ExtForceFile to .mdu line if it's not there (and if vegetation is active).</p></td>
@@ -211,14 +211,16 @@ if missing.</p></li>
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.add_dll_directories">
 <span class="sig-name descname"><span class="pre">add_dll_directories</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dfm_path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.add_dll_directories"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.add_dll_directories" title="Link to this definition"></a></dt>
-<dd><p>Add DLL paths to env before calling BMI .</p>
-<dl class="simple">
-<dt>Note that for versions of python 3.7 and earlier, you would need to set the env variables differently:</dt><dd><dl class="simple">
+<dd><p>Add DLL paths to env before calling BMI.</p>
+<p>Return list to retain handle and avoid accidental garbage collecting.</p>
+<p>Note that for versions of python 3.7 and earlier, you would need to set the env
+variables differently:</p>
+<blockquote>
+<div><dl class="simple">
 <dt>os.environ[‘PATH’] = os.path.join(dfm_path, ‘share’, ‘bin’) + “;” +</dt><dd><p>os.path.join(dfm_path, ‘dflowfm’, ‘bin’) + “;” + … )</p>
 </dd>
 </dl>
-</dd>
-</dl>
+</div></blockquote>
 </dd></dl>
 
 <dl class="py method">

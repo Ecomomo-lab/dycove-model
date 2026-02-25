@@ -317,100 +317,94 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">is_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">False</span></div>
 
-    
+
+
 <div class="viewcode-block" id="AnugaEngine.merge_parallel_veg">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">merge_parallel_veg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">OutputManager</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Merge vegetation output files from parallel ANUGA runs into single files per cohort.</span>
-<span class="sd">        </span>
-<span class="sd">        This involves reading local-to-global index mapping from each ANUGA subdomain&#39;s </span>
-<span class="sd">        ``sww`` file, then using that mapping to merge local vegetation arrays into global </span>
-<span class="sd">        arrays.</span>
-<span class="sd">        </span>
-<span class="sd">        Finally, save merged arrays using :class:`~dycove.sim.outputs.OutputManager` and </span>
-<span class="sd">        delete local files.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">outputdir</span> <span class="o">=</span> <span class="n">OutputManager</span><span class="o">.</span><span class="n">veg_dir</span>
         <span class="n">n_cohort_steps</span> <span class="o">=</span> <span class="n">OutputManager</span><span class="o">.</span><span class="n">n_cohort_steps</span>
         <span class="n">fname_base</span> <span class="o">=</span> <span class="n">OutputManager</span><span class="o">.</span><span class="n">fname_base</span>
 
-        <span class="n">sww_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>  <span class="c1"># this is the specific name for myid 0, so it has suffix &quot;_0&quot;</span>
-        <span class="n">base_name</span> <span class="o">=</span> <span class="n">sww_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># remove the suffix for myid 0</span>
+        <span class="n">sww_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
+        <span class="n">base_name</span> <span class="o">=</span> <span class="n">sww_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>
         <span class="n">sww_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">get_datadir</span><span class="p">())</span>
 
-        <span class="c1"># Put sww variables from each processor into list</span>
         <span class="n">sww_file_list</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">sww_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">.sww&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">)]</span>
 
-        <span class="c1"># Get subdomain index mapping arrays</span>
         <span class="n">tri_l2g</span><span class="p">,</span> <span class="n">tri_full_flag</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">sww_file</span> <span class="ow">in</span> <span class="n">sww_file_list</span><span class="p">:</span>
             <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">sww_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">sww</span><span class="p">:</span>
-                <span class="n">tri_l2g</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sww</span><span class="p">[</span><span class="s2">&quot;tri_l2g&quot;</span><span class="p">][:])</span>
-                <span class="n">tri_full_flag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sww</span><span class="p">[</span><span class="s2">&quot;tri_full_flag&quot;</span><span class="p">][:])</span>
+                <span class="n">tri_l2g</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sww</span><span class="p">[</span><span class="s2">&quot;tri_l2g&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+                <span class="n">tri_full_flag</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sww</span><span class="p">[</span><span class="s2">&quot;tri_full_flag&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 
-        <span class="c1"># Get no. global grid cells -- this must happen prior to loops b/c we need to know n_global beforehand</span>
-        <span class="c1"># get_cell_count() method would return only local processor cell count</span>
-        <span class="n">n_global</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">([</span><span class="n">tri</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="k">for</span> <span class="n">tri</span> <span class="ow">in</span> <span class="n">tri_l2g</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">n_global</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">tri</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="k">for</span> <span class="n">tri</span> <span class="ow">in</span> <span class="n">tri_l2g</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
-        <span class="c1"># Get indices for full (non-ghost) cells</span>
-        <span class="n">f_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">tri_full_flag</span><span class="p">[</span><span class="n">p</span><span class="p">]</span><span class="o">==</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">)]</span>
+        <span class="n">f_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">tri_full_flag</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">)]</span>
         <span class="n">f_gids</span> <span class="o">=</span> <span class="p">[</span><span class="n">tri_l2g</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">f_ids</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">)]</span>
 
-        <span class="c1"># Loop over vegetation cohorts</span>
         <span class="k">for</span> <span class="n">cohort_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">cohorts</span><span class="p">)):</span>
-            <span class="c1"># Loop over snapshot files for this cohort</span>
             <span class="k">for</span> <span class="n">file_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cohort_steps</span><span class="p">[</span><span class="n">cohort_id</span><span class="p">]):</span>
-                <span class="n">c_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">outputdir</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span> <span class="k">if</span> <span class="n">fname_base</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">stem</span><span class="p">]</span>
-            
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">c_files</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">file_num</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No output files found for cohort </span><span class="si">{</span><span class="n">cohort_id</span><span class="si">}</span><span class="s2">, skipping merge. &quot;</span>
-                            <span class="s2">&quot;This could be due to the simulation ending in the middle of an ETS, &quot;</span>
-                            <span class="s2">&quot;where the last cohort has not been written to an output file yet.&quot;</span><span class="p">)</span>
-                    <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span>
-                    <span class="k">continue</span>
 
-                <span class="n">c_merged</span> <span class="o">=</span> <span class="p">{}</span>
-            
+                <span class="n">local_data</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="n">c_merged_attrs</span> <span class="o">=</span> <span class="kc">None</span>
+
                 <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">):</span>
                     <span class="n">c_file_sub</span> <span class="o">=</span> <span class="n">outputdir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;cohort</span><span class="si">{</span><span class="n">cohort_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">file_num</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">_proc</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">.nc&quot;</span>
 
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">c_file_sub</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                         <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;No individual processor (proc) output files found for this &quot;</span>
-                                <span class="s2">&quot;cohort, year, and ETS combination&quot;</span><span class="p">)</span>
+                            <span class="s2">&quot;cohort, year, and ETS combination&quot;</span><span class="p">)</span>
                         <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
                         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-                    <span class="c1"># Load output .nc file and convert to dictionary</span>
                     <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">c_file_sub</span><span class="p">)</span> <span class="k">as</span> <span class="n">c_sub</span><span class="p">:</span>
-
-                        <span class="c1"># Capture non-array attributes once</span>
                         <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                             <span class="n">c_merged_attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">c_sub</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
-                            
-                        <span class="c1"># Loop over cohort quantities that are array-like</span>
-                        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">c_sub</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">ndim</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">c_merged</span><span class="p">:</span>  <span class="c1"># allocate global array only once</span>
-                                    <span class="n">c_merged</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_global</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
 
-                                <span class="c1"># Merge into global array using local-to-global index mapping</span>
-                                <span class="n">c_merged</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">f_gids</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">f_ids</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span>
+                        <span class="n">local_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">c_sub</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                        <span class="p">)</span>
 
-                            <span class="c1"># # For scalar quantities, just pass the output (only need to do it once since it doesn not vary spatially)</span>
-                            <span class="c1"># elif p == 0:</span>
-                            <span class="c1">#     c_merged[key] = values.item()</span>
-
-                    <span class="c1"># Remove local parallel file</span>
                     <span class="n">c_file_sub</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
 
+                <span class="n">c_merged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_local_to_global</span><span class="p">(</span><span class="n">local_data</span><span class="o">=</span><span class="n">local_data</span><span class="p">,</span>
+                                                      <span class="n">f_gids</span><span class="o">=</span><span class="n">f_gids</span><span class="p">,</span>
+                                                      <span class="n">f_ids</span><span class="o">=</span><span class="n">f_ids</span><span class="p">,</span>
+                                                      <span class="n">n_global</span><span class="o">=</span><span class="n">n_global</span><span class="p">,</span>
+                                                      <span class="p">)</span>
 
-                <span class="c1"># Save merged output (basically just remove the &quot;proc&quot; part of the filename)</span>
-                <span class="n">OutputManager</span><span class="o">.</span><span class="n">save_netcdf</span><span class="p">(</span><span class="n">outputdir</span><span class="p">,</span> 
-                                          <span class="sa">f</span><span class="s2">&quot;cohort</span><span class="si">{</span><span class="n">cohort_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">file_num</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> 
-                                          <span class="n">c_merged</span><span class="p">,</span> 
-                                          <span class="n">saved_attrs</span> <span class="o">=</span> <span class="n">c_merged_attrs</span>
+                <span class="n">OutputManager</span><span class="o">.</span><span class="n">save_netcdf</span><span class="p">(</span><span class="n">outputdir</span><span class="p">,</span>
+                                          <span class="sa">f</span><span class="s2">&quot;cohort</span><span class="si">{</span><span class="n">cohort_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">file_num</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                          <span class="n">c_merged</span><span class="p">,</span>
+                                          <span class="n">saved_attrs</span><span class="o">=</span><span class="n">c_merged_attrs</span><span class="p">,</span>
                                           <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="AnugaEngine.merge_local_to_global">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.ANUGA_hydro.AnugaEngine.html#dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_local_to_global">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">merge_local_to_global</span><span class="p">(</span><span class="n">local_data</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]],</span>
+                              <span class="n">f_gids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+                              <span class="n">f_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+                              <span class="n">n_global</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+                              <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Merge per-processor local arrays into global arrays using</span>
+<span class="sd">        local-to-global index mappings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">merged</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">local_vars</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">local_data</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">local_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">merged</span><span class="p">:</span>
+                    <span class="n">merged</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">n_global</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+                <span class="n">merged</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">f_gids</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="n">f_ids</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span>
+
+        <span class="k">return</span> <span class="n">merged</span></div>
 </div>
 
 </pre></div>

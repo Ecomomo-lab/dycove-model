@@ -123,28 +123,46 @@ interactions are delegated to
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFM.__init__" title="dycove.sim.engines.DFM_hydro.DFM.__init__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__init__</span></code></a>(dfm_path, config_path, mdu_path[, ...])</p></td>
 <td><p></p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFM.loop_hydrodynamics" title="dycove.sim.engines.DFM_hydro.DFM.loop_hydrodynamics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">loop_hydrodynamics</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFM.eco_hydro_loop" title="dycove.sim.engines.DFM_hydro.DFM.eco_hydro_loop"><code class="xref py py-obj docutils literal notranslate"><span class="pre">eco_hydro_loop</span></code></a>(n_substeps, interval)</p></td>
 <td><p>Advance hydrodynamics over all substeps within the current vegetation step.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFM.run_simulation" title="dycove.sim.engines.DFM_hydro.DFM.run_simulation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_simulation</span></code></a>(sim_time[, sim_time_unit, ...])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">finalize_simulation</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFM.hydro_step" title="dycove.sim.engines.DFM_hydro.DFM.hydro_step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hydro_step</span></code></a>(seconds)</p></td>
+<td><p>Advance hydrodynamics by a specified interval</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFM.run_simulation" title="dycove.sim.engines.DFM_hydro.DFM.run_simulation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_simulation</span></code></a>(sim_time, sim_time_unit[, ...])</p></td>
 <td><p>Run a full simulation over the specified time period.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFM.step_hydrodynamics" title="dycove.sim.engines.DFM_hydro.DFM.step_hydrodynamics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step_hydrodynamics</span></code></a>(seconds)</p></td>
-<td><p>Advance hydrodynamics by a specified interval</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_simulation_with_vegetation</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_simulation_without_vegetation</span></code>()</p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">verify_eco_args</span></code>(inputs)</p></td>
+<td><p></p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFM.loop_hydrodynamics">
-<span class="sig-name descname"><span class="pre">loop_hydrodynamics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFM.loop_hydrodynamics" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFM.eco_hydro_loop">
+<span class="sig-name descname"><span class="pre">eco_hydro_loop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_substeps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFM.eco_hydro_loop" title="Link to this definition"></a></dt>
 <dd><p>Advance hydrodynamics over all substeps within the current vegetation step.</p>
 <p>Computes min/max water depths, maximum velocities, and flooding
 statistics (HydrodynamicStats) required for vegetation updates.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFM.hydro_step">
+<span class="sig-name descname"><span class="pre">hydro_step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFM.hydro_step" title="Link to this definition"></a></dt>
+<dd><p>Advance hydrodynamics by a specified interval</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFM.run_simulation">
-<span class="sig-name descname"><span class="pre">run_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_time_unit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eco-morphodynamic</span> <span class="pre">years'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">veg_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">43200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydro_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">900</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecofac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFM.run_simulation" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">run_simulation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sim_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sim_time_unit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_ets</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">14</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">veg_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">43200</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hydro_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">900</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3600</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecofac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFM.run_simulation" title="Link to this definition"></a></dt>
 <dd><p>Run a full simulation over the specified time period.</p>
 <p>This method handles the main simulation loop, including:</p>
 <ul class="simple">
@@ -158,7 +176,7 @@ statistics (HydrodynamicStats) required for vegetation updates.</p>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sim_time</strong> (<em>float</em>) – Simulation duration in units of <code class="docutils literal notranslate"><span class="pre">sim_time_unit</span></code>.</p></li>
-<li><p><strong>sim_time_unit</strong> (<em>str</em><em>, </em><em>optional</em>) – Either <code class="docutils literal notranslate"><span class="pre">'hydrodynamic</span> <span class="pre">days'</span></code> or <code class="docutils literal notranslate"><span class="pre">'eco-morphodynamic</span> <span class="pre">years'</span></code>.
+<li><p><strong>sim_time_unit</strong> (<em>str</em>) – Either <code class="docutils literal notranslate"><span class="pre">'hydrodynamic</span> <span class="pre">days'</span></code> or <code class="docutils literal notranslate"><span class="pre">'eco-morphodynamic</span> <span class="pre">years'</span></code>.
 Determines interpretation of <code class="docutils literal notranslate"><span class="pre">sim_time</span></code>.</p></li>
 <li><p><strong>n_ets</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of ecological time steps per vegetation year. Default is 14.</p></li>
 <li><p><strong>veg_interval</strong> (<em>int</em><em>, </em><em>optional</em>) – Time interval in seconds between vegetation updates.
@@ -172,12 +190,6 @@ it is computed automatically.</p></li>
 </ul>
 </dd>
 </dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFM.step_hydrodynamics">
-<span class="sig-name descname"><span class="pre">step_hydrodynamics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFM.step_hydrodynamics" title="Link to this definition"></a></dt>
-<dd><p>Advance hydrodynamics by a specified interval</p>
 </dd></dl>
 
 </dd></dl>

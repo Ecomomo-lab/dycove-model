@@ -82,6 +82,8 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModuleType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -96,6 +98,8 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_import_bmi</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; Lazy loading of bmi wrapper to avoid import errors when DFM will not be tested/used. &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
+         <span class="c1"># need to mock this due to incompatibility with updated setuptools versions (python 3.7+)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;pkg_resources&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ModuleType</span><span class="p">(</span><span class="s1">&#39;pkg_resources&#39;</span><span class="p">)</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">bmi.wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">BMIWrapper</span>
         <span class="k">return</span> <span class="n">BMIWrapper</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -173,21 +177,44 @@
 <div class="viewcode-block" id="DFMEngine.__init__">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dfm_path</span><span class="p">,</span> <span class="n">config_path</span><span class="p">,</span> <span class="n">mdu_path</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dll_dirs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_dll_directories</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">)</span>  <span class="c1"># do this first to setup PATH before loading</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">BMIWrapper</span> <span class="o">=</span> <span class="n">_import_bmi</span><span class="p">()</span>  <span class="c1"># lazy bmi loading</span>
 
         <span class="c1"># Define paths to Delft3D FM .dll files</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;dflowfm/bin/dflowfm.dll&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimr_path</span>    <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;dimr/bin/dimr_dll.dll&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span>     <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">mdu_path</span><span class="p">)</span>  <span class="c1"># location of MDU file that contains model directions/inputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span>     <span class="o">=</span> <span class="n">mdu_path</span>  <span class="c1"># location of MDU file that contains model directions/inputs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span>    <span class="o">=</span> <span class="n">mdu_path</span><span class="o">.</span><span class="n">parent</span>  <span class="c1"># model directory containing MDU and other model files</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config_path</span>  <span class="o">=</span> <span class="n">config_path</span>  <span class="c1"># location of config file used for running DFM using dimr</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="o">=</span> <span class="n">vegetation</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">add_dll_directories</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">open_bmi_wrappers</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="DFMEngine.add_dll_directories">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.add_dll_directories">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_dll_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dfm_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="sd">        Add DLL paths to env before calling BMI.</span>
+
+<span class="sd">        Return list to retain handle and avoid accidental garbage collecting.</span>
+
+<span class="sd">        Note that for versions of python 3.7 and earlier, you would need to set the env </span>
+<span class="sd">        variables differently:</span>
+<span class="sd">            os.environ[&#39;PATH&#39;] = os.path.join(dfm_path, &#39;share&#39;, &#39;bin&#39;) + &quot;;&quot; + </span>
+<span class="sd">                                    os.path.join(dfm_path, &#39;dflowfm&#39;, &#39;bin&#39;) + &quot;;&quot; + ... )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dflowfm/bin&quot;</span><span class="p">)),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dimr/bin&quot;</span><span class="p">)),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;share/bin&quot;</span><span class="p">)),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dwaves/bin&quot;</span><span class="p">)),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;esmf/scripts&quot;</span><span class="p">)),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;swan/scripts&quot;</span><span class="p">)),</span>
+                <span class="p">]</span></div>
 
 
 
@@ -199,25 +226,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BMIWrapper</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm_path</span><span class="p">),</span> <span class="n">configfile</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="p">))</span>
         <span class="c1"># BMI wrapper object that handles the deployment of the model executables</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BMIWrapper</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dimr_path</span><span class="p">),</span> <span class="n">configfile</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_path</span><span class="p">))</span></div>
-
-
-
-<div class="viewcode-block" id="DFMEngine.add_dll_directories">
-<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.add_dll_directories">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_dll_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dfm_path</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">        Add DLL paths to env before calling BMI .</span>
-
-<span class="sd">        Note that for versions of python 3.7 and earlier, you would need to set the env variables differently:</span>
-<span class="sd">            os.environ[&#39;PATH&#39;] = os.path.join(dfm_path, &#39;share&#39;, &#39;bin&#39;) + &quot;;&quot; + </span>
-<span class="sd">                                    os.path.join(dfm_path, &#39;dflowfm&#39;, &#39;bin&#39;) + &quot;;&quot; + ... )</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dflowfm/bin&quot;</span><span class="p">))</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dimr/bin&quot;</span><span class="p">))</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;share/bin&quot;</span><span class="p">))</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dwaves/bin&quot;</span><span class="p">))</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;esmf/scripts&quot;</span><span class="p">))</span>
-        <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;swan/scripts&quot;</span><span class="p">))</span></div>
 
 
 
@@ -405,6 +413,7 @@
         <span class="c1"># Track for .mdu file modification</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mdu_modified</span> <span class="o">=</span> <span class="kc">False</span>
         
+        <span class="c1"># All only execute if self.veg is not None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_extforcefile_to_mdu</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_veg_module_to_mdu</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">create_extforcefile</span><span class="p">()</span>
@@ -482,16 +491,6 @@
                 <span class="s2">&quot;Cbveg                             = 0.7             # Stem stiffness coefficient, default=0.7&quot;</span><span class="p">,</span>
             <span class="p">])</span></div>
 
-                
-
-<div class="viewcode-block" id="DFMEngine.write_modified_mdu">
-<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.write_modified_mdu">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">write_modified_mdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Write modified .mdu lines back to file &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;DFM MDU file updated and rewritten to include required inputs for vegetation module.&quot;</span>
-        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
-
 
 
 <div class="viewcode-block" id="DFMEngine.create_extforcefile">
@@ -500,7 +499,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Create .ext file in the model directory if it doesn&#39;t exist &quot;&quot;&quot;</span>
 
         <span class="n">ext_force_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">&quot;ExtForceFile&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">ext_force_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ext_force_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;QUANTITY=stemdensity</span>
 <span class="s2">FILENAME=stemdensity.xyz</span>
 <span class="s2">FILETYPE=7</span>
@@ -531,11 +530,21 @@
         <span class="n">req_veg_files</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;stemdensity.xyz&quot;</span><span class="p">,</span> <span class="s2">&quot;stemdiameter.xyz&quot;</span><span class="p">,</span> <span class="s2">&quot;stemheight.xyz&quot;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">req_veg_files</span><span class="p">:</span>
             <span class="n">veg_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">/</span> <span class="n">filename</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">veg_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">veg_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">veg_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
 
     
+
+<div class="viewcode-block" id="DFMEngine.write_modified_mdu">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.write_modified_mdu">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">write_modified_mdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Write modified .mdu lines back to file &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;DFM MDU file updated and rewritten to include required inputs for vegetation module.&quot;</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+
 
     <span class="c1"># --------------------------------------------------------</span>
     <span class="c1"># Parallel methods</span>

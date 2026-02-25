@@ -36,7 +36,7 @@
       ~HydrodynamicStats.h_max
       ~HydrodynamicStats.h_min
       ~HydrodynamicStats.v_maxs
-      ~HydrodynamicStats.n_hydro_steps
+      ~HydrodynamicStats.n_hydro_substeps
       ~HydrodynamicStats.n_cells
    
    

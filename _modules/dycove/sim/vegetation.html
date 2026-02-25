@@ -171,7 +171,7 @@
         <span class="k">if</span> <span class="n">species_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">species_name</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">input_veg_filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">input_veg_filename</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
             
         <span class="c1"># Will become list of VegCohort objects, one for each cohort/colonization that occurs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">VegCohort</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span></div>
@@ -235,7 +235,7 @@
             <span class="n">potential_inds_mask</span><span class="p">[</span><span class="n">potential_inds</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="n">selected_inds</span> <span class="o">=</span> <span class="n">potential_inds_mask</span> <span class="o">&amp;</span> <span class="n">rand_mask</span>
 
-            <span class="n">existing_cohorts</span> <span class="o">=</span> <span class="n">combined_cohorts</span> <span class="k">if</span> <span class="n">combined_cohorts</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span>
+            <span class="n">existing_cohorts</span> <span class="o">=</span> <span class="n">combined_cohorts</span> <span class="k">if</span> <span class="n">combined_cohorts</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span>
             <span class="n">new_fraction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_new_fraction</span><span class="p">(</span><span class="n">existing_cohorts</span><span class="p">,</span> <span class="n">selected_inds</span><span class="p">)</span>
 
             <span class="c1"># Create new cohort for latest colonization</span>
@@ -308,6 +308,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">apply_mortality</span><span class="p">()</span></div>
 
         <span class="c1">#self.apply_mortality_using_initial_fractions()</span>
+
 
 <div class="viewcode-block" id="VegetationSpecies.mortality_hydrodynamic">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.mortality_hydrodynamic">[docs]</a>
@@ -444,6 +445,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Replacing `c.fraction` with `self.attrs.fraction_0`, so mortality is </span>
 <span class="sd">        always a function of initial colonization fraction.</span>
+
+<span class="sd">        ! ---------- NOT CURRENTLY IN USE OR TESTED ----------- !</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">:</span>
             <span class="c1"># Vegetation fractions lost to flooding</span>
@@ -502,21 +505,17 @@
 
 
 
-    <span class="c1"># TODO: Re-implement this, removed once the multi-species capability was added</span>
-    <span class="c1"># The likelihood of this being called is fairly low</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">clean_out_old_fractions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># If all fractions within a given cohort are zero, remove it from the list</span>
-        <span class="n">cohorts_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fraction</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">0.001</span><span class="p">:</span>
-                <span class="n">cohorts_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;Removed a cohort that has disappeared.&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">cohorts_to_remove</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">remove_old_cohorts</span><span class="p">(</span><span class="n">cohorts_to_remove</span><span class="p">)</span>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">remove_old_cohorts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_inds</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">list_of_inds</span><span class="p">]</span>
+    <span class="c1"># # TODO: Re-implement this, removed once the multi-species capability was added</span>
+    <span class="c1"># # The likelihood of this being called is fairly low</span>
+    <span class="c1"># def clean_out_old_fractions(self):</span>
+    <span class="c1">#     # If all fractions within a given cohort are zero, remove it from the list</span>
+    <span class="c1">#     cohorts_to_remove = []</span>
+    <span class="c1">#     for i, c in enumerate(self.cohorts):</span>
+    <span class="c1">#         if np.sum(c.fraction) &lt; 0.001:</span>
+    <span class="c1">#             cohorts_to_remove.append(i)</span>
+    <span class="c1">#             r.report(&quot;Removed a cohort that has disappeared.&quot;)</span>
+    <span class="c1">#     if cohorts_to_remove:</span>
+    <span class="c1">#         self.remove_old_cohorts(cohorts_to_remove)</span>
 
       
 <div class="viewcode-block" id="VegetationSpecies.stemheight_growth">
@@ -540,7 +539,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">stemdiam_growth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ets</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Computes stem diameter based on growth functions in VegAttributes. &quot;&quot;&quot;</span>
         <span class="c1"># During first growth ets, height starts at previous winter value, so no need to loop</span>
-        <span class="k">if</span> <span class="n">ets</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">start_growth_ets</span><span class="p">:</span>
+        <span class="c1"># (growth realized by next ETS)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">start_growth_ets</span> <span class="o">&lt;</span> <span class="n">ets</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">end_growth_ets</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">diameter</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">stemdiam_max</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">lifestage</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">ets</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">winter_ets</span><span class="p">:</span>
                     <span class="n">c</span><span class="o">.</span><span class="n">diameter</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">diam_growth_rates</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">lifestage</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># else, remains constant</span></div>
@@ -552,7 +552,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">root_growth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ets</span><span class="p">):</span>  
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Computes root length based on growth functions in VegAttributes. &quot;&quot;&quot;</span>
         <span class="c1"># During first growth ETS, height starts at previous winter value, so no need to loop</span>
-        <span class="k">if</span> <span class="n">ets</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">start_growth_ets</span><span class="p">:</span>
+        <span class="c1"># (growth realized by next ETS)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">start_growth_ets</span> <span class="o">&lt;</span> <span class="n">ets</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">end_growth_ets</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">rootlength</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">rootlength_max</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">lifestage</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">ets</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">winter_ets</span><span class="p">:</span>
                     <span class="n">c</span><span class="o">.</span><span class="n">rootlength</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">root_growth_rates</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">lifestage</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># else, remain constant</span></div>
@@ -589,6 +590,10 @@
         <span class="k">if</span> <span class="n">cohorts_to_remove</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">remove_old_cohorts</span><span class="p">(</span><span class="n">cohorts_to_remove</span><span class="p">)</span></div>
 
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_old_cohorts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_of_inds</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">list_of_inds</span><span class="p">]</span>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">get_drag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

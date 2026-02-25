@@ -174,11 +174,11 @@ attribute.</p>
 <section id="attributes-computed">
 <h2>Attributes (Computed)<a class="headerlink" href="#attributes-computed" title="Link to this heading"></a></h2>
 <dl class="simple">
-<dt>ht_growth_rates<span class="classifier">list[float]</span></dt><dd><p>Linear growth rate of plant height per life stage (computed in <a class="reference internal" href="#dycove.sim.vegetation_data.VegetationAttributes.__post_init__" title="dycove.sim.vegetation_data.VegetationAttributes.__post_init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code></a>).</p>
+<dt>ht_growth_rates<span class="classifier">list[float]</span></dt><dd><p>Linear growth rate of plant height per life stage (computed in <code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code>).</p>
 </dd>
-<dt>diam_growth_rates<span class="classifier">list[float]</span></dt><dd><p>Linear growth rate of stem diameter per life stage (computed in <a class="reference internal" href="#dycove.sim.vegetation_data.VegetationAttributes.__post_init__" title="dycove.sim.vegetation_data.VegetationAttributes.__post_init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code></a>).</p>
+<dt>diam_growth_rates<span class="classifier">list[float]</span></dt><dd><p>Linear growth rate of stem diameter per life stage (computed in <code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code>).</p>
 </dd>
-<dt>root_growth_rates<span class="classifier">list[float]</span></dt><dd><p>Linear growth rate of root length per life stage (computed in <a class="reference internal" href="#dycove.sim.vegetation_data.VegetationAttributes.__post_init__" title="dycove.sim.vegetation_data.VegetationAttributes.__post_init__"><code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code></a>).</p>
+<dt>root_growth_rates<span class="classifier">list[float]</span></dt><dd><p>Linear growth rate of root length per life stage (computed in <code class="xref py py-meth docutils literal notranslate"><span class="pre">__post_init__()</span></code>).</p>
 </dd>
 </dl>
 <dl class="py method">
@@ -194,6 +194,12 @@ attribute.</p>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation_data.VegetationAttributes.compute_growth_rates" title="dycove.sim.vegetation_data.VegetationAttributes.compute_growth_rates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_growth_rates</span></code></a>()</p></td>
 <td><p>Compute seasonal linear growth rates for each life stage.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.vegetation_data.VegetationAttributes.validate_input_list_lengths" title="dycove.sim.vegetation_data.VegetationAttributes.validate_input_list_lengths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_input_list_lengths</span></code></a>()</p></td>
+<td><p>Check all list fields have length == nls</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation_data.VegetationAttributes.validate_mortality_limits" title="dycove.sim.vegetation_data.VegetationAttributes.validate_mortality_limits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_mortality_limits</span></code></a>()</p></td>
+<td><p>Check &lt;stressor&gt;_no_mort &lt; &lt;stressor&gt;_all_mort for each stressor</p></td>
 </tr>
 </tbody>
 </table>
@@ -284,17 +290,23 @@ attribute.</p>
 </tbody>
 </table>
 <dl class="py method">
-<dt class="sig sig-object py" id="dycove.sim.vegetation_data.VegetationAttributes.__post_init__">
-<span class="sig-name descname"><span class="pre">__post_init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation_data.html#VegetationAttributes.__post_init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation_data.VegetationAttributes.__post_init__" title="Link to this definition"></a></dt>
-<dd><p>Initialize computed growth rate attributes.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.vegetation_data.VegetationAttributes.compute_growth_rates">
 <span class="sig-name descname"><span class="pre">compute_growth_rates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation_data.html#VegetationAttributes.compute_growth_rates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation_data.VegetationAttributes.compute_growth_rates" title="Link to this definition"></a></dt>
 <dd><p>Compute seasonal linear growth rates for each life stage.</p>
 <p>Stage 0 grows from initial colonization values.
 Later stages grow from previous winter values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation_data.VegetationAttributes.validate_input_list_lengths">
+<span class="sig-name descname"><span class="pre">validate_input_list_lengths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation_data.html#VegetationAttributes.validate_input_list_lengths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation_data.VegetationAttributes.validate_input_list_lengths" title="Link to this definition"></a></dt>
+<dd><p>Check all list fields have length == nls</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation_data.VegetationAttributes.validate_mortality_limits">
+<span class="sig-name descname"><span class="pre">validate_mortality_limits</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation_data.html#VegetationAttributes.validate_mortality_limits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation_data.VegetationAttributes.validate_mortality_limits" title="Link to this definition"></a></dt>
+<dd><p>Check &lt;stressor&gt;_no_mort &lt; &lt;stressor&gt;_all_mort for each stressor</p>
 </dd></dl>
 
 </section>

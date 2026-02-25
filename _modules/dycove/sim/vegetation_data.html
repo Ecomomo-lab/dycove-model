@@ -81,7 +81,8 @@
 <span class="c1">###############################################################</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">fields</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">get_type_hints</span>
 
 
 <div class="viewcode-block" id="VegetationAttributes">
@@ -200,11 +201,14 @@
     <span class="n">diam_growth_rates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">root_growth_rates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">init</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<div class="viewcode-block" id="VegetationAttributes.__post_init__">
-<a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation_data.VegetationAttributes.html#dycove.sim.vegetation_data.VegetationAttributes.__post_init__">[docs]</a>
+
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Initialize computed growth rate attributes. &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">compute_growth_rates</span><span class="p">()</span></div>
+        <span class="c1"># Initialize computed growth rate attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compute_growth_rates</span><span class="p">()</span>
+
+        <span class="c1"># Check validity of inputs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_input_list_lengths</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validate_mortality_limits</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="VegetationAttributes.compute_growth_rates">
@@ -231,6 +235,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">root_growth_rates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rates</span><span class="p">[</span><span class="s1">&#39;root&#39;</span><span class="p">])</span></div>
 
 
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_compute_stage_0_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="c1"># TODO: verify we want all 3 growth rates based on start_growth_ets,</span>
         <span class="c1">#       which was technically described initially as being for shoot growth.</span>
@@ -241,14 +246,46 @@
             <span class="s1">&#39;root&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rootlength_max</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">rootlength_0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">winter_ets</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_growth_ets</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">years_max</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="p">}</span>
 
+
     <span class="k">def</span><span class="w"> </span><span class="nf">_compute_stage_n_rates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stemht_max</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">stemht_winter_max</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">end_growth_ets</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_growth_ets</span><span class="p">),</span>
             <span class="s1">&#39;diameter&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stemdiam_max</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">stemdiam_max</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">winter_ets</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_growth_ets</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">years_max</span><span class="p">[</span><span class="n">n</span><span class="p">],</span>
             <span class="s1">&#39;root&#39;</span><span class="p">:</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rootlength_max</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">rootlength_max</span><span class="p">[</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">winter_ets</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_growth_ets</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">years_max</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
-        <span class="p">}</span></div>
-
+        <span class="p">}</span>
     
+
+<div class="viewcode-block" id="VegetationAttributes.validate_input_list_lengths">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation_data.VegetationAttributes.html#dycove.sim.vegetation_data.VegetationAttributes.validate_input_list_lengths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_input_list_lengths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Check all list fields have length == nls &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nls</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;One of more life stage attributes have length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="si">}</span><span class="s2">, but nls == </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">nls</span><span class="si">}</span><span class="s2">. &quot;</span>
+                           <span class="s2">&quot;Check that the number of life stage dictionaries in the input .json file equals &quot;</span>
+                           <span class="s2">&quot;the number of life stages &#39;nls&#39;.&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+
+                
+<div class="viewcode-block" id="VegetationAttributes.validate_mortality_limits">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation_data.VegetationAttributes.html#dycove.sim.vegetation_data.VegetationAttributes.validate_mortality_limits">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_mortality_limits</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Check &lt;stressor&gt;_no_mort &lt; &lt;stressor&gt;_all_mort for each stressor &quot;&quot;&quot;</span>
+        <span class="n">zero_mort_fields</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;_no_mort&#39;</span><span class="p">)}</span>
+        <span class="k">for</span> <span class="n">zero_field</span> <span class="ow">in</span> <span class="n">zero_mort_fields</span><span class="p">:</span>
+            <span class="n">all_field</span> <span class="o">=</span> <span class="n">zero_field</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_no_mort&#39;</span><span class="p">,</span> <span class="s1">&#39;_all_mort&#39;</span><span class="p">)</span>
+            <span class="n">zero_vals</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">zero_field</span><span class="p">)</span>
+            <span class="n">all_vals</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">all_field</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">zero</span><span class="p">,</span> <span class="n">all_</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">zero_vals</span><span class="p">,</span> <span class="n">all_vals</span><span class="p">)):</span>
+                <span class="k">if</span> <span class="n">zero</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">zero</span> <span class="o">&gt;=</span> <span class="n">all_</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">zero_field</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]&#39; (= </span><span class="si">{</span><span class="n">zero</span><span class="si">}</span><span class="s2">) must be &lt; &#39;</span><span class="si">{</span><span class="n">all_field</span><span class="si">}</span><span class="s2">[</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]&#39; (= </span><span class="si">{</span><span class="n">all_</span><span class="si">}</span><span class="s2">) &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;or equal to 0 (disabled)&quot;</span><span class="p">)</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
+</div>
+
+
 
 <div class="viewcode-block" id="VegCohort">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort">[docs]</a>
