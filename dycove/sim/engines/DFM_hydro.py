@@ -4,6 +4,8 @@
 
 import re
 import os
+import sys
+from types import ModuleType
 from datetime import datetime
 from pathlib import Path
 import numpy as np
@@ -18,6 +20,8 @@ r = Reporter()
 def _import_bmi():
     """ Lazy loading of bmi wrapper to avoid import errors when DFM will not be tested/used. """
     try:
+         # need to mock this due to incompatibility with updated setuptools versions (python 3.7+)
+        sys.modules['pkg_resources'] = ModuleType('pkg_resources')
         from bmi.wrapper import BMIWrapper
         return BMIWrapper
     except ImportError:

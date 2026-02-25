@@ -979,9 +979,9 @@ class TestUpdateLifestageAndStemdensity:
     def test_remove_old_cohorts_removes_correct_cohorts(self):
         """ Only cohorts at the specified indices are removed; others are retained """
         veg = VegetationSpecies.__new__(VegetationSpecies)
-        c0 = self.mock_cohort(1)
-        c1 = self.mock_cohort(1)
-        c2 = self.mock_cohort(1)
+        c0 = self.mock_cohort(ls=1, ls_year=1)
+        c1 = self.mock_cohort(ls=1, ls_year=1)
+        c2 = self.mock_cohort(ls=1, ls_year=1)
         veg.cohorts = [c0, c1, c2]
         veg.remove_old_cohorts([0, 2])
         assert veg.cohorts == [c1]
