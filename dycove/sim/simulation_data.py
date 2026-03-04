@@ -160,6 +160,7 @@ class SimulationTimeState:
                 msg = (f"Computed ecofac = {self.ecofac:d}, derived from veg_interval and n_ets "
                         f"(rounded from {ecofac_est:.3f})")
                 r.report(msg, level="INFO")
+            # else: ecofac stays as None
     
 
     def compute_days_per_year(self):

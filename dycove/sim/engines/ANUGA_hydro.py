@@ -115,6 +115,7 @@ class AnugaEngine(HydroEngineBase):
                                             drag=self.veg.get_drag())
         self.morphology = False
         
+
     def step(self, seconds):
         # Normally, all processes in ANUGA would be performed within the domain.evolve() loop at each
         # yieldstep, but for consistency across all potential models, we wrap it up here under the 
@@ -134,6 +135,7 @@ class AnugaEngine(HydroEngineBase):
         # Enforces wait time for all cores so they catch up to each other when this is called (ignored if not parallel)
         self.barrier()
 
+
     def cleanup(self):
         if self.is_parallel():
             self.domain.sww_merge(delete_old=True)
@@ -141,18 +143,19 @@ class AnugaEngine(HydroEngineBase):
         else:
             pass
 
-    def get_rank(self):
-        return self.myid
 
     def get_refdate(self):
         # Hardcoded for now, because DFM requires this in input file. TODO: fix or remove
         return datetime(2001, 1, 1)   
     
+
     def get_cell_count(self):
         return len(self.get_elevation())  
 
+
     def get_elevation(self):
         return self.domain.quantities["elevation"].centroid_values
+
 
     def get_velocity_and_depth(self):
         stage = self.domain.quantities["stage"].centroid_values
@@ -167,6 +170,7 @@ class AnugaEngine(HydroEngineBase):
         velocity = np.sqrt(xvel**2 + yvel**2)
         return velocity, depth
 
+
     def get_vegetation(self):
         # Pull directly from Baptist operator
         stemdensity = self.Baptist.veg_density.centroid_values
@@ -174,6 +178,7 @@ class AnugaEngine(HydroEngineBase):
         stemheight = self.Baptist.veg_height.centroid_values
         return stemdensity, stemdiameter, stemheight
     
+
     def set_vegetation(self, stemdensity, stemdiameter, stemheight):
         # Update Baptist operator with new quantities
         self.Baptist.set_vegetation(veg_diameter=stemdiameter,
@@ -181,6 +186,7 @@ class AnugaEngine(HydroEngineBase):
                                     veg_height=stemheight,
                                     )
             
+
     def check_simulation_inputs(self, simstate):
         # Nothing implemented yet
         pass
@@ -189,6 +195,10 @@ class AnugaEngine(HydroEngineBase):
     # --------------------------------------------------------
     # Parallel methods
     # --------------------------------------------------------
+    
+    def get_rank(self):
+        return self.myid
+    
     
     def is_parallel(self):
         return True if self.numprocs > 1 else False

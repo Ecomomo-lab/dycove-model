@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 from dataclasses import asdict
 import xarray as xr
+import json
 
 from dycove.utils.simulation_reporting import Reporter
 
@@ -14,15 +15,20 @@ r = Reporter()
 
 class OutputManager:
     """ For saving :class:`~dycove.sim.vegetation_data.VegCohort` instances to output files. """
-    def __init__(self, engine):
+    def __init__(self, engine, save_freq, save_mort):
         self.engine = engine
         self.veg = engine.veg
         self.veg_dir   = Path(engine.model_dir) / "veg_output"
-        self.veg_dir.mkdir(parents=True, exist_ok=True)
-        self.n_cohort_steps = []  # for numbering output files
-        self.fname_base = "cohort0_01"
+        self.save_freq = save_freq
+        self.save_mort = save_mort
 
-    def save_vegetation_step(self, sim):
+        self.veg_dir.mkdir(parents=True, exist_ok=True)
+        
+        self.n_cohort_steps = []  # for numbering output files
+        self.cohort_index = {}  # nested dict index of output files for each year-ets combo
+
+
+    def save_vegetation_step(self, sim, vts):
         """ Save vegetation cohort state for a given ecological timestep """
         self.update_file_counts()
         for i, cohort in enumerate(self.veg.cohorts):
@@ -33,19 +39,57 @@ class OutputManager:
                      else self.fname_base
                      )
             
-            self.save_netcdf(self.veg_dir, 
-                             fname, 
-                             asdict(cohort), 
-                             eco_year = sim.eco_year, 
-                             ets = sim.ets, 
-                             cohort_id = i,
-                             )
+            if vts % self.save_freq == 0:            
+                self.save_netcdf(self.veg_dir, 
+                                fname, 
+                                asdict(cohort), 
+                                eco_year = sim.eco_year, 
+                                ets = sim.ets, 
+                                cohort_id = i,
+                                )
+                self.cohort_indexing(sim.eco_year, sim.ets)
+
             self.n_cohort_steps[i] += 1
+
 
     def update_file_counts(self):
         """ Update file count for each cohort based on current number of cohorts. """
         if len(self.veg.cohorts) > len(self.n_cohort_steps):
             self.n_cohort_steps.extend([0]*(len(self.veg.cohorts) - len(self.n_cohort_steps)))
+
+
+    def cohort_indexing(self, year, ets):
+        """ Log the year/ets combo and create (or append to) list for cohort file names """
+        if f"{year}" not in self.cohort_index:
+            self.cohort_index[f"{year}"] = {}
+        if f"{ets}" not in self.cohort_index[f"{year}"]:
+            self.cohort_index[f"{year}"][f"{ets}"] = [self.fname_base]
+        else:
+            self.cohort_index[f"{year}"][f"{ets}"].append(self.fname_base)
+
+
+    def save_simulation_indices(self, sim):
+        self.save_simulation_metadata(sim)
+        self.save_cohort_index()
+
+
+    def save_simulation_metadata(self, sim):
+        """ Save record of ecological time inputs for easier post-processing """
+        sim_dict = {"n_ets": sim.n_ets,
+                    "veg_interval": sim.veg_interval,
+                    "ecofac": sim.ecofac,
+                    "save_frequency": self.save_freq,
+                    "save_mortality": self.save_mort,
+                    }
+        with open(self.veg_dir / "_eco_time_vars.json", "w") as f:
+            json.dump(sim_dict, f)
+
+
+    def save_cohort_index(self):
+        c_index_as_str = {str(key): value for key, value in self.cohort_index.items()}
+        with open(self.veg_dir / "_cohort_files_ets_index.json", "w") as f:
+            json.dump(c_index_as_str, f)
+
 
     def save_netcdf(self,
                     directory: Path,
@@ -65,6 +109,8 @@ class OutputManager:
             # Pass arrays and scalars separately
             if isinstance(value, np.ndarray):
                 data_vars[key] = xr.DataArray(value)
+                if not self.save_mort and "mort" in key:
+                    data_vars.pop(key)
             else:
                 attrs[key] = value
 
@@ -73,14 +119,14 @@ class OutputManager:
         if saved_attrs is None:  # do this when call comes from save_vegetation_step()
             ds.attrs.update(attrs)
             ds.attrs.update(eco_year=eco_year, ets=ets, cohort=cohort_id)
-        else:                    # do this when call comes from merge_parallel_veg()
+        else:  # do this when call comes from merge_parallel_veg() at end of simulation
             ds.attrs.update(saved_attrs)
 
         # Need engine='scipy' because the DFM BMI ctypes wrapper has a path conflict with netCDF
         ds.to_netcdf(directory / (filename + ".nc"), engine="scipy")
 
 
-    def reconcile_vegetation_output(self):
+    def reconcile_vegetation_output(self, simstate):
         """ 
         Merge vegetation outputs across MPI subdomains into single files.
 
@@ -94,5 +140,8 @@ class OutputManager:
         and directory access).
         """
         
-        if self.veg and self.engine.is_parallel() and self.engine.get_rank() == 0:
-            self.engine.merge_parallel_veg(self)
+        if self.veg:
+            if not self.engine.is_parallel() or self.engine.get_rank() == 0:
+                self.save_simulation_indices(simstate)
+                if self.engine.is_parallel():
+                    self.engine.merge_parallel_veg()

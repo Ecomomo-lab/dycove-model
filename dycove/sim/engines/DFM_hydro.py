@@ -151,11 +151,6 @@ class DFMEngine(HydroEngineBase):
         self.dimr.finalize()
 
 
-    def get_rank(self):
-        # TODO: implement parallel processing for DFM
-        raise NotImplementedError("Parallel mode not currently implemented for Delft3D FM")
-
-
     def get_cell_count(self):
         return int(self.dflowfm.get_var("ndxi"))  # number of non-boundary boxes, i.e. within-domain boxes
 
@@ -398,6 +393,11 @@ OPERAND=O
     # Parallel methods
     # --------------------------------------------------------
 
+    def get_rank(self):
+        # TODO: implement parallel processing for DFM
+        return 0
+    
+
     def is_parallel(self):
         try:
             from mpi4py import MPI
@@ -406,6 +406,7 @@ OPERAND=O
             return True if size > 1 else False
         except:
             return False
+        
         
     def merge_parallel_veg(self, OutputManager):
         # DYCOVE-DFM does not currently support parallel processing in this model, but setting up for future use.

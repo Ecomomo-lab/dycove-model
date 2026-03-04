@@ -202,8 +202,8 @@ class VegetationSpecies(SharedVegMethods):
         """ Delegate to internal methods. """
         self.mortality_hydrodynamic(**hydro_vars)
         self.mortality_morphodynamic(**morpho_vars)
-        self.apply_mortality()
-        #self.apply_mortality_using_initial_fractions()
+        #self.apply_mortality()
+        self.apply_mortality_using_initial_fractions()
 
 
     def mortality_hydrodynamic(self, fld_frac, dry_frac, vel_max):

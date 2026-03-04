@@ -36,7 +36,7 @@ class HydroSimulationBase(ABC):
         self.engine = engine
         self.veg_active = True if self.engine.veg else False
         self.veg_coupler = VegetationCoupler(engine) if self.veg_active else None
-        self.outputs = OutputManager(engine)
+
 
     def run_simulation(self, 
                        sim_time,
@@ -45,7 +45,9 @@ class HydroSimulationBase(ABC):
                        veg_interval=43200, 
                        hydro_interval=900, 
                        save_interval=3600,
-                       ecofac=None
+                       ecofac=None,
+                       save_frequency=1,
+                       save_mortality=True,
                        ):
         """
         Run a full simulation over the specified time period.
@@ -79,13 +81,20 @@ class HydroSimulationBase(ABC):
             Ecological (vegetation) acceleration factor relative to hydrodynamics.
             Must equal ``MORFAC`` if Delft3D morphology is enabled. If ``None``,
             it is computed automatically.
+        save_frequency : int, optional
+            Integer defining an output "skip" interval, e.g., 2 means skip every 
+            other ETS when writing output files. Default is 1 (no skip).
+        save_mortality : bool, optional
+            Flag for saving mortality fractions with vegetation output.
         """
 
         eco_args = {"n_ets": (n_ets, 14),  # actual vs. default arguments
                     "veg_interval": (veg_interval, 43200),
                     "ecofac": (ecofac, None)
                     }
-        self.verify_eco_args(eco_args)       
+        self.verify_eco_args(eco_args)
+
+        self.outputs = OutputManager(self.engine, save_frequency, save_mortality)
 
         self.engine.initialize()
 
@@ -101,7 +110,6 @@ class HydroSimulationBase(ABC):
                                             ecofac=ecofac,
                                             refdate=self.engine.get_refdate()
                                             )
-
         # Define object to hold all hydrodynamic statistics relevant for vegetation processes
         self.hydrostats = HydrodynamicStats(n_hydro_substeps=self.simstate.n_hydro_substeps,
                                             n_cells=self.engine.get_cell_count()
@@ -121,7 +129,7 @@ class HydroSimulationBase(ABC):
     def verify_eco_args(self, inputs: dict):
         default_inputs = [values[0] != values[1] for name, values in inputs.items()]
         if any(default_inputs) and not self.veg_active:
-            msg = ("No vegetation object was specified for this simulation but one or "
+            msg = ("No vegetation object was specified for this simulation but one or more "
                    "vegetation-related inputs to run_simulation() were given non-default "
                    "values. If the intent was to run a non-vegetation simulation, please "
                    "leave vegetation-related inputs as their default values.")
@@ -141,7 +149,7 @@ class HydroSimulationBase(ABC):
             r.print_runtime_updates(self.simstate, vts, self.veg_active)
             self.eco_hydro_loop(self.simstate.n_hydro_substeps, self.simstate.hydro_interval)
             self.veg_coupler.update(self.simstate, self.hydrostats)
-            self.outputs.save_vegetation_step(self.simstate)
+            self.outputs.save_vegetation_step(self.simstate, vts)
         self.finalize_simulation()
 
 
@@ -177,7 +185,7 @@ class HydroSimulationBase(ABC):
 
     def finalize_simulation(self):
         r.report("Merging outputs, cleaning up, and finalizing simulation...")
-        self.outputs.reconcile_vegetation_output()
+        self.outputs.reconcile_vegetation_output(self.simstate)
         self.engine.cleanup()
         r.report("Simulation complete!")
 

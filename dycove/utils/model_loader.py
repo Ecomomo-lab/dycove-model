@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 from pathlib import Path
 import xarray as xr
+import json
 
 
 # ------------------------------------------------------------ #
@@ -43,7 +44,7 @@ def get_anuga_centroid_coords(anuga_vars: xr.Dataset) -> tuple[list, list]:
     Parameters
     ----------
     anuga_vars : xr.Dataset
-        Dataset containing netCDF variables.
+        Dataset containing ANUGA netCDF variables.
     """
     # Load mesh vertex coordinates
     xx = anuga_vars['x']
@@ -119,8 +120,9 @@ class BaseMapLoader(ABC):
                              }
         
         if self.eco_plot:
-
-            self.veg_file_index = get_veg_file_index(self.ecodir)
+            with open(self.ecodir / "_cohort_files_ets_index.json", "r") as f:
+                self.cohort_index = json.load(f)
+            #self.veg_file_index = get_veg_file_index(self.ecodir)
 
         
     @abstractmethod
@@ -158,9 +160,9 @@ class BaseMapLoader(ABC):
         
         
     def _load_veg_new_format(self, veg_data, ets, eco_year):
-        if (eco_year, ets) in self.veg_file_index:
-            for fpath in self.veg_file_index[(eco_year, ets)]:
-                c = xr.load_dataset(fpath)
+        if f"{eco_year}" in self.cohort_index and f"{ets}" in self.cohort_index[f"{eco_year}"]:
+            for fname in self.cohort_index[f"{eco_year}"][f"{ets}"]:
+                c = xr.load_dataset(self.ecodir / f"{fname}.nc")
 
                 veg_data["cohorts"].append((c.attrs[self.veg_varnames["Species"]], 
                                             c.attrs[self.veg_varnames["Cohort"]]))
