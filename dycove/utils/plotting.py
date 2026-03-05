@@ -351,16 +351,16 @@ class ModelPlotter:
         # Note that the third value for Depth is used to mask out other quantities, e.g. Velocity and WSE
         # check cmap_lims dictionary to ensure units are consistent with colorbar plotting limits
         default_quantity_units = {
-            "Bathymetry"      : ("[m]", 1, -99),  # use ("[ft]", 3.281, -99) for elevations in feet
-            "WSE"             : ("[m]", 1, -99),
-            "Depth"           : ("[m]", 1, 0.01),
-            "Velocity"        : ("[m/s]", 1, 0),  # use ("[cm/s]", 100, 0) for velocities in cm/s
-            "Max Shear Stress": ("[N/m$^2$]", 1, 0.001),
-            "Fractions"       : ("[--]", 1, 0.01),
-            "Stem Height"     : ("[m]", 1, 0.05),
-            "Stem Density"    : ("[stems/m$^2$]", 1, 5),
-            "Stem Diameter"   : ("[mm]", 1000, 1),  # use ("[m]", 1, 0.001) for diameter in meters
-            "Mortality"       : ("[%]", 100, 1),  # use ("[--]", 1, 0.01) for fraction between 0 and 1
+            "Bathymetry"      : ("Elevation [m]", 1, -99),  # use ("[ft]", 3.281, -99) for elevations in feet
+            "WSE"             : ("WSE [m]", 1, -99),
+            "Depth"           : ("Depth [m]", 1, 0.01),
+            "Velocity"        : ("Velocity [m/s]", 1, 0),  # use ("[cm/s]", 100, 0) for velocities in cm/s
+            "Max Shear Stress": ("Shear Stress [Pa]", 1, 0.001),
+            "Fractions"       : ("Fraction [--]", 1, 0.01),
+            "Stem Height"     : ("Height [m]", 1, 0.05),
+            "Stem Density"    : ("Density [m$^{-2}$]", 1, 5),
+            "Stem Diameter"   : ("Diameter [mm]", 1000, 1),  # use ("[m]", 1, 0.001) for diameter in meters
+            "Mortality"       : ("Mortality [%]", 100, 1),  # use ("[--]", 1, 0.01) for fraction between 0 and 1
         }
         self.quantity_units = {**default_quantity_units, **(quantity_units or {})}  # merge provided custom values with default values
 
@@ -382,7 +382,7 @@ class ModelPlotter:
 
         self.read_assign_eco_vars()
         self.setup_model_loaders()
-        self.check_inputs()        
+        self.check_inputs()
 
         # If plot_method is "interp", will build interpolation function for converting 1-D arrays to a grid
         self.interp_func = None
@@ -628,7 +628,11 @@ class ModelPlotter:
         if self.quantity == "Bathymetry":
             return z_grid, None
         elif self.eco_plot:
-            return z_grid, self.get_eco_quantity_grids(map_vars)
+            eco_grid = self.get_eco_quantity_grids(map_vars)
+            if eco_grid is None:
+                # Return empty, not None, because we want a blank plot but also want to retain colorbar properties
+                eco_grid = np.ma.masked_all(z_grid.shape)
+            return z_grid, eco_grid
         else:
             return z_grid, self.get_hydro_quantity_grids(map_vars)
 
@@ -647,31 +651,31 @@ class ModelPlotter:
                     for species in species_list:
                         fractions = [frac for frac, c in zip(map_vars[self.quantity], map_vars["Cohort Names"]) if c[0]==species]
                         fractions_sum = np.sum(fractions, axis=0)
-                        veg_grid = self.create_grid(fractions_sum) * self.quantity_units[self.quantity][1]
-                        frac_grid_list.append((np.ma.masked_where(veg_grid < self.quantity_units[self.quantity][2], veg_grid),
+                        eco_grid = self.create_grid(fractions_sum) * self.quantity_units[self.quantity][1]
+                        frac_grid_list.append((np.ma.masked_where(eco_grid < self.quantity_units[self.quantity][2], eco_grid),
                                                species))
                 # --- Plot fractional quantities by cohort --- #
                 else:
                     for frac, cohort in zip(map_vars[self.quantity], map_vars["Cohort Names"]):
-                        veg_grid = self.create_grid(frac) * self.quantity_units[self.quantity][1]
-                        frac_grid_list.append((np.ma.masked_where(veg_grid < self.quantity_units[self.quantity][2], veg_grid),
+                        eco_grid = self.create_grid(frac) * self.quantity_units[self.quantity][1]
+                        frac_grid_list.append((np.ma.masked_where(eco_grid < self.quantity_units[self.quantity][2], eco_grid),
                                                cohort))
                 return frac_grid_list
             # --- Separate quantities (stem height, diameter, etc) by species --- #
             elif self.plot_separate_species:
-                veg_grid_list = []
+                eco_grid_list = []
                 species_list = list(set(spec[0] for spec in map_vars["Cohort Names"]))  # exhaustive set of species names
                 for species in species_list:
                     fractions = [frac for frac, c in zip(map_vars["Fractions"], map_vars["Cohort Names"]) if c[0]==species]
                     quantities = [q for q, c in zip(map_vars[self.quantity], map_vars["Cohort Names"]) if c[0]==species]
-                    veg_grid = self.compute_stem_quantity_grid(fractions, quantities)
-                    veg_grid_list.append((np.ma.masked_where(veg_grid < self.quantity_units[self.quantity][2], veg_grid),
+                    eco_grid = self.compute_stem_quantity_grid(fractions, quantities)
+                    eco_grid_list.append((np.ma.masked_where(eco_grid < self.quantity_units[self.quantity][2], eco_grid),
                                           species))
-                return veg_grid_list
+                return eco_grid_list
             # --- Combine quantities (stem height, diameter, etc), single value per grid cell --- #
             else:
-                veg_grid = self.compute_stem_quantity_grid(map_vars["Fractions"], map_vars[self.quantity])
-                return np.ma.masked_where(veg_grid < self.quantity_units[self.quantity][2], veg_grid)
+                eco_grid = self.compute_stem_quantity_grid(map_vars["Fractions"], map_vars[self.quantity])
+                return np.ma.masked_where(eco_grid < self.quantity_units[self.quantity][2], eco_grid)
         else:
             return None  # if no veg data at all in this time step
 
@@ -753,7 +757,7 @@ class ModelPlotter:
     
 
     def plot_quantity(self, base_grid, main_grid):
-        # For veg fractions and mortality only, we plot each fraction separately
+        # For veg fractions and mortality, or separate species plotting
         if type(main_grid) is list:
             for cohort in main_grid:
                 grid = cohort[0]
@@ -764,13 +768,21 @@ class ModelPlotter:
                 else:
                     c_str = f"{c_id[0]} (cohort {c_id[1]+1})"
                     c_fstr = f"{c_id[0]}{c_id[1]}"                   
-                self.plot_single_quantity(base_grid, grid, 
+                self.plot_single_quantity(
+                    base_grid, 
+                    grid, 
+                    # E.g.: title = "Stem Height -- 1 year, 50 days \n SpartinaAnglica"
                     title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]}\n{c_str}",
-                    fname=f"{self.full_quantity_name.replace(" ", "")}_{c_fstr}_{self.timestrings[-1][0]}")
+                    fname=f"{self.full_quantity_name.replace(" ", "")}_{c_fstr}_{self.timestrings[-1][0]}"
+                    )
+        # Hydrodynamic plots or averaged vegetation quantity plots
         else:
-            self.plot_single_quantity(base_grid, main_grid, 
-                        title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]}",
-                        fname=f"{self.full_quantity_name.replace(" ", "")}_{self.timestrings[-1][0]}")
+            self.plot_single_quantity(
+                base_grid, 
+                main_grid, 
+                title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]}",
+                fname=f"{self.full_quantity_name.replace(" ", "")}_{self.timestrings[-1][0]}"
+                )
             
             
     def plot_single_quantity(self, base_grid, main_grid, title, fname):
@@ -799,14 +811,14 @@ class ModelPlotter:
 
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="3%", pad=0.12)
-        cbar = plt.colorbar(main if self.quantity != "Bathymetry" else base, cax=cax)
-        cbar.set_label(f"{self.quantity} {self.quantity_units[self.quantity][0]}", rotation=270, labelpad=25, fontsize=self.plot_specs["fontsize"])
+        cbar = plt.colorbar(main if main_grid is not None else base, cax=cax)
+        cbar.set_label(f"{self.quantity_units[self.quantity][0]}", rotation=270, labelpad=25, fontsize=self.plot_specs["fontsize"])
         cbar.ax.tick_params(labelsize=self.plot_specs["fontsize"])
 
         if self.show_topo_cbar:
             cax_z = divider.append_axes("left", size="3%", pad=0.12)
             cbar_z = plt.colorbar(base, cax=cax_z)
-            cbar_z.set_label(f"Bathymetry {self.quantity_units["Bathymetry"][0]}", rotation=90, labelpad=5, fontsize=self.plot_specs["fontsize"])
+            cbar_z.set_label(f"{self.quantity_units["Bathymetry"][0]}", rotation=90, labelpad=5, fontsize=self.plot_specs["fontsize"])
             cbar_z.ax.yaxis.set_label_position("left")
             cbar_z.ax.yaxis.tick_left()
             cbar_z.ax.tick_params(labelsize=self.plot_specs["fontsize"], direction="out", labelrotation=0)          
@@ -863,7 +875,6 @@ class ModelPlotter:
         import imageio.v2 as imageio
         print("Creating animation...")
         fps = 5 if self.eco_plot else 10
-        #img_paths = [self.output_plot_dir / f"{self.full_quantity_name.replace(" ", "")}_{ts[0]}.png" for ts in self.timestrings]
         images = [imageio.imread(p) for p in self.img_paths]
         gif_path = self.output_plot_dir / "animation.gif"
         imageio.mimsave(str(gif_path), images, fps=fps, loop=0)  # type: ignore[arg-type]
