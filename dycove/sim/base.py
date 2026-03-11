@@ -127,8 +127,8 @@ class HydroSimulationBase(ABC):
 
 
     def verify_eco_args(self, inputs: dict):
-        default_inputs = [values[0] != values[1] for name, values in inputs.items()]
-        if any(default_inputs) and not self.veg_active:
+        non_default_inputs = [values[0] != values[1] for name, values in inputs.items()]
+        if any(non_default_inputs) and not self.veg_active:
             msg = ("No vegetation object was specified for this simulation but one or more "
                    "vegetation-related inputs to run_simulation() were given non-default "
                    "values. If the intent was to run a non-vegetation simulation, please "

@@ -82,7 +82,7 @@ class TestColonization:
         min_depths = np.array([0.0, 0.2, 0.0])
         max_depths = np.array([0.2, 0.2, 0.1])
 
-        # deterministic seed mask
+        # Deterministic seed mask
         monkeypatch.setattr(veg,
                             "create_seed_fraction_mask",
                             lambda n: np.array([True, False, True])

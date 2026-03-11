@@ -208,7 +208,6 @@ class AnugaEngine(HydroEngineBase):
 
         outputdir = OutputManager.veg_dir
         n_cohort_steps = OutputManager.n_cohort_steps
-        fname_base = OutputManager.fname_base
 
         sww_name = self.domain.get_name()
         base_name = sww_name[:-2]

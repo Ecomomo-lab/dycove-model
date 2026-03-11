@@ -15,7 +15,7 @@ r = Reporter()
 
 class OutputManager:
     """ For saving :class:`~dycove.sim.vegetation_data.VegCohort` instances to output files. """
-    def __init__(self, engine, save_freq, save_mort):
+    def __init__(self, engine, save_freq=1, save_mort=True):
         self.engine = engine
         self.veg = engine.veg
         self.veg_dir   = Path(engine.model_dir) / "veg_output"
@@ -28,7 +28,7 @@ class OutputManager:
         self.cohort_index = {}  # nested dict index of output files for each year-ets combo
 
 
-    def save_vegetation_step(self, sim, vts):
+    def save_vegetation_step(self, simstate, vts):
         """ Save vegetation cohort state for a given ecological timestep """
         self.update_file_counts()
         for i, cohort in enumerate(self.veg.cohorts):
@@ -43,11 +43,11 @@ class OutputManager:
                 self.save_netcdf(self.veg_dir, 
                                 fname, 
                                 asdict(cohort), 
-                                eco_year = sim.eco_year, 
-                                ets = sim.ets, 
+                                eco_year = simstate.eco_year, 
+                                ets = simstate.ets, 
                                 cohort_id = i,
                                 )
-                self.cohort_indexing(sim.eco_year, sim.ets)
+                self.cohort_indexing(simstate.eco_year, simstate.ets)
 
             self.n_cohort_steps[i] += 1
 
@@ -68,16 +68,16 @@ class OutputManager:
             self.cohort_index[f"{year}"][f"{ets}"].append(self.fname_base)
 
 
-    def save_simulation_indices(self, sim):
-        self.save_simulation_metadata(sim)
+    def save_simulation_indices(self, simstate):
+        self.save_simulation_metadata(simstate)
         self.save_cohort_index()
 
 
-    def save_simulation_metadata(self, sim):
+    def save_simulation_metadata(self, simstate):
         """ Save record of ecological time inputs for easier post-processing """
-        sim_dict = {"n_ets": sim.n_ets,
-                    "veg_interval": sim.veg_interval,
-                    "ecofac": sim.ecofac,
+        sim_dict = {"n_ets": simstate.n_ets,
+                    "veg_interval": simstate.veg_interval,
+                    "ecofac": simstate.ecofac,
                     "save_frequency": self.save_freq,
                     "save_mortality": self.save_mort,
                     }

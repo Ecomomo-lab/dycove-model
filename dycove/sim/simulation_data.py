@@ -280,21 +280,26 @@ class HydrodynamicStats:
     bedlevel_0: np.ndarray | None = None
     bedlevel_f: np.ndarray | None = None
 
+
     @property
     def bedlevel_diff(self) -> np.ndarray:
         return self.bedlevel_f - self.bedlevel_0
     
+
     def flood_frac(self) -> np.ndarray:
-        # fraction of time cells were flooded over ets
+        # Fraction of time cells were flooded over ets
         return self.flood_counts/self.n_hydro_substeps
     
+
     def dry_frac(self) -> np.ndarray:
-        # fraction of time cells were dry over ets
+        # Fraction of time cells were dry over ets
         return (self.n_hydro_substeps - self.flood_counts)/self.n_hydro_substeps
     
+
     def v_max_95th(self) -> np.ndarray:
         return np.percentile(self.v_maxs, 95, axis=0)
     
+
     def reset(self):
         # Reset all entries to a non-limiting condition
         self.h_min = np.full(self.n_cells, np.inf)
@@ -302,11 +307,11 @@ class HydrodynamicStats:
         self.v_maxs = np.zeros((self.n_hydro_substeps, self.n_cells))
         self.flood_counts = np.zeros(self.n_cells)
 
+
     def update(self, i, vel, depth):
-        # update arrays of min/max hydro variables
+        # Update arrays of min/max hydro variables
         np.minimum(self.h_min, depth, out=self.h_min)
         np.maximum(self.h_max, depth, out=self.h_max)
-        # np.maximum(self.v_max, vel, out=self.v_max)
         self.v_maxs[i] = vel
-        # add to count of flooded/dry cells
+        # Add to count of flooded/dry cells
         self.flood_counts[depth >= self.fl_dr] += 1
