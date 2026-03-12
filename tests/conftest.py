@@ -17,48 +17,48 @@ def dfm_dll_path():
         )
 
 
-@fixture
-def array_len():
-    return 100
+# @fixture
+# def array_len():
+#     return 100
 
 
-@fixture
-def constants():
-    # Vegetation test parameters (Baptist)
-    # Don't update these; many tests depend on them
-    return {
-        "D" : 0.01,
-        "m" : 100,
-        "hv": 0.5,
-        "C" : 65,
-        "g" : 9.81,
-        "K" : 0.41,
-    }
+# @fixture
+# def constants():
+#     # Vegetation test parameters (Baptist)
+#     # Don't update these; many tests depend on them
+#     return {
+#         "D" : 0.01,
+#         "m" : 100,
+#         "hv": 0.5,
+#         "C" : 65,
+#         "g" : 9.81,
+#         "K" : 0.41,
+#     }
 
 
-@fixture
-def attributes():
-    # Vegetation test parameters (attributes)
-    # Don't update these; many tests depend on them
-    return {
-        "fraction_0"     : 0.5,
-        "start_col_ets"  : 2,
-        "end_col_ets"    : 4,
-        "rootlength_0"   : 0.5,
-        "nls"            : 1,
-        "flood_no_mort"  : 0.4,
-        "flood_all_mort" : 0.6,
-        "desic_no_mort"  : 0.85,
-        "desic_all_mort" : 0.95,
-        "uproot_no_mort" : 1.0,
-        "uproot_all_mort": 1.5,
-        "start_growth_ets": 4,
-        "end_growth_ets": 8,
-        "winter_ets": 10,
-        "stemht_max": 1.0,
-        "ht_growth_rates": 0.125,
-        "stemht_winter_max": 0.1,
-    }
+# @fixture
+# def attributes():
+#     # Vegetation test parameters (attributes)
+#     # Don't update these; many tests depend on them
+#     return {
+#         "fraction_0"     : 0.5,
+#         "start_col_ets"  : 2,
+#         "end_col_ets"    : 4,
+#         "rootlength_0"   : 0.5,
+#         "nls"            : 1,
+#         "flood_no_mort"  : 0.4,
+#         "flood_all_mort" : 0.6,
+#         "desic_no_mort"  : 0.85,
+#         "desic_all_mort" : 0.95,
+#         "uproot_no_mort" : 1.0,
+#         "uproot_all_mort": 1.5,
+#         "start_growth_ets": 4,
+#         "end_growth_ets": 8,
+#         "winter_ets": 10,
+#         "stemht_max": 1.0,
+#         "ht_growth_rates": 0.125,
+#         "stemht_winter_max": 0.1,
+#     }
 
 
 @fixture

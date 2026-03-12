@@ -1,9 +1,9 @@
 import pytest
+from unittest.mock import MagicMock
 from types import SimpleNamespace
 import numpy as np
+
 from dycove.sim.vegetation import VegetationSpecies
-from dycove.sim.vegetation_data import VegetationAttributes
-from dycove.sim.vegetation_data import VegCohort
 
 
 # ------------------------------------------------------------ #
@@ -13,22 +13,22 @@ from dycove.sim.vegetation_data import VegCohort
 class TestColonization:
 
     @staticmethod
-    def mock_attrs(c, a):
-        class MockAttr:
-            fraction_0    = a["fraction_0"]
-            start_col_ets = a["start_col_ets"]
-            end_col_ets   = a["end_col_ets"]
-            stemdens      = [c["m"]]  # list because life stage attribute
-            stemdiam_0    = c["D"]
-            stemht_0      = c["hv"]
-            rootlength_0  = a["rootlength_0"]
-        return MockAttr()
-    
+    def mock_attrs():
+        attrs = MagicMock()
+        attrs.fraction_0    = 0.5
+        attrs.start_col_ets = 2
+        attrs.end_col_ets   = 4
+        attrs.stemdens      = [100]  # list because life stage attribute
+        attrs.stemdiam_0    = 0.01
+        attrs.stemht_0      = 0.5
+        attrs.rootlength_0  = 0.5
+        return attrs
+
 
     @pytest.mark.unit
-    def test_colonization_outside_ets_window(self, constants, attributes):
+    def test_colonization_outside_ets_window(self):
         veg = VegetationSpecies.__new__(VegetationSpecies)
-        veg.attrs = self.mock_attrs(constants, attributes)
+        veg.attrs = self.mock_attrs()
 
         veg.cohorts = []
         veg.name = "test"
@@ -48,9 +48,9 @@ class TestColonization:
 
 
     @pytest.mark.unit
-    def test_colonization_inside_ets_window(self, constants, attributes):
+    def test_colonization_inside_ets_window(self):
         veg = VegetationSpecies.__new__(VegetationSpecies)
-        veg.attrs = self.mock_attrs(constants, attributes)
+        veg.attrs = self.mock_attrs()
 
         veg.cohorts = []
         veg.name = "test"
@@ -72,9 +72,9 @@ class TestColonization:
 
 
     @pytest.mark.unit
-    def test_colonization_mask_logic(self, monkeypatch, constants, attributes):
+    def test_colonization_mask_logic(self, monkeypatch):
         veg = VegetationSpecies.__new__(VegetationSpecies)
-        veg.attrs = self.mock_attrs(constants, attributes)
+        veg.attrs = self.mock_attrs()
 
         veg.cohorts = []
         veg.name = "test"
@@ -102,9 +102,9 @@ class TestColonization:
 
 
     @pytest.mark.unit
-    def test_colonization_creates_new_cohort(self, monkeypatch, constants, attributes):
+    def test_colonization_creates_new_cohort(self, monkeypatch):
         veg = VegetationSpecies.__new__(VegetationSpecies)
-        veg.attrs = self.mock_attrs(constants, attributes)
+        veg.attrs = self.mock_attrs()
 
         veg.cohorts = []
         veg.name = "speciesA"
@@ -133,14 +133,14 @@ class TestColonization:
 
         assert c.name == "speciesA"
         assert np.allclose(c.fraction, [0.5, 0.0, 0.0])
-        assert c.density == constants["m"]
+        assert c.density == 100
         assert c.lifestage == 1
 
 
     @pytest.mark.unit
-    def test_colonization_uses_combined_cohorts(self, monkeypatch, constants, attributes):
+    def test_colonization_uses_combined_cohorts(self, monkeypatch):
         veg = VegetationSpecies.__new__(VegetationSpecies)
-        veg.attrs = self.mock_attrs(constants, attributes)
+        veg.attrs = self.mock_attrs()
 
         veg.cohorts = ["speciesA_obj"]
         veg.name = "speciesA"
@@ -167,56 +167,57 @@ class TestColonization:
 # ------------------------------------------------------------ #
 
 class TestCreateSeedFractionMask:
+    ARRAY_LEN = 10
 
     @pytest.mark.unit
-    def test_seed_mask_deterministic(self, array_len):
+    def test_seed_mask_deterministic(self):
         veg = VegetationSpecies.__new__(VegetationSpecies)
         veg.seed_method = "deterministic"
         veg.seed_frac = 0.3
         
-        mask1 = veg.create_seed_fraction_mask(array_len)
-        mask2 = veg.create_seed_fraction_mask(array_len)
+        mask1 = veg.create_seed_fraction_mask(self.ARRAY_LEN)
+        mask2 = veg.create_seed_fraction_mask(self.ARRAY_LEN)
 
         assert mask1.dtype == bool
-        assert np.sum(mask1) == int(np.floor(0.3 * array_len))
+        assert np.sum(mask1) == int(np.floor(0.3 * self.ARRAY_LEN))
         assert np.array_equal(mask1, mask2)
 
 
     @pytest.mark.unit
-    def test_seed_mask_random(self, array_len):
+    def test_seed_mask_random(self):
         veg = VegetationSpecies.__new__(VegetationSpecies)
         veg.seed_method = "random"
         veg.seed_frac = 0.3
         
-        mask = veg.create_seed_fraction_mask(array_len)
+        mask = veg.create_seed_fraction_mask(self.ARRAY_LEN)
 
-        assert mask.shape == (array_len,)
+        assert mask.shape == (self.ARRAY_LEN,)
         assert mask.dtype == bool
-        assert mask.sum() == int(np.floor(0.3 * array_len))
+        assert mask.sum() == int(np.floor(0.3 * self.ARRAY_LEN))
 
 
     @pytest.mark.unit
-    def test_seed_mask_zero_fraction(self, array_len):
+    def test_seed_mask_zero_fraction(self):
         veg = VegetationSpecies.__new__(VegetationSpecies)
         veg.seed_method = "random"
         veg.seed_frac = 0.0
 
-        mask = veg.create_seed_fraction_mask(array_len)
+        mask = veg.create_seed_fraction_mask(self.ARRAY_LEN)
 
         assert not mask.any()
         assert mask.sum() == 0
 
 
     @pytest.mark.unit
-    def test_seed_mask_full_fraction(self, array_len):
+    def test_seed_mask_full_fraction(self):
         veg = VegetationSpecies.__new__(VegetationSpecies)
         veg.seed_method = "random"
         veg.seed_frac = 1.0
 
-        mask = veg.create_seed_fraction_mask(array_len)
+        mask = veg.create_seed_fraction_mask(self.ARRAY_LEN)
 
         assert mask.all()
-        assert mask.sum() == array_len
+        assert mask.sum() == self.ARRAY_LEN
 
 
 # ------------------------------------------------------------ #
@@ -226,22 +227,23 @@ class TestCreateSeedFractionMask:
 class TestComputeNewFraction:
 
     @staticmethod
-    def mock_attrs(a):
-        class MockAttr:  # only need this one attribute
-            fraction_0 = a["fraction_0"]
-        return MockAttr()
+    def mock_attrs():
+        attrs = MagicMock()
+        attrs.fraction_0 = 0.5  # only need this one attribute
+        return attrs
     
+
     @staticmethod
     def mock_cohort(frac):
-        class MockCohort:
-            fraction = frac
-        return MockCohort()
+        c = MagicMock()
+        c.fraction = frac
+        return c
     
     
     @pytest.mark.unit
-    def test_compute_new_fraction_no_existing_cohorts(self, attributes):
+    def test_compute_new_fraction_no_existing_cohorts(self):
         veg = VegetationSpecies.__new__(VegetationSpecies)
-        veg.attrs = self.mock_attrs(attributes)
+        veg.attrs = self.mock_attrs()
 
         inds2colonize = np.array([True, False, True, False, False])
         existing_cohorts = []
@@ -258,16 +260,16 @@ class TestComputeNewFraction:
         
 
     @pytest.mark.unit
-    def test_compute_new_fraction_with_existing_cohorts(self, attributes):
+    def test_compute_new_fraction_with_existing_cohorts(self):
         veg = VegetationSpecies.__new__(VegetationSpecies)
-        veg.attrs = self.mock_attrs(attributes)
+        veg.attrs = self.mock_attrs()
 
         inds2colonize = np.array([True, True, False, True])
 
         # Existing fractions sum to less than 1 everywhere
         existing_cohorts = [
-            self.mock_cohort(np.array([0.2, 0.1, 0.3, 0.4])),
-            self.mock_cohort(np.array([0.3, 0.2, 0.1, 0.1])),
+            self.mock_cohort(frac=np.array([0.2, 0.1, 0.3, 0.4])),
+            self.mock_cohort(frac=np.array([0.3, 0.2, 0.1, 0.1])),
         ]
 
         new_frac = veg.compute_new_fraction(
@@ -287,16 +289,16 @@ class TestComputeNewFraction:
 
 
     @pytest.mark.unit
-    def test_compute_new_fraction_no_available_space(self, attributes):    
+    def test_compute_new_fraction_no_available_space(self):    
         veg = VegetationSpecies.__new__(VegetationSpecies)
-        veg.attrs = self.mock_attrs(attributes)
+        veg.attrs = self.mock_attrs()
 
         inds2colonize = np.array([True, True, True])
 
         # Fractions sum to 1 everywhere
         existing_cohorts = [
-            self.mock_cohort(np.array([0.6, 0.5, 0.7])),
-            self.mock_cohort(np.array([0.4, 0.5, 0.3])),
+            self.mock_cohort(frac=np.array([0.6, 0.5, 0.7])),
+            self.mock_cohort(frac=np.array([0.4, 0.5, 0.3])),
         ]
 
         new_frac = veg.compute_new_fraction(
@@ -468,20 +470,20 @@ class TestMortalityHydrodynamic:
 class TestMortalityMorphodynamic:
     
     @staticmethod
-    def mock_cohort(c, a):
-        class MockCohort:
-            height     = c["hv"]
-            rootlength = a["rootlength_0"]
-            fraction   = np.array([0., 0.4, 0.6, 1.0])
-        return MockCohort()
+    def mock_cohort():
+        c = MagicMock()
+        c.height     = 0.5
+        c.rootlength = 0.5
+        c.fraction   = np.array([0., 0.4, 0.6, 1.0])
+        return c
     
     @pytest.mark.unit
-    def test_mortality_morpho_disabled(self, constants, attributes):
+    def test_mortality_morpho_disabled(self):
         veg = VegetationSpecies.__new__(VegetationSpecies)
 
         veg.mor = 0  # disabled
 
-        c = self.mock_cohort(constants, attributes)
+        c = self.mock_cohort()
         veg.cohorts = [c]
 
         bedlevel_change = np.array([10, 10, 10, 10])
@@ -493,22 +495,22 @@ class TestMortalityMorphodynamic:
 
 
     @pytest.mark.unit
-    def test_mortality_morpho_enabled(self, constants, attributes):
+    def test_mortality_morpho_enabled(self):
         
         veg = VegetationSpecies.__new__(VegetationSpecies)
 
         veg.mor = 1  # enabled
 
-        c = self.mock_cohort(constants, attributes)
+        c = self.mock_cohort()
         veg.cohorts = [c]
 
         bedlevel_change = np.array([0.2, -0.3, 2, -2])  # positive is deposition --> burial
 
         veg.mortality_morphodynamic(bedlevel_change, burial_frac=1.0, scour_frac=1.0)
 
-        expected_burial = np.where(bedlevel_change >= constants["hv"], 1, 0)
+        expected_burial = np.where(bedlevel_change >= 0.5, 1, 0)
         assert np.allclose(c.potential_mort_burial, expected_burial)
-        expected_scour = np.where(bedlevel_change <= -attributes["rootlength_0"], 1, 0)
+        expected_scour = np.where(bedlevel_change <= -0.5, 1, 0)
         assert np.allclose(c.potential_mort_scour, expected_scour)
 
 
@@ -516,12 +518,12 @@ class TestApplyMortality:
 
     @staticmethod
     def mock_cohort(ls):
-        class MockCohort:
-            fraction = np.array([0.4, 0.6])
-            lifestage = ls  # life stage numbering starts at 1, not 0
-            potential_mort_burial = np.array([0.1, 0.1])
-            potential_mort_scour  = np.array([0.1, 0.1])
-        return MockCohort()
+        c = MagicMock()
+        c.fraction = np.array([0.4, 0.6])
+        c.lifestage = ls  # life stage numbering starts at 1, not 0
+        c.potential_mort_burial = np.array([0.1, 0.1])
+        c.potential_mort_scour  = np.array([0.1, 0.1])
+        return c
 
 
     @staticmethod
@@ -546,7 +548,7 @@ class TestApplyMortality:
     @pytest.mark.unit
     def test_apply_mortality_lifestage_indexing(self):
         veg = self.veg_obj()
-        c = self.mock_cohort(2)
+        c = self.mock_cohort(ls=2)
         veg.cohorts = [c]
 
         veg.apply_mortality()
@@ -559,7 +561,7 @@ class TestApplyMortality:
     @pytest.mark.unit
     def test_apply_mortality_multiplication(self):
         veg = self.veg_obj()
-        c = self.mock_cohort(1)
+        c = self.mock_cohort(ls=1)
         veg.cohorts = [c]
 
         expected_fld = c.fraction * veg.potential_mort_flood[0]
@@ -580,7 +582,7 @@ class TestApplyMortality:
     @pytest.mark.unit
     def test_apply_mortality_total_additive(self):
         veg = self.veg_obj()
-        c = self.mock_cohort(1)
+        c = self.mock_cohort(ls=1)
         veg.cohorts = [c]
 
         expected_fld = c.fraction * veg.potential_mort_flood[0]
@@ -598,7 +600,7 @@ class TestApplyMortality:
     @pytest.mark.unit
     def test_apply_mortality_fully_removes(self):
         veg = self.veg_obj()
-        c = self.mock_cohort(3)  # 100% mortality for all hydrodynamic modes
+        c = self.mock_cohort(ls=3)  # 100% mortality for all hydrodynamic modes
         veg.cohorts = [c]
         c.potential_mort_burial = np.ones(2)
         c.potential_mort_scour = np.ones(2)
@@ -614,7 +616,7 @@ class TestApplyMortality:
         veg.potential_mort_desic = [np.zeros(2)]
         veg.potential_mort_uproot = [np.zeros(2)]
 
-        c = self.mock_cohort(1)
+        c = self.mock_cohort(ls=1)
         veg.cohorts = [c]
         c.potential_mort_burial = np.zeros(2)
         c.potential_mort_scour = np.zeros(2)
@@ -628,8 +630,8 @@ class TestApplyMortality:
     @pytest.mark.unit
     def test_apply_mortality_multiple_cohorts(self):
         veg = self.veg_obj()
-        c1 = self.mock_cohort(1)
-        c2 = self.mock_cohort(3)
+        c1 = self.mock_cohort(ls=1)
+        c2 = self.mock_cohort(ls=3)
         veg.cohorts = [c1, c2]
 
         orig_fraction = c2.fraction.copy()
@@ -649,28 +651,28 @@ class TestGrowthMethods:
 
     @staticmethod
     def mock_attrs():
-        class MockAttr:
-            start_growth_ets = 4
-            end_growth_ets = 8
-            winter_ets = 10
-            stemht_max = [1.0, 2.5]
-            stemht_winter_max = [0.1, 0.2]
-            stemdiam_max = [0.01, 0.02]
-            rootlength_max = [1.0, 1.5]
-            ht_growth_rates = [0.1, 0.2]
-            diam_growth_rates = [0.001, 0.002]
-            root_growth_rates = [0.1, 0.2]
-        return MockAttr()
+        attrs = MagicMock()
+        attrs.start_growth_ets = 4
+        attrs.end_growth_ets = 8
+        attrs.winter_ets = 10
+        attrs.stemht_max = [1.0, 2.5]
+        attrs.stemht_winter_max = [0.1, 0.2]
+        attrs.stemdiam_max = [0.01, 0.02]
+        attrs.rootlength_max = [1.0, 1.5]
+        attrs.ht_growth_rates = [0.1, 0.2]
+        attrs.diam_growth_rates = [0.001, 0.002]
+        attrs.root_growth_rates = [0.1, 0.2]
+        return attrs
 
 
     @staticmethod
     def mock_cohort(ls):
-        class MockCohort:
-            lifestage  = ls  # life stage numbering starts at 1, not 0
-            height     = 0.5
-            diameter   = 0.005
-            rootlength = 0.5
-        return MockCohort()
+        c = MagicMock()
+        c.lifestage  = ls  # life stage numbering starts at 1, not 0
+        c.height     = 0.5
+        c.diameter   = 0.005
+        c.rootlength = 0.5
+        return c
     
 
     @pytest.mark.unit
@@ -679,7 +681,7 @@ class TestGrowthMethods:
         veg = VegetationSpecies.__new__(VegetationSpecies)
         veg.attrs = self.mock_attrs()
 
-        c = self.mock_cohort(1)
+        c = self.mock_cohort(ls=1)
         veg.cohorts = [c]
 
         veg.stemheight_growth(ets=4)
@@ -697,7 +699,7 @@ class TestGrowthMethods:
         veg = VegetationSpecies.__new__(VegetationSpecies)
         veg.attrs = self.mock_attrs()
 
-        c = self.mock_cohort(1)
+        c = self.mock_cohort(ls=1)
         veg.cohorts = [c]
 
         veg.stemheight_growth(ets=5)
@@ -715,7 +717,7 @@ class TestGrowthMethods:
         veg = VegetationSpecies.__new__(VegetationSpecies)
         veg.attrs = self.mock_attrs()
 
-        c = self.mock_cohort(1)
+        c = self.mock_cohort(ls=1)
         veg.cohorts = [c]
 
         veg.stemheight_growth(ets=8)
@@ -733,7 +735,7 @@ class TestGrowthMethods:
         veg = VegetationSpecies.__new__(VegetationSpecies)
         veg.attrs = self.mock_attrs()
 
-        c = self.mock_cohort(1)
+        c = self.mock_cohort(ls=1)
         veg.cohorts = [c]
 
         veg.stemheight_growth(ets=9)
@@ -751,7 +753,7 @@ class TestGrowthMethods:
         veg = VegetationSpecies.__new__(VegetationSpecies)
         veg.attrs = self.mock_attrs()
 
-        c = self.mock_cohort(1)
+        c = self.mock_cohort(ls=1)
         c.height = 1.0
         c.diameter = 0.01
         c.rootlength = 1.0
@@ -775,7 +777,7 @@ class TestGrowthMethods:
         veg = VegetationSpecies.__new__(VegetationSpecies)
         veg.attrs = self.mock_attrs()
 
-        c = self.mock_cohort(1)
+        c = self.mock_cohort(ls=1)
         c.height = 2.0
         c.diameter = 0.1
         c.rootlength = 2.0
@@ -796,7 +798,7 @@ class TestGrowthMethods:
         veg = VegetationSpecies.__new__(VegetationSpecies)
         veg.attrs = self.mock_attrs()
 
-        c = self.mock_cohort(1)
+        c = self.mock_cohort(ls=1)
         veg.cohorts = [c]
 
         veg.stemheight_growth(ets=10)
@@ -810,7 +812,7 @@ class TestGrowthMethods:
         veg = VegetationSpecies.__new__(VegetationSpecies)
         veg.attrs = self.mock_attrs()
 
-        c = self.mock_cohort(1)
+        c = self.mock_cohort(ls=1)
         veg.cohorts = [c]
 
         veg.stemdiam_growth(ets=10)
@@ -826,8 +828,8 @@ class TestGrowthMethods:
         veg = VegetationSpecies.__new__(VegetationSpecies)
         veg.attrs = self.mock_attrs()
 
-        c1 = self.mock_cohort(1)
-        c2 = self.mock_cohort(2)
+        c1 = self.mock_cohort(ls=1)
+        c2 = self.mock_cohort(ls=2)
         veg.cohorts = [c1, c2]
 
         veg.stemheight_growth(ets=6)
@@ -857,20 +859,20 @@ class TestGrowthMethods:
 class TestUpdateLifestageAndStemdensity:
 
     @staticmethod
-    def mock_attrs(num_lifestage=3):
-        class MockAttr:
-            nls = num_lifestage
-            years_max = [2, 3, 4]  # max years per lifestage
-            stemdens = [500, 300, 100]  # density per lifestage
-        return MockAttr()
+    def mock_attrs():
+        attrs = MagicMock()
+        attrs.nls = 3
+        attrs.years_max = [2, 3, 4]  # max years per lifestage
+        attrs.stemdens = [500, 300, 100]  # density per lifestage
+        return attrs
 
     @staticmethod
-    def mock_cohort(ls, ls_year, dens=500):
-        class MockCohort:
-            lifestage = ls
-            lifestage_year = ls_year
-            density = dens
-        return MockCohort()
+    def mock_cohort(ls, ls_year):
+        c = MagicMock()
+        c.lifestage = ls
+        c.lifestage_year = ls_year
+        c.density = 500
+        return c
 
 
     @pytest.mark.unit

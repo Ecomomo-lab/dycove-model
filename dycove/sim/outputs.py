@@ -144,4 +144,4 @@ class OutputManager:
             if not self.engine.is_parallel() or self.engine.get_rank() == 0:
                 self.save_simulation_indices(simstate)
                 if self.engine.is_parallel():
-                    self.engine.merge_parallel_veg()
+                    self.engine.merge_parallel_veg(self)  # requires self object as argument

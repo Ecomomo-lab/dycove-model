@@ -85,13 +85,13 @@ class AnugaEngine(HydroEngineBase):
     """
 
     def __init__(self, anuga_domain, vegetation=None):
-        # lazy anuga loading
+        # Lazy anuga loading
         self.myid, self.numprocs, self.finalize, self.barrier = _import_anuga()
 
         self.domain = anuga_domain
         self.model_dir = self.domain.get_datadir()
 
-        # passing vegetation as attribute of the engine
+        # Passing vegetation as attribute of the engine
         self.veg = vegetation
 
         # With DYCOVE-ANUGA, we run many consecutive "domain.evolve" loops, rather than just one big loop.
@@ -99,14 +99,14 @@ class AnugaEngine(HydroEngineBase):
         # Otherwise, we get repeated steps.
         self.skip_step = False
 
-        # interval (seconds) for saving ANUGA output, this is just a placeholder
-        # actual value is set via run_simulation() and used as argument to domain.evolve()
+        # Interval (seconds) for saving ANUGA output, this is just a placeholder.
+        # Actual value is set via run_simulation() and used as argument to domain.evolve()
         self.save_interval = 3600
 
 
     def initialize(self):
-        # ANUGA doesn't have an "initialize" method like DFM, 
-        # but we can include some required steps here rather than just having an empty method
+        # ANUGA doesn't have an "initialize" method like DFM.
+        # But we can include some required steps here rather than just having an empty method.
         if self.veg is not None:
             self.Baptist = Baptist_operator(self.domain, 
                                             veg_diameter=0, 
@@ -118,8 +118,8 @@ class AnugaEngine(HydroEngineBase):
 
     def step(self, seconds):
         # Normally, all processes in ANUGA would be performed within the domain.evolve() loop at each
-        # yieldstep, but for consistency across all potential models, we wrap it up here under the 
-        # "step" method.
+        #   yieldstep, but for consistency across all potential models, we wrap it up here under the 
+        #   "step" method.
         # If performing a "big" step, reduce yieldstep so it equals save_interval
         yieldstep = min(seconds, self.save_interval)
         self.barrier()

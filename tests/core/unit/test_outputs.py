@@ -244,6 +244,19 @@ class TestOutputManager:
 
 
     @pytest.mark.unit
+    def test_reconcile_passes_self_to_merge_parallel(self):
+        """ merge_parallel_veg requires the OutputManager instance as argument """
+        engine = self.mock_engine(is_parallel=True, rank=0)
+        om = self.make_output_manager(engine)
+        om.save_simulation_indices = MagicMock()
+
+        om.reconcile_vegetation_output(self.mock_simstate())
+
+
+        assert engine.merge_parallel_veg.call_args[0][0] is om
+
+
+    @pytest.mark.unit
     def test_save_netcdf_field_names_match_vegcohort(self, tmp_path):
         """ Field names in saved NetCDF match VegCohort, catching any renames that break post-processing """
         engine = self.mock_engine()
