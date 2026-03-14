@@ -622,7 +622,7 @@ class ModelPlotter:
         if self.plot_method == "exact" and self.empty_grid is None:
             self.empty_grid, self.x_idx, self.y_idx = self.get_exact_grid_idx(map_vars)
 
-        # For DFM, z_grid should be recomputed every step in case morphology is turned on. For ANUGA, oh well it"s fast enough
+        # For DFM, z_grid should be recomputed every step in case morphology is turned on. For ANUGA, oh well it's fast enough
         z_grid = self.create_grid(map_vars["Bathymetry"]) * self.quantity_units["Bathymetry"][1]
 
         if self.quantity == "Bathymetry":
@@ -776,7 +776,7 @@ class ModelPlotter:
                     fname=f"{self.full_quantity_name.replace(" ", "")}_{c_fstr}_{self.timestrings[-1][0]}"
                     )
         # Hydrodynamic plots or averaged vegetation quantity plots
-        else:
+        elif not main_grid.mask.all():  # don't plot empty vegetation plots
             self.plot_single_quantity(
                 base_grid, 
                 main_grid, 

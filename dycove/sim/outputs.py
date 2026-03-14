@@ -41,12 +41,12 @@ class OutputManager:
             
             if vts % self.save_freq == 0:            
                 self.save_netcdf(self.veg_dir, 
-                                fname, 
-                                asdict(cohort), 
-                                eco_year = simstate.eco_year, 
-                                ets = simstate.ets, 
-                                cohort_id = i,
-                                )
+                                 fname, 
+                                 asdict(cohort), 
+                                 eco_year = simstate.eco_year, 
+                                 ets = simstate.ets, 
+                                 cohort_id = i,
+                                 )
                 self.cohort_indexing(simstate.eco_year, simstate.ets)
 
             self.n_cohort_steps[i] += 1

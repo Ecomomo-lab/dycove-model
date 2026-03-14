@@ -49,9 +49,9 @@ class ANUGA(HydroSimulationBase):
     """
 
     def __init__(self, anuga_domain, vegetation=None):
-        # build ANUGA engine
+        # Build ANUGA engine
         engine = AnugaEngine(anuga_domain, vegetation)
-        # pass ANUGA engine to the base class
+        # Pass ANUGA engine to the base class
         super().__init__(engine)
     
 
@@ -140,8 +140,6 @@ class AnugaEngine(HydroEngineBase):
         if self.is_parallel():
             self.domain.sww_merge(delete_old=True)
             self.finalize()
-        else:
-            pass
 
 
     def get_refdate(self):
@@ -150,7 +148,7 @@ class AnugaEngine(HydroEngineBase):
     
 
     def get_cell_count(self):
-        return len(self.get_elevation())  
+        return len(self.get_elevation())
 
 
     def get_elevation(self):
@@ -210,7 +208,7 @@ class AnugaEngine(HydroEngineBase):
         n_cohort_steps = OutputManager.n_cohort_steps
 
         sww_name = self.domain.get_name()
-        base_name = sww_name[:-2]
+        base_name = sww_name[:-2]  # works because my_id == 0 for call to this method
         sww_dir = Path(self.domain.get_datadir())
 
         sww_file_list = [f"{sww_dir}/{base_name}_{p}.sww" for p in range(self.numprocs)]
