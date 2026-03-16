@@ -517,22 +517,31 @@ class ModelPlotter:
 
     def format_fname_time(self, time_parts):
         # Always use hydrodynamic time for the filenames
+        sim_days = time_parts["sim_days"]
+        sim_hrs_rem = time_parts["sim_hrs_rem"]
+        sim_mins_rem = time_parts["sim_mins_rem"]
         if self.plot_times["plotHR_int"] >= 1:
-            return f"{time_parts["sim_days"]}days_{time_parts["sim_hrs_rem"]}hrs"
+            return f"{sim_days}days_{sim_hrs_rem}hrs"
         else:
-            return f"{time_parts["sim_days"]}days_{time_parts["sim_hrs_rem"]}hrs_{time_parts["sim_mins_rem"]}mins"
+            return f"{sim_days}days_{sim_hrs_rem}hrs_{sim_mins_rem}mins"
 
 
     def format_title_time(self, time_parts):
+        sim_days = time_parts["sim_days"]
+        sim_hrs_rem = time_parts["sim_hrs_rem"]
+        sim_mins_rem = time_parts["sim_mins_rem"]
         if self.eco_plot and self.plot_label_time == "eco-morphodynamic":
-            if time_parts["veg_years"] > 0:
-                return f"{time_parts["veg_years"]} years, {time_parts["veg_days_rem"]} days"
+            veg_years = time_parts["veg_years"]
+            veg_days_rem = time_parts["veg_days_rem"]
+            veg_days_tot = time_parts["veg_days_tot"]
+            if veg_years > 0:
+                return f"{veg_years} years, {veg_days_rem} days"
             else:
-                return f"{time_parts["veg_days_tot"]} days"
+                return f"{veg_days_tot} days"
         elif self.plot_times["plotHR_int"] >= 1:
-            return f"{time_parts["sim_days"]} days, {time_parts["sim_hrs_rem"]} hrs"
+            return f"{sim_days} days, {sim_hrs_rem} hrs"
         else:
-            return f"{time_parts["sim_days"]} days, {time_parts["sim_hrs_rem"]} hrs, {time_parts["sim_mins_rem"]} mins"    
+            return f"{sim_days} days, {sim_hrs_rem} hrs, {sim_mins_rem} mins"    
     
 
     def get_loop_indices(self):
