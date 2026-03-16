@@ -201,6 +201,8 @@ Similarly, DFM model centroid quantities can be read from the output `_map.nc` f
 
 .. code-block:: python
 
+   import xarray as xr
+
    map_vars = xr.load_dataset("path/to/dflowfm/output/FlowFM_map.nc")
    x_c = map_vars["mesh2d_face_x"]
    y_c = map_vars["mesh2d_face_y"]
@@ -210,28 +212,38 @@ Similarly, DFM model centroid quantities can be read from the output `_map.nc` f
    bedlevel = map_vars["mesh2d_mor_bl"]
    stage = map_vars["mesh2d_s1"]
    velocity = map_vars["mesh2d_ucmag"]
-   depth = stage - elevation
+   depth = stage - bedlevel
 
 Vegetation quantities can be accessed via the files in the `veg_output` directory.
 Quantities that are saved in these output files are listed as attributes of the :class:`~dycove.sim.vegetation_data.VegCohort` class.
-An example of how to load and plot quantities (outside of :class:`~dycove.utils.plotting.ModelPlotter`) is provided below (based on ANUGA).
-While vegetation fractions and cohorts are tracked individually in DYCOVE, we typically plot quantities as a weighted average in each grid cell, with weights determined by the fractions present in the cell.
-It also involves reading in the underlying hydrodynamic model file for interpolating to a grid:
+An example of how to load and plot quantities (outside of :class:`~dycove.utils.plotting.ModelPlotter`) is provided below.
+This example is based on ANUGA, but DFM users can modify it with just a few changes based on reading files as instructed above.
+
+Vegetation fractions and cohorts are tracked individually in DYCOVE, and we can choose to plot quantities individually for each species or take a weighted average in each grid cell, with weights determined by the fractions present in the cell.
+In this example, we plot a weighted average stem height for each cell.
+The option to plot species results separately can be implemented via the ``plot_separate_species`` flag in :class:`~dycove.utils.plotting.ModelPlotter`.
+Either way, we need to read in the underlying hydrodynamic model file for interpolating to a regular grid:
 
 .. code-block:: python
 
    from pathlib import Path
    import matplotlib.pyplot as plt
+   import json
    import xarray as xr
    import numpy as np
    from dycove.utils.array_math import cell_averaging
    from dycove.utils.plotting import create_nn_interpFunc
-   from dycove.utils.model_loader import get_veg_file_index, get_anuga_centroid_coords
+   from dycove.utils.model_loader import get_anuga_centroid_coords
+
+   # Declare model directory paths
+   model_dir = Path("path/to/anuga_model_dir")
+   eco_dir = model_dir / "veg_output"
 
    # Load ANUGA (or DFM) output, read X and Y coordinate arrays
-   map_vars = xr.load_dataset(Path("./rectang_beach.sww"))
+   map_vars = xr.load_dataset(model_dir / "rectang_beach.sww")
 
    # Convert ANUGA vertex coordinates to centroids (may take a little time)
+   # DFM USERS: x_c and y_c can be pulled from the output file directly (see above)
    x_c, y_c = get_anuga_centroid_coords(map_vars)
 
    # Create interpolation function for 10-m grid. Can also provide as an argument a polygon .csv file to mask outside domain.
@@ -240,35 +252,42 @@ It also involves reading in the underlying hydrodynamic model file for interpola
    # Interpolate model bathymetry to use as a base map (using centroids)
    z_grid = interp_func(map_vars["elevation_c"])
 
-   # Do preliminary sweep through cohort files to find year/ETS information
-   file_mapping = get_veg_file_index(Path("./veg_output"))
+   # Read output cohort index file, categorizing each cohort output file by ecological year and ETS
+   with open(eco_dir / "_cohort_files_ets_index.json", "r") as f:
+       cohort_index = json.load(f)
 
-   # Loop through all saved cohort files saved for a given year and ETS, load and plot data
-   for (year, ets) in file_mapping:
-       fractions, stem_heights = [], []
-       for file in file_mapping[(year, ets)]:
-           c = xr.load_dataset(file)
+   # Loop through all saved cohort files by year and ETS, load and plot data
+   eco_years = sorted(cohort_index)  # output eco years in order
+   for year in eco_years:
+       ets_list = sorted(cohort_index[year])  # ETS in order for current eco year
+       for ets in ets_list:
+           fractions, stem_heights = [], []
+           for file in cohort_index[year][ets]:
+               c = xr.load_dataset(eco_dir / (file + ".nc")
+               )
 
-           # Append to list all data from this ETS
-           fractions.append(c['fraction'])
-           stem_heights.append(c.attrs["height"])
+               # Append to list all data from this ETS
+               fractions.append(c["fraction"])  # each c["fraction"] is an array
+               stem_heights.append(c.attrs["height"])  # each c.attrs["height"] is a scalar
 
-       # Do weighted average based on vegetation fractions in each cell
-       stemht_avg = cell_averaging(fractions, stem_heights)
+           # Do weighted average based on vegetation fractions in each cell
+           stemht_avg = cell_averaging(fractions, stem_heights)
 
-       # Interpolate to grid and mask out non-vegetated cells
-       stemht_grid = interp_func(stemht_avg)
-       stemht_grid = np.ma.masked_where(stemht_grid < 0.1, stemht_grid)
+           # Interpolate to grid using same interp_func as for the model elevation values
+           stemht_grid = interp_func(stemht_avg)
 
-       # Do plotting
-       fig, ax = plt.subplots()
-       im_base = ax.imshow(z_grid, cmap="Greys_r")
-       im_veg = ax.imshow(stemht_grid, cmap="Greens")
-       ax.set_title(f"Stem height [m] -- Eco year {year}, ETS {ets}")
-       plt.show()
-       plt.close()
+           # Mask out non-vegetated cells
+           stemht_grid = np.ma.masked_where(stemht_grid < 0.05, stemht_grid)
+
+           # Do plotting (colorbars, etc can be added as well)
+           fig, ax = plt.subplots()
+           im_base = ax.imshow(z_grid, cmap="Greys_r")
+           im_veg = ax.imshow(stemht_grid, cmap="Greens", vmin=0, vmax=1)
+           ax.set_title(f"Stem height [m] -- eco year {year}, ETS {ets}")
+           plt.show()
+           plt.close()
 
 
-For each cohort output file, the ecological year ``'eco_year'`` and ETS ``'ets'`` are stored as metadata under ``attrs``, along with other quantities that only have a single value per cohort per ETS, like ``'height'``.
+For each cohort output file, scalar quantities like ``'eco_year'``, ``'height'``, ``'diameter'``, and ``'density'`` are stored as metadata under ``attrs``.
 These can be accessed with ``c.attrs['eco_year']``, etc.
 Array quantities can be accessed directly from the object, like ``c['fraction']``.
