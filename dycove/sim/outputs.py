@@ -22,7 +22,8 @@ class OutputManager:
         self.save_freq = save_freq
         self.save_mort = save_mort
 
-        self.veg_dir.mkdir(parents=True, exist_ok=True)
+        if self.veg:
+            self.veg_dir.mkdir(parents=True, exist_ok=True)
         
         self.n_cohort_steps = []  # for numbering output files
         self.cohort_index = {}  # nested dict index of output files for each year-ets combo

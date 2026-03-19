@@ -90,12 +90,11 @@ class BaseMapLoader(ABC):
 
     """
 
-    def __init__(self, modeldir, model_name, quantity_name, eco_plot, n_ets_year):
+    def __init__(self, modeldir, model_name, quantity_name, eco_plot):
         self.modeldir = Path(modeldir)
         self.model_name = model_name
         self.quantity = quantity_name
         self.eco_plot = eco_plot
-        self.n_ets_year = n_ets_year
         self.ecodir = self.modeldir / 'veg_output'
 
         # Single location for storing names of vegetation variables stored in class `VegCohort`

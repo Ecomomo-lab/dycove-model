@@ -9,7 +9,6 @@ from pathlib import Path
 import json
 import matplotlib.pyplot as plt
 from matplotlib.colors import Colormap, ListedColormap
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 from matplotlib import path as mpath
 from scipy.spatial import cKDTree
@@ -158,24 +157,24 @@ class ModelPlotter:
         Vegetation fractions are plotted by species, rather than by cohort.
     plot_method : str, optional
         ``'interp'`` (default) for nearest-neighbor interpolation to a regular grid, or
-        ``'exact'`` for plotting on the original mesh nodes/cells (must be regular grid).
+        ``'exact'`` for plotting on the original mesh nodes/cells (must be regular grid). NOT WORKING CURRENTLY.
     plot_interp_vars : dict, optional
-        Options for interpolating to 2D grid, e.g. ``{'cell_size': 5, 'n_neighbors': 3}``.
+        Options for interpolating to 2D grid, see keys and details under __init__ below.
     plot_specs : dict, optional
-        Plot appearance options, e.g., 
-        ``{'figsize': (6, 6), 'fontsize': 12, 'output_dpi': 150}``.
+        Plot appearance options, e.g., see keys and details under __init__ below.
     cmap_lims : dict, optional
-        Colorbar limits for each quantity (min, max), e.g. ``{'Bathymetry': (0, 1)}``.
+        Colorbar limits for each quantity, see keys and details under __init__ below.
     cmaps : dict, optional
-        Colormaps for each quantity. Accepts Matplotlib ``Colormap`` objects.
+        Colormaps for each quantity. Accepts Matplotlib ``Colormap`` objects. See keys and details 
+        under __init__ below.
     quantity_units : dict, optional
         Unit labels, scaling factors, and minimum plotting thresholds for each quantity, 
-        e.g. ``{'Depth': ('[m]', 1, 0.01), 'Stem Diameter': ('[mm]', 1000, 1)}``.
+        see keys and details under __init__ below.
     plot_vectors : bool, optional
         If True, plots normalized velocity vectors (quantity=="Velocity" only).
     vector_props : dict, optional
         Scaling and spacing options for velocity vectors, used if quantity == "Velocity",
-        e.g., ``{'vect_spacing': 50, 'color': 'red', 'scale': 30, 'pivot': 'mid', 'width': 0.003}``.
+        see keys and details under __init__ below.
     show_title : bool, optional
         If True, include auto-generated plot title at top of plot.
     show_topo_cbar : bool, optional
@@ -183,7 +182,7 @@ class ModelPlotter:
     scalebar : bool, optional
         If True, include a scalebar object on the plot.
     scalebar_props : dict, optional
-        Scalebar properties, e.g., ``{'distance': '200 m', 'loc': 'upper left', 'frameon': True}``.
+        Scalebar properties, e.g., see keys and details under __init__ below.
     mask_bndy_file : str or Path, optional
         Path to polygon CSV file for masking interpolation outside the domain. Probably
         required if model domain is not rectangular.
@@ -253,7 +252,7 @@ class ModelPlotter:
                  quantity, 
                  plot_times,
                  plot_separate_species = True,
-                 plot_method = "interp",
+                 plot_method = "interp",  # "exact" not working currently
                  plot_interp_vars: Optional[dict[str, int]] = None,
                  plot_specs: Optional[dict[str, Any]] = None, 
                  cmap_lims: Optional[dict[str, tuple[float, float]]] = None, 
@@ -263,6 +262,7 @@ class ModelPlotter:
                  vector_props: Optional[dict[str, Any]] = None,
                  show_title = True,
                  show_topo_cbar = False,
+                 show_axis_ticks = False,
                  scalebar = False,
                  scalebar_props: Optional[dict[str, Any]] = None,
                  mask_bndy_file: Optional[Union[Path, str]] = None,
@@ -280,6 +280,7 @@ class ModelPlotter:
         self.plot_vectors = plot_vectors
         self.show_title = show_title
         self.show_topo_cbar = show_topo_cbar
+        self.show_axis_ticks = show_axis_ticks
         self.scalebar = scalebar
         self.mask_bndy_file = mask_bndy_file
         self.extents = extents
@@ -302,20 +303,21 @@ class ModelPlotter:
         self.plot_label_time = "eco-morphodynamic" if self.eco_plot else "hydrodynamic"
             
         default_plot_interp_vars = {
-            "cell_size": 5,    # in meters
-            "n_neighbors": 1,  # typically 1 or 3
+            "cell_size": 5,    # inteprolated grid size, in meters
+            "n_neighbors": 1,  # neighbors used for interpolation, typically 1 or 3
         }
         self.plot_interp_vars = {**default_plot_interp_vars, **(plot_interp_vars or {})}  # merge provided custom values with default values
 
         default_plot_specs = {
-            "figsize": (6, 6),
-            "fontsize": 12,
-            "output_dpi": 100,
-        }
+            "figsize": (6, 6),  # figure image dimensions
+            "fontsize": 12,     # font size for all major text
+            "output_dpi": 100,  # resolution of output PNG
+            "aspect": "equal",  # "set_aspect()" arg, set to 'auto' to squish grid to fit figsize, 
+        }                       # or provide float: e.g., 2 means height is stretched by factor of 2, 0.5 is the opposite
         self.plot_specs = {**default_plot_specs, **(plot_specs or {})}  # merge provided custom values with default values
 
         # Colorbar plotting limits, check quantity_units dictionary for unit consistency
-        default_cmap_lims = {
+        default_cmap_lims = { # (min, max)
             "Bathymetry"      : (0, 1),
             "WSE"             : (0, 1),
             "Depth"           : (0, 3),
@@ -365,18 +367,18 @@ class ModelPlotter:
         self.quantity_units = {**default_quantity_units, **(quantity_units or {})}  # merge provided custom values with default values
 
         default_vector_props = {
-            "vect_spacing": 50,
-            "color": "red",
-            "scale": 30,
-            "pivot": "mid",
-            "width": 0.003,
+            "vect_spacing": 50,  # absolute spacing in meters. If x-y spacing should be different, this must be a tuple giving (x, y) spacing
+            "color": "red",      
+            "scale": 30,         # see matplotlib.axes.Axes.quiver
+            "pivot": "mid",      # see matplotlib.axes.Axes.quiver
+            "width": 0.003,      # see matplotlib.axes.Axes.quiver
         }
         self.vector_props = {**default_vector_props, **(vector_props or {})}  # merge provided custom values with default values
 
         default_scalebar_props = {
-            "distance": "200 m",
-            "loc": "upper left",
-            "frameon": True,
+            "distance": "200 m",   # scalebar distance to display
+            "loc": "upper left",   # position
+            "frameon": True,       # add frame (usually looks better)
         }
         self.scalebar_props = {**default_scalebar_props, **(scalebar_props or {})}  # merge provided custom values with default values
 
@@ -395,33 +397,43 @@ class ModelPlotter:
 
 
     def read_assign_eco_vars(self):
-        with open(self.modeldir / "veg_output" / "_eco_time_vars.json", "r") as f:
-            eco_vars = json.load(f)
-        self.n_ets = eco_vars["n_ets"]
-        self.veg_int_hr = int(eco_vars["veg_interval"]/3600.)
-        self.ecofac = eco_vars["ecofac"]
-        if self.ecofac is None:
-            if self.eco_plot:
-                msg = ("Specified quantity to plot is ecological, but model ECOFAC is None. "
-                       "Was vegetation turned on in the simulation?")
-                raise ValueError(msg)
-            self.ecofac = 1
-            self.days_per_year = 365.
-        else:
-            self.days_per_year = (self.ecofac * self.veg_int_hr * self.n_ets) / 24.
+        metadata_file = self.modeldir / "veg_output" / "_eco_time_vars.json"
+        # These variables are assigned if the file exists, and are protected by "if self.eco_plot" statements
+        # TODO: This may be brittle, consider refactoring.
+        if metadata_file.exists():
+            with open(metadata_file, "r") as f:
+                eco_vars = json.load(f)
+            self.n_ets = eco_vars["n_ets"]
+            self.veg_int_hr = int(eco_vars["veg_interval"]/3600.)
+            self.ecofac = eco_vars["ecofac"]
+            if self.ecofac is None:
+                if self.eco_plot:
+                    msg = ("Specified quantity to plot is ecological, but model ECOFAC is None. "
+                           "Was vegetation turned on in the simulation?")
+                    raise ValueError(msg)
+                self.ecofac = 1
+                self.days_per_year = 365.
+            else:
+                self.days_per_year = (self.ecofac * self.veg_int_hr * self.n_ets) / 24.
 
-        self.save_freq = eco_vars["save_frequency"]
+            self.save_freq = eco_vars["save_frequency"]
 
-        # TODO: finalize this (remove if statement) once fully transitioned
-        if "save_mortality" in eco_vars:
-            self.save_mort = eco_vars["save_mortality"]
-        else:
-            self.save_mort = True
+            # TODO: finalize this (remove if statement) once fully transitioned
+            if "save_mortality" in eco_vars:
+                self.save_mort = eco_vars["save_mortality"]
+            else:
+                self.save_mort = True
+        elif self.eco_plot:
+            raise FileNotFoundError(
+                f"The _eco_time_vars.json was not found in the veg_output directory, but an ecological "
+                 "variable is being plotted. Make sure vegetation was turned on in the simulation, or "
+                 "choose a hydrodynamic quantity to plot."
+            )
 
 
     def setup_model_loaders(self):
         print("Loading model output files...")
-        args = (self.modeldir, self.model_name, self.full_quantity_name, self.eco_plot, self.n_ets)
+        args = (self.modeldir, self.model_name, self.full_quantity_name, self.eco_plot)
         if self.model_type == "DFM": 
             self.map_loader = DFMMapLoader(*args)
         elif self.model_type == "ANUGA": 
@@ -496,7 +508,7 @@ class ModelPlotter:
         
         
     def get_time_breakdown(self, i):
-        """Returns a dict time components for formatting titles and filenames."""
+        """ Returns a dict time components for formatting titles and filenames """
         sim_hours = float(i*self.veg_int_hr if self.eco_plot else \
                           i*self.plot_times["mapHR_int"])
 
@@ -586,12 +598,6 @@ class ModelPlotter:
     def get_eco_times(self, i):
         ets = ((i-1) % self.n_ets) + 1
         eco_year = ((i-1) // self.n_ets) + 1
-        return ets, eco_year
-
-
-    def get_hydro_eco_times(self, i):
-        ets = ((i // self.veg_int_hr) % self.n_ets) + 1
-        eco_year = (i // (self.veg_int_hr * self.n_ets)) + 1
         return ets, eco_year
 
 
@@ -690,9 +696,6 @@ class ModelPlotter:
 
 
     def get_hydro_quantity_grids(self, map_vars):
-        # To be populated if we are doing vector plots
-        self.vector_components = None
-
         depth_grid = self.create_grid(map_vars["Depth"]) * self.quantity_units[self.quantity][1]            
         show_inds = depth_grid < self.quantity_units["Depth"][2]
         if self.quantity == "Depth":
@@ -705,9 +708,9 @@ class ModelPlotter:
             if self.plot_vectors:
                 Vx_grid = self.create_grid(map_vars["Vel_x"]) * self.quantity_units[self.quantity][1]
                 Vy_grid = self.create_grid(map_vars["Vel_y"]) * self.quantity_units[self.quantity][1]
-                self.vector_components = (np.ma.masked_where(show_inds, Vx_grid),
-                                            np.ma.masked_where(show_inds, Vy_grid),
-                                            np.ma.masked_where(show_inds, V_grid))
+                self.vector_comps = (np.ma.masked_where(show_inds, Vx_grid),
+                                     np.ma.masked_where(show_inds, Vy_grid),
+                                     np.ma.masked_where(show_inds, V_grid))
             return np.ma.masked_where(show_inds, V_grid)
         elif self.quantity == "Max Shear Stress":
             tau_grid = self.create_grid(map_vars[self.quantity]) * self.quantity_units[self.quantity][1]
@@ -717,7 +720,7 @@ class ModelPlotter:
         
 
     def create_interp_func(self, map_vars):
-        # create interpolation function the first time -> quick interpolations for all other time steps
+        # Create interpolation function the first time -> quick interpolations for all other time steps
         interp_func = create_nn_interpFunc(map_vars["X"], map_vars["Y"], 
                                            grid_size=self.plot_interp_vars["cell_size"], 
                                            k_nn=self.plot_interp_vars["n_neighbors"],
@@ -747,14 +750,15 @@ class ModelPlotter:
             grid = self.interp_func(var)
         # if plot_method is "exact"
         elif self.empty_grid is not None:
-            grid = self.map_to_grid(var)
+            grid = self.empty_grid.copy()
+            grid[self.y_idx, self.x_idx] = var
         return grid
 
 
-    def map_to_grid(self, var_1d):
-        grid = self.empty_grid.copy()
-        grid[self.y_idx, self.x_idx] = var_1d
-        return grid
+    # def map_to_grid(self, var_1d):
+    #     grid = self.empty_grid.copy()
+    #     grid[self.y_idx, self.x_idx] = var_1d
+    #     return grid
 
 
     def compute_stem_quantity_grid(self, frac, q):
@@ -785,7 +789,7 @@ class ModelPlotter:
                     fname=f"{self.full_quantity_name.replace(" ", "")}_{c_fstr}_{self.timestrings[-1][0]}"
                     )
         # Hydrodynamic plots or averaged vegetation quantity plots
-        elif not main_grid.mask.all():  # don't plot empty vegetation plots
+        elif self.quantity == "Bathymetry" or not main_grid.mask.all():  # don't plot empty vegetation plots
             self.plot_single_quantity(
                 base_grid, 
                 main_grid, 
@@ -798,57 +802,37 @@ class ModelPlotter:
 
         fig, ax = plt.subplots(figsize=self.plot_specs["figsize"])
 
-        base = ax.imshow(base_grid,
-                         cmap=self.cmaps["Bathymetry"],
-                         vmin=self.cmap_lims["Bathymetry"][0],
-                         vmax=self.cmap_lims["Bathymetry"][1])
+        base = self.imshow(ax, base_grid,
+                           cmap=self.cmaps["Bathymetry"],
+                           vlims=self.cmap_lims["Bathymetry"],
+                           )
         
         if main_grid is not None:
-            main = ax.imshow(main_grid,
-                             cmap=self.cmaps[self.quantity],
-                             vmin=self.cmap_lims[self.quantity][0],
-                             vmax=self.cmap_lims[self.quantity][1])            
+            main = self.imshow(ax, main_grid,
+                               cmap=self.cmaps[self.quantity],
+                               vlims=self.cmap_lims[self.quantity],
+                               )
 
         if self.plot_vectors:
-            self.do_quiver(ax, base_grid)
+            self.make_quiver(ax, base_grid)
 
         if self.show_title:
             ax.set_title(title, fontsize=self.plot_specs["fontsize"])
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.set_aspect("equal")
+        if not self.show_axis_ticks:
+            ax.set_xticks([])
+            ax.set_yticks([])
 
-        divider = make_axes_locatable(ax)
-        cax = divider.append_axes("right", size="3%", pad=0.12)
-        cbar = plt.colorbar(main if main_grid is not None else base, cax=cax)
+        cbar = plt.colorbar(main if main_grid is not None else base, ax=ax, fraction=0.046, pad=0.04)
         cbar.set_label(f"{self.quantity_units[self.quantity][0]}", rotation=270, labelpad=25, fontsize=self.plot_specs["fontsize"])
         cbar.ax.tick_params(labelsize=self.plot_specs["fontsize"])
 
         if self.show_topo_cbar:
-            cax_z = divider.append_axes("left", size="3%", pad=0.12)
-            cbar_z = plt.colorbar(base, cax=cax_z)
-            cbar_z.set_label(f"{self.quantity_units["Bathymetry"][0]}", rotation=90, labelpad=5, fontsize=self.plot_specs["fontsize"])
-            cbar_z.ax.yaxis.set_label_position("left")
-            cbar_z.ax.yaxis.tick_left()
-            cbar_z.ax.tick_params(labelsize=self.plot_specs["fontsize"], direction="out", labelrotation=0)          
+            cbar_z = plt.colorbar(base, ax=ax, location='left', fraction=0.046, pad=0.04)
+            cbar_z.set_label("Bathymetry", rotation=90, labelpad=5)   
+            cbar_z.ax.tick_params(labelsize=self.plot_specs["fontsize"]) 
 
         if self.scalebar:
-            unit_conv = 1.
-            bar_text = self.scalebar_props["distance"]
-            if bar_text.split()[1] == "km": unit_conv = 1000.
-            elif bar_text.split()[1] == "mi": unit_conv = 1609.
-            scalebar = AnchoredSizeBar(
-                ax.transData,
-                float(bar_text.split()[0])/self.plot_interp_vars["cell_size"]*unit_conv, 
-                bar_text, 
-                self.scalebar_props["loc"],
-                pad=0.5,
-                color="k",
-                frameon=self.scalebar_props["frameon"],
-                sep=4,
-                size_vertical=2,
-            )
-            ax.add_artist(scalebar)
+            self.make_scalebar(ax)
 
         fig.tight_layout()
 
@@ -861,23 +845,67 @@ class ModelPlotter:
         plt.close()
 
 
-    def do_quiver(self, ax, base_grid):  # See pyplot.quiver manual for more info
-        # get x and y components of velocity
-        vx, vy, V = self.vector_components
-        # normalize to get unit vectors
+    def imshow(self, ax, grid, cmap, vlims):
+        extent = None
+        if self.show_axis_ticks:
+            ny, nx = grid.shape
+            dx = self.plot_interp_vars["cell_size"]
+            extent = [0, nx * dx, ny * dx, 0]
+
+        return ax.imshow(grid,
+                         cmap=cmap,
+                         vmin=vlims[0],
+                         vmax=vlims[1],
+                         extent=extent,
+                         origin="upper",
+                         aspect=self.plot_specs["aspect"],
+                         )
+    
+
+    def make_quiver(self, ax, grid):  # See pyplot.quiver manual for more info
+        # Get x and y components of velocity
+        vx, vy, V = self.vector_comps  # created only when plot_vectors and quantity is "Velocity"
+        # Normalize to get unit vectors
         with np.errstate(divide="ignore", invalid="ignore"):
             vx, vy = vx/V, vy/V
-        # get dimenions of grid
-        ny, nx = base_grid.shape
-        gridX, gridY = np.meshgrid(np.linspace(0, nx, nx), np.linspace(0, ny, ny))
+
+        # Get dimenions of grid
+        ny, nx = grid.shape
+        gridX, gridY = np.meshgrid(np.arange(nx), np.arange(ny))
+
         # Identify mesh array indices where we want to show vectors (cut down number of arrows)
-        dr = int(self.vector_props["vect_spacing"]/self.plot_interp_vars["cell_size"])
-        ax.quiver(gridX[::dr,::dr], gridY[::dr,::dr], vx[::dr,::dr], vy[::dr,::dr],
-                        color=self.vector_props["color"],
-                        scale=self.vector_props["scale"],
-                        pivot=self.vector_props["pivot"],
-                        width=self.vector_props["width"],
-                        )
+        if type(self.vector_props["vect_spacing"]) in [tuple, list]:
+            dx = int(self.vector_props["vect_spacing"][0] / self.plot_interp_vars["cell_size"])
+            dy = int(self.vector_props["vect_spacing"][1] / self.plot_interp_vars["cell_size"])
+        else:
+            dx = dy = int(self.vector_props["vect_spacing"] / self.plot_interp_vars["cell_size"])
+        
+        ax.quiver(gridX[::dy, ::dx], gridY[::dy, ::dx], 
+                  vx[::dy, ::dx], vy[::dy, ::dx],
+                  color=self.vector_props["color"],
+                  scale=self.vector_props["scale"],
+                  pivot=self.vector_props["pivot"],
+                  width=self.vector_props["width"],
+                  )
+        
+
+    def make_scalebar(self, ax):
+        unit_conv = 1.
+        bar_text = self.scalebar_props["distance"]
+        if bar_text.split()[1] == "km": unit_conv = 1000.
+        elif bar_text.split()[1] == "mi": unit_conv = 1609.
+        scalebar = AnchoredSizeBar(
+            ax.transData,
+            float(bar_text.split()[0])/self.plot_interp_vars["cell_size"]*unit_conv, 
+            bar_text, 
+            self.scalebar_props["loc"],
+            pad=0.5,
+            color="k",
+            frameon=self.scalebar_props["frameon"],
+            sep=4,
+            size_vertical=2,
+        )
+        ax.add_artist(scalebar)
     
 
     def create_gif(self):
@@ -886,7 +914,19 @@ class ModelPlotter:
         fps = 5 if self.eco_plot else 10
         images = [imageio.imread(p) for p in self.img_paths]
         gif_path = self.output_plot_dir / "animation.gif"
-        imageio.mimsave(str(gif_path), images, fps=fps, loop=0)  # type: ignore[arg-type]
+        try:
+            imageio.mimsave(str(gif_path), images, fps=fps, loop=0)  # type: ignore[arg-type]
+        except ValueError as e:
+            if "all input arrays must have the same shape" in str(e):
+                raise ValueError(
+                    "Animation failed to be created because frames have inconsistent dimensions. "
+                    "This is often caused by one of more plot elements (titles, axis labels, "
+                    "colorbar elements, etc.) being too long relative to one of the figure "
+                    "dimensions. One fix could be to change the 'figsize' parameter by providing "
+                    "a non-default argument for 'plot_specs'. Otherwise, inspect the figures that "
+                    "were created to see why some of them may be different sizes."
+                ) from e
+            raise  # re-raise unrelated ValueErrors unchanged
         if self.delete_static_imgs:
             for img in self.img_paths:
                 Path.unlink(img)
