@@ -179,6 +179,8 @@ class ModelPlotter:
         If True, include auto-generated plot title at top of plot.
     show_topo_cbar : bool, optional
         If True, include elevation color bar on the left-hand side.
+    show_axis_ticks : bool, optional
+        If True, axis ticks will be shown on left and bottom sides of image, in data units.
     scalebar : bool, optional
         If True, include a scalebar object on the plot.
     scalebar_props : dict, optional
@@ -755,12 +757,6 @@ class ModelPlotter:
         return grid
 
 
-    # def map_to_grid(self, var_1d):
-    #     grid = self.empty_grid.copy()
-    #     grid[self.y_idx, self.x_idx] = var_1d
-    #     return grid
-
-
     def compute_stem_quantity_grid(self, frac, q):
         if self.quantity == "Stem Density":  # sum_product for "Stem Density"
             veg_data = sum_product(frac, q)
@@ -813,8 +809,8 @@ class ModelPlotter:
                                vlims=self.cmap_lims[self.quantity],
                                )
 
-        if self.plot_vectors:
-            self.make_quiver(ax, base_grid)
+            if self.plot_vectors:
+                self.make_quiver(ax, main_grid)
 
         if self.show_title:
             ax.set_title(title, fontsize=self.plot_specs["fontsize"])
@@ -848,9 +844,8 @@ class ModelPlotter:
     def imshow(self, ax, grid, cmap, vlims):
         extent = None
         if self.show_axis_ticks:
-            ny, nx = grid.shape
-            dx = self.plot_interp_vars["cell_size"]
-            extent = [0, nx * dx, ny * dx, 0]
+            gridX, gridY = self.get_grid_coords(grid)
+            extent = [gridX.min(), gridX.max(), gridY.max(), gridY.min()]
 
         return ax.imshow(grid,
                          cmap=cmap,
@@ -869,16 +864,15 @@ class ModelPlotter:
         with np.errstate(divide="ignore", invalid="ignore"):
             vx, vy = vx/V, vy/V
 
-        # Get dimenions of grid
-        ny, nx = grid.shape
-        gridX, gridY = np.meshgrid(np.arange(nx), np.arange(ny))
+        gridX, gridY = self.get_grid_coords(grid)
 
         # Identify mesh array indices where we want to show vectors (cut down number of arrows)
+        cell_size = self.plot_interp_vars["cell_size"]
         if type(self.vector_props["vect_spacing"]) in [tuple, list]:
-            dx = int(self.vector_props["vect_spacing"][0] / self.plot_interp_vars["cell_size"])
-            dy = int(self.vector_props["vect_spacing"][1] / self.plot_interp_vars["cell_size"])
+            dx = int(self.vector_props["vect_spacing"][0] / cell_size)
+            dy = int(self.vector_props["vect_spacing"][1] / cell_size)
         else:
-            dx = dy = int(self.vector_props["vect_spacing"] / self.plot_interp_vars["cell_size"])
+            dx = dy = int(self.vector_props["vect_spacing"] / cell_size)
         
         ax.quiver(gridX[::dy, ::dx], gridY[::dy, ::dx], 
                   vx[::dy, ::dx], vy[::dy, ::dx],
@@ -887,6 +881,20 @@ class ModelPlotter:
                   pivot=self.vector_props["pivot"],
                   width=self.vector_props["width"],
                   )
+
+    
+    def get_grid_coords(self, grid):
+        """ Return meshgrid coordinates in the same space as imshow extent """
+        ny, nx = grid.shape
+
+        if self.show_axis_ticks:
+            xx = np.arange(nx) * self.plot_interp_vars["cell_size"]
+            yy = np.arange(ny) * self.plot_interp_vars["cell_size"]
+        else:
+            xx = np.arange(nx)
+            yy = np.arange(ny)
+
+        return np.meshgrid(xx, yy)
         
 
     def make_scalebar(self, ax):
