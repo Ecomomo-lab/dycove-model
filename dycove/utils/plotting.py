@@ -190,7 +190,8 @@ class ModelPlotter:
         required if model domain is not rectangular.
     extents : tuple[float, float, float, float], optional
         Geographic extents for interpolation (xmin, xmax, ymin, ymax). Useful for
-        zooming in on a particular location.
+        zooming in on a particular location. NOTE: ymin and ymax are in MODEL coordinates, not 
+        numpy coordinates.
     animate : bool, optional
         If True, creates an animated GIF after generating all plots. Requires ``imageio`` library.
     delete_static_imgs : bool, optional

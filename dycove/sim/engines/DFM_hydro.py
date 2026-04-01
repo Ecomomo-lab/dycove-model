@@ -298,7 +298,9 @@ class DFMEngine(HydroEngineBase):
                 replacement = self.mdu_vars["ExtForceFileNew"].replace("_bnd", "")
             except:
                 msg = ("Either the 'ExtForceFileNew' file name in the .mdu file does not end in the expected "
-                       "'_bnd.ext', or there is no 'ExtForceFileNew' file defined in the .mdu file")
+                       "'_bnd.ext', or there is no 'ExtForceFileNew' file defined in the .mdu file. If it was "
+                       "purposeful that no boundaries were specified for this model, then this check mechanism "
+                       "must be updated: please get in touch with us on GitHub.")
                 r.report(msg, level="ERROR")
                 raise NameError(msg)
 
@@ -349,8 +351,7 @@ class DFMEngine(HydroEngineBase):
         """ Create .ext file in the model directory if it doesn't exist """
 
         ext_force_file = self.model_dir / self.mdu_vars["ExtForceFile"]
-        if not ext_force_file.exists() and self.veg is not None:
-            content = """QUANTITY=stemdensity
+        content = """QUANTITY=stemdensity
 FILENAME=stemdensity.xyz
 FILETYPE=7
 METHOD=5
@@ -368,8 +369,17 @@ FILETYPE=7
 METHOD=5
 OPERAND=O
 """
+        if not ext_force_file.exists() and self.veg is not None:
             with open(ext_force_file, "w") as f:
                 f.write(content)
+        # It may already exist if other spatially varying parameters are in use; need to append our content
+        elif ext_force_file.exists() and self.veg is not None:
+            with open(ext_force_file, "r") as f:
+                lines = f.read()
+            with open(ext_force_file, "w") as f:
+                f.write(lines)
+                f.write("\n")
+                f.write(content)         
 
 
     def create_veg_xyz_files(self):
