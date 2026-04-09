@@ -435,7 +435,6 @@ class ModelPlotter:
 
 
     def setup_model_loaders(self):
-        print("Loading model output files...")
         args = (self.modeldir, self.model_name, self.full_quantity_name, self.eco_plot)
         if self.model_type == "DFM": 
             self.map_loader = DFMMapLoader(*args)

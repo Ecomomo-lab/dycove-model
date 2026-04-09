@@ -114,8 +114,11 @@ class DFMEngine(HydroEngineBase):
 
         Note that for versions of python 3.7 and earlier, you would need to set the env 
         variables differently:
-            os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" + 
-                                    os.path.join(dfm_path, 'dflowfm', 'bin') + ";" + ... )
+
+        .. code-block:: python
+
+           os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" + 
+                                os.path.join(dfm_path, 'dflowfm', 'bin') + ";" + ... )
         """
         return [os.add_dll_directory(dfm_path / Path("dflowfm/bin")),
                 os.add_dll_directory(dfm_path / Path("dimr/bin")),
