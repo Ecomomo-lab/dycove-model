@@ -782,7 +782,7 @@ class ModelPlotter:
                     grid, 
                     # E.g.: title = "Stem Height -- 1 year, 50 days \n SpartinaAnglica"
                     title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]}\n{c_str}",
-                    fname=f"{self.full_quantity_name.replace(" ", "")}_{c_fstr}_{self.timestrings[-1][0]}"
+                    fname=f"{self.full_quantity_name.replace(' ', '')}_{c_fstr}_{self.timestrings[-1][0]}"
                     )
         # Hydrodynamic plots or averaged vegetation quantity plots
         elif self.quantity == "Bathymetry" or not main_grid.mask.all():  # don't plot empty vegetation plots

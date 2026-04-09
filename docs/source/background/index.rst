@@ -18,9 +18,9 @@ Model Overview
 DYCOVE incorporates coastal vegetation in physics-based numerical models through a dynamic coupling framework, where vegetation is distributed based on habitat parameters and provides spatially-varying roughness.
 The response of the physics-based model to this roughness leads to alteration of the environmental conditions, e.g., inundation, flow velocities, etc., that define habitat, and vegetation is updated during the next coupling, resulting in a biophysical feedback-loop.
 Vegetation is updated based on rules for colonization, growth and mortality: colonization is defined by seed dispersal during a defined colonization time-step (e.g., at the beginning of the year), where all wetted cells receive a user-defined vegetation fraction. 
-Throughout the simulation, the established vegetation ages and grows linearly up to a maximum stem height, root length and stem diameter. 
-In winter, an optional winter stem height allows users to simulate mortality of aboveground biomass. 
-Senescence is included as a maximum age, allowing for both annual and perennial vegetation. 
+Throughout the simulation, the established vegetation ages and grows linearly up to a maximum stem height, root length and stem diameter.
+In winter, an optional winter stem height allows users to simulate mortality of aboveground biomass.
+Senescence is included as a maximum age, allowing for both annual and perennial vegetation.
 The option to define life-stages allows users to specify a seedling and mature stage, where, after some number of years, the vegetation shifts into a new life-stage and vegetation properties change (e.g., larger maximum stem height, higher resilience against stresses, etc.). 
 Mortality is a dose-effect relationship where vegetation fractions are gradually removed if habitat conditions are not optimal, and the removed fraction depends linearly on the strength of the pressure. 
 If multiple species are modeled, competition is incorporated through available space in each cell: each cell can hold a total vegetation fraction of unity. 
