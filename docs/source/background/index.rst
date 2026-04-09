@@ -24,7 +24,7 @@ Senescence is included as a maximum age, allowing for both annual and perennial 
 The option to define life-stages allows users to specify a seedling and mature stage, where, after some number of years, the vegetation shifts into a new life-stage and vegetation properties change (e.g., larger maximum stem height, higher resilience against stresses, etc.). 
 Mortality is a dose-effect relationship where vegetation fractions are gradually removed if habitat conditions are not optimal, and the removed fraction depends linearly on the strength of the pressure. 
 If multiple species are modeled, competition is incorporated through available space in each cell: each cell can hold a total vegetation fraction of unity. 
-If a cell is fully colonized, no further colonization is allowed. 
+If a cell is fully colonized, no further colonization is allowed.
 
 Simulations are run by calling a model engine class (depending on which numerical model is being used) that implements time stepping methods specific to that model. 
 Vegetation species are added to the model via a set of characteristics provided as a :ref:`JSON file <input-json>`.
