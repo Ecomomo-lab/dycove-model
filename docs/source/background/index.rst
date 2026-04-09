@@ -17,7 +17,7 @@ Model Overview
 
 DYCOVE incorporates coastal vegetation in physics-based numerical models through a dynamic coupling framework, where vegetation is distributed based on habitat parameters and provides spatially-varying roughness.
 The response of the physics-based model to this roughness leads to alteration of the environmental conditions, e.g., inundation, flow velocities, etc., that define habitat, and vegetation is updated during the next coupling, resulting in a biophysical feedback-loop.
-Vegetation is updated based on rules for colonization, growth and mortality: colonization is defined by seed dispersal during a defined colonization time-step (e.g., at the beginning of the year), where all wetted cells receive a user-defined vegetation fraction. 
+Vegetation is updated based on rules for colonization, growth and mortality: colonization is defined by seed dispersal during a defined colonization time-step (e.g., at the beginning of the year), where all wetted cells receive a user-defined vegetation fraction.
 Throughout the simulation, the established vegetation ages and grows linearly up to a maximum stem height, root length and stem diameter.
 In winter, an optional winter stem height allows users to simulate mortality of aboveground biomass.
 Senescence is included as a maximum age, allowing for both annual and perennial vegetation.

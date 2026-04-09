@@ -790,7 +790,7 @@ class ModelPlotter:
                 base_grid, 
                 main_grid, 
                 title=f"{self.full_quantity_name} -- {self.timestrings[-1][1]}",
-                fname=f"{self.full_quantity_name.replace(" ", "")}_{self.timestrings[-1][0]}"
+                fname=f"{self.full_quantity_name.replace(' ', '')}_{self.timestrings[-1][0]}"
                 )
             
             
