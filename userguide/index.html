@@ -244,7 +244,9 @@ Note that <cite>stage</cite> and other time-varying quantities have a time axis 
 Centroid data is also included in the <cite>.sww</cite> file, but <cite>x</cite> and <cite>y</cite> values at centroids would need to be computed as they are in <code class="docutils literal notranslate"><span class="pre">dycove.utils.model_loader.ANUGAMapLoader._load_outputs</span></code> (or <code class="docutils literal notranslate"><span class="pre">anuga.utilities.plot_utils._get_centroid_values</span></code>).
 Note that DYCOVE vegetation arrays are based on centroids.</p>
 <p>Similarly, DFM model centroid quantities can be read from the output <cite>_map.nc</cite> file:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;path/to/dflowfm/output/FlowFM_map.nc&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+
+<span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;path/to/dflowfm/output/FlowFM_map.nc&quot;</span><span class="p">)</span>
 <span class="n">x_c</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_face_x&quot;</span><span class="p">]</span>
 <span class="n">y_c</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_face_y&quot;</span><span class="p">]</span>
 <span class="n">z_c</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_flowelem_bl&quot;</span><span class="p">]</span>
@@ -253,26 +255,35 @@ Note that DYCOVE vegetation arrays are based on centroids.</p>
 <span class="n">bedlevel</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_mor_bl&quot;</span><span class="p">]</span>
 <span class="n">stage</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_s1&quot;</span><span class="p">]</span>
 <span class="n">velocity</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_ucmag&quot;</span><span class="p">]</span>
-<span class="n">depth</span> <span class="o">=</span> <span class="n">stage</span> <span class="o">-</span> <span class="n">elevation</span>
+<span class="n">depth</span> <span class="o">=</span> <span class="n">stage</span> <span class="o">-</span> <span class="n">bedlevel</span>
 </pre></div>
 </div>
 <p>Vegetation quantities can be accessed via the files in the <cite>veg_output</cite> directory.
 Quantities that are saved in these output files are listed as attributes of the <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> class.
-An example of how to load and plot quantities (outside of <a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>) is provided below (based on ANUGA).
-While vegetation fractions and cohorts are tracked individually in DYCOVE, we typically plot quantities as a weighted average in each grid cell, with weights determined by the fractions present in the cell.
-It also involves reading in the underlying hydrodynamic model file for interpolating to a grid:</p>
+An example of how to load and plot quantities (outside of <a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>) is provided below.
+This example is based on ANUGA, but DFM users can modify it with just a few changes based on reading files as instructed above.</p>
+<p>Vegetation fractions and cohorts are tracked individually in DYCOVE, and we can choose to plot quantities individually for each species or take a weighted average in each grid cell, with weights determined by the fractions present in the cell.
+In this example, we plot a weighted average stem height for each cell.
+The option to plot species results separately can be implemented via the <code class="docutils literal notranslate"><span class="pre">plot_separate_species</span></code> flag in <a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a>.
+Either way, we need to read in the underlying hydrodynamic model file for interpolating to a regular grid:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.array_math</span><span class="w"> </span><span class="kn">import</span> <span class="n">cell_averaging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.plotting</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_nn_interpFunc</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.model_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_veg_file_index</span><span class="p">,</span> <span class="n">get_anuga_centroid_coords</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.model_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_anuga_centroid_coords</span>
+
+<span class="c1"># Declare model directory paths</span>
+<span class="n">model_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;path/to/anuga_model_dir&quot;</span><span class="p">)</span>
+<span class="n">eco_dir</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;veg_output&quot;</span>
 
 <span class="c1"># Load ANUGA (or DFM) output, read X and Y coordinate arrays</span>
-<span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./rectang_beach.sww&quot;</span><span class="p">))</span>
+<span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;rectang_beach.sww&quot;</span><span class="p">)</span>
 
 <span class="c1"># Convert ANUGA vertex coordinates to centroids (may take a little time)</span>
+<span class="c1"># DFM USERS: x_c and y_c can be pulled from the output file directly (see above)</span>
 <span class="n">x_c</span><span class="p">,</span> <span class="n">y_c</span> <span class="o">=</span> <span class="n">get_anuga_centroid_coords</span><span class="p">(</span><span class="n">map_vars</span><span class="p">)</span>
 
 <span class="c1"># Create interpolation function for 10-m grid. Can also provide as an argument a polygon .csv file to mask outside domain.</span>
@@ -281,36 +292,43 @@ It also involves reading in the underlying hydrodynamic model file for interpola
 <span class="c1"># Interpolate model bathymetry to use as a base map (using centroids)</span>
 <span class="n">z_grid</span> <span class="o">=</span> <span class="n">interp_func</span><span class="p">(</span><span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;elevation_c&quot;</span><span class="p">])</span>
 
-<span class="c1"># Do preliminary sweep through cohort files to find year/ETS information</span>
-<span class="n">file_mapping</span> <span class="o">=</span> <span class="n">get_veg_file_index</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;./veg_output&quot;</span><span class="p">))</span>
+<span class="c1"># Read output cohort index file, categorizing each cohort output file by ecological year and ETS</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">eco_dir</span> <span class="o">/</span> <span class="s2">&quot;_cohort_files_ets_index.json&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">cohort_index</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
-<span class="c1"># Loop through all saved cohort files saved for a given year and ETS, load and plot data</span>
-<span class="k">for</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">ets</span><span class="p">)</span> <span class="ow">in</span> <span class="n">file_mapping</span><span class="p">:</span>
-    <span class="n">fractions</span><span class="p">,</span> <span class="n">stem_heights</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">file_mapping</span><span class="p">[(</span><span class="n">year</span><span class="p">,</span> <span class="n">ets</span><span class="p">)]:</span>
-        <span class="n">c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+<span class="c1"># Loop through all saved cohort files by year and ETS, load and plot data</span>
+<span class="n">eco_years</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cohort_index</span><span class="p">)</span>  <span class="c1"># output eco years in order</span>
+<span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">eco_years</span><span class="p">:</span>
+    <span class="n">ets_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cohort_index</span><span class="p">[</span><span class="n">year</span><span class="p">])</span>  <span class="c1"># ETS in order for current eco year</span>
+    <span class="k">for</span> <span class="n">ets</span> <span class="ow">in</span> <span class="n">ets_list</span><span class="p">:</span>
+        <span class="n">fractions</span><span class="p">,</span> <span class="n">stem_heights</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">cohort_index</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">ets</span><span class="p">]:</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eco_dir</span> <span class="o">/</span> <span class="p">(</span><span class="n">file</span> <span class="o">+</span> <span class="s2">&quot;.nc&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
 
-        <span class="c1"># Append to list all data from this ETS</span>
-        <span class="n">fractions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s1">&#39;fraction&#39;</span><span class="p">])</span>
-        <span class="n">stem_heights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">])</span>
+            <span class="c1"># Append to list all data from this ETS</span>
+            <span class="n">fractions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;fraction&quot;</span><span class="p">])</span>  <span class="c1"># each c[&quot;fraction&quot;] is an array</span>
+            <span class="n">stem_heights</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">])</span>  <span class="c1"># each c.attrs[&quot;height&quot;] is a scalar</span>
 
-    <span class="c1"># Do weighted average based on vegetation fractions in each cell</span>
-    <span class="n">stemht_avg</span> <span class="o">=</span> <span class="n">cell_averaging</span><span class="p">(</span><span class="n">fractions</span><span class="p">,</span> <span class="n">stem_heights</span><span class="p">)</span>
+        <span class="c1"># Do weighted average based on vegetation fractions in each cell</span>
+        <span class="n">stemht_avg</span> <span class="o">=</span> <span class="n">cell_averaging</span><span class="p">(</span><span class="n">fractions</span><span class="p">,</span> <span class="n">stem_heights</span><span class="p">)</span>
 
-    <span class="c1"># Interpolate to grid and mask out non-vegetated cells</span>
-    <span class="n">stemht_grid</span> <span class="o">=</span> <span class="n">interp_func</span><span class="p">(</span><span class="n">stemht_avg</span><span class="p">)</span>
-    <span class="n">stemht_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">stemht_grid</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">stemht_grid</span><span class="p">)</span>
+        <span class="c1"># Interpolate to grid using same interp_func as for the model elevation values</span>
+        <span class="n">stemht_grid</span> <span class="o">=</span> <span class="n">interp_func</span><span class="p">(</span><span class="n">stemht_avg</span><span class="p">)</span>
 
-    <span class="c1"># Do plotting</span>
-    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-    <span class="n">im_base</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">z_grid</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greys_r&quot;</span><span class="p">)</span>
-    <span class="n">im_veg</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">stemht_grid</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greens&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stem height [m] -- Eco year </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">, ETS </span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-    <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="c1"># Mask out non-vegetated cells</span>
+        <span class="n">stemht_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ma</span><span class="o">.</span><span class="n">masked_where</span><span class="p">(</span><span class="n">stemht_grid</span> <span class="o">&lt;</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">stemht_grid</span><span class="p">)</span>
+
+        <span class="c1"># Do plotting (colorbars, etc can be added as well)</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+        <span class="n">im_base</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">z_grid</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greys_r&quot;</span><span class="p">)</span>
+        <span class="n">im_veg</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">stemht_grid</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Greens&quot;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stem height [m] -- eco year </span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">, ETS </span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>For each cohort output file, the ecological year <code class="docutils literal notranslate"><span class="pre">'eco_year'</span></code> and ETS <code class="docutils literal notranslate"><span class="pre">'ets'</span></code> are stored as metadata under <code class="docutils literal notranslate"><span class="pre">attrs</span></code>, along with other quantities that only have a single value per cohort per ETS, like <code class="docutils literal notranslate"><span class="pre">'height'</span></code>.
+<p>For each cohort output file, scalar quantities like <code class="docutils literal notranslate"><span class="pre">'eco_year'</span></code>, <code class="docutils literal notranslate"><span class="pre">'height'</span></code>, <code class="docutils literal notranslate"><span class="pre">'diameter'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'density'</span></code> are stored as metadata under <code class="docutils literal notranslate"><span class="pre">attrs</span></code>.
 These can be accessed with <code class="docutils literal notranslate"><span class="pre">c.attrs['eco_year']</span></code>, etc.
 Array quantities can be accessed directly from the object, like <code class="docutils literal notranslate"><span class="pre">c['fraction']</span></code>.</p>
 </section>

@@ -246,6 +246,7 @@
                         <span class="sa">f</span><span class="s2">&quot;(rounded from </span><span class="si">{</span><span class="n">ecofac_est</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
                 <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">)</span></div>
 
+            <span class="c1"># else: ecofac stays as None</span>
     
 
 <div class="viewcode-block" id="SimulationTimeState.compute_days_per_year">
@@ -374,30 +375,35 @@
     <span class="n">bedlevel_0</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">bedlevel_f</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
+
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">bedlevel_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bedlevel_f</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">bedlevel_0</span>
     
+
 <div class="viewcode-block" id="HydrodynamicStats.flood_frac">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.HydrodynamicStats.html#dycove.sim.simulation_data.HydrodynamicStats.flood_frac">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">flood_frac</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="c1"># fraction of time cells were flooded over ets</span>
+        <span class="c1"># Fraction of time cells were flooded over ets</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flood_counts</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">n_hydro_substeps</span></div>
 
     
+
 <div class="viewcode-block" id="HydrodynamicStats.dry_frac">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.HydrodynamicStats.html#dycove.sim.simulation_data.HydrodynamicStats.dry_frac">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">dry_frac</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-        <span class="c1"># fraction of time cells were dry over ets</span>
+        <span class="c1"># Fraction of time cells were dry over ets</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_hydro_substeps</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">flood_counts</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">n_hydro_substeps</span></div>
 
     
+
 <div class="viewcode-block" id="HydrodynamicStats.v_max_95th">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.HydrodynamicStats.html#dycove.sim.simulation_data.HydrodynamicStats.v_max_95th">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">v_max_95th</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">v_maxs</span><span class="p">,</span> <span class="mi">95</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
     
+
 <div class="viewcode-block" id="HydrodynamicStats.reset">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.HydrodynamicStats.html#dycove.sim.simulation_data.HydrodynamicStats.reset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -408,15 +414,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">flood_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_cells</span><span class="p">)</span></div>
 
 
+
 <div class="viewcode-block" id="HydrodynamicStats.update">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.simulation_data.HydrodynamicStats.html#dycove.sim.simulation_data.HydrodynamicStats.update">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">vel</span><span class="p">,</span> <span class="n">depth</span><span class="p">):</span>
-        <span class="c1"># update arrays of min/max hydro variables</span>
+        <span class="c1"># Update arrays of min/max hydro variables</span>
         <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h_min</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">h_min</span><span class="p">)</span>
         <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">h_max</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">h_max</span><span class="p">)</span>
-        <span class="c1"># np.maximum(self.v_max, vel, out=self.v_max)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">v_maxs</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">vel</span>
-        <span class="c1"># add to count of flooded/dry cells</span>
+        <span class="c1"># Add to count of flooded/dry cells</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">flood_counts</span><span class="p">[</span><span class="n">depth</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fl_dr</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span></div>
 </div>
 

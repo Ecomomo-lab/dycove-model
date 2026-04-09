@@ -215,12 +215,10 @@ if missing.</p></li>
 <p>Return list to retain handle and avoid accidental garbage collecting.</p>
 <p>Note that for versions of python 3.7 and earlier, you would need to set the env
 variables differently:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>os.environ[‘PATH’] = os.path.join(dfm_path, ‘share’, ‘bin’) + “;” +</dt><dd><p>os.path.join(dfm_path, ‘dflowfm’, ‘bin’) + “;” + … )</p>
-</dd>
-</dl>
-</div></blockquote>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PATH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">,</span> <span class="s1">&#39;share&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span> <span class="o">+</span>
+                     <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">,</span> <span class="s1">&#39;dflowfm&#39;</span><span class="p">,</span> <span class="s1">&#39;bin&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;;&quot;</span> <span class="o">+</span> <span class="o">...</span> <span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py method">

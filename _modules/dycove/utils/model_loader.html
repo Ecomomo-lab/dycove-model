@@ -81,6 +81,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 
 
 <span class="c1"># ------------------------------------------------------------ #</span>
@@ -121,7 +122,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    anuga_vars : xr.Dataset</span>
-<span class="sd">        Dataset containing netCDF variables.</span>
+<span class="sd">        Dataset containing ANUGA netCDF variables.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Load mesh vertex coordinates</span>
     <span class="n">xx</span> <span class="o">=</span> <span class="n">anuga_vars</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
@@ -171,12 +172,11 @@
 
 <div class="viewcode-block" id="BaseMapLoader.__init__">
 <a class="viewcode-back" href="../../../_autosummary/dycove.utils.model_loader.BaseMapLoader.html#dycove.utils.model_loader.BaseMapLoader.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modeldir</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">quantity_name</span><span class="p">,</span> <span class="n">eco_plot</span><span class="p">,</span> <span class="n">n_ets_year</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modeldir</span><span class="p">,</span> <span class="n">model_name</span><span class="p">,</span> <span class="n">quantity_name</span><span class="p">,</span> <span class="n">eco_plot</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">modeldir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">modeldir</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="n">model_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="o">=</span> <span class="n">quantity_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eco_plot</span> <span class="o">=</span> <span class="n">eco_plot</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_ets_year</span> <span class="o">=</span> <span class="n">n_ets_year</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeldir</span> <span class="o">/</span> <span class="s1">&#39;veg_output&#39;</span>
 
         <span class="c1"># Single location for storing names of vegetation variables stored in class `VegCohort`</span>
@@ -201,9 +201,10 @@
                              <span class="p">}</span>
         
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco_plot</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span> <span class="o">/</span> <span class="s2">&quot;_cohort_files_ets_index.json&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">veg_file_index</span> <span class="o">=</span> <span class="n">get_veg_file_index</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span><span class="p">)</span></div>
-
+            <span class="c1">#self.veg_file_index = get_veg_file_index(self.ecodir)</span>
 
         
     <span class="nd">@abstractmethod</span>
@@ -244,9 +245,9 @@
         
         
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_veg_new_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">veg_data</span><span class="p">,</span> <span class="n">ets</span><span class="p">,</span> <span class="n">eco_year</span><span class="p">):</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">eco_year</span><span class="p">,</span> <span class="n">ets</span><span class="p">)</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg_file_index</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg_file_index</span><span class="p">[(</span><span class="n">eco_year</span><span class="p">,</span> <span class="n">ets</span><span class="p">)]:</span>
-                <span class="n">c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
+        <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eco_year</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eco_year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eco_year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">.nc&quot;</span><span class="p">)</span>
 
                 <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;cohorts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">c</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="s2">&quot;Species&quot;</span><span class="p">]],</span> 
                                             <span class="n">c</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="s2">&quot;Cohort&quot;</span><span class="p">]]))</span>

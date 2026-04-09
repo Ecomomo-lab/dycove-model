@@ -205,8 +205,11 @@
 
 <span class="sd">        Note that for versions of python 3.7 and earlier, you would need to set the env </span>
 <span class="sd">        variables differently:</span>
-<span class="sd">            os.environ[&#39;PATH&#39;] = os.path.join(dfm_path, &#39;share&#39;, &#39;bin&#39;) + &quot;;&quot; + </span>
-<span class="sd">                                    os.path.join(dfm_path, &#39;dflowfm&#39;, &#39;bin&#39;) + &quot;;&quot; + ... )</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">           os.environ[&#39;PATH&#39;] = os.path.join(dfm_path, &#39;share&#39;, &#39;bin&#39;) + &quot;;&quot; + </span>
+<span class="sd">                                os.path.join(dfm_path, &#39;dflowfm&#39;, &#39;bin&#39;) + &quot;;&quot; + ... )</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dflowfm/bin&quot;</span><span class="p">)),</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dimr/bin&quot;</span><span class="p">)),</span>
@@ -252,14 +255,6 @@
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.cleanup">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimr</span><span class="o">.</span><span class="n">finalize</span><span class="p">()</span></div>
-
-
-
-<div class="viewcode-block" id="DFMEngine.get_rank">
-<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_rank">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_rank</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># TODO: implement parallel processing for DFM</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Parallel mode not currently implemented for Delft3D FM&quot;</span><span class="p">)</span></div>
 
 
 
@@ -442,7 +437,9 @@
                 <span class="n">replacement</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">&quot;ExtForceFileNew&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_bnd&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="k">except</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Either the &#39;ExtForceFileNew&#39; file name in the .mdu file does not end in the expected &quot;</span>
-                       <span class="s2">&quot;&#39;_bnd.ext&#39;, or there is no &#39;ExtForceFileNew&#39; file defined in the .mdu file&quot;</span><span class="p">)</span>
+                       <span class="s2">&quot;&#39;_bnd.ext&#39;, or there is no &#39;ExtForceFileNew&#39; file defined in the .mdu file. If it was &quot;</span>
+                       <span class="s2">&quot;purposeful that no boundaries were specified for this model, then this check mechanism &quot;</span>
+                       <span class="s2">&quot;must be updated: please get in touch with us on GitHub.&quot;</span><span class="p">)</span>
                 <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
@@ -499,8 +496,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Create .ext file in the model directory if it doesn&#39;t exist &quot;&quot;&quot;</span>
 
         <span class="n">ext_force_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">&quot;ExtForceFile&quot;</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">ext_force_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;QUANTITY=stemdensity</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;QUANTITY=stemdensity</span>
 <span class="s2">FILENAME=stemdensity.xyz</span>
 <span class="s2">FILETYPE=7</span>
 <span class="s2">METHOD=5</span>
@@ -518,8 +514,17 @@
 <span class="s2">METHOD=5</span>
 <span class="s2">OPERAND=O</span>
 <span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ext_force_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="c1"># It may already exist if other spatially varying parameters are in use; need to append our content</span>
+        <span class="k">elif</span> <span class="n">ext_force_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>         </div>
 
 
 
@@ -550,6 +555,14 @@
     <span class="c1"># Parallel methods</span>
     <span class="c1"># --------------------------------------------------------</span>
 
+<div class="viewcode-block" id="DFMEngine.get_rank">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_rank">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_rank</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># TODO: implement parallel processing for DFM</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
+
+    
+
 <div class="viewcode-block" id="DFMEngine.is_parallel">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.is_parallel">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -561,6 +574,7 @@
         <span class="k">except</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">False</span></div>
 
+        
         
 <div class="viewcode-block" id="DFMEngine.merge_parallel_veg">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg">[docs]</a>

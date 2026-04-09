@@ -84,6 +84,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.simulation_reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reporter</span>
 
@@ -96,18 +97,24 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot; For saving :class:`~dycove.sim.vegetation_data.VegCohort` instances to output files. &quot;&quot;&quot;</span>
 <div class="viewcode-block" id="OutputManager.__init__">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.outputs.OutputManager.html#dycove.sim.outputs.OutputManager.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">engine</span><span class="p">,</span> <span class="n">save_freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">save_mort</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">engine</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">veg</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">veg_dir</span>   <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">engine</span><span class="o">.</span><span class="n">model_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;veg_output&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">veg_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_freq</span> <span class="o">=</span> <span class="n">save_freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_mort</span> <span class="o">=</span> <span class="n">save_mort</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">veg_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        
         <span class="bp">self</span><span class="o">.</span><span class="n">n_cohort_steps</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># for numbering output files</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">fname_base</span> <span class="o">=</span> <span class="s2">&quot;cohort0_01&quot;</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># nested dict index of output files for each year-ets combo</span></div>
+
 
 
 <div class="viewcode-block" id="OutputManager.save_vegetation_step">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.outputs.OutputManager.html#dycove.sim.outputs.OutputManager.save_vegetation_step">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">save_vegetation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sim</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_vegetation_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simstate</span><span class="p">,</span> <span class="n">vts</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Save vegetation cohort state for a given ecological timestep &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update_file_counts</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">cohort</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">cohorts</span><span class="p">):</span>
@@ -118,14 +125,18 @@
                      <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">fname_base</span>
                      <span class="p">)</span>
             
-            <span class="bp">self</span><span class="o">.</span><span class="n">save_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_dir</span><span class="p">,</span> 
-                             <span class="n">fname</span><span class="p">,</span> 
-                             <span class="n">asdict</span><span class="p">(</span><span class="n">cohort</span><span class="p">),</span> 
-                             <span class="n">eco_year</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">eco_year</span><span class="p">,</span> 
-                             <span class="n">ets</span> <span class="o">=</span> <span class="n">sim</span><span class="o">.</span><span class="n">ets</span><span class="p">,</span> 
-                             <span class="n">cohort_id</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span>
-                             <span class="p">)</span>
+            <span class="k">if</span> <span class="n">vts</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_freq</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>            
+                <span class="bp">self</span><span class="o">.</span><span class="n">save_netcdf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_dir</span><span class="p">,</span> 
+                                 <span class="n">fname</span><span class="p">,</span> 
+                                 <span class="n">asdict</span><span class="p">(</span><span class="n">cohort</span><span class="p">),</span> 
+                                 <span class="n">eco_year</span> <span class="o">=</span> <span class="n">simstate</span><span class="o">.</span><span class="n">eco_year</span><span class="p">,</span> 
+                                 <span class="n">ets</span> <span class="o">=</span> <span class="n">simstate</span><span class="o">.</span><span class="n">ets</span><span class="p">,</span> 
+                                 <span class="n">cohort_id</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span>
+                                 <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cohort_indexing</span><span class="p">(</span><span class="n">simstate</span><span class="o">.</span><span class="n">eco_year</span><span class="p">,</span> <span class="n">simstate</span><span class="o">.</span><span class="n">ets</span><span class="p">)</span>
+
             <span class="bp">self</span><span class="o">.</span><span class="n">n_cohort_steps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
 
 
 <div class="viewcode-block" id="OutputManager.update_file_counts">
@@ -134,6 +145,46 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Update file count for each cohort based on current number of cohorts. &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">cohorts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_cohort_steps</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">n_cohort_steps</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="mi">0</span><span class="p">]</span><span class="o">*</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">cohorts</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_cohort_steps</span><span class="p">)))</span></div>
+
+
+
+<div class="viewcode-block" id="OutputManager.cohort_indexing">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.outputs.OutputManager.html#dycove.sim.outputs.OutputManager.cohort_indexing">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">cohort_indexing</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">ets</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Log the year/ets combo and create (or append to) list for cohort file names &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">fname_base</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fname_base</span><span class="p">)</span></div>
+
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_simulation_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simstate</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_simulation_metadata</span><span class="p">(</span><span class="n">simstate</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save_cohort_index</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="OutputManager.save_simulation_metadata">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.outputs.OutputManager.html#dycove.sim.outputs.OutputManager.save_simulation_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_simulation_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simstate</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot; Save record of ecological time inputs for easier post-processing &quot;&quot;&quot;</span>
+        <span class="n">sim_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n_ets&quot;</span><span class="p">:</span> <span class="n">simstate</span><span class="o">.</span><span class="n">n_ets</span><span class="p">,</span>
+                    <span class="s2">&quot;veg_interval&quot;</span><span class="p">:</span> <span class="n">simstate</span><span class="o">.</span><span class="n">veg_interval</span><span class="p">,</span>
+                    <span class="s2">&quot;ecofac&quot;</span><span class="p">:</span> <span class="n">simstate</span><span class="o">.</span><span class="n">ecofac</span><span class="p">,</span>
+                    <span class="s2">&quot;save_frequency&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_freq</span><span class="p">,</span>
+                    <span class="s2">&quot;save_mortality&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_mort</span><span class="p">,</span>
+                    <span class="p">}</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_dir</span> <span class="o">/</span> <span class="s2">&quot;_eco_time_vars.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">sim_dict</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div>
+
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_cohort_index</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">c_index_as_str</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">):</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_dir</span> <span class="o">/</span> <span class="s2">&quot;_cohort_files_ets_index.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">c_index_as_str</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="OutputManager.save_netcdf">
@@ -156,6 +207,8 @@
             <span class="c1"># Pass arrays and scalars separately</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
                 <span class="n">data_vars</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_mort</span> <span class="ow">and</span> <span class="s2">&quot;mort&quot;</span> <span class="ow">in</span> <span class="n">key</span><span class="p">:</span>
+                    <span class="n">data_vars</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">attrs</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -164,7 +217,7 @@
         <span class="k">if</span> <span class="n">saved_attrs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># do this when call comes from save_vegetation_step()</span>
             <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
             <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">eco_year</span><span class="o">=</span><span class="n">eco_year</span><span class="p">,</span> <span class="n">ets</span><span class="o">=</span><span class="n">ets</span><span class="p">,</span> <span class="n">cohort</span><span class="o">=</span><span class="n">cohort_id</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>                    <span class="c1"># do this when call comes from merge_parallel_veg()</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># do this when call comes from merge_parallel_veg() at end of simulation</span>
             <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">saved_attrs</span><span class="p">)</span>
 
         <span class="c1"># Need engine=&#39;scipy&#39; because the DFM BMI ctypes wrapper has a path conflict with netCDF</span>
@@ -174,7 +227,7 @@
 
 <div class="viewcode-block" id="OutputManager.reconcile_vegetation_output">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.outputs.OutputManager.html#dycove.sim.outputs.OutputManager.reconcile_vegetation_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">reconcile_vegetation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reconcile_vegetation_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simstate</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
 <span class="sd">        Merge vegetation outputs across MPI subdomains into single files.</span>
 
@@ -188,8 +241,11 @@
 <span class="sd">        and directory access).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">merge_parallel_veg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">()</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">save_simulation_indices</span><span class="p">(</span><span class="n">simstate</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">():</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">merge_parallel_veg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  <span class="c1"># requires self object as argument</span></div>
 </div>
 
 </pre></div>
