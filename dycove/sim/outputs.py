@@ -49,6 +49,7 @@ class OutputManager:
                                  cohort_id = i,
                                  )
                 self.cohort_indexing(simstate.eco_year, simstate.ets)
+                self.save_cohort_index()  # saves every step in case of incomplete simulation
 
             self.n_cohort_steps[i] += 1
 
@@ -67,11 +68,6 @@ class OutputManager:
             self.cohort_index[f"{year}"][f"{ets}"] = [self.fname_base]
         else:
             self.cohort_index[f"{year}"][f"{ets}"].append(self.fname_base)
-
-
-    def save_simulation_indices(self, simstate):
-        self.save_simulation_metadata(simstate)
-        self.save_cohort_index()
 
 
     def save_simulation_metadata(self, simstate):
@@ -141,8 +137,5 @@ class OutputManager:
         and directory access).
         """
         
-        if self.veg:
-            if not self.engine.is_parallel() or self.engine.get_rank() == 0:
-                self.save_simulation_indices(simstate)
-                if self.engine.is_parallel():
-                    self.engine.merge_parallel_veg(self)  # requires self object as argument
+        if self.veg and self.engine.is_parallel() and self.engine.get_rank() == 0:
+            self.engine.merge_parallel_veg(self)  # requires self object as argument

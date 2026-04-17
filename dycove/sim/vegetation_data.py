@@ -49,6 +49,8 @@ class VegetationAttributes:
         Ecological timestep at which colonization starts.
     end_col_ets : int
         Ecological timestep at which colonization ends (for the year; currently non-inclusive).
+    col_method : int
+        Colonization method (1, 2, 3, or 4, see Documentation for details)
 
     Parameters (Life Stage)
     -----------------------
@@ -77,7 +79,6 @@ class VegetationAttributes:
         (Zero disables uprooting mortality.)
     uproot_all_mort : list[float]
         Flow velocity above which there is total uprooting mortality.
-    
     stemht_winter_max : list[float]
         Maximum stem height during winter for each life stage.
 
@@ -103,6 +104,7 @@ class VegetationAttributes:
     winter_ets: int
     start_col_ets: int
     end_col_ets: int
+    col_method: int
     
     stemht_max: list[float]
     rootlength_max: list[float]

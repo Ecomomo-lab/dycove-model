@@ -3,7 +3,7 @@
 Example - Simple beach and tide channel (Delft3D FM)
 ====================================================
 
-This example corresponds to the Python file `tide_channel.py` located in the `examples/DFM/tide_channel/` directory, along with supporting input files.
+This example corresponds to the Python file `run_tide_channel.py` located in the `examples/DFM/tide_channel/` directory, along with supporting input files.
 This example uses the same bathymetry and vegetation inputs as the corresponding :doc:`ANUGA example <../anuga/tide_channel>`.
 That example includes some more discussion on DYCOVE's vegetation logic and inputs than this example does, and users are always encouraged to read the `background documentation <https://Ecomomo-lab.github.io/dycove-model/background/ecological_time_scaling.html>`_ for full exposure to DYCOVE concepts.
 
@@ -84,4 +84,4 @@ For example, we can plot vegetation stem heights over the entire 21-day (hydrody
       )
    plotter.run()
 
-This plotting code is located in the same example directory at `examples/DFM/tide_channel/plot_tide_channel_DFM.py`, where there are additional comments on how to use the code, as well as more ideas for quantities to plot.
+This plotting code is located in the same example directory at `examples/DFM/tide_channel/plot_tide_channel.py`, where there are additional comments on how to use the code, as well as more ideas for quantities to plot.

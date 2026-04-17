@@ -6,7 +6,7 @@ from datetime import datetime
 import numpy as np
 import xarray as xr
 from pathlib import Path
-
+import json
 
 from dycove.sim.base import HydroSimulationBase, HydroEngineBase
 from dycove.sim.engines.ANUGA_baptist import Baptist_operator
@@ -207,6 +207,10 @@ class AnugaEngine(HydroEngineBase):
         outputdir = OutputManager.veg_dir
         n_cohort_steps = OutputManager.n_cohort_steps
 
+        # Load in file that tracks all output files
+        with open(outputdir / "_cohort_files_ets_index.json", "r") as f:
+            file_index = json.load(f)
+
         sww_name = self.domain.get_name()
         base_name = sww_name[:-2]  # works because my_id == 0 for call to this method
         sww_dir = Path(self.domain.get_datadir())
@@ -224,42 +228,47 @@ class AnugaEngine(HydroEngineBase):
         f_ids = [np.where(tri_full_flag[p] == 1)[0] for p in range(self.numprocs)]
         f_gids = [tri_l2g[p][f_ids[p]] for p in range(self.numprocs)]
 
-        for cohort_id in range(len(self.veg.cohorts)):
-            for file_num in range(n_cohort_steps[cohort_id]):
+        # for cohort_id in range(len(self.veg.cohorts)):
+        #     for file_num in range(n_cohort_steps[cohort_id]):
+        for year in file_index:
+            for ets in file_index[year]:
+                for fname in file_index[year][ets]:
 
-                local_data = []
-                c_merged_attrs = None
+                    local_data = []
+                    c_merged_attrs = None
 
-                for p in range(self.numprocs):
-                    c_file_sub = outputdir / f"cohort{cohort_id}_{file_num:02d}_proc{p}.nc"
+                    for p in range(self.numprocs):
+                        c_file_sub = outputdir / f"{fname}_proc{p}.nc"
 
-                    if not c_file_sub.exists():
-                        msg = ("No individual processor (proc) output files found for this "
-                            "cohort, year, and ETS combination")
-                        r.report(msg, level="ERROR")
-                        raise FileNotFoundError(msg)
+                        if not c_file_sub.exists():
+                            msg = (f"No individual processor (proc) output files found with name "
+                                   f"'{fname}_proc{p}.nc', but filename was found in the output "
+                                   "index file.")
+                            r.report(msg, level="ERROR")
+                            raise FileNotFoundError(msg)
 
-                    with xr.open_dataset(c_file_sub) as c_sub:
-                        if p == 0:
-                            c_merged_attrs = dict(c_sub.attrs)
+                        with xr.open_dataset(c_file_sub) as c_sub:
+                            if p == 0:
+                                c_merged_attrs = dict(c_sub.attrs)
 
-                        local_data.append(
-                            {k: v.values for k, v in c_sub.data_vars.items()}
+                            local_data.append(
+                                {k: v.values for k, v in c_sub.data_vars.items()}
+                            )
+
+                        c_file_sub.unlink()
+
+                    c_merged = self.merge_local_to_global(local_data=local_data,
+                                                        f_gids=f_gids,
+                                                        f_ids=f_ids,
+                                                        n_global=n_global,
+                                                        )
+
+                    OutputManager.save_netcdf(
+                        outputdir,
+                        fname,
+                        c_merged,
+                        saved_attrs=c_merged_attrs
                         )
-
-                    c_file_sub.unlink()
-
-                c_merged = self.merge_local_to_global(local_data=local_data,
-                                                      f_gids=f_gids,
-                                                      f_ids=f_ids,
-                                                      n_global=n_global,
-                                                      )
-
-                OutputManager.save_netcdf(outputdir,
-                                          f"cohort{cohort_id}_{file_num:02d}",
-                                          c_merged,
-                                          saved_attrs=c_merged_attrs,
-                                          )
 
 
     @staticmethod

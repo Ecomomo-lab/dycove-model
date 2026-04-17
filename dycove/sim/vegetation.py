@@ -9,7 +9,7 @@ import json
 from dycove.sim.vegetation_data import VegetationAttributes, VegCohort
 from dycove.utils.simulation_reporting import Reporter
 from dycove.utils.array_math import cell_averaging, sum_product, sum_elementwise
-from dycove.constants import MIN_FRACTION, BURIAL_FRACTION, SCOUR_FRACTION
+from dycove.constants import MIN_FRACTION, BURIAL_FRACTION, SCOUR_FRACTION, INIT_FRAC_MORT
 
 r = Reporter()
 
@@ -75,10 +75,10 @@ class VegetationSpecies(SharedVegMethods):
                  rand_seed_method="random",
                  ):
 
-        self.attrs       = self.load_vegetation_attributes(Path(input_veg_filename))
-        self.mor         = mor
-        self.seed_frac   = rand_seed_frac
-        self.seed_method = rand_seed_method
+        self.attrs          = self.load_vegetation_attributes(Path(input_veg_filename))
+        self.mor            = mor
+        self.seed_frac      = rand_seed_frac
+        self.seed_method    = rand_seed_method
 
         if species_name is not None:
             self.name = species_name
@@ -132,10 +132,13 @@ class VegetationSpecies(SharedVegMethods):
             # Get conditions for colonization
             dry_cond = (min_depths <  fl_dr)
             fld_cond = (max_depths >= fl_dr)
+
             # Get indices for potential colonization
-            potential_inds = np.where(dry_cond & fld_cond)[0]
+            potential_inds = self.find_potential_inds(dry_cond, fld_cond)
+
             # Create mask for potential colonization based on input fraction and method
             rand_mask = self.create_seed_fraction_mask(len(min_depths))
+
             # Apply potential inds to mask
             potential_inds_mask = np.zeros_like(rand_mask, dtype=bool)
             potential_inds_mask[potential_inds] = True
@@ -145,7 +148,7 @@ class VegetationSpecies(SharedVegMethods):
             new_fraction = self.compute_new_fraction(existing_cohorts, selected_inds)
 
             # Create new cohort for latest colonization
-            # new_veg_fraction is an array, other quantities are scalars
+            # new_fraction is an array, other quantities are scalars
             new_cohort = VegCohort(
                 name=self.name,
                 fraction=new_fraction,
@@ -157,6 +160,21 @@ class VegetationSpecies(SharedVegMethods):
                 lifestage_year=1,
             )
             self.cohorts.append(new_cohort)
+
+
+    def find_potential_inds(self, dry_cell_arr: np.ndarray, fld_cell_arr: np.ndarray):
+        # Cells must experience both wet AND dry conditions during previous ETS
+        if self.attrs.col_method == 1:
+            return np.where(dry_cell_arr & fld_cell_arr)[0]
+        # Cells must be wet at some point during previous ETS
+        elif self.attrs.col_method == 2:
+            return np.where(fld_cell_arr)[0]
+        # Cells must be dry at some point during previous ETS
+        elif self.attrs.col_method == 3:
+            return np.where(dry_cell_arr)[0]
+        # All cells can be colonized regardless of prior conditions
+        elif self.attrs.col_method == 4:
+            return np.arange(len(dry_cell_arr))
 
 
     def create_seed_fraction_mask(self, array_len: int):
@@ -202,8 +220,8 @@ class VegetationSpecies(SharedVegMethods):
         """ Delegate to internal methods. """
         self.mortality_hydrodynamic(**hydro_vars)
         self.mortality_morphodynamic(**morpho_vars)
-        #self.apply_mortality()
-        self.apply_mortality_using_initial_fractions()
+        self.apply_mortality()
+        #self.apply_mortality_using_initial_fractions()
 
 
     def mortality_hydrodynamic(self, fld_frac, dry_frac, vel_max):
@@ -302,19 +320,22 @@ class VegetationSpecies(SharedVegMethods):
         #       how should we track causes when, for instance, a cell only had a single fraction covering 40%?
         #       Is there an order of operations?
         for c in self.cohorts:
+            # Reference fraction (initial or existing fraction) used in applied mortality calculations
+            ref_fraction = self.attrs.fraction_0 if INIT_FRAC_MORT else c.fraction
+
             # Vegetation fractions lost to flooding
             c.potential_mort_flood = self.potential_mort_flood[c.lifestage-1]
-            c.applied_mort_flood  = c.fraction*c.potential_mort_flood
+            c.applied_mort_flood = np.where(c.fraction > MIN_FRACTION, ref_fraction * c.potential_mort_flood, 0.)
             # Vegetation fractions lost to dessication
             c.potential_mort_desic = self.potential_mort_desic[c.lifestage-1]
-            c.applied_mort_desic  = c.fraction*c.potential_mort_desic 
+            c.applied_mort_desic  = np.where(c.fraction > MIN_FRACTION, ref_fraction * c.potential_mort_desic, 0.)
             # Vegetation fractions lost to uprooting
             c.potential_mort_uproot = self.potential_mort_uproot[c.lifestage-1]
-            c.applied_mort_uproot = c.fraction*c.potential_mort_uproot
+            c.applied_mort_uproot = np.where(c.fraction > MIN_FRACTION, ref_fraction * c.potential_mort_uproot, 0.)
             # Vegetation fractions lost to deposition
-            c.applied_mort_burial = c.fraction*c.potential_mort_burial
+            c.applied_mort_burial = np.where(c.fraction > MIN_FRACTION, ref_fraction * c.potential_mort_burial, 0.)
             # Vegetation fractions lost to erosion
-            c.applied_mort_scour  = c.fraction*c.potential_mort_scour
+            c.applied_mort_scour  = np.where(c.fraction > MIN_FRACTION, ref_fraction * c.potential_mort_scour, 0.)
             # Subtract all mortality fractions from actual fractions, but maintain minimum fraction of zero
             c.applied_mort_total = c.applied_mort_flood + c.applied_mort_desic + c.applied_mort_uproot + \
                                    c.applied_mort_burial + c.applied_mort_scour
@@ -326,37 +347,37 @@ class VegetationSpecies(SharedVegMethods):
             c.fraction = np.where(fractions_left > MIN_FRACTION, fractions_left, 0.)
 
 
-    def apply_mortality_using_initial_fractions(self):
-        """ 
-        Replacing `c.fraction` with `self.attrs.fraction_0`, so mortality is 
-        always a function of initial colonization fraction.
+    # def apply_mortality_using_initial_fractions(self):
+    #     """ 
+    #     Replacing `c.fraction` with `self.attrs.fraction_0`, so mortality is 
+    #     always a function of initial colonization fraction.
 
-        ! ---------- NOT CURRENTLY IN USE OR TESTED ----------- !
-        """
-        for c in self.cohorts:
-            # Vegetation fractions lost to flooding
-            c.potential_mort_flood = self.potential_mort_flood[c.lifestage-1]
-            # For accounting purposes, no mortality if there is no fraction
-            c.applied_mort_flood  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_flood, 0.)
-            # Vegetation fractions lost to dessication
-            c.potential_mort_desic = self.potential_mort_desic[c.lifestage-1]
-            c.applied_mort_desic  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_desic, 0.)
-            # Vegetation fractions lost to uprooting
-            c.potential_mort_uproot = self.potential_mort_uproot[c.lifestage-1]
-            c.applied_mort_uproot = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_uproot, 0.)
-            # Vegetation fractions lost to deposition
-            c.applied_mort_burial = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_burial, 0.)
-            # Vegetation fractions lost to erosion
-            c.applied_mort_scour  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_scour, 0.)
-            # Subtract all mortality fractions from actual fractions, but maintain minimum fraction of zero
-            c.applied_mort_total = c.applied_mort_flood + c.applied_mort_desic + c.applied_mort_uproot + \
-                                    c.applied_mort_burial + c.applied_mort_scour
-            fractions_left = c.fraction - c.applied_mort_total
-            fractions_left = np.maximum(fractions_left, 0)  # no negative fractions
+    #     ! ---------- NOT CURRENTLY IN USE OR TESTED ----------- !
+    #     """
+    #     for c in self.cohorts:
+    #         # Vegetation fractions lost to flooding
+    #         c.potential_mort_flood = self.potential_mort_flood[c.lifestage-1]
+    #         # For accounting purposes, no mortality if there is no fraction
+    #         c.applied_mort_flood  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_flood, 0.)
+    #         # Vegetation fractions lost to dessication
+    #         c.potential_mort_desic = self.potential_mort_desic[c.lifestage-1]
+    #         c.applied_mort_desic  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_desic, 0.)
+    #         # Vegetation fractions lost to uprooting
+    #         c.potential_mort_uproot = self.potential_mort_uproot[c.lifestage-1]
+    #         c.applied_mort_uproot = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_uproot, 0.)
+    #         # Vegetation fractions lost to deposition
+    #         c.applied_mort_burial = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_burial, 0.)
+    #         # Vegetation fractions lost to erosion
+    #         c.applied_mort_scour  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_scour, 0.)
+    #         # Subtract all mortality fractions from actual fractions, but maintain minimum fraction of zero
+    #         c.applied_mort_total = c.applied_mort_flood + c.applied_mort_desic + c.applied_mort_uproot + \
+    #                                 c.applied_mort_burial + c.applied_mort_scour
+    #         fractions_left = c.fraction - c.applied_mort_total
+    #         fractions_left = np.maximum(fractions_left, 0)  # no negative fractions
 
-            # Update fractions in cohort
-            # For fractions that decay slowly over time, round down to zero when they get small enough
-            c.fraction = np.where(fractions_left > MIN_FRACTION, fractions_left, 0.)
+    #         # Update fractions in cohort
+    #         # For fractions that decay slowly over time, round down to zero when they get small enough
+    #         c.fraction = np.where(fractions_left > MIN_FRACTION, fractions_left, 0.)
 
 
     @staticmethod

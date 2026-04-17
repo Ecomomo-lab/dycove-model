@@ -10,3 +10,7 @@ MIN_FRACTION = 0.025
 # Ratio of bed level change to stem height above which complete mortality occurs
 BURIAL_FRACTION = 1.0
 SCOUR_FRACTION = 0.1
+
+# True if applied mortality is function of the initial colonized fraction
+# False if applied mortality is function of the current fraction (which may have already been reduced)
+INIT_FRAC_MORT = True

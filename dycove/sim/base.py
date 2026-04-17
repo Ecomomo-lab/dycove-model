@@ -117,6 +117,8 @@ class HydroSimulationBase(ABC):
 
         self.engine.check_simulation_inputs(self.simstate)
 
+        self.outputs.save_simulation_metadata(self.simstate)
+
         r.print_model_time_info(self.simstate, self.veg_active)
 
         # Loop over all Ecological Time Steps

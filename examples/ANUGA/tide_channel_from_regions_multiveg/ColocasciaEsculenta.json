@@ -11,6 +11,7 @@
   "winter_ets": 11,
   "start_col_ets": 3,
   "end_col_ets": 5,
+  "col_method": 1,
 
   "life_stage_attr": [
     {

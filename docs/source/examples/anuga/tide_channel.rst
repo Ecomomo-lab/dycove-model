@@ -3,7 +3,7 @@
 Example - Simple beach and tide channel (ANUGA)
 ===============================================
 
-This example corresponds to the Python file `tide_channel_ANUGA.py` located in the `examples/ANUGA/tide_channel/` directory, along with supporting input files.
+This example corresponds to the Python file `run_tide_channel.py` located in the `examples/ANUGA/tide_channel/` directory, along with supporting input files.
 
 This example consists of a simple, symmetrical beach slope with a channel that bisects the dune and connects to a lagoon.
 A simple mesh is developed using one of ANUGA's built-in functions that creates a rectangular mesh of structured triangles.
@@ -100,4 +100,4 @@ For example, we can plot vegetation stem heights over the entire 21-day (hydrody
       )
    plotter.run()
 
-This plotting code is located in the same example directory at `examples/ANUGA/tide_channel/plot_tide_channel_ANUGA.py`, where there are additional comments on how to use the code, as well as more ideas for quantities to plot.
+This plotting code is located in the same example directory at `examples/ANUGA/tide_channel/plot_tide_channel.py`, where there are additional comments on how to use the code, as well as more ideas for quantities to plot.

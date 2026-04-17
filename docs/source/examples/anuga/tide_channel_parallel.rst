@@ -3,7 +3,7 @@
 Example - Simple beach and tide channel (ANUGA in parallel)
 ===========================================================
 
-This example corresponds to the Python file `tide_channel_ANUGA_pll.py` located in the `examples/ANUGA/tide_channel_parallel/` directory, along with supporting input files.
+This example corresponds to the Python file `run_tide_channel.py` located in the `examples/ANUGA/tide_channel_parallel/` directory, along with supporting input files.
 This example uses the same bathymetry and vegetation inputs as the :doc:`serial ANUGA example <../anuga/tide_channel>`.
 
 DYCOVE-ANUGA can be run in parallel as long as `mpi4py` is installed (see :doc:`Installation Instructions <../../installation/index>`) and the user has access to more than one processor.

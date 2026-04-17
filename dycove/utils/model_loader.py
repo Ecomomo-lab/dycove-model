@@ -137,7 +137,9 @@ class BaseMapLoader(ABC):
         self._load_outputs(self._get_model_subdir())
         wse = self.cached_map_vars[self.hydro_varnames['WSE']]
         if index >= len(wse):
-            raise ValueError("Final plot time in 'plot_times' exceeds the length of the simulation!")
+            msg = (f"Final plot time in 'plot_times' indicates an array index of {index}, "
+                   f"but the numerical model output arrays only have length {len(wse)}!")
+            raise ValueError(msg)
         
     def _load_veg(self, ets, eco_year):
         """
