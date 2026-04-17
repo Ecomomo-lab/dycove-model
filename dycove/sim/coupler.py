@@ -64,11 +64,9 @@ class VegetationCoupler:
         """ Compute mortality based on hydrodynamic statistics. """
         hydro_vars  = {"fld_frac"   : hydrostats.flood_frac(),
                        "dry_frac"   : hydrostats.dry_frac(),
-                       "vel_max"    : hydrostats.v_max_95th()}
-        morpho_vars = {"bl_diff"    : hydrostats.bedlevel_diff,
-                    #    "burial_frac": 1.0,
-                    #    "scour_frac" : 0.1
+                       "vel_max"    : hydrostats.v_max_95th(),
                        }
+        morpho_vars = {"bl_diff"    : hydrostats.bedlevel_diff}
         self.veg.mortality(hydro_vars, morpho_vars)
 
 

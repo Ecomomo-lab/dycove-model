@@ -472,7 +472,7 @@ class ModelPlotter:
             "Mortality -- Scour",
             "Mortality -- Total",
         ]
-        if self.quantity not in supported_quantities:
+        if self.full_quantity_name not in supported_quantities:
             raise ValueError("Input quantity not supported. Please use a quantity from the "
                                 f"following list: {supported_quantities}")
         if self.quantity == "Mortality" and not self.save_mort:
