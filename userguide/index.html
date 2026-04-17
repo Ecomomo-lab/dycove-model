@@ -297,14 +297,13 @@ Either way, we need to read in the underlying hydrodynamic model file for interp
     <span class="n">cohort_index</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
 <span class="c1"># Loop through all saved cohort files by year and ETS, load and plot data</span>
-<span class="n">eco_years</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cohort_index</span><span class="p">)</span>  <span class="c1"># output eco years in order</span>
+<span class="n">eco_years</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cohort_index</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>  <span class="c1"># output eco years in order</span>
 <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">eco_years</span><span class="p">:</span>
-    <span class="n">ets_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cohort_index</span><span class="p">[</span><span class="n">year</span><span class="p">])</span>  <span class="c1"># ETS in order for current eco year</span>
+    <span class="n">ets_list</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cohort_index</span><span class="p">[</span><span class="n">year</span><span class="p">],</span> <span class="n">key</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>  <span class="c1"># ETS in order for current eco year</span>
     <span class="k">for</span> <span class="n">ets</span> <span class="ow">in</span> <span class="n">ets_list</span><span class="p">:</span>
         <span class="n">fractions</span><span class="p">,</span> <span class="n">stem_heights</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">cohort_index</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">ets</span><span class="p">]:</span>
-            <span class="n">c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eco_dir</span> <span class="o">/</span> <span class="p">(</span><span class="n">file</span> <span class="o">+</span> <span class="s2">&quot;.nc&quot;</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eco_dir</span> <span class="o">/</span> <span class="p">(</span><span class="n">file</span> <span class="o">+</span> <span class="s2">&quot;.nc&quot;</span><span class="p">))</span>
 
             <span class="c1"># Append to list all data from this ETS</span>
             <span class="n">fractions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;fraction&quot;</span><span class="p">])</span>  <span class="c1"># each c[&quot;fraction&quot;] is an array</span>

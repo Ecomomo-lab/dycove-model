@@ -257,14 +257,13 @@ Either way, we need to read in the underlying hydrodynamic model file for interp
        cohort_index = json.load(f)
 
    # Loop through all saved cohort files by year and ETS, load and plot data
-   eco_years = sorted(cohort_index)  # output eco years in order
+   eco_years = sorted(cohort_index, key=int)  # output eco years in order
    for year in eco_years:
-       ets_list = sorted(cohort_index[year])  # ETS in order for current eco year
+       ets_list = sorted(cohort_index[year], key=int)  # ETS in order for current eco year
        for ets in ets_list:
            fractions, stem_heights = [], []
            for file in cohort_index[year][ets]:
-               c = xr.load_dataset(eco_dir / (file + ".nc")
-               )
+               c = xr.load_dataset(eco_dir / (file + ".nc"))
 
                # Append to list all data from this ETS
                fractions.append(c["fraction"])  # each c["fraction"] is an array

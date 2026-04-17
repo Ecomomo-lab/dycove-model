@@ -202,14 +202,13 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">check_simulation_inputs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">save_simulation_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="p">)</span>
-
         <span class="n">r</span><span class="o">.</span><span class="n">print_model_time_info</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg_active</span><span class="p">)</span>
 
         <span class="c1"># Loop over all Ecological Time Steps</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg_active</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">run_simulation_without_vegetation</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">save_simulation_metadata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">run_simulation_with_vegetation</span><span class="p">()</span></div>
 
 
