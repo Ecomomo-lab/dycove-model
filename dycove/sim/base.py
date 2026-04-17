@@ -117,14 +117,13 @@ class HydroSimulationBase(ABC):
 
         self.engine.check_simulation_inputs(self.simstate)
 
-        self.outputs.save_simulation_metadata(self.simstate)
-
         r.print_model_time_info(self.simstate, self.veg_active)
 
         # Loop over all Ecological Time Steps
         if not self.veg_active:
             self.run_simulation_without_vegetation()
         else:
+            self.outputs.save_simulation_metadata(self.simstate)
             self.run_simulation_with_vegetation()
 
 
