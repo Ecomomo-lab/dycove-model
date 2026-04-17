@@ -558,7 +558,7 @@
             <span class="s2">&quot;Mortality -- Scour&quot;</span><span class="p">,</span>
             <span class="s2">&quot;Mortality -- Total&quot;</span><span class="p">,</span>
         <span class="p">]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_quantities</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">full_quantity_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">supported_quantities</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Input quantity not supported. Please use a quantity from the &quot;</span>
                                 <span class="sa">f</span><span class="s2">&quot;following list: </span><span class="si">{</span><span class="n">supported_quantities</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="o">==</span> <span class="s2">&quot;Mortality&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">save_mort</span><span class="p">:</span>

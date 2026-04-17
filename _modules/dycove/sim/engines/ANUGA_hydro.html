@@ -84,7 +84,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.sim.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">HydroSimulationBase</span><span class="p">,</span> <span class="n">HydroEngineBase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.sim.engines.ANUGA_baptist</span><span class="w"> </span><span class="kn">import</span> <span class="n">Baptist_operator</span>
@@ -334,6 +334,10 @@
         <span class="n">outputdir</span> <span class="o">=</span> <span class="n">OutputManager</span><span class="o">.</span><span class="n">veg_dir</span>
         <span class="n">n_cohort_steps</span> <span class="o">=</span> <span class="n">OutputManager</span><span class="o">.</span><span class="n">n_cohort_steps</span>
 
+        <span class="c1"># Load in file that tracks all output files</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">outputdir</span> <span class="o">/</span> <span class="s2">&quot;_cohort_files_ets_index.json&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">file_index</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
         <span class="n">sww_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
         <span class="n">base_name</span> <span class="o">=</span> <span class="n">sww_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span>  <span class="c1"># works because my_id == 0 for call to this method</span>
         <span class="n">sww_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">domain</span><span class="o">.</span><span class="n">get_datadir</span><span class="p">())</span>
@@ -351,42 +355,47 @@
         <span class="n">f_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">tri_full_flag</span><span class="p">[</span><span class="n">p</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">)]</span>
         <span class="n">f_gids</span> <span class="o">=</span> <span class="p">[</span><span class="n">tri_l2g</span><span class="p">[</span><span class="n">p</span><span class="p">][</span><span class="n">f_ids</span><span class="p">[</span><span class="n">p</span><span class="p">]]</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">)]</span>
 
-        <span class="k">for</span> <span class="n">cohort_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">cohorts</span><span class="p">)):</span>
-            <span class="k">for</span> <span class="n">file_num</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cohort_steps</span><span class="p">[</span><span class="n">cohort_id</span><span class="p">]):</span>
+        <span class="c1"># for cohort_id in range(len(self.veg.cohorts)):</span>
+        <span class="c1">#     for file_num in range(n_cohort_steps[cohort_id]):</span>
+        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">file_index</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ets</span> <span class="ow">in</span> <span class="n">file_index</span><span class="p">[</span><span class="n">year</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">file_index</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">ets</span><span class="p">]:</span>
 
-                <span class="n">local_data</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="n">c_merged_attrs</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="n">local_data</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">c_merged_attrs</span> <span class="o">=</span> <span class="kc">None</span>
 
-                <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">):</span>
-                    <span class="n">c_file_sub</span> <span class="o">=</span> <span class="n">outputdir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;cohort</span><span class="si">{</span><span class="n">cohort_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">file_num</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">_proc</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">.nc&quot;</span>
+                    <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">):</span>
+                        <span class="n">c_file_sub</span> <span class="o">=</span> <span class="n">outputdir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">_proc</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">.nc&quot;</span>
 
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">c_file_sub</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;No individual processor (proc) output files found for this &quot;</span>
-                            <span class="s2">&quot;cohort, year, and ETS combination&quot;</span><span class="p">)</span>
-                        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
-                        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="ow">not</span> <span class="n">c_file_sub</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No individual processor (proc) output files found with name &quot;</span>
+                                   <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">_proc</span><span class="si">{</span><span class="n">p</span><span class="si">}</span><span class="s2">.nc&#39;, but filename was found in the output &quot;</span>
+                                   <span class="s2">&quot;index file.&quot;</span><span class="p">)</span>
+                            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+                            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-                    <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">c_file_sub</span><span class="p">)</span> <span class="k">as</span> <span class="n">c_sub</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                            <span class="n">c_merged_attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">c_sub</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+                        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">c_file_sub</span><span class="p">)</span> <span class="k">as</span> <span class="n">c_sub</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">p</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                                <span class="n">c_merged_attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">c_sub</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
 
-                        <span class="n">local_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                            <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">c_sub</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-                        <span class="p">)</span>
+                            <span class="n">local_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">c_sub</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+                            <span class="p">)</span>
 
-                    <span class="n">c_file_sub</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+                        <span class="n">c_file_sub</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
 
-                <span class="n">c_merged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_local_to_global</span><span class="p">(</span><span class="n">local_data</span><span class="o">=</span><span class="n">local_data</span><span class="p">,</span>
-                                                      <span class="n">f_gids</span><span class="o">=</span><span class="n">f_gids</span><span class="p">,</span>
-                                                      <span class="n">f_ids</span><span class="o">=</span><span class="n">f_ids</span><span class="p">,</span>
-                                                      <span class="n">n_global</span><span class="o">=</span><span class="n">n_global</span><span class="p">,</span>
-                                                      <span class="p">)</span>
+                    <span class="n">c_merged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_local_to_global</span><span class="p">(</span><span class="n">local_data</span><span class="o">=</span><span class="n">local_data</span><span class="p">,</span>
+                                                        <span class="n">f_gids</span><span class="o">=</span><span class="n">f_gids</span><span class="p">,</span>
+                                                        <span class="n">f_ids</span><span class="o">=</span><span class="n">f_ids</span><span class="p">,</span>
+                                                        <span class="n">n_global</span><span class="o">=</span><span class="n">n_global</span><span class="p">,</span>
+                                                        <span class="p">)</span>
 
-                <span class="n">OutputManager</span><span class="o">.</span><span class="n">save_netcdf</span><span class="p">(</span><span class="n">outputdir</span><span class="p">,</span>
-                                          <span class="sa">f</span><span class="s2">&quot;cohort</span><span class="si">{</span><span class="n">cohort_id</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">file_num</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                                          <span class="n">c_merged</span><span class="p">,</span>
-                                          <span class="n">saved_attrs</span><span class="o">=</span><span class="n">c_merged_attrs</span><span class="p">,</span>
-                                          <span class="p">)</span></div>
+                    <span class="n">OutputManager</span><span class="o">.</span><span class="n">save_netcdf</span><span class="p">(</span>
+                        <span class="n">outputdir</span><span class="p">,</span>
+                        <span class="n">fname</span><span class="p">,</span>
+                        <span class="n">c_merged</span><span class="p">,</span>
+                        <span class="n">saved_attrs</span><span class="o">=</span><span class="n">c_merged_attrs</span>
+                        <span class="p">)</span></div>
 
 
 

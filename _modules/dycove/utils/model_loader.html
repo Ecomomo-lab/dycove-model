@@ -222,7 +222,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_outputs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_model_subdir</span><span class="p">())</span>
         <span class="n">wse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="s1">&#39;WSE&#39;</span><span class="p">]]</span>
         <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">wse</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Final plot time in &#39;plot_times&#39; exceeds the length of the simulation!&quot;</span><span class="p">)</span></div>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Final plot time in &#39;plot_times&#39; indicates an array index of </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">, &quot;</span>
+                   <span class="sa">f</span><span class="s2">&quot;but the numerical model output arrays only have length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">wse</span><span class="p">)</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
         
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_veg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ets</span><span class="p">,</span> <span class="n">eco_year</span><span class="p">):</span>

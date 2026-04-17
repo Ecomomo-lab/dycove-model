@@ -161,11 +161,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Compute mortality based on hydrodynamic statistics. &quot;&quot;&quot;</span>
         <span class="n">hydro_vars</span>  <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fld_frac&quot;</span>   <span class="p">:</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">flood_frac</span><span class="p">(),</span>
                        <span class="s2">&quot;dry_frac&quot;</span>   <span class="p">:</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">dry_frac</span><span class="p">(),</span>
-                       <span class="s2">&quot;vel_max&quot;</span>    <span class="p">:</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">v_max_95th</span><span class="p">()}</span>
-        <span class="n">morpho_vars</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;bl_diff&quot;</span>    <span class="p">:</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">bedlevel_diff</span><span class="p">,</span>
-                    <span class="c1">#    &quot;burial_frac&quot;: 1.0,</span>
-                    <span class="c1">#    &quot;scour_frac&quot; : 0.1</span>
+                       <span class="s2">&quot;vel_max&quot;</span>    <span class="p">:</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">v_max_95th</span><span class="p">(),</span>
                        <span class="p">}</span>
+        <span class="n">morpho_vars</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;bl_diff&quot;</span>    <span class="p">:</span> <span class="n">hydrostats</span><span class="o">.</span><span class="n">bedlevel_diff</span><span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">mortality</span><span class="p">(</span><span class="n">hydro_vars</span><span class="p">,</span> <span class="n">morpho_vars</span><span class="p">)</span></div>
 
 

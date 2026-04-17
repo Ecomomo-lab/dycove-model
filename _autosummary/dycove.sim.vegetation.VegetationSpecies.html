@@ -126,20 +126,20 @@ whereas ‘random’ will be truly random each time.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.apply_mortality" title="dycove.sim.vegetation.VegetationSpecies.apply_mortality"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_mortality</span></code></a>()</p></td>
 <td><p>Multiply potential mortality by vegetation fractions to determine actual mortality.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.apply_mortality_using_initial_fractions" title="dycove.sim.vegetation.VegetationSpecies.apply_mortality_using_initial_fractions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_mortality_using_initial_fractions</span></code></a>()</p></td>
-<td><p>Replacing <cite>c.fraction</cite> with <cite>self.attrs.fraction_0</cite>, so mortality is always a function of initial colonization fraction.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.colonization" title="dycove.sim.vegetation.VegetationSpecies.colonization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">colonization</span></code></a>(ets, min_depths, max_depths, fl_dr)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.colonization" title="dycove.sim.vegetation.VegetationSpecies.colonization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">colonization</span></code></a>(ets, min_depths, max_depths, fl_dr)</p></td>
 <td><p>Colonize a <a class="reference internal" href="dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> by adding a new fraction to cells.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.compute_new_fraction" title="dycove.sim.vegetation.VegetationSpecies.compute_new_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_new_fraction</span></code></a>(existing_cohorts, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.compute_new_fraction" title="dycove.sim.vegetation.VegetationSpecies.compute_new_fraction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_new_fraction</span></code></a>(existing_cohorts, ...)</p></td>
 <td><p>Compute a new cohort’s fractional cover based on available space.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.compute_veg_model_quantities" title="dycove.sim.vegetation.VegetationSpecies.compute_veg_model_quantities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_veg_model_quantities</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.compute_veg_model_quantities" title="dycove.sim.vegetation.VegetationSpecies.compute_veg_model_quantities"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_veg_model_quantities</span></code></a>()</p></td>
 <td><p>Function to compute weighted area averages of model vegetation variables.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.create_seed_fraction_mask" title="dycove.sim.vegetation.VegetationSpecies.create_seed_fraction_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_seed_fraction_mask</span></code></a>(array_len)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.create_seed_fraction_mask" title="dycove.sim.vegetation.VegetationSpecies.create_seed_fraction_mask"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_seed_fraction_mask</span></code></a>(array_len)</p></td>
 <td><p>Create a mask based on random seeding</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_potential_inds</span></code>(dry_cell_arr, fld_cell_arr)</p></td>
+<td><p></p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_drag</span></code>()</p></td>
 <td><p></p></td>
@@ -181,14 +181,6 @@ whereas ‘random’ will be truly random each time.</p></li>
 <span class="sig-name descname"><span class="pre">apply_mortality</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.apply_mortality"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.apply_mortality" title="Link to this definition"></a></dt>
 <dd><p>Multiply potential mortality by vegetation fractions to determine actual mortality.</p>
 <p>Populate mortality-related fields of each active VegCohort object.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.apply_mortality_using_initial_fractions">
-<span class="sig-name descname"><span class="pre">apply_mortality_using_initial_fractions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.apply_mortality_using_initial_fractions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.apply_mortality_using_initial_fractions" title="Link to this definition"></a></dt>
-<dd><p>Replacing <cite>c.fraction</cite> with <cite>self.attrs.fraction_0</cite>, so mortality is
-always a function of initial colonization fraction.</p>
-<p>! ———- NOT CURRENTLY IN USE OR TESTED ———– !</p>
 </dd></dl>
 
 <dl class="py method">

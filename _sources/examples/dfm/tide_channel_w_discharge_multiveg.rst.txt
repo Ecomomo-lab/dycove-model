@@ -4,7 +4,7 @@ Example - Simple beach and tide channel with discharge, morphology, and two vege
 ===========================================================================================================
 
 
-This example corresponds to the Python file `tide_channel_w_discharge_multiveg.py` located in the `examples/DFM/tide_channel_w_discharge_multiveg/` directory, along with supporting input files.
+This example corresponds to the Python file `run_tide_channel.py` located in the `examples/DFM/tide_channel_w_discharge_multiveg/` directory, along with supporting input files.
 This example uses the same bathymetry and vegetation inputs as the :doc:`tide_channel example <tide_channel>`.
 
 This example consists of a simple, symmetrical beach slope with a channel that bisects the dune and connects to a lagoon.

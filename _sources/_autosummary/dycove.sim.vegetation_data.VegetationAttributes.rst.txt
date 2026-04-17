@@ -38,6 +38,7 @@
       ~VegetationAttributes.winter_ets
       ~VegetationAttributes.start_col_ets
       ~VegetationAttributes.end_col_ets
+      ~VegetationAttributes.col_method
       ~VegetationAttributes.stemht_max
       ~VegetationAttributes.rootlength_max
       ~VegetationAttributes.stemdiam_max

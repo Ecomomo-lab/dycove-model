@@ -87,7 +87,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.sim.vegetation_data</span><span class="w"> </span><span class="kn">import</span> <span class="n">VegetationAttributes</span><span class="p">,</span> <span class="n">VegCohort</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.simulation_reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reporter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.array_math</span><span class="w"> </span><span class="kn">import</span> <span class="n">cell_averaging</span><span class="p">,</span> <span class="n">sum_product</span><span class="p">,</span> <span class="n">sum_elementwise</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">MIN_FRACTION</span><span class="p">,</span> <span class="n">BURIAL_FRACTION</span><span class="p">,</span> <span class="n">SCOUR_FRACTION</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dycove.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">MIN_FRACTION</span><span class="p">,</span> <span class="n">BURIAL_FRACTION</span><span class="p">,</span> <span class="n">SCOUR_FRACTION</span><span class="p">,</span> <span class="n">INIT_FRAC_MORT</span>
 
 <span class="n">r</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">()</span>
 
@@ -163,10 +163,10 @@
                  <span class="n">rand_seed_method</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span>
                  <span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span>       <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_vegetation_attributes</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">input_veg_filename</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mor</span>         <span class="o">=</span> <span class="n">mor</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">seed_frac</span>   <span class="o">=</span> <span class="n">rand_seed_frac</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">seed_method</span> <span class="o">=</span> <span class="n">rand_seed_method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span>          <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_vegetation_attributes</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">input_veg_filename</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mor</span>            <span class="o">=</span> <span class="n">mor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed_frac</span>      <span class="o">=</span> <span class="n">rand_seed_frac</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">seed_method</span>    <span class="o">=</span> <span class="n">rand_seed_method</span>
 
         <span class="k">if</span> <span class="n">species_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">species_name</span>
@@ -226,10 +226,13 @@
             <span class="c1"># Get conditions for colonization</span>
             <span class="n">dry_cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_depths</span> <span class="o">&lt;</span>  <span class="n">fl_dr</span><span class="p">)</span>
             <span class="n">fld_cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">max_depths</span> <span class="o">&gt;=</span> <span class="n">fl_dr</span><span class="p">)</span>
+
             <span class="c1"># Get indices for potential colonization</span>
-            <span class="n">potential_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dry_cond</span> <span class="o">&amp;</span> <span class="n">fld_cond</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">potential_inds</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">find_potential_inds</span><span class="p">(</span><span class="n">dry_cond</span><span class="p">,</span> <span class="n">fld_cond</span><span class="p">)</span>
+
             <span class="c1"># Create mask for potential colonization based on input fraction and method</span>
             <span class="n">rand_mask</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_seed_fraction_mask</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">min_depths</span><span class="p">))</span>
+
             <span class="c1"># Apply potential inds to mask</span>
             <span class="n">potential_inds_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">rand_mask</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
             <span class="n">potential_inds_mask</span><span class="p">[</span><span class="n">potential_inds</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
@@ -239,7 +242,7 @@
             <span class="n">new_fraction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compute_new_fraction</span><span class="p">(</span><span class="n">existing_cohorts</span><span class="p">,</span> <span class="n">selected_inds</span><span class="p">)</span>
 
             <span class="c1"># Create new cohort for latest colonization</span>
-            <span class="c1"># new_veg_fraction is an array, other quantities are scalars</span>
+            <span class="c1"># new_fraction is an array, other quantities are scalars</span>
             <span class="n">new_cohort</span> <span class="o">=</span> <span class="n">VegCohort</span><span class="p">(</span>
                 <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="n">fraction</span><span class="o">=</span><span class="n">new_fraction</span><span class="p">,</span>
@@ -252,6 +255,21 @@
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_cohort</span><span class="p">)</span></div>
 
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">find_potential_inds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dry_cell_arr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">fld_cell_arr</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="c1"># Cells must experience both wet AND dry conditions during previous ETS</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">col_method</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dry_cell_arr</span> <span class="o">&amp;</span> <span class="n">fld_cell_arr</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Cells must be wet at some point during previous ETS</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">col_method</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">fld_cell_arr</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Cells must be dry at some point during previous ETS</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">col_method</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">dry_cell_arr</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># All cells can be colonized regardless of prior conditions</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">col_method</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dry_cell_arr</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="VegetationSpecies.create_seed_fraction_mask">
@@ -305,9 +323,9 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Delegate to internal methods. &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mortality_hydrodynamic</span><span class="p">(</span><span class="o">**</span><span class="n">hydro_vars</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mortality_morphodynamic</span><span class="p">(</span><span class="o">**</span><span class="n">morpho_vars</span><span class="p">)</span>
-        <span class="c1">#self.apply_mortality()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">apply_mortality_using_initial_fractions</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">apply_mortality</span><span class="p">()</span></div>
 
+        <span class="c1">#self.apply_mortality_using_initial_fractions()</span>
 
 
 <div class="viewcode-block" id="VegetationSpecies.mortality_hydrodynamic">
@@ -414,19 +432,22 @@
         <span class="c1">#       how should we track causes when, for instance, a cell only had a single fraction covering 40%?</span>
         <span class="c1">#       Is there an order of operations?</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">:</span>
+            <span class="c1"># Reference fraction (initial or existing fraction) used in applied mortality calculations</span>
+            <span class="n">ref_fraction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">fraction_0</span> <span class="k">if</span> <span class="n">INIT_FRAC_MORT</span> <span class="k">else</span> <span class="n">c</span><span class="o">.</span><span class="n">fraction</span>
+
             <span class="c1"># Vegetation fractions lost to flooding</span>
             <span class="n">c</span><span class="o">.</span><span class="n">potential_mort_flood</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential_mort_flood</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">lifestage</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_flood</span>  <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fraction</span><span class="o">*</span><span class="n">c</span><span class="o">.</span><span class="n">potential_mort_flood</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_flood</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="o">&gt;</span> <span class="n">MIN_FRACTION</span><span class="p">,</span> <span class="n">ref_fraction</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">potential_mort_flood</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
             <span class="c1"># Vegetation fractions lost to dessication</span>
             <span class="n">c</span><span class="o">.</span><span class="n">potential_mort_desic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential_mort_desic</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">lifestage</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_desic</span>  <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fraction</span><span class="o">*</span><span class="n">c</span><span class="o">.</span><span class="n">potential_mort_desic</span> 
+            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_desic</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="o">&gt;</span> <span class="n">MIN_FRACTION</span><span class="p">,</span> <span class="n">ref_fraction</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">potential_mort_desic</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
             <span class="c1"># Vegetation fractions lost to uprooting</span>
             <span class="n">c</span><span class="o">.</span><span class="n">potential_mort_uproot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential_mort_uproot</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">lifestage</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_uproot</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fraction</span><span class="o">*</span><span class="n">c</span><span class="o">.</span><span class="n">potential_mort_uproot</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_uproot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="o">&gt;</span> <span class="n">MIN_FRACTION</span><span class="p">,</span> <span class="n">ref_fraction</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">potential_mort_uproot</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
             <span class="c1"># Vegetation fractions lost to deposition</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_burial</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fraction</span><span class="o">*</span><span class="n">c</span><span class="o">.</span><span class="n">potential_mort_burial</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_burial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="o">&gt;</span> <span class="n">MIN_FRACTION</span><span class="p">,</span> <span class="n">ref_fraction</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">potential_mort_burial</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
             <span class="c1"># Vegetation fractions lost to erosion</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_scour</span>  <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fraction</span><span class="o">*</span><span class="n">c</span><span class="o">.</span><span class="n">potential_mort_scour</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_scour</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="o">&gt;</span> <span class="n">MIN_FRACTION</span><span class="p">,</span> <span class="n">ref_fraction</span> <span class="o">*</span> <span class="n">c</span><span class="o">.</span><span class="n">potential_mort_scour</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
             <span class="c1"># Subtract all mortality fractions from actual fractions, but maintain minimum fraction of zero</span>
             <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_total</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_flood</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_desic</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_uproot</span> <span class="o">+</span> \
                                    <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_burial</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_scour</span>
@@ -439,40 +460,37 @@
 
 
 
-<div class="viewcode-block" id="VegetationSpecies.apply_mortality_using_initial_fractions">
-<a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.apply_mortality_using_initial_fractions">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">apply_mortality_using_initial_fractions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">        Replacing `c.fraction` with `self.attrs.fraction_0`, so mortality is </span>
-<span class="sd">        always a function of initial colonization fraction.</span>
+    <span class="c1"># def apply_mortality_using_initial_fractions(self):</span>
+    <span class="c1">#     &quot;&quot;&quot; </span>
+    <span class="c1">#     Replacing `c.fraction` with `self.attrs.fraction_0`, so mortality is </span>
+    <span class="c1">#     always a function of initial colonization fraction.</span>
 
-<span class="sd">        ! ---------- NOT CURRENTLY IN USE OR TESTED ----------- !</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">:</span>
-            <span class="c1"># Vegetation fractions lost to flooding</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">potential_mort_flood</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential_mort_flood</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">lifestage</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="c1"># For accounting purposes, no mortality if there is no fraction</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_flood</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="o">&gt;</span> <span class="mf">0.01</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">fraction_0</span><span class="o">*</span><span class="n">c</span><span class="o">.</span><span class="n">potential_mort_flood</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
-            <span class="c1"># Vegetation fractions lost to dessication</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">potential_mort_desic</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential_mort_desic</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">lifestage</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_desic</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="o">&gt;</span> <span class="mf">0.01</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">fraction_0</span><span class="o">*</span><span class="n">c</span><span class="o">.</span><span class="n">potential_mort_desic</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
-            <span class="c1"># Vegetation fractions lost to uprooting</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">potential_mort_uproot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">potential_mort_uproot</span><span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">lifestage</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_uproot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="o">&gt;</span> <span class="mf">0.01</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">fraction_0</span><span class="o">*</span><span class="n">c</span><span class="o">.</span><span class="n">potential_mort_uproot</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
-            <span class="c1"># Vegetation fractions lost to deposition</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_burial</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="o">&gt;</span> <span class="mf">0.01</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">fraction_0</span><span class="o">*</span><span class="n">c</span><span class="o">.</span><span class="n">potential_mort_burial</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
-            <span class="c1"># Vegetation fractions lost to erosion</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_scour</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="o">&gt;</span> <span class="mf">0.01</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">fraction_0</span><span class="o">*</span><span class="n">c</span><span class="o">.</span><span class="n">potential_mort_scour</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span>
-            <span class="c1"># Subtract all mortality fractions from actual fractions, but maintain minimum fraction of zero</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_total</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_flood</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_desic</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_uproot</span> <span class="o">+</span> \
-                                    <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_burial</span> <span class="o">+</span> <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_scour</span>
-            <span class="n">fractions_left</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="o">-</span> <span class="n">c</span><span class="o">.</span><span class="n">applied_mort_total</span>
-            <span class="n">fractions_left</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">fractions_left</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>  <span class="c1"># no negative fractions</span>
+    <span class="c1">#     ! ---------- NOT CURRENTLY IN USE OR TESTED ----------- !</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     for c in self.cohorts:</span>
+    <span class="c1">#         # Vegetation fractions lost to flooding</span>
+    <span class="c1">#         c.potential_mort_flood = self.potential_mort_flood[c.lifestage-1]</span>
+    <span class="c1">#         # For accounting purposes, no mortality if there is no fraction</span>
+    <span class="c1">#         c.applied_mort_flood  = np.where(c.fraction &gt; 0.01, self.attrs.fraction_0*c.potential_mort_flood, 0.)</span>
+    <span class="c1">#         # Vegetation fractions lost to dessication</span>
+    <span class="c1">#         c.potential_mort_desic = self.potential_mort_desic[c.lifestage-1]</span>
+    <span class="c1">#         c.applied_mort_desic  = np.where(c.fraction &gt; 0.01, self.attrs.fraction_0*c.potential_mort_desic, 0.)</span>
+    <span class="c1">#         # Vegetation fractions lost to uprooting</span>
+    <span class="c1">#         c.potential_mort_uproot = self.potential_mort_uproot[c.lifestage-1]</span>
+    <span class="c1">#         c.applied_mort_uproot = np.where(c.fraction &gt; 0.01, self.attrs.fraction_0*c.potential_mort_uproot, 0.)</span>
+    <span class="c1">#         # Vegetation fractions lost to deposition</span>
+    <span class="c1">#         c.applied_mort_burial = np.where(c.fraction &gt; 0.01, self.attrs.fraction_0*c.potential_mort_burial, 0.)</span>
+    <span class="c1">#         # Vegetation fractions lost to erosion</span>
+    <span class="c1">#         c.applied_mort_scour  = np.where(c.fraction &gt; 0.01, self.attrs.fraction_0*c.potential_mort_scour, 0.)</span>
+    <span class="c1">#         # Subtract all mortality fractions from actual fractions, but maintain minimum fraction of zero</span>
+    <span class="c1">#         c.applied_mort_total = c.applied_mort_flood + c.applied_mort_desic + c.applied_mort_uproot + \</span>
+    <span class="c1">#                                 c.applied_mort_burial + c.applied_mort_scour</span>
+    <span class="c1">#         fractions_left = c.fraction - c.applied_mort_total</span>
+    <span class="c1">#         fractions_left = np.maximum(fractions_left, 0)  # no negative fractions</span>
 
-            <span class="c1"># Update fractions in cohort</span>
-            <span class="c1"># For fractions that decay slowly over time, round down to zero when they get small enough</span>
-            <span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">fractions_left</span> <span class="o">&gt;</span> <span class="n">MIN_FRACTION</span><span class="p">,</span> <span class="n">fractions_left</span><span class="p">,</span> <span class="mf">0.</span><span class="p">)</span></div>
-
+    <span class="c1">#         # Update fractions in cohort</span>
+    <span class="c1">#         # For fractions that decay slowly over time, round down to zero when they get small enough</span>
+    <span class="c1">#         c.fraction = np.where(fractions_left &gt; MIN_FRACTION, fractions_left, 0.)</span>
 
 
 <div class="viewcode-block" id="VegetationSpecies.linear_mortality_func">

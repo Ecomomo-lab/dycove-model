@@ -129,6 +129,8 @@
 <span class="sd">        Ecological timestep at which colonization starts.</span>
 <span class="sd">    end_col_ets : int</span>
 <span class="sd">        Ecological timestep at which colonization ends (for the year; currently non-inclusive).</span>
+<span class="sd">    col_method : int</span>
+<span class="sd">        Colonization method (1, 2, 3, or 4, see Documentation for details)</span>
 
 <span class="sd">    Parameters (Life Stage)</span>
 <span class="sd">    -----------------------</span>
@@ -157,7 +159,6 @@
 <span class="sd">        (Zero disables uprooting mortality.)</span>
 <span class="sd">    uproot_all_mort : list[float]</span>
 <span class="sd">        Flow velocity above which there is total uprooting mortality.</span>
-<span class="sd">    </span>
 <span class="sd">    stemht_winter_max : list[float]</span>
 <span class="sd">        Maximum stem height during winter for each life stage.</span>
 
@@ -183,6 +184,7 @@
     <span class="n">winter_ets</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">start_col_ets</span><span class="p">:</span> <span class="nb">int</span>
     <span class="n">end_col_ets</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">col_method</span><span class="p">:</span> <span class="nb">int</span>
     
     <span class="n">stemht_max</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
     <span class="n">rootlength_max</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>

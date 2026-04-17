@@ -18,7 +18,6 @@
       ~OutputManager.reconcile_vegetation_output
       ~OutputManager.save_cohort_index
       ~OutputManager.save_netcdf
-      ~OutputManager.save_simulation_indices
       ~OutputManager.save_simulation_metadata
       ~OutputManager.save_vegetation_step
       ~OutputManager.update_file_counts

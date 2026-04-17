@@ -134,6 +134,7 @@
                                  <span class="n">cohort_id</span> <span class="o">=</span> <span class="n">i</span><span class="p">,</span>
                                  <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">cohort_indexing</span><span class="p">(</span><span class="n">simstate</span><span class="o">.</span><span class="n">eco_year</span><span class="p">,</span> <span class="n">simstate</span><span class="o">.</span><span class="n">ets</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">save_cohort_index</span><span class="p">()</span>  <span class="c1"># saves every step in case of incomplete simulation</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">n_cohort_steps</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
@@ -159,11 +160,6 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fname_base</span><span class="p">)</span></div>
 
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">save_simulation_indices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simstate</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">save_simulation_metadata</span><span class="p">(</span><span class="n">simstate</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">save_cohort_index</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="OutputManager.save_simulation_metadata">
@@ -241,11 +237,8 @@
 <span class="sd">        and directory access).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">()</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">save_simulation_indices</span><span class="p">(</span><span class="n">simstate</span><span class="p">)</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">():</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">merge_parallel_veg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  <span class="c1"># requires self object as argument</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">merge_parallel_veg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>  <span class="c1"># requires self object as argument</span></div>
 </div>
 
 </pre></div>

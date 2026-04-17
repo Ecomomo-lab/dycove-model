@@ -3,7 +3,7 @@
 Example - Simple beach and tide channel with two vegetation species (ANUGA)
 ===========================================================================
 
-This example corresponds to the Python file `tide_channel_from_regions_multiveg.py` located in the `examples/ANUGA/tide_channel/` directory, along with supporting input files.
+This example corresponds to the Python file `run_tide_channel.py` located in the `examples/ANUGA/tide_channel/` directory, along with supporting input files.
 
 This example consists of a simple, symmetrical beach slope with a channel that bisects the dune and connects to a lagoon.
 An unstructured mesh is developed using ANUGA's ``create_domain_from_regions`` method that creates a triangular mesh with variable resolution based on input polygons.

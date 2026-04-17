@@ -212,6 +212,7 @@ This particular set of attributes, used in Brückner et al. (2019), is loosely b
   <span class="s2">&quot;winter_ets&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
   <span class="s2">&quot;start_col_ets&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
   <span class="s2">&quot;end_col_ets&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="s2">&quot;col_method&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
 
   <span class="s2">&quot;life_stage_attr&quot;</span><span class="p">:</span> <span class="p">[</span>
     <span class="p">{</span>
@@ -286,17 +287,25 @@ If the maximum age of the species is reached, the vegetation cohort dies and is 
 <li><p><code class="docutils literal notranslate"><span class="pre">'stemdiam_0'</span></code>: Initial stem diameter upon colonization.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">'start_col_ets'</span></code>: Ecological time step at which colonization can begin (inclusive).</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">'end_col_ets'</span></code>: Ecological time step at which colonization ends for the year (non-inclusive).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'col_method'</span></code>: Method to use for determining candidate cells for colonization (1, 2, 3, or 4; see below).</p></li>
 </ul>
 <p>Colonization may occur during one or more <code class="docutils literal notranslate"><span class="pre">ets</span></code> throughout the year, but typically, it occurs early in the ecological year.
 The colonization window is defined by the <code class="docutils literal notranslate"><span class="pre">'start_col_ets'</span></code> and <code class="docutils literal notranslate"><span class="pre">'end_col_ets'</span></code> input attributes.
-For example, if <code class="docutils literal notranslate"><span class="pre">'start_col_ets'</span> <span class="pre">=</span> <span class="pre">2</span></code> and <code class="docutils literal notranslate"><span class="pre">'end_col_ets'</span> <span class="pre">=</span> <span class="pre">3</span></code>, colonization will only occur during the second <code class="docutils literal notranslate"><span class="pre">ets</span></code> of each year.
+For example, if <code class="docutils literal notranslate"><span class="pre">'start_col_ets'</span> <span class="pre">=</span> <span class="pre">2</span></code> and <code class="docutils literal notranslate"><span class="pre">'end_col_ets'</span> <span class="pre">=</span> <span class="pre">3</span></code>, colonization will only occur during the second <code class="docutils literal notranslate"><span class="pre">ets</span></code> of each year (following Python indexing convention).
 Note that if <code class="docutils literal notranslate"><span class="pre">'start_col_ets'</span> <span class="pre">=</span> <span class="pre">1</span></code> and <code class="docutils literal notranslate"><span class="pre">'end_col_ets'</span> <span class="pre">=</span> <span class="pre">2</span></code>, the species will not colonize during the first year because one tidal cycle must run first.</p>
-<p>Currently, colonization will take place in grid cells that were BOTH dry AND wet for any amount of time during the previous <code class="docutils literal notranslate"><span class="pre">ets</span></code>.
-During a colonization event, all eligible grid cells that are not fully vegetated (i.e., total vegetation fraction less than 1.0) are eligible for colonization.
+<p>Colonization will occur in grid cells depending on the method used:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">'col_method'</span> <span class="pre">=</span> <span class="pre">1</span></code>: Colonization occurs in cells that were BOTH dry AND wet for any amount of time during the previous <code class="docutils literal notranslate"><span class="pre">ets</span></code> (standard/default).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'col_method'</span> <span class="pre">=</span> <span class="pre">2</span></code>: Colonization occurs in cells that were wet for any amount of time during the previous <code class="docutils literal notranslate"><span class="pre">ets</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'col_method'</span> <span class="pre">=</span> <span class="pre">3</span></code>: Colonization occurs in cells that were dry for any amount of time during the previous <code class="docutils literal notranslate"><span class="pre">ets</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'col_method'</span> <span class="pre">=</span> <span class="pre">4</span></code>: Colonization occurs in all cells regardless of prior hydrodynamic conditions.</p></li>
+</ul>
+<p>Note that the latter methods will likely overpredict vegetation establishment, but there are scenarios where this can be balanced by appropriate mortality parameters.</p>
+<p>During a colonization event, all eligible grid cells that are not fully vegetated (i.e., total vegetation fraction less than 1.0) are eligible for colonization.
 The colonizing species will fill up to <code class="docutils literal notranslate"><span class="pre">'fraction_0'</span></code> of the grid cell, or the remaining available space, whichever is less.</p>
 <p>Colonization, no matter how many cells are included, creates a <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> object that is added to the <code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationSpecies</span></code> object for that species.
 Upon colonization, the new <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> will have initial stem height, root length, and stem diameter equal to <code class="docutils literal notranslate"><span class="pre">'stemht_0'</span></code>, <code class="docutils literal notranslate"><span class="pre">'rootlength_0'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'stemdiam_0'</span></code>, respectively.
-See the <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> documentation for more detailts on the tracked attributes of a vegetation cohort.</p>
+See the <a class="reference internal" href="../_autosummary/dycove.sim.vegetation_data.VegCohort.html#dycove.sim.vegetation_data.VegCohort" title="dycove.sim.vegetation_data.VegCohort"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegCohort</span></code></a> documentation for more details on the tracked attributes of a vegetation cohort.</p>
 </section>
 <section id="growth">
 <span id="id8"></span><h2>Growth<a class="headerlink" href="#growth" title="Link to this heading"></a></h2>
@@ -349,9 +358,9 @@ Furthermore, the linear growth rate for stem diameter and root length is divided
 <li><p>Sedimentation</p></li>
 <li><p>Erosion</p></li>
 </ul>
-<p>As mentioned above under <a class="reference internal" href="#colonization"><span class="std std-ref">Colonization</span></a>, a species will colonize grid cells that were both dry and wet for any amount of time during the previous <code class="docutils literal notranslate"><span class="pre">ets</span></code>.
-However, the thresholds provided in the <cite>.json</cite> file are typically more limiting.
-For all cells that were flooded for a <strong>lesser fraction of time</strong> than <code class="docutils literal notranslate"><span class="pre">'flood_no_mort'</span></code> during the previous <code class="docutils literal notranslate"><span class="pre">ets</span></code>, there will be zero flooding mortality.
+<p>As mentioned above under <a class="reference internal" href="#colonization"><span class="std std-ref">Colonization</span></a>, depending on the value of <code class="docutils literal notranslate"><span class="pre">'col_method'</span></code>, the colonization process may seed a wide range of grid cells.
+However, mortality calculations will occur immediately after colonization, and mortality parameters are often more limiting than the conditions under which colonization occurred.</p>
+<p>For all cells that were flooded for a <strong>lesser fraction of time</strong> than <code class="docutils literal notranslate"><span class="pre">'flood_no_mort'</span></code> during the previous <code class="docutils literal notranslate"><span class="pre">ets</span></code>, there will be zero flooding mortality.
 Likewise, for all cells that were flooded for a <strong>greater fraction of time</strong> than <code class="docutils literal notranslate"><span class="pre">'flood_all_mort'</span></code>, there will be 100% flooding mortality.
 The same logic applies for desiccation mortality based on dry fraction of time.
 For uprooting, maximum velocity is used instead of fraction of time.
@@ -437,7 +446,7 @@ When this method is called for an individual species, the method receives an opt
 <h2>Applications and Limitations<a class="headerlink" href="#applications-and-limitations" title="Link to this heading"></a></h2>
 <p>DYCOVE is geared toward vegetation dynamics in tidal environments.
 Riparian vegetation in non-tidal environments can be modeled as well, but for those cases users must carefully define the simulation time parameters described above in the <a class="reference internal" href="#eco-time-scale"><span class="std std-ref">Ecological Time Scale</span></a> section.
-Because colonization in DYCOVE occurs in cells that were partially wet during the previous ETS, users must consider the context of their model, the time scale over which wetting and drying will occur, and how that will translate to the timing of vegetation coupling.</p>
+Users must consider the context of their model, colonization method, mortality parameters, time scale over which wetting and drying will occur, and how that will translate to the timing of vegetation coupling.</p>
 <p>Currently, DYCOVE only supports physical parameters as inputs, and does not support other processes like salinity, nutrients, organic accretion, and resource competition.
 In the future, we plan to add support for some or all of these processes.</p>
 </section>
