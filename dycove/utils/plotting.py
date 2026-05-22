@@ -10,6 +10,7 @@ import json
 import matplotlib.pyplot as plt
 from matplotlib.colors import Colormap, ListedColormap
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib import path as mpath
 from scipy.spatial import cKDTree
 
@@ -817,15 +818,22 @@ class ModelPlotter:
         if not self.show_axis_ticks:
             ax.set_xticks([])
             ax.set_yticks([])
+        else:
+            ax.tick_params(axis='both', labelsize=self.plot_specs["fontsize"]-2)
+            # from matplotlib.ticker import FuncFormatter
+            # ax.xaxis.set_major_formatter(FuncFormatter(lambda val, pos: f"{val / 1000:.1f}"))
+            # ax.yaxis.set_major_formatter(FuncFormatter(lambda val, pos: f"{val / 1000:.0f}"))
 
-        cbar = plt.colorbar(main if main_grid is not None else base, ax=ax, fraction=0.046, pad=0.04)
+
+        #shrink = self.cbar_shrink(fig, ax, base)
+        cbar = plt.colorbar(main if main_grid is not None else base, ax=ax, fraction=0.04, pad=0.03, shrink=2)
         cbar.set_label(f"{self.quantity_units[self.quantity][0]}", rotation=270, labelpad=25, fontsize=self.plot_specs["fontsize"])
-        cbar.ax.tick_params(labelsize=self.plot_specs["fontsize"])
+        cbar.ax.tick_params(labelsize=self.plot_specs["fontsize"]-2)
 
         if self.show_topo_cbar:
             cbar_z = plt.colorbar(base, ax=ax, location='left', fraction=0.046, pad=0.04)
-            cbar_z.set_label("Bathymetry", rotation=90, labelpad=5)   
-            cbar_z.ax.tick_params(labelsize=self.plot_specs["fontsize"]) 
+            cbar_z.set_label("Bathymetry", rotation=90, labelpad=5, fontsize=self.plot_specs["fontsize"])   
+            cbar_z.ax.tick_params(labelsize=self.plot_specs["fontsize"]-2) 
 
         if self.scalebar:
             self.make_scalebar(ax)
@@ -896,6 +904,26 @@ class ModelPlotter:
 
         return np.meshgrid(xx, yy)
         
+
+    # def cbar_shrink(self, fig, ax, im):
+    #     # Compute axes and get dimensions
+    #     fig.canvas.draw()
+
+    #     ax_pos = ax.get_position()
+    #     fig_width, fig_height = fig.get_size_inches()
+
+    #     ax_width_in  = ax_pos.width  * fig_width
+    #     ax_height_in = ax_pos.height * fig_height
+
+    #     nrows, ncols = im.get_array().shape
+    #     data_aspect  = nrows / ncols
+    #     effective_aspect = data_aspect * self.plot_specs["aspect"]  # height/width ratio of displayed image
+
+    #     displayed_height_in = min(ax_height_in, ax_width_in * effective_aspect)
+    #     shrink = displayed_height_in / ax_height_in
+
+    #     return shrink
+    
 
     def make_scalebar(self, ax):
         unit_conv = 1.

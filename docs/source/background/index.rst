@@ -88,6 +88,12 @@ Alternatively, the user can provide ``ecofac`` directly, or by running a morphol
 It is recommended that users pre-compute these three values to make sure they make sense.
 Users can specify a more round value of ``ecofac = 50``, for example, which would correspond to 350 days per year in the model (rather than 365).
 It is fine, and in fact encouraged, to use a round value in this way, but keep in mind that DYCOVE has an internal variable ``DAYS_PER_YEAR`` with a required range between 350 and 380 to keep results reasonable.
+``DAYS_PER_YEAR`` is computed by rearranging the above ``ecofac`` equation:
+
+.. math::
+
+    \small \mathrm{DAYS\_PER\_YEAR} = \frac{\mathrm{ecofac} \times \mathrm{veg\_interval} \times \mathrm{n\_ets}}{86400}
+
 Below are a few examples of feasible and infeasible parameter combinations:
 
 **Example 1**: Setting ``ecofac = 20`` without adjusting ``veg_interval`` or ``n_ets``  (infeasible).

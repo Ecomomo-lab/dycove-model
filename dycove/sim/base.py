@@ -76,7 +76,7 @@ class HydroSimulationBase(ABC):
             Time interval in seconds between hydrodynamic substeps.
             Default is 900 (15 minutes).
         save_interval : int, optional
-            Interval in seconds for writing outputs. Default is 3600 (1 hour).
+            Interval in seconds for writing ANUGA outputs. Default is 3600 (1 hour).
         ecofac : int, optional
             Ecological (vegetation) acceleration factor relative to hydrodynamics.
             Must equal ``MORFAC`` if Delft3D morphology is enabled. If ``None``,
