@@ -44,6 +44,7 @@ class VegetationCoupler:
         if we started a new eco year.
         """
         simstate.update_ets()
+        self.veg.update_n_cohort_ets()
         if simstate.ets == 1:
             self.veg.update_lifestage_and_stemdensity()
 

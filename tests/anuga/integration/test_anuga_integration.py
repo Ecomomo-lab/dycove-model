@@ -39,11 +39,6 @@ def test_step(tmp_path):
 @mark.anuga
 @mark.integration
 def test_merge_parallel_veg(sample_data_path, tmp_path):
-    # Define fake VegetationSpecies class
-    def mock_veg():
-        class MockVeg:
-            cohorts = [0, 1, 2, 3]
-        return MockVeg()
     
     from dycove.sim.outputs import OutputManager
 
@@ -59,12 +54,11 @@ def test_merge_parallel_veg(sample_data_path, tmp_path):
     engine.model_dir = domain.get_datadir()
     engine.numprocs = 2
 
-    # Mock some values to the engine for the sake of the test
-    engine.veg = mock_veg()
-
     # Normally created upon creation of HydroSimulationBase object
     om = OutputManager(engine)
-    om.n_cohort_steps = [14, 13, 7, 6]  # num ETS per cohort, more recent cohorts have fewer
+
+    # Load example cohort file index
+    om.file_index = om.load_cohort_file_index()
 
     # Shortcutting to this method allows bypass of creating VegetationSpecies object
     engine.merge_parallel_veg(om)

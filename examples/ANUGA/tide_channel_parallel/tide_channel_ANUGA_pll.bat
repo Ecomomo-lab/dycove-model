@@ -19,7 +19,7 @@ REM Determine based on computer resources (number of cores and RAM).
 REM Ensure that the ratio n_grid_cells/NUM_PROCESSES > ~1500.
 REM Start conservatively (e.g., 2 or 4) and monitor TASK MANAGER (Memory usage).
 
-SET NUM_PROCESSES=4
+SET NUM_PROCESSES=2
 
 echo ============================================================
 echo Starting Local ANUGA Workflow
@@ -28,7 +28,7 @@ echo Number of processes set to: %NUM_PROCESSES%
 echo ============================================================
 echo.
 
-mpiexec -np %NUM_PROCESSES% python tide_channel_ANUGA_pll.py
+mpiexec -np %NUM_PROCESSES% python run_tide_channel.py
 IF %ERRORLEVEL% NEQ 0 (
     echo WARNING: Model run returned an error during execution.
     echo Check the output above and any generated log/error files.

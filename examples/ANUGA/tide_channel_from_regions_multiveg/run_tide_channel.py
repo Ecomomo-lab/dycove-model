@@ -32,11 +32,11 @@ sim_time = 4
 time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynamic years'
 
 # create vegetation species objects
-veg_1 = VegetationSpecies("NelumboLutea.json")
-veg_2 = VegetationSpecies("ColocasciaEsculenta.json")
+veg_1 = VegetationSpecies("SalicorniaProcumbens.json")
+veg_2 = VegetationSpecies("PuccinelliaMaritima.json")
 
 # instantiate ANUGA model
 HydroModel = ANUGA_hydro.ANUGA(HydroDomain.domain, vegetation=MultiVeg([veg_1, veg_2]))
 
 # do timestepping
-HydroModel.run_simulation(sim_time, time_unit)
+HydroModel.run_simulation(sim_time, sim_time_unit=time_unit, ecofac=60, n_ets=12, veg_interval=43200)

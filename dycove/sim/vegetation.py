@@ -57,6 +57,8 @@ class VegetationSpecies(SharedVegMethods):
     ----------
     input_veg_filename : str or Path
         Path to JSON file containing vegetation attributes.
+    species_name : str
+        Name of species to save with cohorts. Default is input_veg_filename.
     mor : int
         1 if we want to consider morphology (burial/scour) for this vegetation unit, else 0
     rand_seed_frac : float
@@ -87,6 +89,7 @@ class VegetationSpecies(SharedVegMethods):
             
         # Will become list of VegCohort objects, one for each cohort/colonization that occurs
         self.cohorts: list[VegCohort] = []
+        self.cohort_id = 0  # running count of integer IDs for successive cohorts
 
     
     @staticmethod
@@ -151,6 +154,8 @@ class VegetationSpecies(SharedVegMethods):
             # new_fraction is an array, other quantities are scalars
             new_cohort = VegCohort(
                 name=self.name,
+                cohort_id=self.cohort_id,
+                n_ets=0,
                 fraction=new_fraction,
                 density=self.attrs.stemdens[0],
                 diameter=self.attrs.stemdiam_0,
@@ -160,6 +165,7 @@ class VegetationSpecies(SharedVegMethods):
                 lifestage_year=1,
             )
             self.cohorts.append(new_cohort)
+            self.cohort_id += 1
 
 
     def find_potential_inds(self, dry_cell_arr: np.ndarray, fld_cell_arr: np.ndarray):
@@ -221,7 +227,6 @@ class VegetationSpecies(SharedVegMethods):
         self.mortality_hydrodynamic(**hydro_vars)
         self.mortality_morphodynamic(**morpho_vars)
         self.apply_mortality()
-        #self.apply_mortality_using_initial_fractions()
 
 
     def mortality_hydrodynamic(self, fld_frac, dry_frac, vel_max):
@@ -347,39 +352,6 @@ class VegetationSpecies(SharedVegMethods):
             c.fraction = np.where(fractions_left > MIN_FRACTION, fractions_left, 0.)
 
 
-    # def apply_mortality_using_initial_fractions(self):
-    #     """ 
-    #     Replacing `c.fraction` with `self.attrs.fraction_0`, so mortality is 
-    #     always a function of initial colonization fraction.
-
-    #     ! ---------- NOT CURRENTLY IN USE OR TESTED ----------- !
-    #     """
-    #     for c in self.cohorts:
-    #         # Vegetation fractions lost to flooding
-    #         c.potential_mort_flood = self.potential_mort_flood[c.lifestage-1]
-    #         # For accounting purposes, no mortality if there is no fraction
-    #         c.applied_mort_flood  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_flood, 0.)
-    #         # Vegetation fractions lost to dessication
-    #         c.potential_mort_desic = self.potential_mort_desic[c.lifestage-1]
-    #         c.applied_mort_desic  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_desic, 0.)
-    #         # Vegetation fractions lost to uprooting
-    #         c.potential_mort_uproot = self.potential_mort_uproot[c.lifestage-1]
-    #         c.applied_mort_uproot = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_uproot, 0.)
-    #         # Vegetation fractions lost to deposition
-    #         c.applied_mort_burial = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_burial, 0.)
-    #         # Vegetation fractions lost to erosion
-    #         c.applied_mort_scour  = np.where(c.fraction > 0.01, self.attrs.fraction_0*c.potential_mort_scour, 0.)
-    #         # Subtract all mortality fractions from actual fractions, but maintain minimum fraction of zero
-    #         c.applied_mort_total = c.applied_mort_flood + c.applied_mort_desic + c.applied_mort_uproot + \
-    #                                 c.applied_mort_burial + c.applied_mort_scour
-    #         fractions_left = c.fraction - c.applied_mort_total
-    #         fractions_left = np.maximum(fractions_left, 0)  # no negative fractions
-
-    #         # Update fractions in cohort
-    #         # For fractions that decay slowly over time, round down to zero when they get small enough
-    #         c.fraction = np.where(fractions_left > MIN_FRACTION, fractions_left, 0.)
-
-
     @staticmethod
     def linear_mortality_func(stressor, th_min, th_max):
         """
@@ -453,6 +425,12 @@ class VegetationSpecies(SharedVegMethods):
                     c.rootlength += self.attrs.root_growth_rates[c.lifestage-1]  # else, remain constant
 
 
+    def update_n_cohort_ets(self):
+        """ Advance the number of ETS each cohort has lived by one. """
+        for c in self.cohorts:
+            c.n_ets += 1
+
+
     def update_lifestage_and_stemdensity(self):
         """ 
         Function to be called at the end of every eco year. 
@@ -512,6 +490,7 @@ class MultipleVegetationSpecies(SharedVegMethods):
         # List of individual vegetation species objects
         self.species_list = species_list
         self.check_species_consistency()
+        self.cohort_id = 0  # shared counter across all species
 
     @property
     def cohorts(self) -> list[VegCohort]:
@@ -520,8 +499,11 @@ class MultipleVegetationSpecies(SharedVegMethods):
 
     def colonization(self, ets, min_depths, max_depths, fl_dr):
         for sp in self.species_list:
+            # Sync current cohort count with individual species object
+            sp.cohort_id = self.cohort_id
             # Passing flattened list of all cohorts for all species for colonization calculation
             sp.colonization(ets, min_depths, max_depths, fl_dr, combined_cohorts=self.cohorts)
+            self.cohort_id = sp.cohort_id  # Retrieve updated cohort count after it has been advanced
         r.report(f"Number of veg fractions total: {len(self.cohorts)}")
 
     def stemheight_growth(self, ets):
@@ -539,6 +521,10 @@ class MultipleVegetationSpecies(SharedVegMethods):
     def mortality(self, hydro_vars, morpho_vars):
         for sp in self.species_list:
             sp.mortality(hydro_vars, morpho_vars)
+
+    def update_n_cohort_ets(self):
+        for sp in self.species_list:
+            sp.update_n_cohort_ets()
 
     def update_lifestage_and_stemdensity(self):
         for sp in self.species_list:

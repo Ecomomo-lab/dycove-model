@@ -269,6 +269,9 @@ class DFMEngine(HydroEngineBase):
         Otherwise, blank files are required so that DFM knows to store these variables through time.
         """
 
+        if self.veg is None:
+            return
+
         # Read .mdu file lines
         self.mdu_lines = self.mdu_path.read_text().splitlines()
 
@@ -292,8 +295,9 @@ class DFMEngine(HydroEngineBase):
         [external forcing]
         ExtForceFile = FlowFM.ext  # Old format for external forcings file ...
         """
+        assert self.veg is not None  # for Pylance...
 
-        if self.mdu_vars["ExtForceFile"] == "" and self.veg is not None:
+        if self.mdu_vars["ExtForceFile"] == "":
             self.mdu_modified = True
 
             # Get name of model/file based on name of "new" .ext file
@@ -302,8 +306,8 @@ class DFMEngine(HydroEngineBase):
             except:
                 msg = ("Either the 'ExtForceFileNew' file name in the .mdu file does not end in the expected "
                        "'_bnd.ext', or there is no 'ExtForceFileNew' file defined in the .mdu file. If it was "
-                       "purposeful that no boundaries were specified for this model, then this check mechanism "
-                       "must be updated: please get in touch with us on GitHub.")
+                       "purposeful that no boundaries were specified for this model, then this method must be "
+                       "updated: please get in touch with us or create an Issue on GitHub.")
                 r.report(msg, level="ERROR")
                 raise NameError(msg)
 
@@ -333,9 +337,10 @@ class DFMEngine(HydroEngineBase):
         Cdveg             = 1.1   # Drag coefficient, pulled from input veg.json file
         Cbveg             = 0.7   # Stem stiffness coefficient, default=0.7
         """
+        assert self.veg is not None  # for Pylance...
 
         veg_block_present = any(line.strip().startswith("[veg]") for line in self.mdu_lines)
-        if not veg_block_present and self.veg is not None:
+        if not veg_block_present:
             drag = self.veg.get_drag()
             veg_model_num = 2 if self.veg.mor == 1 else 1
             self.mdu_modified = True
@@ -352,6 +357,7 @@ class DFMEngine(HydroEngineBase):
 
     def create_extforcefile(self):
         """ Create .ext file in the model directory if it doesn't exist """
+        assert self.veg is not None  # for Pylance...
 
         ext_force_file = self.model_dir / self.mdu_vars["ExtForceFile"]
         content = """QUANTITY=stemdensity
@@ -372,25 +378,30 @@ FILETYPE=7
 METHOD=5
 OPERAND=O
 """
-        if not ext_force_file.exists() and self.veg is not None:
+        if not ext_force_file.exists():
             with open(ext_force_file, "w") as f:
                 f.write(content)
         # It may already exist if other spatially varying parameters are in use; need to append our content
-        elif ext_force_file.exists() and self.veg is not None:
+        else:
             with open(ext_force_file, "r") as f:
                 lines = f.read()
-            with open(ext_force_file, "w") as f:
-                f.write(lines)
-                f.write("\n")
-                f.write(content)         
+            # If the vegetation blocks are already there, skip this step (could have been copied from previous run dir)
+            quantities = ["stemdensity", "stemdiameter", "stemheight"]
+            if not all(s in lines for s in quantities):
+                with open(ext_force_file, "w") as f:
+                    f.write(lines)
+                    f.write("\n")
+                    f.write(content)         
 
 
     def create_veg_xyz_files(self):
         """ Create required files for [veg] module to run, even if they are blank """
+        assert self.veg is not None  # for Pylance...
+
         req_veg_files = ["stemdensity.xyz", "stemdiameter.xyz", "stemheight.xyz"]
         for filename in req_veg_files:
             veg_file = self.model_dir / filename
-            if not veg_file.exists() and self.veg is not None:
+            if not veg_file.exists():
                 with open(veg_file, "w") as f:
                     f.write("")
     

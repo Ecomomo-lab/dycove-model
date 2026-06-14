@@ -36,7 +36,7 @@ def get_veg_file_index(eco_dir: Path | str) -> dict:
     return index
 
 
-def get_anuga_centroid_coords(anuga_vars: xr.Dataset) -> tuple[list, list]:
+def get_anuga_centroid_coords(anuga_vars: xr.Dataset) -> tuple[np.ndarray, np.ndarray]:
     """ 
     Convert ANUGA vertex coordinates to centroid coordinates (centroid coordinates 
     not available in ANUGA sww file).
@@ -50,8 +50,9 @@ def get_anuga_centroid_coords(anuga_vars: xr.Dataset) -> tuple[list, list]:
     xx = anuga_vars['x']
     yy = anuga_vars['y']
     # Convert vertex coordinates to centroid coordinates using 'volumes' variable
-    xx_c = [(xx[i]+xx[j]+xx[k])/3. for i, j, k in anuga_vars['volumes']]
-    yy_c = [(yy[i]+yy[j]+yy[k])/3. for i, j, k in anuga_vars['volumes']]
+    vols = anuga_vars['volumes']
+    xx_c = np.asarray((xx[vols[:, 0]] + xx[vols[:, 1]] + xx[vols[:, 2]]) / 3.)
+    yy_c = np.asarray((yy[vols[:, 0]] + yy[vols[:, 1]] + yy[vols[:, 2]]) / 3.)
 
     return xx_c, yy_c
 
@@ -251,12 +252,12 @@ class ANUGAMapLoader(BaseMapLoader):
             pass
 
         elif not self.eco_plot:
-            data['WSE'] = np.asarray(self.cached_map_vars[self.hydro_varnames['WSE']][hydro_i])
+            data['WSE'] = np.array(self.cached_map_vars[self.hydro_varnames['WSE']][hydro_i])
             data['Depth'] = data['WSE'] - data['Bathymetry']
             if self.quantity not in ['WSE', 'Depth']:
                 if self.quantity == 'Velocity':
-                    xmom = np.asarray(self.cached_map_vars[self.hydro_varnames['x-momentum']][hydro_i])
-                    ymom = np.asarray(self.cached_map_vars[self.hydro_varnames['y-momentum']][hydro_i])
+                    xmom = np.array(self.cached_map_vars[self.hydro_varnames['x-momentum']][hydro_i])
+                    ymom = np.array(self.cached_map_vars[self.hydro_varnames['y-momentum']][hydro_i])
                     with np.errstate(divide='ignore', invalid='ignore'):
                         data['Vel_x'] = xmom/data['Depth']
                         data['Vel_y'] = ymom/data['Depth']
@@ -339,30 +340,30 @@ class DFMMapLoader(BaseMapLoader):
         assert self.cached_map_vars is not None  # for Pylance...
 
         # load mesh2d data
-        data = {'X': np.asarray(self.cached_map_vars[self.mesh_varnames['X']]),
-                'Y': np.asarray(self.cached_map_vars[self.mesh_varnames['Y']]),
+        data = {'X': np.array(self.cached_map_vars[self.mesh_varnames['X']]),
+                'Y': np.array(self.cached_map_vars[self.mesh_varnames['Y']]),
                 'Cohort Names': None  # need this for output consistency
                 }
         
         # need to handle case where morphology is off, then this variable won't be present in output file
         if self.mesh_varnames['Bathymetry mor'] in self.cached_map_vars:
-            data['Bathymetry'] = np.asarray(self.cached_map_vars[self.mesh_varnames['Bathymetry mor']][hydro_i])
+            data['Bathymetry'] = np.array(self.cached_map_vars[self.mesh_varnames['Bathymetry mor']][hydro_i])
         else:
-            data['Bathymetry'] = np.asarray(self.cached_map_vars[self.mesh_varnames['Z']])
+            data['Bathymetry'] = np.array(self.cached_map_vars[self.mesh_varnames['Z']])
 
         if self.quantity == 'Bathymetry':
             pass
 
         elif not self.eco_plot:
-            data['WSE'] = np.asarray(self.cached_map_vars[self.hydro_varnames['WSE']][hydro_i])
+            data['WSE'] = np.array(self.cached_map_vars[self.hydro_varnames['WSE']][hydro_i])
             data['Depth'] = data['WSE'] - data['Bathymetry']
             if self.quantity not in ['WSE', 'Depth']:
                 if self.quantity == 'Velocity':
-                    data['Velocity'] = np.asarray(self.cached_map_vars[self.hydro_varnames[self.quantity][0]][hydro_i])
-                    data['Vel_x'] = np.asarray(self.cached_map_vars[self.hydro_varnames[self.quantity][1]][hydro_i])
-                    data['Vel_y'] = np.asarray(self.cached_map_vars[self.hydro_varnames[self.quantity][2]][hydro_i])
+                    data['Velocity'] = np.array(self.cached_map_vars[self.hydro_varnames[self.quantity][0]][hydro_i])
+                    data['Vel_x'] = np.array(self.cached_map_vars[self.hydro_varnames[self.quantity][1]][hydro_i])
+                    data['Vel_y'] = np.array(self.cached_map_vars[self.hydro_varnames[self.quantity][2]][hydro_i])
                 else:
-                    data[self.quantity] = np.asarray(self.cached_map_vars[self.hydro_varnames[self.quantity]][hydro_i])
+                    data[self.quantity] = np.array(self.cached_map_vars[self.hydro_varnames[self.quantity]][hydro_i])
         else:
             veg_data = self._load_veg(ets, eco_year)
             data = self._pass_veg(veg_data, data)

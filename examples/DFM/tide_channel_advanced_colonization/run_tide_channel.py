@@ -32,7 +32,7 @@ DFM_DLLs = Path('C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM 
 #------------------------------------------------------------------------------
 
 # define simulation time period
-sim_time = 0.5
+sim_time = 2
 time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynamic years'
 
 # create vegetation species object
@@ -42,4 +42,4 @@ veg_1 = VegetationSpecies("veg1_method4.json")
 HydroModel = DFM_hydro.DFM(DFM_DLLs, config_file, mdu_file, vegetation=veg_1)
 
 # do timestepping
-HydroModel.run_simulation(sim_time, time_unit, ecofac=50)
+HydroModel.run_simulation(sim_time, sim_time_unit=time_unit, ecofac=50, n_ets=14, veg_interval=43200)

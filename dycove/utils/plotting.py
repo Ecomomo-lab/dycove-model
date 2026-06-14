@@ -9,6 +9,7 @@ from pathlib import Path
 import json
 import matplotlib.pyplot as plt
 from matplotlib.colors import Colormap, ListedColormap
+from matplotlib.font_manager import FontProperties
 from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from matplotlib import path as mpath
@@ -168,6 +169,8 @@ class ModelPlotter:
     cmaps : dict, optional
         Colormaps for each quantity. Accepts Matplotlib ``Colormap`` objects. See keys and details 
         under __init__ below.
+    cbar_props : dict, optional
+        Properties for colorbar.
     quantity_units : dict, optional
         Unit labels, scaling factors, and minimum plotting thresholds for each quantity, 
         see keys and details under __init__ below.
@@ -261,6 +264,7 @@ class ModelPlotter:
                  plot_specs: Optional[dict[str, Any]] = None, 
                  cmap_lims: Optional[dict[str, tuple[float, float]]] = None, 
                  cmaps: Optional[dict[str, Colormap]] = None,
+                 cbar_props: Optional[dict[str, Any]] = None,
                  quantity_units: Optional[dict[str, tuple[str, Union[int, float]]]] = None, 
                  plot_vectors = False,
                  vector_props: Optional[dict[str, Any]] = None,
@@ -350,6 +354,14 @@ class ModelPlotter:
         }
         self.cmaps = {**default_cmaps, **(cmaps or {})}  # merge provided custom values with default values
 
+        default_cbar_props = {
+            "size": "3%",    # width of colorbar as percent of axes
+            "pad": 0.12,     # separation of colorbar from axes
+            "labelpad": 25,  # separation of colorbar label from the tick labels
+            "topo_labelpad": 5  # same as above, but for topo/bathy colorbar if plotted on left side
+        }
+        self.cbar_props = {**default_cbar_props, **(cbar_props or {})}  # merge provided custom values with default values
+
         # First value: units to use for plot title/colorbar
         # Second value: multiplier based on most standard units (meters, seconds, Newtons, fractions, etc)
         # Third value: minimum value for plotting, anything below this value is masked out
@@ -383,6 +395,7 @@ class ModelPlotter:
             "distance": "200 m",   # scalebar distance to display
             "loc": "upper left",   # position
             "frameon": True,       # add frame (usually looks better)
+            "size_vertical": 2,    # vertical thickness of the bar
         }
         self.scalebar_props = {**default_scalebar_props, **(scalebar_props or {})}  # merge provided custom values with default values
 
@@ -825,15 +838,31 @@ class ModelPlotter:
             # ax.yaxis.set_major_formatter(FuncFormatter(lambda val, pos: f"{val / 1000:.0f}"))
 
 
-        #shrink = self.cbar_shrink(fig, ax, base)
-        cbar = plt.colorbar(main if main_grid is not None else base, ax=ax, fraction=0.04, pad=0.03, shrink=2)
-        cbar.set_label(f"{self.quantity_units[self.quantity][0]}", rotation=270, labelpad=25, fontsize=self.plot_specs["fontsize"])
+        # # Plot colorbar simple way
+        # cbar = plt.colorbar(main if main_grid is not None else base, ax=ax, fraction=0.04, pad=0.03, shrink=2)
+        # cbar.set_label(f"{self.quantity_units[self.quantity][0]}", rotation=270, labelpad=25, fontsize=self.plot_specs["fontsize"])
+        # cbar.ax.tick_params(labelsize=self.plot_specs["fontsize"]-2)
+
+        # Plot colorbar with append_axes
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size=self.cbar_props["size"], pad=self.cbar_props["pad"])
+        cbar = plt.colorbar(main if main_grid is not None else base, cax=cax)
+        cbar.set_label(f"{self.quantity_units[self.quantity][0]}", rotation=270, labelpad=self.cbar_props["labelpad"], fontsize=self.plot_specs["fontsize"])
         cbar.ax.tick_params(labelsize=self.plot_specs["fontsize"]-2)
 
         if self.show_topo_cbar:
-            cbar_z = plt.colorbar(base, ax=ax, location='left', fraction=0.046, pad=0.04)
-            cbar_z.set_label("Bathymetry", rotation=90, labelpad=5, fontsize=self.plot_specs["fontsize"])   
-            cbar_z.ax.tick_params(labelsize=self.plot_specs["fontsize"]-2) 
+            # # Plot colorbar simple way
+            # cbar_z = plt.colorbar(base, ax=ax, location='left', fraction=0.046, pad=0.04)
+            # cbar_z.set_label("Bathymetry", rotation=90, labelpad=5, fontsize=self.plot_specs["fontsize"])   
+            # cbar_z.ax.tick_params(labelsize=self.plot_specs["fontsize"]-2) 
+
+            # Plot colorbar with append_axes
+            cax_z = divider.append_axes("left", size="3%", pad=0.12)
+            cbar_z = plt.colorbar(base, cax=cax_z)
+            cbar_z.ax.yaxis.set_ticks_position('left')
+            cbar_z.ax.yaxis.set_label_position('left')
+            cbar_z.set_label(f"{self.quantity_units["Bathymetry"][0]}", rotation=90, labelpad=self.cbar_props["topo_labelpad"], fontsize=self.plot_specs["fontsize"])
+            cbar_z.ax.tick_params(labelsize=self.plot_specs["fontsize"]-2)
 
         if self.scalebar:
             self.make_scalebar(ax)
@@ -939,7 +968,8 @@ class ModelPlotter:
             color="k",
             frameon=self.scalebar_props["frameon"],
             sep=4,
-            size_vertical=2,
+            size_vertical=self.scalebar_props["size_vertical"],
+            fontproperties=FontProperties(size=self.plot_specs["fontsize"]-1)
         )
         ax.add_artist(scalebar)
     

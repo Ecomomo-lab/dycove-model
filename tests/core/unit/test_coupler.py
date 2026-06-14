@@ -72,6 +72,17 @@ class TestVegetationCoupler:
 
 
     @pytest.mark.unit
+    def test_lifestage_update_calls_update_n_cohort_ets(self):
+        """ veg.update_n_cohort_ets() is always called """
+        coupler = VegetationCoupler(self.mock_engine())
+        simstate = self.mock_simstate(ets=3)
+
+        coupler.lifestage_update(simstate)
+
+        coupler.veg.update_n_cohort_ets.assert_called_once()
+
+
+    @pytest.mark.unit
     def test_lifestage_update_triggers_lifestage_when_ets_is_1(self):
         """ update_lifestage_and_stemdensity is called when ets == 1 (new eco year) """
         coupler = VegetationCoupler(self.mock_engine())

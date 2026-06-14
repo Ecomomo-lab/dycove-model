@@ -14,6 +14,9 @@ r = Reporter()
 
 
 class OutputManager:
+    COHORT_INDEX_FNAME = "_cohort_files_ets_index.json"
+    METADATA_FNAME = "_eco_time_vars.json"
+
     """ For saving :class:`~dycove.sim.vegetation_data.VegCohort` instances to output files. """
     def __init__(self, engine, save_freq=1, save_mort=True):
         self.engine = engine
@@ -31,43 +34,34 @@ class OutputManager:
 
     def save_vegetation_step(self, simstate, vts):
         """ Save vegetation cohort state for a given ecological timestep """
-        self.update_file_counts()
-        for i, cohort in enumerate(self.veg.cohorts):
+        for c in self.veg.cohorts:
 
-            self.fname_base = f"cohort{i}_{self.n_cohort_steps[i]:02d}"
-            fname = (self.fname_base + f"_proc{self.engine.get_rank()}" 
+            fname_base = f"cohort{c.cohort_id}_{c.n_ets:03d}"
+            fname = (fname_base + f"_proc{self.engine.get_rank()}" 
                      if self.engine.is_parallel() 
-                     else self.fname_base
+                     else fname_base
                      )
             
             if vts % self.save_freq == 0:            
                 self.save_netcdf(self.veg_dir, 
                                  fname, 
-                                 asdict(cohort), 
+                                 asdict(c), 
                                  eco_year = simstate.eco_year, 
                                  ets = simstate.ets, 
-                                 cohort_id = i,
+                                 cohort_id = c.cohort_id,
                                  )
-                self.cohort_indexing(simstate.eco_year, simstate.ets)
+                self.cohort_indexing(fname_base, simstate.eco_year, simstate.ets)
                 self.save_cohort_index()  # saves every step in case of incomplete simulation
 
-            self.n_cohort_steps[i] += 1
 
-
-    def update_file_counts(self):
-        """ Update file count for each cohort based on current number of cohorts. """
-        if len(self.veg.cohorts) > len(self.n_cohort_steps):
-            self.n_cohort_steps.extend([0]*(len(self.veg.cohorts) - len(self.n_cohort_steps)))
-
-
-    def cohort_indexing(self, year, ets):
+    def cohort_indexing(self, fname_base, year, ets):
         """ Log the year/ets combo and create (or append to) list for cohort file names """
         if f"{year}" not in self.cohort_index:
             self.cohort_index[f"{year}"] = {}
         if f"{ets}" not in self.cohort_index[f"{year}"]:
-            self.cohort_index[f"{year}"][f"{ets}"] = [self.fname_base]
+            self.cohort_index[f"{year}"][f"{ets}"] = [fname_base]
         else:
-            self.cohort_index[f"{year}"][f"{ets}"].append(self.fname_base)
+            self.cohort_index[f"{year}"][f"{ets}"].append(fname_base)
 
 
     def save_simulation_metadata(self, simstate):
@@ -78,13 +72,13 @@ class OutputManager:
                     "save_frequency": self.save_freq,
                     "save_mortality": self.save_mort,
                     }
-        with open(self.veg_dir / "_eco_time_vars.json", "w") as f:
+        with open(self.veg_dir / self.METADATA_FNAME, "w") as f:
             json.dump(sim_dict, f)
 
 
     def save_cohort_index(self):
         c_index_as_str = {str(key): value for key, value in self.cohort_index.items()}
-        with open(self.veg_dir / "_cohort_files_ets_index.json", "w") as f:
+        with open(self.veg_dir / self.COHORT_INDEX_FNAME, "w") as f:
             json.dump(c_index_as_str, f)
 
 
@@ -138,4 +132,11 @@ class OutputManager:
         """
         
         if self.veg and self.engine.is_parallel() and self.engine.get_rank() == 0:
+            self.file_index = self.load_cohort_file_index()
             self.engine.merge_parallel_veg(self)  # requires self object as argument
+                             
+
+    def load_cohort_file_index(self):
+        # Load as separate method for testing purposes
+        with open(self.veg_dir / self.COHORT_INDEX_FNAME, "r") as f:
+            return json.load(f)

@@ -3,6 +3,7 @@ from unittest.mock import MagicMock, patch
 from dataclasses import asdict
 import numpy as np
 import xarray as xr
+import json
 
 from dycove.sim.outputs import OutputManager
 from dycove.sim.vegetation_data import VegCohort
@@ -21,10 +22,12 @@ class TestOutputManager:
 
 
     @staticmethod
-    def mock_cohort():
+    def mock_cohort(c_id=0, n_ets=2):
         """ Create full VegCohort object to test output writing """
         return VegCohort(
             name = "test_species",
+            cohort_id = c_id,
+            n_ets = n_ets,
             fraction=np.array([0.1, 0.2]),
             density = 100.0,
             diameter = 0.01,
@@ -57,31 +60,10 @@ class TestOutputManager:
         return simstate
 
 
-    def make_output_manager(self, engine, save_freq=1, save_mort=True):
+    @staticmethod
+    def make_output_manager(engine, save_freq=1, save_mort=True):
         with patch("pathlib.Path.mkdir"):
             return OutputManager(engine, save_freq, save_mort)
-
-
-    @pytest.mark.unit
-    def test_update_file_counts_extends_with_new_cohorts(self):
-        """ If cohorts outnumber tracked steps, n_cohort_steps is extended """
-        engine = self.mock_engine()
-        engine.veg.cohorts = [self.mock_cohort(), self.mock_cohort()]
-        om = self.make_output_manager(engine)
-        om.n_cohort_steps = [2]  # only tracking one cohort so far
-        om.update_file_counts()
-        assert len(om.n_cohort_steps) == 2
-
-
-    @pytest.mark.unit
-    def test_update_file_counts_no_change_when_counts_match(self):
-        """ n_cohort_steps is not changed if already the right length """
-        engine = self.mock_engine()
-        engine.veg.cohorts = [self.mock_cohort()]
-        om = self.make_output_manager(engine)
-        om.n_cohort_steps = [3]
-        om.update_file_counts()
-        assert om.n_cohort_steps == [3]
 
 
     @pytest.mark.unit
@@ -89,9 +71,8 @@ class TestOutputManager:
         """ First call for a year/ets combo creates nested dict and list """
         engine = self.mock_engine()
         om = self.make_output_manager(engine)
-        om.fname_base = "cohort0_01"
-        om.cohort_indexing(year=1, ets=3)
-        assert om.cohort_index == {"1": {"3": ["cohort0_01"]}}
+        om.cohort_indexing(fname_base="cohort0_001", year=1, ets=3)
+        assert om.cohort_index == {"1": {"3": ["cohort0_001"]}}
 
 
     @pytest.mark.unit
@@ -99,30 +80,87 @@ class TestOutputManager:
         """ Second cohort at same year/ets appends to existing list """
         engine = self.mock_engine()
         om = self.make_output_manager(engine)
-        om.fname_base = "cohort0_01"
-        om.cohort_indexing(year=1, ets=3)
-        om.fname_base = "cohort1_01"
-        om.cohort_indexing(year=1, ets=3)
-        assert om.cohort_index["1"]["3"] == ["cohort0_01", "cohort1_01"]
+        om.cohort_indexing(fname_base="cohort0_001", year=1, ets=3)
+        om.cohort_indexing(fname_base="cohort1_001", year=1, ets=3)
+        assert om.cohort_index["1"]["3"] == ["cohort0_001", "cohort1_001"]
 
 
     @pytest.mark.unit
     def test_save_vegetation_step_passes_args_to_save_netcdf(self):
         """ save_vegetation_step passes eco_year, ets, cohort_id to save_netcdf """
         engine = self.mock_engine()
-        engine.veg.cohorts = [self.mock_cohort()]
+        engine.veg.cohorts = [self.mock_cohort(c_id=0, n_ets=0)]
         om = self.make_output_manager(engine)
-        om.n_cohort_steps = [0]
         om.save_netcdf = MagicMock()
 
         simstate = self.mock_simstate(eco_year=2, ets=5)
-        om.save_vegetation_step(simstate, vts=0)
+        om.save_vegetation_step(simstate, vts=2)
 
         call_kwargs = om.save_netcdf.call_args.kwargs
         assert call_kwargs["eco_year"] == 2
         assert call_kwargs["ets"] == 5
         assert call_kwargs["cohort_id"] == 0
         assert "saved_attrs" not in call_kwargs
+
+
+    @pytest.mark.unit
+    def test_save_simulation_metadata_file_created(self, tmp_path):
+        """ Simulation metadata file is created in the correct location. """
+        engine = self.mock_engine()
+        om = self.make_output_manager(engine)
+        simstate = self.mock_simstate()
+
+        om.save_simulation_metadata(simstate)
+
+        assert (om.veg_dir / OutputManager.METADATA_FNAME).exists()
+
+
+    @pytest.mark.unit
+    def test_save_simulation_metadata_keys(self, tmp_path):
+        """Simulation metadata file contains the expected keys and values."""
+        engine = self.mock_engine()
+        om = self.make_output_manager(engine)
+        simstate = self.mock_simstate()
+
+        om.save_simulation_metadata(simstate)
+
+        with open(om.veg_dir / OutputManager.METADATA_FNAME) as f:
+            result = json.load(f)
+
+        assert result["n_ets"] == simstate.n_ets
+        assert result["veg_interval"] == simstate.veg_interval
+        assert result["ecofac"] == simstate.ecofac
+        assert result["save_frequency"] == om.save_freq
+        assert result["save_mortality"] == om.save_mort
+
+
+    @pytest.mark.unit
+    def test_save_cohort_index_file_created(self, tmp_path):
+        """Cohort index file is created in the correct location."""
+        engine = self.mock_engine()
+        om = self.make_output_manager(engine)
+        om.cohort_index = {"1": {"2": ["cohort0_000"]}}
+
+        om.save_cohort_index()
+
+        assert (om.veg_dir / OutputManager.COHORT_INDEX_FNAME).exists()
+
+
+    @pytest.mark.unit
+    def test_save_cohort_index_keys_are_strings(self, tmp_path):
+        """Cohort index keys are converted to strings for JSON serialisation."""
+        engine = self.mock_engine()
+        om = self.make_output_manager(engine)
+        om.cohort_index = {"1": {"2": ["cohort0_000"]}, "2": {"3": ["cohort0_001"]}}
+
+        om.save_cohort_index()
+
+        with open(om.veg_dir / OutputManager.COHORT_INDEX_FNAME) as f:
+            result = json.load(f)
+
+        assert all(isinstance(k, str) for k in result.keys())
+        assert "1" in result
+        assert "2" in result
 
 
     @pytest.mark.unit
@@ -145,7 +183,6 @@ class TestOutputManager:
         engine = self.mock_engine()
         engine.veg.cohorts = [self.mock_cohort()]
         om = self.make_output_manager(engine, save_freq=2)
-        om.n_cohort_steps = [0]
         om.save_netcdf = MagicMock()
 
         om.save_vegetation_step(self.mock_simstate(), vts=1)  # 1 % 2 != 0
@@ -159,7 +196,6 @@ class TestOutputManager:
         engine = self.mock_engine()
         engine.veg.cohorts = [self.mock_cohort(), self.mock_cohort()]
         om = self.make_output_manager(engine, save_freq=2)
-        om.n_cohort_steps = [0, 0]
         om.save_netcdf = MagicMock()
 
         om.save_vegetation_step(self.mock_simstate(), vts=2)  # 2 % 2 == 0
@@ -173,7 +209,6 @@ class TestOutputManager:
         engine = self.mock_engine(is_parallel=True, rank=2)
         engine.veg.cohorts = [self.mock_cohort()]
         om = self.make_output_manager(engine)
-        om.n_cohort_steps = [0]
         om.save_netcdf = MagicMock()
 
         om.save_vegetation_step(self.mock_simstate(), vts=0)
@@ -183,26 +218,12 @@ class TestOutputManager:
 
 
     @pytest.mark.unit
-    def test_n_cohort_steps_increments_regardless_of_save_freq(self):
-        """ Step counter increments even when the save is skipped """
-        engine = self.mock_engine()
-        engine.veg.cohorts = [self.mock_cohort()]
-        om = self.make_output_manager(engine, save_freq=2)
-        om.n_cohort_steps = [0]
-        om.save_netcdf = MagicMock()
-
-        om.save_vegetation_step(self.mock_simstate(), vts=1)  # skipped
-
-        assert om.n_cohort_steps[0] == 1  # still incremented
-
-
-    @pytest.mark.unit
     def test_reconcile_calls_merge_when_parallel_and_rank0_and_veg_active(self):
         engine = self.mock_engine(is_parallel=True, rank=0)
         om = self.make_output_manager(engine)
-        om.save_simulation_indices = MagicMock()
 
-        om.reconcile_vegetation_output(self.mock_simstate())
+        with patch.object(om, "load_cohort_file_index"):
+            om.reconcile_vegetation_output(self.mock_simstate())
 
         engine.merge_parallel_veg.assert_called_once()
 
@@ -211,7 +232,6 @@ class TestOutputManager:
     def test_reconcile_does_not_merge_when_not_parallel(self):
         engine = self.mock_engine(is_parallel=False, rank=0)
         om = self.make_output_manager(engine)
-        om.save_simulation_indices = MagicMock()
 
         om.reconcile_vegetation_output(self.mock_simstate())
 
@@ -223,7 +243,6 @@ class TestOutputManager:
         """ Non-root processors should not trigger a merge """
         engine = self.mock_engine(is_parallel=True, rank=1)
         om = self.make_output_manager(engine)
-        om.save_simulation_indices = MagicMock()
 
         om.reconcile_vegetation_output(self.mock_simstate())
 
@@ -235,7 +254,6 @@ class TestOutputManager:
         """ Non-vegetation simulation should not trigger anything (b/c no files) """
         engine = self.mock_engine(is_parallel=True, rank=0)
         om = self.make_output_manager(engine)
-        om.save_simulation_indices = MagicMock()
 
         om.veg = None
         om.reconcile_vegetation_output(self.mock_simstate())
@@ -248,12 +266,23 @@ class TestOutputManager:
         """ merge_parallel_veg requires the OutputManager instance as argument """
         engine = self.mock_engine(is_parallel=True, rank=0)
         om = self.make_output_manager(engine)
-        om.save_simulation_indices = MagicMock()
 
-        om.reconcile_vegetation_output(self.mock_simstate())
-
+        with patch.object(om, "load_cohort_file_index"):
+            om.reconcile_vegetation_output(self.mock_simstate())
 
         assert engine.merge_parallel_veg.call_args[0][0] is om
+
+
+    @pytest.mark.unit
+    def test_reconcile_self_has_file_index_attr(self):
+        """ merge_parallel_veg requires the file index to be read """
+        engine = self.mock_engine(is_parallel=True, rank=0)
+        om = self.make_output_manager(engine)
+
+        with patch.object(om, "load_cohort_file_index"):
+            om.reconcile_vegetation_output(self.mock_simstate())
+
+        assert hasattr(om, "file_index")
 
 
     @pytest.mark.unit

@@ -32,14 +32,14 @@ plotter = plotting.ModelPlotter(
     simdir = Path('.'),
     #quantity = 'Bathymetry',
     #quantity = 'Velocity',
-    quantity = 'Stem Height',
+    quantity = 'Stem Height', plot_separate_species = False,
     #quantity = 'Mortality -- Total',
     #quantity = 'Fractions',
     plot_times = {  # times specified here are hydrodynamic time, not eco-morpho time
         # sim hr to start plotting
         'plotHR_0': 0*24.,
         # sim hr to stop plotting, not to exceed total sim length.
-        'plotHR_f': 28*24.,  # 21 hydro days ~ 3 eco-morpho years when vegfac ~ 50
+        'plotHR_f': 24*24.,  # 24 hydro days ~ 4 eco-morpho years when vegfac ~ 60
         # sim hrs between map outputs, default for ANUGA, value for DFM given in MDU file
         'mapHR_int': 1,
         # hrs between consecutive plots, cannot be less than map_output, unused if plotting vegetation

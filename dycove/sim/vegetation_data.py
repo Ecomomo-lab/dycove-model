@@ -211,6 +211,10 @@ class VegCohort:
     ----------
     name : str
         Name of species.
+    cohort_id : int
+        Cohort ID number.
+    n_ets : int
+        Number of ETS the cohort has experienced.
     fraction : numpy.ndarray
         Vegetation fractional cover per cell (0–1).
     density : float
@@ -232,6 +236,8 @@ class VegCohort:
     """
 
     name: str
+    cohort_id: int
+    n_ets: int
     fraction: np.ndarray
     density: float
     diameter: float

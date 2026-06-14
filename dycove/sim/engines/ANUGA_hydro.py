@@ -205,11 +205,7 @@ class AnugaEngine(HydroEngineBase):
     def merge_parallel_veg(self, OutputManager):
 
         outputdir = OutputManager.veg_dir
-        n_cohort_steps = OutputManager.n_cohort_steps
-
-        # Load in file that tracks all output files
-        with open(outputdir / "_cohort_files_ets_index.json", "r") as f:
-            file_index = json.load(f)
+        file_index = OutputManager.file_index
 
         sww_name = self.domain.get_name()
         base_name = sww_name[:-2]  # works because my_id == 0 for call to this method
@@ -228,8 +224,6 @@ class AnugaEngine(HydroEngineBase):
         f_ids = [np.where(tri_full_flag[p] == 1)[0] for p in range(self.numprocs)]
         f_gids = [tri_l2g[p][f_ids[p]] for p in range(self.numprocs)]
 
-        # for cohort_id in range(len(self.veg.cohorts)):
-        #     for file_num in range(n_cohort_steps[cohort_id]):
         for year in file_index:
             for ets in file_index[year]:
                 for fname in file_index[year][ets]:

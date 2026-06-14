@@ -352,6 +352,12 @@ class TestMergeLocalToGlobal:
 
 class TestMergeParallelVeg:    
 
+    @pytest.fixture(autouse=True)
+    def patch_reporter(self):
+        with patch("dycove.sim.engines.ANUGA_hydro.r"):
+            yield
+
+
     @staticmethod
     def make_engine(tmp_path, numprocs=2, n_cohorts=1):
         domain = MagicMock()
@@ -359,8 +365,7 @@ class TestMergeParallelVeg:
         domain.get_datadir.return_value = str(tmp_path)
 
         with patch("dycove.sim.engines.ANUGA_hydro._import_anuga",
-                   return_value=(0, numprocs, MagicMock(), MagicMock())), \
-             patch("dycove.sim.engines.ANUGA_hydro.r"):
+                   return_value=(0, numprocs, MagicMock(), MagicMock())):
             engine = AnugaEngine(domain)
 
         engine.veg = MagicMock()
@@ -392,7 +397,7 @@ class TestMergeParallelVeg:
     def mock_output_manager(tmp_path, n_cohort_steps=[1]):
         om = MagicMock()
         om.veg_dir = tmp_path
-        om.n_cohort_steps = n_cohort_steps
+        om.file_index = {"1": {"2": ["cohort0_000"]}}
         return om
 
 
@@ -411,14 +416,25 @@ class TestMergeParallelVeg:
             )
 
         # Write only proc 0 cohort file, not proc 1
-        self.write_cohort_file(tmp_path / "cohort0_00_proc0.nc", fraction=np.array([0.1, 0.2]))
+        self.write_cohort_file(tmp_path / "cohort0_000_proc0.nc", fraction=np.array([0.1, 0.2]))
 
         om = self.mock_output_manager(tmp_path)
 
-        with patch("dycove.sim.engines.ANUGA_hydro.r"):
-            with pytest.raises(FileNotFoundError):
-                engine.merge_parallel_veg(om)
+        with pytest.raises(FileNotFoundError):
+            engine.merge_parallel_veg(om)
 
+
+
+    @staticmethod
+    def mock_file_index():
+        return MagicMock(return_value={
+            "1": {
+                "2": ["cohort0_000"],
+                "3": ["cohort0_001"],
+                "4": ["cohort0_002"],
+            }
+        })
+    
 
     @pytest.mark.anuga
     @pytest.mark.unit
@@ -432,14 +448,13 @@ class TestMergeParallelVeg:
                 tri_l2g=np.array([p]),       # proc 0 owns global 0, proc 1 owns global 1
                 tri_full_flag=np.array([1])
             )
-            self.write_cohort_file(tmp_path / f"cohort0_00_proc{p}.nc",
+            self.write_cohort_file(tmp_path / f"cohort0_000_proc{p}.nc",
                                    fraction=np.array([0.1 * (p + 1)]))
 
         om = self.mock_output_manager(tmp_path)
         om.save_netcdf = MagicMock()
 
-        with patch("dycove.sim.engines.ANUGA_hydro.r"):
-            engine.merge_parallel_veg(om)
+        engine.merge_parallel_veg(om)
 
         om.save_netcdf.assert_called_once()
 
@@ -456,17 +471,16 @@ class TestMergeParallelVeg:
                 tri_l2g=np.array([p]),
                 tri_full_flag=np.array([1])
             )
-            self.write_cohort_file(tmp_path / f"cohort0_00_proc{p}.nc",
+            self.write_cohort_file(tmp_path / f"cohort0_000_proc{p}.nc",
                                    fraction=np.array([0.5]))
 
         om = self.mock_output_manager(tmp_path)
         om.save_netcdf = MagicMock()
 
-        with patch("dycove.sim.engines.ANUGA_hydro.r"):
-            engine.merge_parallel_veg(om)
+        engine.merge_parallel_veg(om)
 
-        assert not (tmp_path / "cohort0_00_proc0.nc").exists()
-        assert not (tmp_path / "cohort0_00_proc1.nc").exists()
+        assert not (tmp_path / "cohort0_000_proc0.nc").exists()
+        assert not (tmp_path / "cohort0_000_proc1.nc").exists()
 
 
     @pytest.mark.anuga
@@ -481,15 +495,14 @@ class TestMergeParallelVeg:
                 tri_l2g=np.array([p]),
                 tri_full_flag=np.array([1])
             )
-            self.write_cohort_file(tmp_path / f"cohort0_00_proc{p}.nc",
+            self.write_cohort_file(tmp_path / f"cohort0_000_proc{p}.nc",
                                    fraction=np.array([0.5]),
                                    attrs={"eco_year": 1, "ets": 3, "cohort": 0})
 
         om = self.mock_output_manager(tmp_path)
         om.save_netcdf = MagicMock()
 
-        with patch("dycove.sim.engines.ANUGA_hydro.r"):
-            engine.merge_parallel_veg(om)
+        engine.merge_parallel_veg(om)
 
         saved_attrs = om.save_netcdf.call_args[1]["saved_attrs"]
         assert saved_attrs["eco_year"] == 1
@@ -509,14 +522,13 @@ class TestMergeParallelVeg:
                 tri_l2g=np.array([p*2, p*2+1]),
                 tri_full_flag=np.array([1, 1])
             )
-            self.write_cohort_file(tmp_path / f"cohort0_00_proc{p}.nc",
+            self.write_cohort_file(tmp_path / f"cohort0_000_proc{p}.nc",
                                    fraction=np.array([0.1*(p*2+1), 0.1*(p*2+2)]))
 
         om = self.mock_output_manager(tmp_path)
         om.save_netcdf = MagicMock()
 
-        with patch("dycove.sim.engines.ANUGA_hydro.r"):
-            engine.merge_parallel_veg(om)
+        engine.merge_parallel_veg(om)
 
         merged_data = om.save_netcdf.call_args[0][2]  # third positional arg is the data dict
         assert np.allclose(merged_data["fraction"], [0.1, 0.2, 0.3, 0.4])
@@ -535,14 +547,13 @@ class TestMergeParallelVeg:
                 tri_l2g=np.array([p]),
                 tri_full_flag=np.array([1])
             )
-            self.write_cohort_file(tmp_path / f"cohort0_00_proc{p}.nc",
+            self.write_cohort_file(tmp_path / f"cohort0_000_proc{p}.nc",
                                    fraction=np.array([0.5]))
 
         om = self.mock_output_manager(tmp_path)
         om.save_netcdf = MagicMock()
 
-        with patch("dycove.sim.engines.ANUGA_hydro.r"):
-            engine.merge_parallel_veg(om)
+        engine.merge_parallel_veg(om)
 
         fname_stem = om.save_netcdf.call_args[0][1]  # third positional arg is the data dict
-        assert fname_stem == "cohort0_00"
+        assert fname_stem == "cohort0_000"

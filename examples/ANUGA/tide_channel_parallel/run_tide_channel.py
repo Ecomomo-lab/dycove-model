@@ -18,14 +18,14 @@ from gen_anuga_domain_pll import RectangSlopeDomainGenerator as RectangDomain
 # Create a sloped rectangular ANUGA domain using anuga.rectangular_cross_domain
 #------------------------------------------------------------------------------
 
-HydroDomain = RectangDomain("rectang_beach", mesh_spacing=20)
+HydroDomain = RectangDomain("rectang_beach", mesh_spacing=40)
 
 #------------------------------------------------------------------------------
 # Run ANUGA with DYCOVE
 #------------------------------------------------------------------------------
 
 # define simulation time period
-sim_time = 4
+sim_time = 2
 time_unit = "eco-morphodynamic years"  # 'hydrodynamic days' or 'eco-morphodynamic years'
 
 # create vegetation species object
@@ -35,4 +35,4 @@ veg_1 = VegetationSpecies("veg1.json")
 HydroModel = ANUGA_hydro.ANUGA(HydroDomain.domain, vegetation=veg_1)
 
 # do timestepping
-HydroModel.run_simulation(sim_time, time_unit)
+HydroModel.run_simulation(sim_time, sim_time_unit=time_unit, ecofac=50, n_ets=14, veg_interval=43200)

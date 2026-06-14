@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 from types import SimpleNamespace
 import numpy as np
 
@@ -22,6 +22,7 @@ class TestColonization:
         attrs.stemdiam_0    = 0.01
         attrs.stemht_0      = 0.5
         attrs.rootlength_0  = 0.5
+        attrs.col_method    = 1
         return attrs
 
 
@@ -54,6 +55,7 @@ class TestColonization:
 
         veg.cohorts = []
         veg.name = "test"
+        veg.cohort_id = 0
         veg.seed_frac = 1.0
         veg.seed_method = "deterministic"
 
@@ -78,11 +80,15 @@ class TestColonization:
 
         veg.cohorts = []
         veg.name = "test"
+        veg.cohort_id = 0
 
         min_depths = np.array([0.0, 0.2, 0.0])
         max_depths = np.array([0.2, 0.2, 0.1])
 
-        # Deterministic seed mask
+        monkeypatch.setattr(veg,
+                            "find_potential_inds",
+                            lambda dry, fld: np.array([0])
+                            )
         monkeypatch.setattr(veg,
                             "create_seed_fraction_mask",
                             lambda n: np.array([True, False, True])
@@ -98,7 +104,7 @@ class TestColonization:
         veg.colonization(ets=2, min_depths=min_depths, max_depths=max_depths, fl_dr=0.15)
 
         # Only index 0 satisfies dry & flood & seed
-        assert np.array_equal(captured["inds"], np.array([True, False, False]))
+        np.testing.assert_array_equal(captured["inds"], np.array([True, False, False]))
 
 
     @pytest.mark.unit
@@ -108,15 +114,19 @@ class TestColonization:
 
         veg.cohorts = []
         veg.name = "speciesA"
+        veg.cohort_id = 0
 
         min_depths = np.array([0.0, 0.2, 0.0])
         max_depths = np.array([0.2, 0.2, 0.1])
 
         monkeypatch.setattr(veg,
+                            "find_potential_inds",
+                            lambda dry, fld: np.array([0])
+                            )
+        monkeypatch.setattr(veg,
                             "create_seed_fraction_mask",
                             lambda n: np.ones(n, dtype=bool)
                             )
-
         monkeypatch.setattr(veg,
                             "compute_new_fraction",
                             lambda existing, inds: np.array([0.5, 0.0, 0.0])
@@ -151,6 +161,10 @@ class TestColonization:
             assert existing is combined_cohorts
             return np.zeros(3)
 
+        monkeypatch.setattr(veg,
+                            "find_potential_inds",
+                            lambda dry, fld: np.array([0])
+                            )
         monkeypatch.setattr(veg, "compute_new_fraction", fake_compute)
         monkeypatch.setattr(veg, "create_seed_fraction_mask", lambda n: np.ones(n))
 
@@ -163,7 +177,90 @@ class TestColonization:
 
 
 # ------------------------------------------------------------ #
-# tests for create_seed_fraction_mask()
+# tests for find_potential_inds
+# ------------------------------------------------------------ #
+
+class TestFindPotentialInds:
+
+    @staticmethod
+    def mock_attrs(col_method):
+        attrs = MagicMock()
+        attrs.col_method    = col_method
+        return attrs
+    
+
+    @pytest.mark.unit
+    def test_find_potential_inds_method1_wet_and_dry(self):
+        """ Method 1 returns indices where both dry and flooded conditions occurred. """
+        veg = VegetationSpecies.__new__(VegetationSpecies)
+        veg.attrs = self.mock_attrs(col_method=1)
+
+        dry = np.array([True, False, True, False])
+        fld = np.array([True, True, False, False])
+
+        result = veg.find_potential_inds(dry, fld)
+
+        np.testing.assert_array_equal(result, np.array([0]))
+
+
+    @pytest.mark.unit
+    def test_find_potential_inds_method2_flooded(self):
+        """ Method 2 returns indices where flooded conditions occurred. """
+        veg = VegetationSpecies.__new__(VegetationSpecies)
+        veg.attrs = self.mock_attrs(col_method=2)
+
+        dry = np.array([True, False, True, False])
+        fld = np.array([True, True, False, False])
+
+        result = veg.find_potential_inds(dry, fld)
+
+        np.testing.assert_array_equal(result, np.array([0, 1]))
+
+
+    @pytest.mark.unit
+    def test_find_potential_inds_method3_dry(self):
+        """ Method 3 returns indices where dry conditions occurred. """
+        veg = VegetationSpecies.__new__(VegetationSpecies)
+        veg.attrs = self.mock_attrs(col_method=3)
+
+        dry = np.array([True, False, True, False])
+        fld = np.array([True, True, False, False])
+
+        result = veg.find_potential_inds(dry, fld)
+
+        np.testing.assert_array_equal(result, np.array([0, 2]))
+
+
+    @pytest.mark.unit
+    def test_find_potential_inds_method4_all_cells(self):
+        """ Method 4 returns all cell indices regardless of conditions. """
+        veg = VegetationSpecies.__new__(VegetationSpecies)
+        veg.attrs = self.mock_attrs(col_method=4)
+
+        dry = np.array([True, False, True, False])
+        fld = np.array([True, True, False, False])
+
+        result = veg.find_potential_inds(dry, fld)
+
+        np.testing.assert_array_equal(result, np.array([0, 1, 2, 3]))
+
+
+    @pytest.mark.unit
+    def test_find_potential_inds_no_qualifying_cells(self):
+        """ Returns an empty array when no cells meet the colonization condition. """
+        veg = VegetationSpecies.__new__(VegetationSpecies)
+        veg.attrs = self.mock_attrs(col_method=1)  # strictest condition
+
+        dry = np.array([False, False, False])
+        fld = np.array([False, False, False])
+
+        result = veg.find_potential_inds(dry, fld)
+
+        assert len(result) == 0
+
+
+# ------------------------------------------------------------ #
+# tests for create_seed_fraction_mask
 # ------------------------------------------------------------ #
 
 class TestCreateSeedFractionMask:
@@ -180,7 +277,7 @@ class TestCreateSeedFractionMask:
 
         assert mask1.dtype == bool
         assert np.sum(mask1) == int(np.floor(0.3 * self.ARRAY_LEN))
-        assert np.array_equal(mask1, mask2)
+        np.testing.assert_array_equal(mask1, mask2)
 
 
     @pytest.mark.unit
@@ -517,6 +614,13 @@ class TestMortalityMorphodynamic:
 class TestApplyMortality:
 
     @staticmethod
+    def mock_attrs():
+        attrs = MagicMock()
+        attrs.fraction_0 = 0.5
+        return attrs
+    
+
+    @staticmethod
     def mock_cohort(ls):
         c = MagicMock()
         c.fraction = np.array([0.4, 0.6])
@@ -526,10 +630,10 @@ class TestApplyMortality:
         return c
 
 
-    @staticmethod
-    def veg_obj():
+    def veg_obj(self):
         veg = VegetationSpecies.__new__(VegetationSpecies)
-        # two life stages, one array per life stage
+        veg.attrs = self.mock_attrs()
+        # three life stages, one array per life stage
         veg.potential_mort_flood = [np.array([0.1, 0.1]),
                                     np.array([0.2, 0.2]),
                                     np.array([1.0, 1.0]),
@@ -559,7 +663,8 @@ class TestApplyMortality:
 
 
     @pytest.mark.unit
-    def test_apply_mortality_multiplication(self):
+    def test_apply_mortality_multiplication_w_current_fraction(self):
+        """ When INIT_FRAC_MORT=False, applied mortality uses current cohort fraction. """
         veg = self.veg_obj()
         c = self.mock_cohort(ls=1)
         veg.cohorts = [c]
@@ -570,7 +675,8 @@ class TestApplyMortality:
         expected_bur = c.fraction * c.potential_mort_burial
         expected_sco = c.fraction * c.potential_mort_scour
 
-        veg.apply_mortality()
+        with patch("dycove.sim.vegetation.INIT_FRAC_MORT", False):
+            veg.apply_mortality()
 
         assert np.allclose(c.applied_mort_flood, expected_fld)
         assert np.allclose(c.applied_mort_desic, expected_des)
@@ -578,6 +684,27 @@ class TestApplyMortality:
         assert np.allclose(c.applied_mort_burial, expected_bur)
         assert np.allclose(c.applied_mort_scour, expected_sco)
 
+    @pytest.mark.unit
+    def test_apply_mortality_multiplication_w_init_fraction(self):
+        """ When INIT_FRAC_MORT=True, applied mortality uses initial fraction from attrs/JSON. """
+        veg = self.veg_obj()
+        c = self.mock_cohort(ls=1)
+        veg.cohorts = [c]
+
+        expected_fld = veg.attrs.fraction_0 * veg.potential_mort_flood[0]
+        expected_des = veg.attrs.fraction_0 * veg.potential_mort_desic[0]
+        expected_upr = veg.attrs.fraction_0 * veg.potential_mort_uproot[0]
+        expected_bur = veg.attrs.fraction_0 * c.potential_mort_burial
+        expected_sco = veg.attrs.fraction_0 * c.potential_mort_scour
+
+        with patch("dycove.sim.vegetation.INIT_FRAC_MORT", True):
+            veg.apply_mortality()
+
+        assert np.allclose(c.applied_mort_flood, expected_fld)
+        assert np.allclose(c.applied_mort_desic, expected_des)
+        assert np.allclose(c.applied_mort_uproot, expected_upr)
+        assert np.allclose(c.applied_mort_burial, expected_bur)
+        assert np.allclose(c.applied_mort_scour, expected_sco)
 
     @pytest.mark.unit
     def test_apply_mortality_total_additive(self):
@@ -585,13 +712,14 @@ class TestApplyMortality:
         c = self.mock_cohort(ls=1)
         veg.cohorts = [c]
 
-        expected_fld = c.fraction * veg.potential_mort_flood[0]
-        expected_des = c.fraction * veg.potential_mort_desic[0]
-        expected_upr = c.fraction * veg.potential_mort_uproot[0]
-        expected_bur = c.fraction * c.potential_mort_burial
-        expected_sco = c.fraction * c.potential_mort_scour
+        expected_fld = veg.attrs.fraction_0 * veg.potential_mort_flood[0]
+        expected_des = veg.attrs.fraction_0 * veg.potential_mort_desic[0]
+        expected_upr = veg.attrs.fraction_0 * veg.potential_mort_uproot[0]
+        expected_bur = veg.attrs.fraction_0 * c.potential_mort_burial
+        expected_sco = veg.attrs.fraction_0 * c.potential_mort_scour
 
-        veg.apply_mortality()
+        with patch("dycove.sim.vegetation.INIT_FRAC_MORT", True):
+            veg.apply_mortality()
 
         expected_total = expected_fld + expected_des + expected_upr + expected_bur + expected_sco
         assert np.allclose(c.applied_mort_total, expected_total)
@@ -634,13 +762,14 @@ class TestApplyMortality:
         c2 = self.mock_cohort(ls=3)
         veg.cohorts = [c1, c2]
 
-        orig_fraction = c2.fraction.copy()
-        veg.apply_mortality()
+        #orig_fraction = c2.fraction.copy()
+        with patch("dycove.sim.vegetation.INIT_FRAC_MORT", True):
+            veg.apply_mortality()
 
         # No applied mortality
         assert np.all(c1.applied_mort_uproot == 0.0)
-        # 100% applied mortality, max is actual fraction present
-        assert np.allclose(c2.applied_mort_uproot, orig_fraction)
+        # 100% applied mortality
+        assert np.allclose(c2.applied_mort_uproot, veg.attrs.fraction_0)
 
 
 # ------------------------------------------------------------ #
@@ -855,6 +984,22 @@ class TestGrowthMethods:
         veg.stemheight_growth(ets=6)  # should not raise
 
 
+
+@pytest.mark.unit
+def test_update_n_cohort_ets():
+    veg = VegetationSpecies.__new__(VegetationSpecies)
+    c = MagicMock()
+    c.n_ets = 1
+    veg.cohorts = [c]
+
+    n_ets = veg.cohorts[0].n_ets
+    veg.update_n_cohort_ets()
+    assert veg.cohorts[0].n_ets == n_ets + 1
+
+
+# ------------------------------------------------------------ #
+# tests for ets/lifestage update methods
+# ------------------------------------------------------------ #
 
 class TestUpdateLifestageAndStemdensity:
 
