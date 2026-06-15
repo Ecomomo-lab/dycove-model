@@ -137,13 +137,6 @@ _plot/
 *.nc
 *.sww
 
-# Retain native Delft3D-FM mesh file format
-!*_net.nc
-
-# Retain files in sample data directory
-!tests/sample_data/
-!tests/sample_data/**
-
 # Delft3D-FM output
 output/
 *.err
@@ -151,7 +144,13 @@ output/
 
 # DYCOVE output
 veg_output/
-hydro_output/
 figures/
 *.npy
 *.npz
+
+# Retain native Delft3D-FM mesh file format
+!*_net.nc
+
+# Retain files in sample data directory
+!tests/sample_data/
+!tests/sample_data/**
