@@ -35,6 +35,8 @@
       ~VegCohort.potential_mort_scour
       ~VegCohort.potential_mort_uproot
       ~VegCohort.name
+      ~VegCohort.cohort_id
+      ~VegCohort.n_ets
       ~VegCohort.fraction
       ~VegCohort.density
       ~VegCohort.diameter

@@ -402,6 +402,9 @@
 <span class="sd">        Otherwise, blank files are required so that DFM knows to store these variables through time.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
         <span class="c1"># Read .mdu file lines</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
 
@@ -428,8 +431,9 @@
 <span class="sd">        [external forcing]</span>
 <span class="sd">        ExtForceFile = FlowFM.ext  # Old format for external forcings file ...</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># for Pylance...</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">&quot;ExtForceFile&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">&quot;ExtForceFile&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mdu_modified</span> <span class="o">=</span> <span class="kc">True</span>
 
             <span class="c1"># Get name of model/file based on name of &quot;new&quot; .ext file</span>
@@ -438,8 +442,8 @@
             <span class="k">except</span><span class="p">:</span>
                 <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Either the &#39;ExtForceFileNew&#39; file name in the .mdu file does not end in the expected &quot;</span>
                        <span class="s2">&quot;&#39;_bnd.ext&#39;, or there is no &#39;ExtForceFileNew&#39; file defined in the .mdu file. If it was &quot;</span>
-                       <span class="s2">&quot;purposeful that no boundaries were specified for this model, then this check mechanism &quot;</span>
-                       <span class="s2">&quot;must be updated: please get in touch with us on GitHub.&quot;</span><span class="p">)</span>
+                       <span class="s2">&quot;purposeful that no boundaries were specified for this model, then this method must be &quot;</span>
+                       <span class="s2">&quot;updated: please get in touch with us or create an Issue on GitHub.&quot;</span><span class="p">)</span>
                 <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
@@ -472,9 +476,10 @@
 <span class="sd">        Cdveg             = 1.1   # Drag coefficient, pulled from input veg.json file</span>
 <span class="sd">        Cbveg             = 0.7   # Stem stiffness coefficient, default=0.7</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># for Pylance...</span>
 
         <span class="n">veg_block_present</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;[veg]&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">veg_block_present</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">veg_block_present</span><span class="p">:</span>
             <span class="n">drag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">get_drag</span><span class="p">()</span>
             <span class="n">veg_model_num</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">mor</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mdu_modified</span> <span class="o">=</span> <span class="kc">True</span>
@@ -494,6 +499,7 @@
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.create_extforcefile">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_extforcefile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Create .ext file in the model directory if it doesn&#39;t exist &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># for Pylance...</span>
 
         <span class="n">ext_force_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">&quot;ExtForceFile&quot;</span><span class="p">]</span>
         <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;QUANTITY=stemdensity</span>
@@ -514,17 +520,20 @@
 <span class="s2">METHOD=5</span>
 <span class="s2">OPERAND=O</span>
 <span class="s2">&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">ext_force_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ext_force_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
         <span class="c1"># It may already exist if other spatially varying parameters are in use; need to append our content</span>
-        <span class="k">elif</span> <span class="n">ext_force_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">else</span><span class="p">:</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>         </div>
+            <span class="c1"># If the vegetation blocks are already there, skip this step (could have been copied from previous run dir)</span>
+            <span class="n">quantities</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;stemdensity&quot;</span><span class="p">,</span> <span class="s2">&quot;stemdiameter&quot;</span><span class="p">,</span> <span class="s2">&quot;stemheight&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">s</span> <span class="ow">in</span> <span class="n">lines</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">):</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>         </div>
 
 
 
@@ -532,10 +541,12 @@
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.create_veg_xyz_files">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_veg_xyz_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot; Create required files for [veg] module to run, even if they are blank &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># for Pylance...</span>
+
         <span class="n">req_veg_files</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;stemdensity.xyz&quot;</span><span class="p">,</span> <span class="s2">&quot;stemdiameter.xyz&quot;</span><span class="p">,</span> <span class="s2">&quot;stemheight.xyz&quot;</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">req_veg_files</span><span class="p">:</span>
             <span class="n">veg_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">/</span> <span class="n">filename</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">veg_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">veg_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">veg_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
 

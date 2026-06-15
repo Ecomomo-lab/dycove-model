@@ -104,6 +104,7 @@
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>input_veg_filename</strong> (<em>str</em><em> or </em><em>Path</em>) – Path to JSON file containing vegetation attributes.</p></li>
+<li><p><strong>species_name</strong> (<em>str</em>) – Name of species to save with cohorts. Default is input_veg_filename.</p></li>
 <li><p><strong>mor</strong> (<em>int</em>) – 1 if we want to consider morphology (burial/scour) for this vegetation unit, else 0</p></li>
 <li><p><strong>rand_seed_frac</strong> (<em>float</em>) – Fraction of potentially colonized cells that will actually colonize, distributed randomly.</p></li>
 <li><p><strong>rand_seed_method</strong> (<em>str</em>) – Options are ‘random’ or ‘deterministic’. If rand_seed_frac is between 0 and 1,
@@ -173,6 +174,9 @@ whereas ‘random’ will be truly random each time.</p></li>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.update_lifestage_and_stemdensity" title="dycove.sim.vegetation.VegetationSpecies.update_lifestage_and_stemdensity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_lifestage_and_stemdensity</span></code></a>()</p></td>
 <td><p>Function to be called at the end of every eco year.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.vegetation.VegetationSpecies.update_n_cohort_ets" title="dycove.sim.vegetation.VegetationSpecies.update_n_cohort_ets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_n_cohort_ets</span></code></a>()</p></td>
+<td><p>Advance the number of ETS each cohort has lived by one.</p></td>
 </tr>
 </tbody>
 </table>
@@ -326,6 +330,12 @@ bl_diff will be passed as zero-difference arrays, and scour/burial will be set t
 <p>Updates the life stage and the year within the life stage for each cohort.</p>
 <p>Stem density update is done here because it only depends on eco year and does not
 change during the year.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.vegetation.VegetationSpecies.update_n_cohort_ets">
+<span class="sig-name descname"><span class="pre">update_n_cohort_ets</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/vegetation.html#VegetationSpecies.update_n_cohort_ets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.vegetation.VegetationSpecies.update_n_cohort_ets" title="Link to this definition"></a></dt>
+<dd><p>Advance the number of ETS each cohort has lived by one.</p>
 </dd></dl>
 
 </dd></dl>

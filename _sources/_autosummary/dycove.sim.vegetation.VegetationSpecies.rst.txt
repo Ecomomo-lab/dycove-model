@@ -31,6 +31,7 @@
       ~VegetationSpecies.stemdiam_growth
       ~VegetationSpecies.stemheight_growth
       ~VegetationSpecies.update_lifestage_and_stemdensity
+      ~VegetationSpecies.update_n_cohort_ets
    
    
 

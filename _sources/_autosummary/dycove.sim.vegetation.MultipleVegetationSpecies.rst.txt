@@ -23,6 +23,7 @@
       ~MultipleVegetationSpecies.stemdiam_growth
       ~MultipleVegetationSpecies.stemheight_growth
       ~MultipleVegetationSpecies.update_lifestage_and_stemdensity
+      ~MultipleVegetationSpecies.update_n_cohort_ets
    
    
 
