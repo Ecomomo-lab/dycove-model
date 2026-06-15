@@ -113,7 +113,7 @@ This example will throw an error because the combination of input parameters doe
 This example works because the combination of input parameters yields a realistic number of days per year.
 In this case, the user will run a simulation where vegetation processes (e.g., growth) are accelerated by a factor of 100, and 12 hours of hydrodynamic time (one ETS) is equivalent to 50 days of ecological time.
 Note that if running a simulation with morphology turned on, users should not provide an ``ecofac`` because the ``morfac`` value defined in the numerical model will be adopted instead.
-Values of ``veg_interval`` or ``n_ets``, default or otherwise, must still be compatible with that ``morfac`` value.
+Values of ``veg_interval`` or ``n_ets``, default or otherwise, must still be compatible with that ``morfac`` value. 
 
 *Important Note*: Any changes to ``n_ets`` must be accompanied by changes to temporal/ETS parameters in the :ref:`input .json file <input-json>`, namely ``'start_growth_ets'``, ``'end_growth_ets'``, ``'winter_ets'``, ``'start_col_ets'``, and ``'end_col_ets'`` (none of which can be larger than ``n_ets``, by definition).
 These parameters are defined in various sections below, but the important point here is that ``n_ets`` should be a high enough value that the start and end of the growth and winter seasons can be defined with sufficient temporal resolution.
