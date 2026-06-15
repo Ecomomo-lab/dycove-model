@@ -861,8 +861,8 @@ class ModelPlotter:
             cbar_z = plt.colorbar(base, cax=cax_z)
             cbar_z.ax.yaxis.set_ticks_position('left')
             cbar_z.ax.yaxis.set_label_position('left')
-            cbar_z.set_label(f"{self.quantity_units["Bathymetry"][0]}", rotation=90, labelpad=self.cbar_props["topo_labelpad"], fontsize=self.plot_specs["fontsize"])
-            cbar_z.ax.tick_params(labelsize=self.plot_specs["fontsize"]-2)
+            cbar_z.set_label(f"{self.quantity_units['Bathymetry'][0]}", rotation=90, labelpad=self.cbar_props['topo_labelpad'], fontsize=self.plot_specs['fontsize'])
+            cbar_z.ax.tick_params(labelsize=self.plot_specs['fontsize']-2)
 
         if self.scalebar:
             self.make_scalebar(ax)
