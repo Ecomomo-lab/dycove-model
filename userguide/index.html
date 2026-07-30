@@ -167,7 +167,16 @@ A separate <cite>.json</cite> file and <a class="reference internal" href="../_a
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">&quot;eco-morphodynamic years&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Note that there are several optional arguments of <a class="reference internal" href="../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase.run_simulation" title="dycove.sim.base.HydroSimulationBase.run_simulation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation()</span></code></a> that define the time scaling of DYCOVE models, which are described in the API and in greater detail in the <a class="reference internal" href="../background/index.html#eco-time-scale"><span class="std std-ref">Background</span></a>.</p>
+<p>Note that there are several optional arguments of <a class="reference internal" href="../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase.run_simulation" title="dycove.sim.base.HydroSimulationBase.run_simulation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation()</span></code></a> that define the time scaling of DYCOVE models, which are described in the API and in greater detail in the <a class="reference internal" href="../background/index.html#eco-time-scale"><span class="std std-ref">Background section on ecological time scaling</span></a>.
+A more complex <a class="reference internal" href="../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase.run_simulation" title="dycove.sim.base.HydroSimulationBase.run_simulation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation()</span></code></a> call might look like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">sim_time</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+                     <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">&quot;eco-morphodynamic years&quot;</span><span class="p">,</span>
+                     <span class="n">n_ets</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span>
+                     <span class="n">veg_interval</span><span class="o">=</span><span class="mi">86400</span><span class="p">,</span>
+                     <span class="n">ecofac</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
 </section>
 <section id="outputs">
 <h2>Outputs<a class="headerlink" href="#outputs" title="Link to this heading"></a></h2>
@@ -221,7 +230,7 @@ Plots of fractions will consist of two plots per ETS, one for each species, star
 ANUGA model quantities can be read from the output <cite>.sww</cite> file using the <code class="docutils literal notranslate"><span class="pre">xarray</span></code> library (also <code class="docutils literal notranslate"><span class="pre">netCDF4</span></code>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
-<span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;path/to/anuga_model.sww&quot;</span><span class="p">)</span>
+<span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s2">&quot;path/to/anuga_model.sww&quot;</span><span class="p">)</span>
 
 <span class="c1"># Vertex quantities</span>
 <span class="n">x</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
@@ -246,7 +255,7 @@ Note that DYCOVE vegetation arrays are based on centroids.</p>
 <p>Similarly, DFM model centroid quantities can be read from the output <cite>_map.nc</cite> file:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
-<span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="s2">&quot;path/to/dflowfm/output/FlowFM_map.nc&quot;</span><span class="p">)</span>
+<span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="s2">&quot;path/to/dflowfm/output/FlowFM_map.nc&quot;</span><span class="p">)</span>
 <span class="n">x_c</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_face_x&quot;</span><span class="p">]</span>
 <span class="n">y_c</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_face_y&quot;</span><span class="p">]</span>
 <span class="n">z_c</span> <span class="o">=</span> <span class="n">map_vars</span><span class="p">[</span><span class="s2">&quot;mesh2d_flowelem_bl&quot;</span><span class="p">]</span>
@@ -280,7 +289,7 @@ Either way, we need to read in the underlying hydrodynamic model file for interp
 <span class="n">eco_dir</span> <span class="o">=</span> <span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;veg_output&quot;</span>
 
 <span class="c1"># Load ANUGA (or DFM) output, read X and Y coordinate arrays</span>
-<span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;rectang_beach.sww&quot;</span><span class="p">)</span>
+<span class="n">map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">model_dir</span> <span class="o">/</span> <span class="s2">&quot;rectang_beach.sww&quot;</span><span class="p">)</span>
 
 <span class="c1"># Convert ANUGA vertex coordinates to centroids (may take a little time)</span>
 <span class="c1"># DFM USERS: x_c and y_c can be pulled from the output file directly (see above)</span>
@@ -303,7 +312,7 @@ Either way, we need to read in the underlying hydrodynamic model file for interp
     <span class="k">for</span> <span class="n">ets</span> <span class="ow">in</span> <span class="n">ets_list</span><span class="p">:</span>
         <span class="n">fractions</span><span class="p">,</span> <span class="n">stem_heights</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">cohort_index</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">ets</span><span class="p">]:</span>
-            <span class="n">c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">eco_dir</span> <span class="o">/</span> <span class="p">(</span><span class="n">file</span> <span class="o">+</span> <span class="s2">&quot;.nc&quot;</span><span class="p">))</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">eco_dir</span> <span class="o">/</span> <span class="p">(</span><span class="n">file</span> <span class="o">+</span> <span class="s2">&quot;.nc&quot;</span><span class="p">))</span>
 
             <span class="c1"># Append to list all data from this ETS</span>
             <span class="n">fractions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;fraction&quot;</span><span class="p">])</span>  <span class="c1"># each c[&quot;fraction&quot;] is an array</span>
