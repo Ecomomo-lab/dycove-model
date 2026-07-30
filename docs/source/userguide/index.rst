@@ -103,8 +103,18 @@ Users can run a simulation using the following method of :class:`~dycove.sim.bas
 
    model.run_simulation(3, sim_time_unit="eco-morphodynamic years")
 
-Note that there are several optional arguments of :meth:`~dycove.sim.base.HydroSimulationBase.run_simulation` that define the time scaling of DYCOVE models, which are described in the API and in greater detail in the :ref:`Background <eco-time-scale>`.
+Note that there are several optional arguments of :meth:`~dycove.sim.base.HydroSimulationBase.run_simulation` that define the time scaling of DYCOVE models, which are described in the API and in greater detail in the :ref:`Background section on ecological time scaling <eco-time-scale>`.
+A more complex :meth:`~dycove.sim.base.HydroSimulationBase.run_simulation` call might look like this:
 
+.. code-block:: python
+
+   model.run_simulation(sim_time=3, 
+                        sim_time_unit="eco-morphodynamic years",
+                        n_ets=12, 
+                        veg_interval=86400, 
+                        ecofac=30,
+   )
+   
 
 Outputs
 -------
@@ -174,7 +184,7 @@ ANUGA model quantities can be read from the output `.sww` file using the ``xarra
 
    import xarray as xr
 
-   map_vars = xr.load_dataset("path/to/anuga_model.sww")
+   map_vars = xr.open_dataset("path/to/anuga_model.sww")
 
    # Vertex quantities
    x = map_vars["x"]
@@ -203,7 +213,7 @@ Similarly, DFM model centroid quantities can be read from the output `_map.nc` f
 
    import xarray as xr
 
-   map_vars = xr.load_dataset("path/to/dflowfm/output/FlowFM_map.nc")
+   map_vars = xr.open_dataset("path/to/dflowfm/output/FlowFM_map.nc")
    x_c = map_vars["mesh2d_face_x"]
    y_c = map_vars["mesh2d_face_y"]
    z_c = map_vars["mesh2d_flowelem_bl"]
@@ -240,7 +250,7 @@ Either way, we need to read in the underlying hydrodynamic model file for interp
    eco_dir = model_dir / "veg_output"
 
    # Load ANUGA (or DFM) output, read X and Y coordinate arrays
-   map_vars = xr.load_dataset(model_dir / "rectang_beach.sww")
+   map_vars = xr.open_dataset(model_dir / "rectang_beach.sww")
 
    # Convert ANUGA vertex coordinates to centroids (may take a little time)
    # DFM USERS: x_c and y_c can be pulled from the output file directly (see above)
@@ -263,7 +273,7 @@ Either way, we need to read in the underlying hydrodynamic model file for interp
        for ets in ets_list:
            fractions, stem_heights = [], []
            for file in cohort_index[year][ets]:
-               c = xr.load_dataset(eco_dir / (file + ".nc"))
+               c = xr.open_dataset(eco_dir / (file + ".nc"))
 
                # Append to list all data from this ETS
                fractions.append(c["fraction"])  # each c["fraction"] is an array

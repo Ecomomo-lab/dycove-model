@@ -25,7 +25,8 @@ Install Delft3D FM
 ------------------
 
 For DYCOVE with Delft3D FM, the `software itself <https://oss.deltares.nl/web/delft3dfm>`_ [2]_ will of course need to be licensed and installed locally.
-From a Python standpoint, it is also recommended to create a new environment to install DYCOVE and its dependency `bmi-python <https://github.com/openearth/bmi-python>`_, which provides a Basic Model Interface [3]_ between Python and the Delft3D FM software.
+DYCOVE has been tested with Delft3D FM Suite 2021 and 2024, and is known to not work with the 2026 version.
+From a Python standpoint, it is recommended to create a new environment to install DYCOVE and its dependency `bmi-python <https://github.com/openearth/bmi-python>`_, which provides a Basic Model Interface [3]_ between Python and the Delft3D FM software.
 From a dedicated environment, the easiest way to install ``bmi-python`` is from source:
 
 .. code-block:: python

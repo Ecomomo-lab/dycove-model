@@ -83,7 +83,8 @@ class HydroSimulationBase(ABC):
             it is computed automatically.
         save_frequency : int, optional
             Integer defining an output "skip" interval, e.g., 2 means skip every 
-            other ETS when writing output files. Default is 1 (no skip).
+            other ETS when writing output files. Default is 1 (no skip). Currently,
+            only `1` and `2` are supported.
         save_mortality : bool, optional
             Flag for saving mortality fractions with vegetation output.
         """
