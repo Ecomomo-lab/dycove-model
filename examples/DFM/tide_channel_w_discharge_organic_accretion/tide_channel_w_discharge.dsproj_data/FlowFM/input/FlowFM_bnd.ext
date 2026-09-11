@@ -1,0 +1,17 @@
+
+[boundary]
+quantity=waterlevelbnd
+locationFile=Boundary01.pli
+forcingFile=WaterLevel.bc
+returnTime=0.0000000e+000
+
+[boundary]
+quantity=dischargebnd
+locationFile=Boundary02.pli
+forcingFile=Discharge.bc
+returnTime=0.0000000e+000
+
+[boundary]
+quantity=sedfracbndsedimentsand
+locationFile=Boundary02.pli
+forcingFile=sedimentsand.bc

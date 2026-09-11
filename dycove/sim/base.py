@@ -36,6 +36,11 @@ class HydroSimulationBase(ABC):
         self.engine = engine
         self.veg_active = True if self.engine.veg else False
         self.veg_coupler = VegetationCoupler(engine) if self.veg_active else None
+        self.organic_coupler = getattr(self.engine, "organic", None)
+        self.organic_active = self.organic_coupler is not None
+
+        if self.organic_active and not self.veg_active:
+            raise ValueError("Organic accretion requires an active vegetation model.")
 
 
     def run_simulation(self, 
@@ -151,6 +156,13 @@ class HydroSimulationBase(ABC):
             r.print_runtime_updates(self.simstate, vts, self.veg_active)
             self.eco_hydro_loop(self.simstate.n_hydro_substeps, self.simstate.hydro_interval)
             self.veg_coupler.update(self.simstate, self.hydrostats)
+            if self.organic_active:
+                records, cell_records = self.organic_coupler.update(
+                    self.engine, self.simstate
+                )
+                self.outputs.save_organic_step(
+                    self.simstate, records, cell_records
+                )
             self.outputs.save_vegetation_step(self.simstate, vts)
         self.finalize_simulation()
 

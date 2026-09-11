@@ -300,3 +300,8 @@ Either way, we need to read in the underlying hydrodynamic model file for interp
 For each cohort output file, scalar quantities like ``'eco_year'``, ``'height'``, ``'diameter'``, and ``'density'`` are stored as metadata under ``attrs``.
 These can be accessed with ``c.attrs['eco_year']``, etc.
 Array quantities can be accessed directly from the object, like ``c['fraction']``.
+
+.. toctree::
+   :maxdepth: 1
+
+   organic_accretion

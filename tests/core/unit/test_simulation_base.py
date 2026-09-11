@@ -21,6 +21,7 @@ class TestHydroSimulationBase:
     def mock_engine(veg=True, morphology=False):
         engine = MagicMock()
         engine.veg = MagicMock() if veg else None
+        engine.organic = None
         engine.model_dir = "/tmp/test_model"
         engine.morphology = morphology
         engine.morph_vars = {"MorFac": 1}

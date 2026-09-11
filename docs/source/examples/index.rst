@@ -32,3 +32,4 @@ Delft3D FM
    dfm/tide_channel
    dfm/tide_channel_w_discharge
    dfm/tide_channel_w_discharge_multiveg
+   dfm/organic_accretion
