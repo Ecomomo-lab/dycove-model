@@ -15,6 +15,7 @@ class TestOutputManager:
     def mock_engine(is_parallel=False, rank=0):
         engine = MagicMock()
         engine.veg = MagicMock()
+        engine.organic = None
         engine.model_dir = "/tmp/test_model"
         engine.is_parallel.return_value = is_parallel
         engine.get_rank.return_value = rank

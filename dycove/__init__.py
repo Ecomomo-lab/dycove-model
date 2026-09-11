@@ -48,11 +48,13 @@ _optional_import/_LazyEngine protect against those kinds of import errors.
 
 # Modules called by all entry-point scripts 
 from dycove.sim.vegetation import VegetationSpecies, MultipleVegetationSpecies
+from dycove.sim.organic_accretion import OrganicAccretion
 
 # Optional backends
 __all__ = [
     "VegetationSpecies", 
     "MultipleVegetationSpecies",
+    "OrganicAccretion",
     "ANUGA_hydro",
     "DFM_hydro",
     "plotting",

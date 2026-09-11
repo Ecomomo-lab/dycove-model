@@ -77,7 +77,16 @@ class VegetationSpecies(SharedVegMethods):
                  rand_seed_method="random",
                  ):
 
-        self.attrs          = self.load_vegetation_attributes(Path(input_veg_filename))
+        self.input_veg_filename = Path(input_veg_filename)
+        self.organic_accretion_params_by_lifestage = (
+            self.load_life_stage_organic_accretion_params(self.input_veg_filename)
+        )
+        self.organic_accretion_params = (
+            self.organic_accretion_params_by_lifestage[0]
+            if self.organic_accretion_params_by_lifestage
+            else {}
+        )
+        self.attrs          = self.load_vegetation_attributes(self.input_veg_filename)
         self.mor            = mor
         self.seed_frac      = rand_seed_frac
         self.seed_method    = rand_seed_method
@@ -99,10 +108,34 @@ class VegetationSpecies(SharedVegMethods):
             data = json.load(f)
 
         ls_data = data.pop("life_stage_attr")
-        for key in ls_data[0].keys():
-            data[key] = [stage[key] for stage in ls_data]
+        data.pop("organic_accretion", None)
+        cleaned_stages = []
+        for stage in ls_data:
+            stage = stage.copy()
+            stage.pop("organic_accretion", None)
+            cleaned_stages.append(stage)
+        for key in cleaned_stages[0].keys():
+            data[key] = [stage[key] for stage in cleaned_stages]
 
         return VegetationAttributes(**data)
+
+
+    @staticmethod
+    def load_life_stage_organic_accretion_params(filename: Path) -> list[dict]:
+        """Load optional OM parameters without changing vegetation-only JSON behavior."""
+        with open(filename, "r") as f:
+            data = json.load(f)
+
+        stages = data.get("life_stage_attr", [])
+        fallback = data.get("organic_accretion", {})
+        params = [stage.get("organic_accretion", fallback).copy() for stage in stages]
+
+        expected = data.get("nls")
+        if expected is not None and len(params) != expected:
+            raise ValueError(
+                f"JSON defines nls={expected}, but contains {len(params)} life stages."
+            )
+        return params
 
 
     def colonization(self, ets, min_depths, max_depths, fl_dr, combined_cohorts=None):

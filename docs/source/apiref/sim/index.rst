@@ -56,6 +56,17 @@ Baptist Operator (ANUGA)
     Baptist_operator
 
 
+Organic Accretion
+==================
+
+.. currentmodule:: dycove.sim.organic_accretion
+
+.. autosummary::
+    :toctree: ../../_autosummary
+
+    OrganicAccretion
+
+
 Simulation Helper Classes
 =========================
 

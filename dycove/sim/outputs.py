@@ -7,6 +7,7 @@ import numpy as np
 from dataclasses import asdict
 import xarray as xr
 import json
+import csv
 
 from dycove.utils.simulation_reporting import Reporter
 
@@ -22,11 +23,18 @@ class OutputManager:
         self.engine = engine
         self.veg = engine.veg
         self.veg_dir   = Path(engine.model_dir) / "veg_output"
+        self.organic = getattr(engine, "organic", None)
+        self.om_dir = Path(engine.model_dir) / "om_output"
         self.save_freq = save_freq
         self.save_mort = save_mort
 
         if self.veg:
             self.veg_dir.mkdir(parents=True, exist_ok=True)
+        if self.organic is not None:
+            self.om_dir.mkdir(parents=True, exist_ok=True)
+            rank_suffix = f"_proc{engine.get_rank()}" if engine.is_parallel() else ""
+            self.om_summary_file = self.om_dir / f"om_summary{rank_suffix}.csv"
+            self.initialize_organic_output()
         
         self.n_cohort_steps = []  # for numbering output files
         self.cohort_index = {}  # nested dict index of output files for each year-ets combo
@@ -140,3 +148,77 @@ class OutputManager:
         # Load as separate method for testing purposes
         with open(self.veg_dir / self.COHORT_INDEX_FNAME, "r") as f:
             return json.load(f)
+
+
+    def initialize_organic_output(self):
+        """Create a rank-safe OM summary file."""
+        if self.om_summary_file.exists():
+            return
+        with open(self.om_summary_file, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=self.organic_summary_fields())
+            writer.writeheader()
+
+
+    @staticmethod
+    def organic_summary_fields():
+        return [
+            "eco_year", "ets", "species", "method", "life_stages",
+            "cohort_count", "storage", "target_layer", "target_sediment",
+            "fveg_max", "fveg_mean", "agb_max", "agb_mean",
+            "organic_increment_max", "organic_increment_mean",
+            "summed_areal_increment_kg_m2",
+            "cumulative_summed_areal_increment_kg_m2",
+        ]
+
+
+    def save_organic_step(self, simstate, records, cell_records=None):
+        """Write OM summary and cell diagnostics for one ecological step."""
+        if records:
+            with open(self.om_summary_file, "a", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=self.organic_summary_fields())
+                for record in records:
+                    writer.writerow({"eco_year": simstate.eco_year,
+                                     "ets": simstate.ets, **record})
+
+        if not cell_records:
+            return
+
+        rank_suffix = (
+            f"_proc{self.engine.get_rank()}" if self.engine.is_parallel() else ""
+        )
+        ds = xr.Dataset(
+            data_vars={
+                "fveg": (("species", "cell"), np.stack([r["fveg"] for r in cell_records])),
+                "agb_estimate": (("species", "cell"), np.stack([r["agb_estimate"] for r in cell_records])),
+                "organic_increment": (("species", "cell"), np.stack([r["delta_msed"] for r in cell_records])),
+            },
+            coords={
+                "species": [r["species"] for r in cell_records],
+                "cell": np.arange(len(cell_records[0]["fveg"])),
+            },
+            attrs={
+                "eco_year": simstate.eco_year,
+                "ets": simstate.ets,
+                "storage": self.organic.sediment_storage,
+                "target_layer": (
+                    self.organic.target_layer
+                    if self.organic.sediment_storage == "msed"
+                    else "not_applicable"
+                ),
+                "target_sediment": self.organic.target_sediment,
+            },
+        )
+        ds["fveg"].attrs.update(
+            long_name="vegetation fractional cover", units="1"
+        )
+        ds["agb_estimate"].attrs.update(
+            long_name="cell-average aboveground biomass estimate", units="kg m-2"
+        )
+        ds["organic_increment"].attrs.update(
+            long_name="organic sediment areal-mass increment", units="kg m-2"
+        )
+        ds["cell"].attrs.update(
+            long_name="internal computational cell index", units="1"
+        )
+        filename = f"om_year{simstate.eco_year:04d}_ets{simstate.ets:03d}{rank_suffix}.nc"
+        ds.to_netcdf(self.om_dir / filename, engine="scipy")

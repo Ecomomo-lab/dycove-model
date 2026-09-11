@@ -48,10 +48,10 @@ class DFM(HydroSimulationBase):
       :class:`~dycove.sim.base.engines.DFM_hydro.DFMEngine`.
     """
 
-    def __init__(self, dfm_path, config_path, mdu_path, vegetation=None):
+    def __init__(self, dfm_path, config_path, mdu_path, vegetation=None, organic=None):
 
         # build DFM engine
-        engine = DFMEngine(dfm_path, config_path, mdu_path, vegetation)
+        engine = DFMEngine(dfm_path, config_path, mdu_path, vegetation, organic)
         # pass DFM engine to the base class
         super().__init__(engine)
     
@@ -88,7 +88,7 @@ class DFMEngine(HydroEngineBase):
 
     """
 
-    def __init__(self, dfm_path, config_path, mdu_path, vegetation=None):
+    def __init__(self, dfm_path, config_path, mdu_path, vegetation=None, organic=None):
 
         self.dll_dirs = self.add_dll_directories(dfm_path)  # do this first to setup PATH before loading
 
@@ -102,6 +102,7 @@ class DFMEngine(HydroEngineBase):
         self.config_path  = config_path  # location of config file used for running DFM using dimr
 
         self.veg = vegetation
+        self.organic = organic
 
         self.open_bmi_wrappers()
 
