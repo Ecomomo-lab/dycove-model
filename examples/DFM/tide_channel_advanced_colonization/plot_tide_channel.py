@@ -31,9 +31,9 @@ Vegetation quantites to plot from DYCOVE (use exact names):
 plotter = plotting.ModelPlotter(
     simdir = Path('.'),
     #quantity = 'Velocity',
-    #quantity = 'Stem Height',
+    quantity = 'Stem Height',
     #quantity = 'Mortality -- Total',
-    quantity = 'Fractions',
+    #quantity = 'Fractions',
     plot_times = {  # times specified here are hydrodynamic time, not eco-morpho time
         # sim hr to start plotting
         'plotHR_0': 0*24.,

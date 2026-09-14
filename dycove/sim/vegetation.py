@@ -181,7 +181,11 @@ class VegetationSpecies(SharedVegMethods):
         # All cells can be colonized regardless of prior conditions
         elif self.attrs.col_method == 4:
             return np.arange(len(dry_cell_arr))
-
+        else:
+            msg = "A value of 1, 2, 3, or 4 must be specifed for 'col_method' in the input JSON file"
+            r.report(msg, level="ERROR")
+            raise ValueError(msg)
+        
 
     def create_seed_fraction_mask(self, array_len: int):
         """ Create a mask based on random seeding """
