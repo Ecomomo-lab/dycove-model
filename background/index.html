@@ -203,48 +203,48 @@ The input <cite>.json</cite> file must consist of a dictionary like the one belo
 The first set of attributes are “general” attributes, and the second set are “life stage” attributes.
 This particular set of attributes, used in Brückner et al. (2019), is loosely based on <cite>Salicorniaspp.</cite> (pioneer species, first life stage) and <cite>Spartina anglica</cite> (second life stage).</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-  <span class="s2">&quot;age_max&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
-  <span class="s2">&quot;nls&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-  <span class="s2">&quot;fraction_0&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
-  <span class="s2">&quot;stemht_0&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
-  <span class="s2">&quot;rootlength_0&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
-  <span class="s2">&quot;stemdiam_0&quot;</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
-  <span class="s2">&quot;drag&quot;</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">,</span>
-  <span class="s2">&quot;start_growth_ets&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-  <span class="s2">&quot;end_growth_ets&quot;</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
-  <span class="s2">&quot;winter_ets&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
-  <span class="s2">&quot;start_col_ets&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-  <span class="s2">&quot;end_col_ets&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
-  <span class="s2">&quot;col_method&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="s2">"age_max"</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
+  <span class="s2">"nls"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s2">"fraction_0"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+  <span class="s2">"stemht_0"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+  <span class="s2">"rootlength_0"</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
+  <span class="s2">"stemdiam_0"</span><span class="p">:</span> <span class="mf">0.005</span><span class="p">,</span>
+  <span class="s2">"drag"</span><span class="p">:</span> <span class="mf">1.1</span><span class="p">,</span>
+  <span class="s2">"start_growth_ets"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s2">"end_growth_ets"</span><span class="p">:</span> <span class="mi">9</span><span class="p">,</span>
+  <span class="s2">"winter_ets"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+  <span class="s2">"start_col_ets"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+  <span class="s2">"end_col_ets"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>
+  <span class="s2">"col_method"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
 
-  <span class="s2">&quot;life_stage_attr&quot;</span><span class="p">:</span> <span class="p">[</span>
+  <span class="s2">"life_stage_attr"</span><span class="p">:</span> <span class="p">[</span>
     <span class="p">{</span>
-      <span class="s2">&quot;stemht_max&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
-      <span class="s2">&quot;rootlength_max&quot;</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
-      <span class="s2">&quot;stemdiam_max&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
-      <span class="s2">&quot;years_max&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-      <span class="s2">&quot;stemdens&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
-      <span class="s2">&quot;desic_no_mort&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-      <span class="s2">&quot;desic_all_mort&quot;</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">,</span>
-      <span class="s2">&quot;flood_no_mort&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
-      <span class="s2">&quot;flood_all_mort&quot;</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span>
-      <span class="s2">&quot;uproot_no_mort&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
-      <span class="s2">&quot;uproot_all_mort&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
-      <span class="s2">&quot;stemht_winter_max&quot;</span><span class="p">:</span> <span class="mf">0.3</span>
+      <span class="s2">"stemht_max"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+      <span class="s2">"rootlength_max"</span><span class="p">:</span> <span class="mf">0.02</span><span class="p">,</span>
+      <span class="s2">"stemdiam_max"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+      <span class="s2">"years_max"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">"stemdens"</span><span class="p">:</span> <span class="mi">300</span><span class="p">,</span>
+      <span class="s2">"desic_no_mort"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">"desic_all_mort"</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">,</span>
+      <span class="s2">"flood_no_mort"</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+      <span class="s2">"flood_all_mort"</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span>
+      <span class="s2">"uproot_no_mort"</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+      <span class="s2">"uproot_all_mort"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+      <span class="s2">"stemht_winter_max"</span><span class="p">:</span> <span class="mf">0.3</span>
     <span class="p">},</span>
     <span class="p">{</span>
-      <span class="s2">&quot;stemht_max&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-      <span class="s2">&quot;rootlength_max&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
-      <span class="s2">&quot;stemdiam_max&quot;</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
-      <span class="s2">&quot;years_max&quot;</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span>
-      <span class="s2">&quot;stemdens&quot;</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
-      <span class="s2">&quot;desic_no_mort&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-      <span class="s2">&quot;desic_all_mort&quot;</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">,</span>
-      <span class="s2">&quot;flood_no_mort&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
-      <span class="s2">&quot;flood_all_mort&quot;</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span>
-      <span class="s2">&quot;uproot_no_mort&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
-      <span class="s2">&quot;uproot_all_mort&quot;</span><span class="p">:</span> <span class="mf">0.55</span><span class="p">,</span>
-      <span class="s2">&quot;stemht_winter_max&quot;</span><span class="p">:</span> <span class="mf">0.5</span>
+      <span class="s2">"stemht_max"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+      <span class="s2">"rootlength_max"</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+      <span class="s2">"stemdiam_max"</span><span class="p">:</span> <span class="mf">0.01</span><span class="p">,</span>
+      <span class="s2">"years_max"</span><span class="p">:</span> <span class="mi">19</span><span class="p">,</span>
+      <span class="s2">"stemdens"</span><span class="p">:</span> <span class="mi">500</span><span class="p">,</span>
+      <span class="s2">"desic_no_mort"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+      <span class="s2">"desic_all_mort"</span><span class="p">:</span> <span class="mf">1.3</span><span class="p">,</span>
+      <span class="s2">"flood_no_mort"</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+      <span class="s2">"flood_all_mort"</span><span class="p">:</span> <span class="mf">0.45</span><span class="p">,</span>
+      <span class="s2">"uproot_no_mort"</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+      <span class="s2">"uproot_all_mort"</span><span class="p">:</span> <span class="mf">0.55</span><span class="p">,</span>
+      <span class="s2">"stemht_winter_max"</span><span class="p">:</span> <span class="mf">0.5</span>
     <span class="p">}</span>
   <span class="p">]</span>
 <span class="p">}</span>

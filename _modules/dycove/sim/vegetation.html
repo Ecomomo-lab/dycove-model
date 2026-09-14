@@ -100,14 +100,14 @@
 <div class="viewcode-block" id="SharedVegMethods.compute_veg_model_quantities">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.SharedVegMethods.html#dycove.sim.vegetation.SharedVegMethods.compute_veg_model_quantities">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_veg_model_quantities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Function to compute weighted area averages of model vegetation variables.</span>
 
 <span class="sd">        Handles the various fractions that are tracked within each grid cell.</span>
 
 <span class="sd">        This function works the same no matter the number of species, and so it is shared </span>
 <span class="sd">        by both classes.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># For single species, self.cohorts is a list of VegCohort objects</span>
         <span class="c1"># For multiple species, self.cohorts is a flattened list of VegCohort objects for all species</span>
@@ -136,7 +136,7 @@
 <div class="viewcode-block" id="VegetationSpecies">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">VegetationSpecies</span><span class="p">(</span><span class="n">SharedVegMethods</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A single vegetation species. Can (and will) handle multiple cohorts of the species.</span>
 
 <span class="sd">    Parameters</span>
@@ -150,10 +150,10 @@
 <span class="sd">    rand_seed_frac : float</span>
 <span class="sd">        Fraction of potentially colonized cells that will actually colonize, distributed randomly.</span>
 <span class="sd">    rand_seed_method : str</span>
-<span class="sd">        Options are &#39;random&#39; or &#39;deterministic&#39;. If rand_seed_frac is between 0 and 1, </span>
-<span class="sd">        &#39;deterministic&#39; will use a seed to evaluate the SAME set of cells for each colonization, </span>
-<span class="sd">        whereas &#39;random&#39; will be truly random each time.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        Options are 'random' or 'deterministic'. If rand_seed_frac is between 0 and 1, </span>
+<span class="sd">        'deterministic' will use a seed to evaluate the SAME set of cells for each colonization, </span>
+<span class="sd">        whereas 'random' will be truly random each time.</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="VegetationSpecies.__init__">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.__init__">[docs]</a>
@@ -162,7 +162,7 @@
                  <span class="n">species_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">mor</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
                  <span class="n">rand_seed_frac</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
-                 <span class="n">rand_seed_method</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span>
+                 <span class="n">rand_seed_method</span><span class="o">=</span><span class="s2">"random"</span><span class="p">,</span>
                  <span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span>          <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_vegetation_attributes</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">input_veg_filename</span><span class="p">))</span>
@@ -185,11 +185,11 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.load_vegetation_attributes">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">load_vegetation_attributes</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">VegetationAttributes</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Parse vegetation input json file and store attributes in a dataclass. &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">""" Parse vegetation input json file and store attributes in a dataclass. """</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
-        <span class="n">ls_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;life_stage_attr&quot;</span><span class="p">)</span>
+        <span class="n">ls_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"life_stage_attr"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">ls_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">stage</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">stage</span> <span class="ow">in</span> <span class="n">ls_data</span><span class="p">]</span>
 
@@ -200,7 +200,7 @@
 <div class="viewcode-block" id="VegetationSpecies.colonization">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.colonization">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">colonization</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ets</span><span class="p">,</span> <span class="n">min_depths</span><span class="p">,</span> <span class="n">max_depths</span><span class="p">,</span> <span class="n">fl_dr</span><span class="p">,</span> <span class="n">combined_cohorts</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Colonize a :class:`~dycove.sim.vegetation_data.VegCohort` by adding a new </span>
 <span class="sd">        fraction to cells.</span>
 
@@ -221,10 +221,10 @@
 <span class="sd">            Relevant only if multiple species are present. Provides information about</span>
 <span class="sd">            other species occupying space in cells. See colonization method of </span>
 <span class="sd">            :class:`~dycove.sim.vegetation.MultipleVegetationSpecies` for the use-case.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">start_col_ets</span> <span class="o">&lt;=</span> <span class="n">ets</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">end_col_ets</span><span class="p">:</span>
-            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Doing colonization for species </span><span class="se">\&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">, at ETS </span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Doing colonization for species </span><span class="se">\"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\"</span><span class="s2">, at ETS </span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
             <span class="c1"># Get conditions for colonization</span>
             <span class="n">dry_cond</span> <span class="o">=</span> <span class="p">(</span><span class="n">min_depths</span> <span class="o">&lt;</span>  <span class="n">fl_dr</span><span class="p">)</span>
@@ -276,18 +276,22 @@
         <span class="c1"># All cells can be colonized regardless of prior conditions</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">col_method</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dry_cell_arr</span><span class="p">))</span>
-
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">"A value of 1, 2, 3, or 4 must be specifed for 'col_method' in the input JSON file"</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"ERROR"</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        
 
 <div class="viewcode-block" id="VegetationSpecies.create_seed_fraction_mask">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.create_seed_fraction_mask">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_seed_fraction_mask</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">array_len</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create a mask based on random seeding &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Create a mask based on random seeding """</span>
         <span class="c1"># Number of indices where we will allow colonization</span>
         <span class="n">n_inds</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">seed_frac</span><span class="o">*</span><span class="n">array_len</span><span class="p">))</span>
         <span class="c1"># Initialize mask with all False</span>
         <span class="n">rand_mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">array_len</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
         <span class="c1"># Set RNG depending on seeding style choice</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed_method</span> <span class="o">==</span> <span class="s2">&quot;deterministic&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">seed_method</span> <span class="o">==</span> <span class="s2">"deterministic"</span><span class="p">:</span>
             <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> 
         <span class="k">else</span><span class="p">:</span>
             <span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span>
@@ -300,7 +304,7 @@
 <div class="viewcode-block" id="VegetationSpecies.compute_new_fraction">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.compute_new_fraction">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_new_fraction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">existing_cohorts</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">inds2colonize</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Compute a new cohort’s fractional cover based on available space. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Compute a new cohort’s fractional cover based on available space. """</span>
         <span class="n">new_fraction</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">inds2colonize</span><span class="p">))</span>
         <span class="n">existing_fractions</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">fraction</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">existing_cohorts</span><span class="p">]</span>
 
@@ -326,7 +330,7 @@
 <div class="viewcode-block" id="VegetationSpecies.mortality">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.mortality">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">mortality</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hydro_vars</span><span class="p">,</span> <span class="n">morpho_vars</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Delegate to internal methods. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Delegate to internal methods. """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mortality_hydrodynamic</span><span class="p">(</span><span class="o">**</span><span class="n">hydro_vars</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mortality_morphodynamic</span><span class="p">(</span><span class="o">**</span><span class="n">morpho_vars</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">apply_mortality</span><span class="p">()</span></div>
@@ -336,7 +340,7 @@
 <div class="viewcode-block" id="VegetationSpecies.mortality_hydrodynamic">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.mortality_hydrodynamic">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">mortality_hydrodynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fld_frac</span><span class="p">,</span> <span class="n">dry_frac</span><span class="p">,</span> <span class="n">vel_max</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Compute linear mortality functions for each hydrodynamic stressor (if activated).</span>
 
 <span class="sd">        Hydrodynamic mortality is computed independently from vegetation characteristics</span>
@@ -354,7 +358,7 @@
 <span class="sd">            previous period.</span>
 <span class="sd">        vel_max : numpy.ndarray</span>
 <span class="sd">            Array of maximum water velocities [m/s] at each cell over the previous period.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># These arrays of potential mortality get saved as cohort attributes, along with applied mortality below</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">potential_mort_flood</span>  <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">nls</span>
@@ -387,7 +391,7 @@
 <div class="viewcode-block" id="VegetationSpecies.mortality_morphodynamic">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.mortality_morphodynamic">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">mortality_morphodynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bl_diff</span><span class="p">,</span> <span class="n">burial_frac</span><span class="o">=</span><span class="n">BURIAL_FRACTION</span><span class="p">,</span> <span class="n">scour_frac</span><span class="o">=</span><span class="n">SCOUR_FRACTION</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Compute linear mortality functions for each morphodynamic stressor (if activated).</span>
 
 <span class="sd">        Morphodynamic stressors (burial, scour) are not currently functions of life stage,</span>
@@ -410,7 +414,7 @@
 <span class="sd">        -----</span>
 <span class="sd">        - If morphology is turned on (mor=1), but morphology is not active in the model (e.g., ANUGA)</span>
 <span class="sd">          bl_diff will be passed as zero-difference arrays, and scour/burial will be set to zero.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># Loop over fractions and their current shoot/root lengths and compare to erosion/sedimentation</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">:</span>
@@ -427,11 +431,11 @@
 <div class="viewcode-block" id="VegetationSpecies.apply_mortality">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.apply_mortality">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">apply_mortality</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Multiply potential mortality by vegetation fractions to determine actual mortality.</span>
 
 <span class="sd">        Populate mortality-related fields of each active VegCohort object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># TODO: We track the fractions lost via each cause, but if all causes yield mortality fractions of 1,</span>
         <span class="c1">#       how should we track causes when, for instance, a cell only had a single fraction covering 40%?</span>
@@ -469,7 +473,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.linear_mortality_func">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">linear_mortality_func</span><span class="p">(</span><span class="n">stressor</span><span class="p">,</span> <span class="n">th_min</span><span class="p">,</span> <span class="n">th_max</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Generic, hydrodynamic stressor mortality function (linear).</span>
 
 <span class="sd">        Parameters</span>
@@ -482,7 +486,7 @@
 <span class="sd">            Stressor value below which there is no mortality. Comes from JSON input file.</span>
 <span class="sd">        th_max : float</span>
 <span class="sd">            Stressor value above which there is total mortality. Comes from JSON input file.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="c1"># Compute fractional mortality based on linear interpolation</span>
         <span class="n">mort_frac</span> <span class="o">=</span> <span class="p">(</span><span class="n">stressor</span> <span class="o">-</span> <span class="n">th_min</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">th_max</span> <span class="o">-</span> <span class="n">th_min</span><span class="p">)</span>
@@ -503,7 +507,7 @@
     <span class="c1">#     for i, c in enumerate(self.cohorts):</span>
     <span class="c1">#         if np.sum(c.fraction) &lt; 0.001:</span>
     <span class="c1">#             cohorts_to_remove.append(i)</span>
-    <span class="c1">#             r.report(&quot;Removed a cohort that has disappeared.&quot;)</span>
+    <span class="c1">#             r.report("Removed a cohort that has disappeared.")</span>
     <span class="c1">#     if cohorts_to_remove:</span>
     <span class="c1">#         self.remove_old_cohorts(cohorts_to_remove)</span>
 
@@ -511,7 +515,7 @@
 <div class="viewcode-block" id="VegetationSpecies.stemheight_growth">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.stemheight_growth">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">stemheight_growth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ets</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Computes stem height based on growth functions in VegAttributes. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Computes stem height based on growth functions in VegAttributes. """</span>
         <span class="c1"># During first growth ets, height starts at previous winter value, so no need to loop</span>
         <span class="k">if</span> <span class="n">ets</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">start_growth_ets</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">:</span>
@@ -527,7 +531,7 @@
 <div class="viewcode-block" id="VegetationSpecies.stemdiam_growth">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.stemdiam_growth">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">stemdiam_growth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ets</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Computes stem diameter based on growth functions in VegAttributes. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Computes stem diameter based on growth functions in VegAttributes. """</span>
         <span class="c1"># During first growth ets, height starts at previous winter value, so no need to loop</span>
         <span class="c1"># (growth realized by next ETS)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">start_growth_ets</span> <span class="o">&lt;</span> <span class="n">ets</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">end_growth_ets</span><span class="p">:</span>
@@ -540,7 +544,7 @@
 <div class="viewcode-block" id="VegetationSpecies.root_growth">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.root_growth">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">root_growth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ets</span><span class="p">):</span>  
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Computes root length based on growth functions in VegAttributes. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Computes root length based on growth functions in VegAttributes. """</span>
         <span class="c1"># During first growth ETS, height starts at previous winter value, so no need to loop</span>
         <span class="c1"># (growth realized by next ETS)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">start_growth_ets</span> <span class="o">&lt;</span> <span class="n">ets</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">end_growth_ets</span><span class="p">:</span>
@@ -553,7 +557,7 @@
 <div class="viewcode-block" id="VegetationSpecies.update_n_cohort_ets">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.update_n_cohort_ets">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update_n_cohort_ets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Advance the number of ETS each cohort has lived by one. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Advance the number of ETS each cohort has lived by one. """</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">:</span>
             <span class="n">c</span><span class="o">.</span><span class="n">n_ets</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
@@ -562,14 +566,14 @@
 <div class="viewcode-block" id="VegetationSpecies.update_lifestage_and_stemdensity">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.VegetationSpecies.html#dycove.sim.vegetation.VegetationSpecies.update_lifestage_and_stemdensity">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">update_lifestage_and_stemdensity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="w">        </span><span class="sd">""" </span>
 <span class="sd">        Function to be called at the end of every eco year. </span>
 
 <span class="sd">        Updates the life stage and the year within the life stage for each cohort.</span>
 
 <span class="sd">        Stem density update is done here because it only depends on eco year and does not </span>
 <span class="sd">        change during the year.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="n">cohorts_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">):</span>
@@ -604,7 +608,7 @@
 <div class="viewcode-block" id="MultipleVegetationSpecies">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.MultipleVegetationSpecies.html#dycove.sim.vegetation.MultipleVegetationSpecies">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">MultipleVegetationSpecies</span><span class="p">(</span><span class="n">SharedVegMethods</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A class for handling multiple vegetation species.</span>
 
 <span class="sd">    We want to keep the hydrodynamics code clean, avoiding extra if statements regarding </span>
@@ -617,7 +621,7 @@
 <span class="sd">    species_list : list[VegetationSpecies]</span>
 <span class="sd">        A list of VegetationSpecies objects.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="MultipleVegetationSpecies.__init__">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.MultipleVegetationSpecies.html#dycove.sim.vegetation.MultipleVegetationSpecies.__init__">[docs]</a>
@@ -641,7 +645,7 @@
             <span class="c1"># Passing flattened list of all cohorts for all species for colonization calculation</span>
             <span class="n">sp</span><span class="o">.</span><span class="n">colonization</span><span class="p">(</span><span class="n">ets</span><span class="p">,</span> <span class="n">min_depths</span><span class="p">,</span> <span class="n">max_depths</span><span class="p">,</span> <span class="n">fl_dr</span><span class="p">,</span> <span class="n">combined_cohorts</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cohort_id</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">cohort_id</span>  <span class="c1"># Retrieve updated cohort count after it has been advanced</span>
-        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of veg fractions total: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Number of veg fractions total: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cohorts</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">stemheight_growth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ets</span><span class="p">):</span>
         <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_list</span><span class="p">:</span>
@@ -668,24 +672,24 @@
             <span class="n">sp</span><span class="o">.</span><span class="n">update_lifestage_and_stemdensity</span><span class="p">()</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">check_species_consistency</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Inherit the &quot;mor&quot; input parameter from the individual species object</span>
+        <span class="c1"># Inherit the "mor" input parameter from the individual species object</span>
         <span class="c1"># We cannot have some species with mor=1 and others with mor=0</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">sp</span><span class="o">.</span><span class="n">mor</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_list</span><span class="p">]))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;All vegetation species inputs must have the same value for &#39;mor&#39;&quot;</span>
-            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">"All vegetation species inputs must have the same value for 'mor'"</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"ERROR"</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_list</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">mor</span>
 
 <div class="viewcode-block" id="MultipleVegetationSpecies.get_drag">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.vegetation.MultipleVegetationSpecies.html#dycove.sim.vegetation.MultipleVegetationSpecies.get_drag">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_drag</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="w">        </span><span class="sd">""" </span>
 <span class="sd">        Return average of drag coefficients for all species.</span>
 
 <span class="sd">        Theoretically, we could take the weighted average of drag attributes based on species and </span>
 <span class="sd">        lifestage, but DFM can only accept a single value. So for consistency we use a constant</span>
 <span class="sd">        value throughout the simulation.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="n">sp</span><span class="o">.</span><span class="n">get_drag</span><span class="p">()</span> <span class="k">for</span> <span class="n">sp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">species_list</span><span class="p">])</span></div>
 </div>
 

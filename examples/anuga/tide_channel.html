@@ -109,30 +109,30 @@ After the simulation is finished, we can inspect a variety of 2-D model results 
 <p>The class <code class="docutils literal notranslate"><span class="pre">RectangSlopeDomainGenerator</span></code> in the file <cite>gen_anuga_domain.py</cite> is a utility class that was developed to generate the ANUGA domain for this example.
 The new variable <code class="docutils literal notranslate"><span class="pre">HydroDomain</span></code> holds the ANUGA domain object required to run ANUGA models:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gen_anuga_domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">RectangSlopeDomainGenerator</span> <span class="k">as</span> <span class="n">RectangDomain</span>
-<span class="n">HydroDomain</span> <span class="o">=</span> <span class="n">RectangDomain</span><span class="p">(</span><span class="s2">&quot;rectang_beach&quot;</span><span class="p">)</span>
+<span class="n">HydroDomain</span> <span class="o">=</span> <span class="n">RectangDomain</span><span class="p">(</span><span class="s2">"rectang_beach"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>While this class is not part of DYCOVE, it demonstrates how to set up a simple domain in ANUGA.
 The majority of the inputs to this class are related to describing the exact geometry of the problem.
 In general, the most critical aspects of the ANUGA domain setup are the following lines (written generally):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">domain</span> <span class="o">=</span> <span class="n">anuga</span><span class="o">.</span><span class="n">rectangular_cross_domain</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># there are other ways to create domains...</span>
-<span class="n">domain</span><span class="o">.</span><span class="n">set_quantity</span><span class="p">(</span><span class="s2">&quot;elevation&quot;</span><span class="p">,</span> <span class="n">topography</span><span class="p">)</span>  <span class="c1"># can also set elevation from a file (e.g., .ASC)</span>
-<span class="n">domain</span><span class="o">.</span><span class="n">set_quantity</span><span class="p">(</span><span class="s2">&quot;friction&quot;</span><span class="p">,</span> <span class="n">friction</span><span class="p">)</span>     <span class="c1"># same as above</span>
+<span class="n">domain</span><span class="o">.</span><span class="n">set_quantity</span><span class="p">(</span><span class="s2">"elevation"</span><span class="p">,</span> <span class="n">topography</span><span class="p">)</span>  <span class="c1"># can also set elevation from a file (e.g., .ASC)</span>
+<span class="n">domain</span><span class="o">.</span><span class="n">set_quantity</span><span class="p">(</span><span class="s2">"friction"</span><span class="p">,</span> <span class="n">friction</span><span class="p">)</span>     <span class="c1"># same as above</span>
 <span class="n">Br</span> <span class="o">=</span> <span class="n">anuga</span><span class="o">.</span><span class="n">Reflective_boundary</span><span class="p">(</span><span class="n">domain</span><span class="p">)</span>        <span class="c1"># define the reflective BC</span>
 <span class="n">Bt</span> <span class="o">=</span> <span class="n">anuga</span><span class="o">.</span><span class="n">Time_boundary</span><span class="p">(</span><span class="n">domain</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="p">[</span><span class="n">tidal_func</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">])</span>  <span class="c1"># define tidal BC</span>
-<span class="n">domain</span><span class="o">.</span><span class="n">set_boundary</span><span class="p">({</span><span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="n">Bt</span><span class="p">,</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span> <span class="n">Br</span><span class="p">,</span> <span class="s1">&#39;top&#39;</span><span class="p">:</span> <span class="n">Br</span><span class="p">,</span> <span class="s1">&#39;bottom&#39;</span><span class="p">:</span> <span class="n">Br</span><span class="p">})</span>  <span class="c1"># assign BCs to each domain side</span>
+<span class="n">domain</span><span class="o">.</span><span class="n">set_boundary</span><span class="p">({</span><span class="s1">'left'</span><span class="p">:</span> <span class="n">Bt</span><span class="p">,</span> <span class="s1">'right'</span><span class="p">:</span> <span class="n">Br</span><span class="p">,</span> <span class="s1">'top'</span><span class="p">:</span> <span class="n">Br</span><span class="p">,</span> <span class="s1">'bottom'</span><span class="p">:</span> <span class="n">Br</span><span class="p">})</span>  <span class="c1"># assign BCs to each domain side</span>
 </pre></div>
 </div>
 <p>More important than the specifics of the domain geometry is the implementation of vegetation with DYCOVE.
 Instantiate a <code class="docutils literal notranslate"><span class="pre">VegetationSpecies</span></code> object using the vegetation attribute file, then pass that object to the <a class="reference internal" href="../../_autosummary/dycove.sim.engines.ANUGA_hydro.ANUGA.html#dycove.sim.engines.ANUGA_hydro.ANUGA" title="dycove.sim.engines.ANUGA_hydro.ANUGA"><code class="xref py py-class docutils literal notranslate"><span class="pre">ANUGA</span></code></a> hydrodynamic engine:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">&quot;veg1.json&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">veg_1</span> <span class="o">=</span> <span class="n">VegetationSpecies</span><span class="p">(</span><span class="s2">"veg1.json"</span><span class="p">)</span>
 <span class="n">HydroModel</span> <span class="o">=</span> <span class="n">ANUGA_hydro</span><span class="o">.</span><span class="n">ANUGA</span><span class="p">(</span><span class="n">HydroDomain</span><span class="o">.</span><span class="n">domain</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="n">veg_1</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>The <cite>veg1.json</cite> attribute file found in the working example directory contains a number of parameters related to when/where this species will colonize, how it will grow, and under what conditions it will die off.
 The variables in this file map directly to <a class="reference internal" href="../../_autosummary/dycove.sim.vegetation_data.VegetationAttributes.html#dycove.sim.vegetation_data.VegetationAttributes" title="dycove.sim.vegetation_data.VegetationAttributes"><code class="xref py py-class docutils literal notranslate"><span class="pre">VegetationAttributes</span></code></a>, a class that contains the documentation for all required input variables.</p>
 <p>Finally, run the simulation for a specified number of eco-morphodynamic years (here, 3 years):</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">HydroModel</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">&quot;eco-morphodynamic years&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">HydroModel</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">"eco-morphodynamic years"</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Note that above command to run the simulation uses default values for ecological time scaling, namely, the number of ecological time steps per year <code class="docutils literal notranslate"><span class="pre">n_ets</span></code>, hydrodynamic time between ecological time steps <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code>, and ecological scaling factor <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> (see <a class="reference internal" href="../../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase.run_simulation" title="dycove.sim.base.HydroSimulationBase.run_simulation"><code class="xref py py-meth docutils literal notranslate"><span class="pre">run_simulation()</span></code></a> for details and default values).
@@ -140,7 +140,7 @@ For further explanation of the ecological time scaling logic used in DYCOVE, ref
 Using the default values of <code class="docutils literal notranslate"><span class="pre">n_ets</span></code> and <code class="docutils literal notranslate"><span class="pre">veg_interval</span></code>, <code class="docutils literal notranslate"><span class="pre">ecofac</span></code> is equal to 52.
 So, three years of ecological time is equivalent to 21 days of hydrodynamic time.
 Therefore, the above line can also be written as below, with the same resulting simulation:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">HydroModel</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">&quot;hydrodynamic days&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">HydroModel</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="s2">"hydrodynamic days"</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
@@ -153,18 +153,18 @@ For a list of outputs stored with each cohort, see <a class="reference internal"
 For example, we can plot vegetation stem heights over the entire 21-day (hydrodynamic time) simulation period.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">dycove</span><span class="w"> </span><span class="kn">import</span> <span class="n">plotting</span>
 <span class="n">plotter</span> <span class="o">=</span> <span class="n">plotting</span><span class="o">.</span><span class="n">ModelPlotter</span><span class="p">(</span>
-   <span class="n">simdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
-   <span class="c1">#quantity = &quot;Velocity&quot;,</span>
-   <span class="n">quantity</span> <span class="o">=</span> <span class="s2">&quot;Stem Height&quot;</span><span class="p">,</span>
+   <span class="n">simdir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"."</span><span class="p">),</span>
+   <span class="c1">#quantity = "Velocity",</span>
+   <span class="n">quantity</span> <span class="o">=</span> <span class="s2">"Stem Height"</span><span class="p">,</span>
    <span class="n">plot_times</span> <span class="o">=</span> <span class="p">{</span>
-      <span class="s2">&quot;plotHR_0&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
-      <span class="s2">&quot;plotHR_f&quot;</span><span class="p">:</span> <span class="mi">28</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
-      <span class="s2">&quot;mapHR_int&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
-      <span class="s2">&quot;plotHR_int&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">"plotHR_0"</span><span class="p">:</span> <span class="mi">0</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
+      <span class="s2">"plotHR_f"</span><span class="p">:</span> <span class="mi">28</span><span class="o">*</span><span class="mf">24.</span><span class="p">,</span>
+      <span class="s2">"mapHR_int"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+      <span class="s2">"plotHR_int"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
    <span class="p">},</span>
    <span class="n">cmap_lims</span> <span class="o">=</span> <span class="p">{</span>
-      <span class="s2">&quot;Bathymetry&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
-      <span class="s2">&quot;Velocity&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span>
+      <span class="s2">"Bathymetry"</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">),</span>
+      <span class="s2">"Velocity"</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">),</span>
    <span class="p">},</span>
    <span class="p">)</span>
 <span class="n">plotter</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>

@@ -89,33 +89,33 @@
 <span class="c1"># ------------------------------------------------------------ #</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_veg_file_index</span><span class="p">(</span><span class="n">eco_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="w">    </span><span class="sd">""" </span>
 <span class="sd">    Lightweight first pass to read eco year &amp; ETS from output and generate file index.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    eco_dir : Path or str</span>
-<span class="sd">        Path to DYCOVE&#39;s ``veg_output`` directory.</span>
+<span class="sd">        Path to DYCOVE's ``veg_output`` directory.</span>
 <span class="sd">     </span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">eco_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">eco_dir</span><span class="p">)</span>
     <span class="n">index</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">old_file_format</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">eco_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;.npz&quot;</span><span class="p">))</span>
+    <span class="n">old_file_format</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">eco_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">".npz"</span><span class="p">))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">old_file_format</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">fpath</span> <span class="ow">in</span> <span class="n">eco_dir</span><span class="o">.</span><span class="n">iterdir</span><span class="p">():</span>
             <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
-                <span class="n">year</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;eco_year&quot;</span><span class="p">]</span>
-                <span class="n">ets</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;ets&quot;</span><span class="p">]</span>
+                <span class="n">year</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"eco_year"</span><span class="p">]</span>
+                <span class="n">ets</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"ets"</span><span class="p">]</span>
             <span class="k">if</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">ets</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">index</span><span class="p">:</span>
                 <span class="n">index</span><span class="p">[(</span><span class="n">year</span><span class="p">,</span> <span class="n">ets</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[</span><span class="n">fpath</span><span class="p">]</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">index</span><span class="p">[(</span><span class="n">year</span><span class="p">,</span> <span class="n">ets</span><span class="p">)]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fpath</span><span class="p">)</span>
-    <span class="c1"># return empty index if using old format, won&#39;t be used</span>
+    <span class="c1"># return empty index if using old format, won't be used</span>
     <span class="k">return</span> <span class="n">index</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">get_anuga_centroid_coords</span><span class="p">(</span><span class="n">anuga_vars</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="w">    </span><span class="sd">""" </span>
 <span class="sd">    Convert ANUGA vertex coordinates to centroid coordinates (centroid coordinates </span>
 <span class="sd">    not available in ANUGA sww file).</span>
 
@@ -123,12 +123,12 @@
 <span class="sd">    ----------</span>
 <span class="sd">    anuga_vars : xr.Dataset</span>
 <span class="sd">        Dataset containing ANUGA netCDF variables.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Load mesh vertex coordinates</span>
-    <span class="n">xx</span> <span class="o">=</span> <span class="n">anuga_vars</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">]</span>
-    <span class="n">yy</span> <span class="o">=</span> <span class="n">anuga_vars</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]</span>
-    <span class="c1"># Convert vertex coordinates to centroid coordinates using &#39;volumes&#39; variable</span>
-    <span class="n">vols</span> <span class="o">=</span> <span class="n">anuga_vars</span><span class="p">[</span><span class="s1">&#39;volumes&#39;</span><span class="p">]</span>
+    <span class="n">xx</span> <span class="o">=</span> <span class="n">anuga_vars</span><span class="p">[</span><span class="s1">'x'</span><span class="p">]</span>
+    <span class="n">yy</span> <span class="o">=</span> <span class="n">anuga_vars</span><span class="p">[</span><span class="s1">'y'</span><span class="p">]</span>
+    <span class="c1"># Convert vertex coordinates to centroid coordinates using 'volumes' variable</span>
+    <span class="n">vols</span> <span class="o">=</span> <span class="n">anuga_vars</span><span class="p">[</span><span class="s1">'volumes'</span><span class="p">]</span>
     <span class="n">xx_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">((</span><span class="n">xx</span><span class="p">[</span><span class="n">vols</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">xx</span><span class="p">[</span><span class="n">vols</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">+</span> <span class="n">xx</span><span class="p">[</span><span class="n">vols</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]])</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
     <span class="n">yy_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">((</span><span class="n">yy</span><span class="p">[</span><span class="n">vols</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]]</span> <span class="o">+</span> <span class="n">yy</span><span class="p">[</span><span class="n">vols</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">+</span> <span class="n">yy</span><span class="p">[</span><span class="n">vols</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">]])</span> <span class="o">/</span> <span class="mf">3.</span><span class="p">)</span>
 
@@ -138,7 +138,7 @@
 <div class="viewcode-block" id="BaseMapLoader">
 <a class="viewcode-back" href="../../../_autosummary/dycove.utils.model_loader.BaseMapLoader.html#dycove.utils.model_loader.BaseMapLoader">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseMapLoader</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Abstract base class for loading map quantities from DYCOVE model outputs.</span>
 
 <span class="sd">    Provides shared logic for vegetation quantities and file management between</span>
@@ -153,7 +153,7 @@
 <span class="sd">    model_name : str</span>
 <span class="sd">        Root name of the model file (without extension).</span>
 <span class="sd">    quantity : str</span>
-<span class="sd">        Quantity to load (e.g., ``&#39;Velocity&#39;``, ``&#39;Mortality -- Flooding&#39;``).</span>
+<span class="sd">        Quantity to load (e.g., ``'Velocity'``, ``'Mortality -- Flooding'``).</span>
 <span class="sd">    eco_plot : bool</span>
 <span class="sd">        Whether vegetation quantities are being plotted.</span>
 <span class="sd">    n_ets_year : int</span>
@@ -169,7 +169,7 @@
 <span class="sd">      we would also want to plot bathymetry as a layer underneath, which is dependent</span>
 <span class="sd">      on numerical model load methods.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="BaseMapLoader.__init__">
 <a class="viewcode-back" href="../../../_autosummary/dycove.utils.model_loader.BaseMapLoader.html#dycove.utils.model_loader.BaseMapLoader.__init__">[docs]</a>
@@ -178,31 +178,31 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">model_name</span> <span class="o">=</span> <span class="n">model_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="o">=</span> <span class="n">quantity_name</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">eco_plot</span> <span class="o">=</span> <span class="n">eco_plot</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeldir</span> <span class="o">/</span> <span class="s1">&#39;veg_output&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeldir</span> <span class="o">/</span> <span class="s1">'veg_output'</span>
 
         <span class="c1"># Single location for storing names of vegetation variables stored in class `VegCohort`</span>
         <span class="c1"># DYCOVE related and independent on the numerical model being used</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Fractions&#39;</span><span class="p">:</span> <span class="s1">&#39;fraction&#39;</span><span class="p">,</span> 
-                             <span class="s1">&#39;Stem Density&#39;</span><span class="p">:</span> <span class="s1">&#39;density&#39;</span><span class="p">,</span> 
-                             <span class="s1">&#39;Stem Diameter&#39;</span><span class="p">:</span> <span class="s1">&#39;diameter&#39;</span><span class="p">,</span> 
-                             <span class="s1">&#39;Stem Height&#39;</span><span class="p">:</span> <span class="s1">&#39;height&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;Species&#39;</span><span class="p">:</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;Cohort&#39;</span><span class="p">:</span> <span class="s1">&#39;cohort&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;Potential Mortality -- Flooding&#39;</span><span class="p">:</span> <span class="s1">&#39;potential_mort_flood&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;Potential Mortality -- Desiccation&#39;</span><span class="p">:</span> <span class="s1">&#39;potential_mort_desic&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;Potential Mortality -- Uprooting&#39;</span><span class="p">:</span> <span class="s1">&#39;potential_mort_uproot&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;Potential Mortality -- Burial&#39;</span><span class="p">:</span> <span class="s1">&#39;potential_mort_burial&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;Potential Mortality -- Scour&#39;</span><span class="p">:</span> <span class="s1">&#39;potential_mort_scour&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;Mortality -- Flooding&#39;</span><span class="p">:</span> <span class="s1">&#39;applied_mort_flood&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;Mortality -- Desiccation&#39;</span><span class="p">:</span> <span class="s1">&#39;applied_mort_desic&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;Mortality -- Uprooting&#39;</span><span class="p">:</span> <span class="s1">&#39;applied_mort_uproot&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;Mortality -- Burial&#39;</span><span class="p">:</span> <span class="s1">&#39;applied_mort_burial&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;Mortality -- Scour&#39;</span><span class="p">:</span> <span class="s1">&#39;applied_mort_scour&#39;</span><span class="p">,</span>
-                             <span class="s1">&#39;Mortality -- Total&#39;</span><span class="p">:</span> <span class="s1">&#39;applied_mort_total&#39;</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'Fractions'</span><span class="p">:</span> <span class="s1">'fraction'</span><span class="p">,</span> 
+                             <span class="s1">'Stem Density'</span><span class="p">:</span> <span class="s1">'density'</span><span class="p">,</span> 
+                             <span class="s1">'Stem Diameter'</span><span class="p">:</span> <span class="s1">'diameter'</span><span class="p">,</span> 
+                             <span class="s1">'Stem Height'</span><span class="p">:</span> <span class="s1">'height'</span><span class="p">,</span>
+                             <span class="s1">'Species'</span><span class="p">:</span> <span class="s1">'name'</span><span class="p">,</span>
+                             <span class="s1">'Cohort'</span><span class="p">:</span> <span class="s1">'cohort'</span><span class="p">,</span>
+                             <span class="s1">'Potential Mortality -- Flooding'</span><span class="p">:</span> <span class="s1">'potential_mort_flood'</span><span class="p">,</span>
+                             <span class="s1">'Potential Mortality -- Desiccation'</span><span class="p">:</span> <span class="s1">'potential_mort_desic'</span><span class="p">,</span>
+                             <span class="s1">'Potential Mortality -- Uprooting'</span><span class="p">:</span> <span class="s1">'potential_mort_uproot'</span><span class="p">,</span>
+                             <span class="s1">'Potential Mortality -- Burial'</span><span class="p">:</span> <span class="s1">'potential_mort_burial'</span><span class="p">,</span>
+                             <span class="s1">'Potential Mortality -- Scour'</span><span class="p">:</span> <span class="s1">'potential_mort_scour'</span><span class="p">,</span>
+                             <span class="s1">'Mortality -- Flooding'</span><span class="p">:</span> <span class="s1">'applied_mort_flood'</span><span class="p">,</span>
+                             <span class="s1">'Mortality -- Desiccation'</span><span class="p">:</span> <span class="s1">'applied_mort_desic'</span><span class="p">,</span>
+                             <span class="s1">'Mortality -- Uprooting'</span><span class="p">:</span> <span class="s1">'applied_mort_uproot'</span><span class="p">,</span>
+                             <span class="s1">'Mortality -- Burial'</span><span class="p">:</span> <span class="s1">'applied_mort_burial'</span><span class="p">,</span>
+                             <span class="s1">'Mortality -- Scour'</span><span class="p">:</span> <span class="s1">'applied_mort_scour'</span><span class="p">,</span>
+                             <span class="s1">'Mortality -- Total'</span><span class="p">:</span> <span class="s1">'applied_mort_total'</span><span class="p">,</span>
                              <span class="p">}</span>
         
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco_plot</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span> <span class="o">/</span> <span class="s2">&quot;_cohort_files_ets_index.json&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span> <span class="o">/</span> <span class="s2">"_cohort_files_ets_index.json"</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span></div>
 
             <span class="c1">#self.veg_file_index = get_veg_file_index(self.ecodir)</span>
@@ -219,28 +219,28 @@
 <div class="viewcode-block" id="BaseMapLoader.check_final_index">
 <a class="viewcode-back" href="../../../_autosummary/dycove.utils.model_loader.BaseMapLoader.html#dycove.utils.model_loader.BaseMapLoader.check_final_index">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_final_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Raises error if final plot time exceeds simulation length &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Raises error if final plot time exceeds simulation length """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_outputs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_model_subdir</span><span class="p">())</span>
-        <span class="n">wse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="s1">&#39;WSE&#39;</span><span class="p">]]</span>
+        <span class="n">wse</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="s1">'WSE'</span><span class="p">]]</span>
         <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">wse</span><span class="p">):</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Final plot time in &#39;plot_times&#39; indicates an array index of </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">, &quot;</span>
-                   <span class="sa">f</span><span class="s2">&quot;but the numerical model output arrays only have length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">wse</span><span class="p">)</span><span class="si">}</span><span class="s2">!&quot;</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"Final plot time in 'plot_times' indicates an array index of </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">, "</span>
+                   <span class="sa">f</span><span class="s2">"but the numerical model output arrays only have length </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">wse</span><span class="p">)</span><span class="si">}</span><span class="s2">!"</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
         
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_veg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ets</span><span class="p">,</span> <span class="n">eco_year</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Read vegetation files, this function abstracts similar logic among DFM and ANUGA</span>
 <span class="sd">        No. of vegetation cohorts present is equal to the eco year we are plotting</span>
 <span class="sd">        No cached variable here because these files are written every ETS</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">veg_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;fractions&quot;</span><span class="p">:</span> <span class="p">[],</span>
-                    <span class="s2">&quot;quantities&quot;</span><span class="p">:</span> <span class="p">[],</span>
-                    <span class="s2">&quot;cohorts&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="n">veg_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"fractions"</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">"quantities"</span><span class="p">:</span> <span class="p">[],</span>
+                    <span class="s2">"cohorts"</span><span class="p">:</span> <span class="p">[],</span>
                     <span class="p">}</span>
 
-        <span class="n">old_file_format</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;.npz&quot;</span><span class="p">))</span>
+        <span class="n">old_file_format</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">".npz"</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">old_file_format</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_veg_old_format</span><span class="p">(</span><span class="n">veg_data</span><span class="p">,</span> <span class="n">ets</span><span class="p">,</span> <span class="n">eco_year</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -248,40 +248,40 @@
         
         
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_veg_new_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">veg_data</span><span class="p">,</span> <span class="n">ets</span><span class="p">,</span> <span class="n">eco_year</span><span class="p">):</span>
-        <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eco_year</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eco_year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]:</span>
-            <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">eco_year</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]:</span>
-                <span class="n">c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">.nc&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">eco_year</span><span class="si">}</span><span class="s2">"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span> <span class="ow">and</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">"</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">eco_year</span><span class="si">}</span><span class="s2">"</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cohort_index</span><span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">eco_year</span><span class="si">}</span><span class="s2">"</span><span class="p">][</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">"</span><span class="p">]:</span>
+                <span class="n">c</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">.nc"</span><span class="p">)</span>
 
-                <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;cohorts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">c</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="s2">&quot;Species&quot;</span><span class="p">]],</span> 
-                                            <span class="n">c</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="s2">&quot;Cohort&quot;</span><span class="p">]]))</span>
-                <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;fractions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">data_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="s2">&quot;Fractions&quot;</span><span class="p">]])</span>
+                <span class="n">veg_data</span><span class="p">[</span><span class="s2">"cohorts"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">c</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="s2">"Species"</span><span class="p">]],</span> 
+                                            <span class="n">c</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="s2">"Cohort"</span><span class="p">]]))</span>
+                <span class="n">veg_data</span><span class="p">[</span><span class="s2">"fractions"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">data_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="s2">"Fractions"</span><span class="p">]])</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">]</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
-                    <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;quantities&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">]])</span>
-                <span class="k">else</span><span class="p">:</span>  <span class="c1"># redundant if quantity is &#39;Fractions&#39;</span>
-                    <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;quantities&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">data_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">]])</span>
+                    <span class="n">veg_data</span><span class="p">[</span><span class="s2">"quantities"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">]])</span>
+                <span class="k">else</span><span class="p">:</span>  <span class="c1"># redundant if quantity is 'Fractions'</span>
+                    <span class="n">veg_data</span><span class="p">[</span><span class="s2">"quantities"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">data_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">]])</span>
 
         <span class="k">return</span> <span class="n">veg_data</span>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_load_veg_old_format</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">veg_data</span><span class="p">,</span> <span class="n">ets</span><span class="p">,</span> <span class="n">eco_year</span><span class="p">):</span>
         <span class="c1"># Loop through all cohort files saved for this ETS, load attributes to running list</span>
-        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;cohort*_year</span><span class="si">{</span><span class="n">eco_year</span><span class="si">}</span><span class="s2">_ets</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">.npz&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ecodir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">"cohort*_year</span><span class="si">{</span><span class="n">eco_year</span><span class="si">}</span><span class="s2">_ets</span><span class="si">{</span><span class="n">ets</span><span class="si">}</span><span class="s2">.npz"</span><span class="p">):</span>
             <span class="n">c</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">allow_pickle</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
-            <span class="n">c_id</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">6</span><span class="p">:]</span>  <span class="c1"># old format didn&#39;t have species name, give generic name</span>
-            <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;cohorts&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;Species X&quot;</span><span class="p">,</span> 
-                                        <span class="sa">f</span><span class="s2">&quot;Cohort </span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
-            <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;fractions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="s2">&quot;Fractions&quot;</span><span class="p">]])</span>
-            <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;quantities&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">]])</span>  <span class="c1"># not used if quantity is &#39;Fractions&#39;</span>
+            <span class="n">c_id</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">stem</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">6</span><span class="p">:]</span>  <span class="c1"># old format didn't have species name, give generic name</span>
+            <span class="n">veg_data</span><span class="p">[</span><span class="s2">"cohorts"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">"Species X"</span><span class="p">,</span> 
+                                        <span class="sa">f</span><span class="s2">"Cohort </span><span class="si">{</span><span class="n">c_id</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+            <span class="n">veg_data</span><span class="p">[</span><span class="s2">"fractions"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="s2">"Fractions"</span><span class="p">]])</span>
+            <span class="n">veg_data</span><span class="p">[</span><span class="s2">"quantities"</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">]])</span>  <span class="c1"># not used if quantity is 'Fractions'</span>
 
         <span class="k">return</span> <span class="n">veg_data</span>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_pass_veg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">veg_data</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
         <span class="c1"># Distribute veg_data to correct keys in data dict</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Cohort Names&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;cohorts&quot;</span><span class="p">]</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Fractions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;fractions&quot;</span><span class="p">]</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"Cohort Names"</span><span class="p">]</span> <span class="o">=</span> <span class="n">veg_data</span><span class="p">[</span><span class="s2">"cohorts"</span><span class="p">]</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"Fractions"</span><span class="p">]</span> <span class="o">=</span> <span class="n">veg_data</span><span class="p">[</span><span class="s2">"fractions"</span><span class="p">]</span>
         <span class="c1"># For all other quantities, we still need Fractions in order to do weighted averaging of cohorts in grid cells</span>
-        <span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">]</span> <span class="o">=</span> <span class="n">veg_data</span><span class="p">[</span><span class="s2">&quot;quantities&quot;</span><span class="p">]</span>  <span class="c1"># if quantity is Fractions, this line is redundant</span>
+        <span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">]</span> <span class="o">=</span> <span class="n">veg_data</span><span class="p">[</span><span class="s2">"quantities"</span><span class="p">]</span>  <span class="c1"># if quantity is Fractions, this line is redundant</span>
         <span class="k">return</span> <span class="n">data</span></div>
 
 
@@ -289,7 +289,7 @@
 <div class="viewcode-block" id="ANUGAMapLoader">
 <a class="viewcode-back" href="../../../_autosummary/dycove.utils.model_loader.ANUGAMapLoader.html#dycove.utils.model_loader.ANUGAMapLoader">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ANUGAMapLoader</span><span class="p">(</span><span class="n">BaseMapLoader</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Loader for ANUGA hydrodynamic and DYCOVE vegetation output files.</span>
 
 <span class="sd">    Loads data from ANUGA `.sww` NetCDF files and DYCOVE ``.npz`` vegetation cohort files.</span>
@@ -306,9 +306,9 @@
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
 <span class="sd">        Dictionary of NumPy arrays with keys:</span>
-<span class="sd">        ``&#39;X&#39;``, ``&#39;Y&#39;``, ``&#39;Bathymetry&#39;``, and (if applicable)</span>
-<span class="sd">        ``&#39;WSE&#39;``, ``&#39;Depth&#39;``, ``&#39;Velocity&#39;``, or vegetation fields.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        ``'X'``, ``'Y'``, ``'Bathymetry'``, and (if applicable)</span>
+<span class="sd">        ``'WSE'``, ``'Depth'``, ``'Velocity'``, or vegetation fields.</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="ANUGAMapLoader.__init__">
 <a class="viewcode-back" href="../../../_autosummary/dycove.utils.model_loader.ANUGAMapLoader.html#dycove.utils.model_loader.ANUGAMapLoader.__init__">[docs]</a>
@@ -318,14 +318,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cached_veg_mortality</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> 
-                              <span class="s1">&#39;Y&#39;</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> 
-                              <span class="s1">&#39;Z&#39;</span><span class="p">:</span> <span class="s1">&#39;elevation_c&#39;</span><span class="p">,</span>
-                              <span class="s1">&#39;triangles&#39;</span><span class="p">:</span> <span class="s1">&#39;volumes&#39;</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'X'</span><span class="p">:</span> <span class="s1">'x'</span><span class="p">,</span> 
+                              <span class="s1">'Y'</span><span class="p">:</span> <span class="s1">'y'</span><span class="p">,</span> 
+                              <span class="s1">'Z'</span><span class="p">:</span> <span class="s1">'elevation_c'</span><span class="p">,</span>
+                              <span class="s1">'triangles'</span><span class="p">:</span> <span class="s1">'volumes'</span><span class="p">,</span>
                               <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;WSE&#39;</span><span class="p">:</span> <span class="s1">&#39;stage_c&#39;</span><span class="p">,</span> 
-                               <span class="s1">&#39;x-momentum&#39;</span><span class="p">:</span> <span class="s1">&#39;xmomentum_c&#39;</span><span class="p">,</span>
-                               <span class="s1">&#39;y-momentum&#39;</span><span class="p">:</span> <span class="s1">&#39;ymomentum_c&#39;</span><span class="p">,</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'WSE'</span><span class="p">:</span> <span class="s1">'stage_c'</span><span class="p">,</span> 
+                               <span class="s1">'x-momentum'</span><span class="p">:</span> <span class="s1">'xmomentum_c'</span><span class="p">,</span>
+                               <span class="s1">'y-momentum'</span><span class="p">:</span> <span class="s1">'ymomentum_c'</span><span class="p">,</span>
                                <span class="p">}</span></div>
 
             
@@ -333,27 +333,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_load_outputs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_model_subdir</span><span class="p">())</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># for Pylance...</span>
 
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xx_c</span><span class="p">),</span>
-                <span class="s1">&#39;Y&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yy_c</span><span class="p">),</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'X'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xx_c</span><span class="p">),</span>
+                <span class="s1">'Y'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yy_c</span><span class="p">),</span>
                 <span class="c1"># change from DFM: removed index because no time dimension for elevation in ANUGA</span>
-                <span class="s1">&#39;Bathymetry&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zz_c</span><span class="p">),</span>
-                <span class="s1">&#39;Cohort Names&#39;</span><span class="p">:</span> <span class="kc">None</span>  <span class="c1"># need this for output consistency</span>
+                <span class="s1">'Bathymetry'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zz_c</span><span class="p">),</span>
+                <span class="s1">'Cohort Names'</span><span class="p">:</span> <span class="kc">None</span>  <span class="c1"># need this for output consistency</span>
                 <span class="p">}</span>
         
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="o">==</span> <span class="s1">&#39;Bathymetry&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="o">==</span> <span class="s1">'Bathymetry'</span><span class="p">:</span>
             <span class="k">pass</span>
 
         <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco_plot</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;WSE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="s1">&#39;WSE&#39;</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
-            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;WSE&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Bathymetry&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;WSE&#39;</span><span class="p">,</span> <span class="s1">&#39;Depth&#39;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="o">==</span> <span class="s1">&#39;Velocity&#39;</span><span class="p">:</span>
-                    <span class="n">xmom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="s1">&#39;x-momentum&#39;</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
-                    <span class="n">ymom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="s1">&#39;y-momentum&#39;</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
-                    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">):</span>
-                        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Vel_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">xmom</span><span class="o">/</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Depth&#39;</span><span class="p">]</span>
-                        <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Vel_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ymom</span><span class="o">/</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Depth&#39;</span><span class="p">]</span>
-                    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;Vel_x&#39;</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Vel_y&#39;</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">'WSE'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="s1">'WSE'</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">'Depth'</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'WSE'</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s1">'Bathymetry'</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'WSE'</span><span class="p">,</span> <span class="s1">'Depth'</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="o">==</span> <span class="s1">'Velocity'</span><span class="p">:</span>
+                    <span class="n">xmom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="s1">'x-momentum'</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
+                    <span class="n">ymom</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="s1">'y-momentum'</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
+                    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">divide</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">,</span> <span class="n">invalid</span><span class="o">=</span><span class="s1">'ignore'</span><span class="p">):</span>
+                        <span class="n">data</span><span class="p">[</span><span class="s1">'Vel_x'</span><span class="p">]</span> <span class="o">=</span> <span class="n">xmom</span><span class="o">/</span><span class="n">data</span><span class="p">[</span><span class="s1">'Depth'</span><span class="p">]</span>
+                        <span class="n">data</span><span class="p">[</span><span class="s1">'Vel_y'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ymom</span><span class="o">/</span><span class="n">data</span><span class="p">[</span><span class="s1">'Depth'</span><span class="p">]</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s1">'Velocity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s1">'Vel_x'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">data</span><span class="p">[</span><span class="s1">'Vel_y'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">veg_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_veg</span><span class="p">(</span><span class="n">ets</span><span class="p">,</span> <span class="n">eco_year</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pass_veg</span><span class="p">(</span><span class="n">veg_data</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
@@ -365,26 +365,26 @@
         <span class="c1"># (for ANUGA, as of now, there will only be one file to load)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">subdir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="si">}</span><span class="s1">.sww&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">subdir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="si">}</span><span class="s1">.sww'</span><span class="p">)</span>
             <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># for Pylance...</span>
 
-            <span class="c1"># Only create the mesh centroid variables if they don&#39;t exist for this mesh</span>
+            <span class="c1"># Only create the mesh centroid variables if they don't exist for this mesh</span>
             <span class="c1"># -- this is a time consuming step, so save these files for future plotting with the same mesh</span>
             <span class="n">files_exist</span> <span class="o">=</span> <span class="kc">False</span>
-            <span class="n">x_fname</span> <span class="o">=</span> <span class="s2">&quot;xCentroidsSavedForFastRecomputation.npy&quot;</span>
-            <span class="n">y_fname</span> <span class="o">=</span> <span class="s2">&quot;yCentroidsSavedForFastRecomputation.npy&quot;</span>    
+            <span class="n">x_fname</span> <span class="o">=</span> <span class="s2">"xCentroidsSavedForFastRecomputation.npy"</span>
+            <span class="n">y_fname</span> <span class="o">=</span> <span class="s2">"yCentroidsSavedForFastRecomputation.npy"</span>    
             <span class="k">if</span> <span class="p">(</span><span class="n">subdir</span> <span class="o">/</span> <span class="n">x_fname</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span><span class="n">subdir</span> <span class="o">/</span> <span class="n">y_fname</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">xx_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">subdir</span> <span class="o">/</span> <span class="n">x_fname</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">yy_c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">subdir</span> <span class="o">/</span> <span class="n">y_fname</span><span class="p">)</span>
                 <span class="c1"># Make sure existing files are not leftover from previous run</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xx_c</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">&#39;Z&#39;</span><span class="p">]]):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xx_c</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">'Z'</span><span class="p">]]):</span>
                     <span class="n">files_exist</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">files_exist</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">xx_c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yy_c</span> <span class="o">=</span> <span class="n">get_anuga_centroid_coords</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">)</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">subdir</span> <span class="o">/</span> <span class="n">x_fname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xx_c</span><span class="p">)</span>
                 <span class="n">np</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">subdir</span> <span class="o">/</span> <span class="n">y_fname</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">yy_c</span><span class="p">)</span>
             
-            <span class="bp">self</span><span class="o">.</span><span class="n">zz_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">&#39;Z&#39;</span><span class="p">]]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">zz_c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">'Z'</span><span class="p">]]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_model_subdir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Needed because DYCOVE-DFM creates a separate folder containing the output</span>
@@ -395,7 +395,7 @@
 <div class="viewcode-block" id="DFMMapLoader">
 <a class="viewcode-back" href="../../../_autosummary/dycove.utils.model_loader.DFMMapLoader.html#dycove.utils.model_loader.DFMMapLoader">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DFMMapLoader</span><span class="p">(</span><span class="n">BaseMapLoader</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Loader for DFM hydrodynamic and DYCOVE vegetation output files.</span>
 
 <span class="sd">    Loads data from DFM ``*_map.nc`` NetCDF file and DYCOVE ``.npz`` vegetation cohort</span>
@@ -403,16 +403,16 @@
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    - Automatically detects dynamic morphology (``&#39;mesh2d_mor_bl&#39;``).</span>
+<span class="sd">    - Automatically detects dynamic morphology (``'mesh2d_mor_bl'``).</span>
 <span class="sd">    - Caches variables for efficient access.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
 <span class="sd">        Dictionary of NumPy arrays with fields among:</span>
-<span class="sd">        ``&#39;X&#39;``, ``&#39;Y&#39;``, ``&#39;Bathymetry&#39;``, ``&#39;WSE&#39;``, ``&#39;Depth&#39;``, ``&#39;Velocity&#39;``,</span>
+<span class="sd">        ``'X'``, ``'Y'``, ``'Bathymetry'``, ``'WSE'``, ``'Depth'``, ``'Velocity'``,</span>
 <span class="sd">        and vegetation fields.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="DFMMapLoader.__init__">
 <a class="viewcode-back" href="../../../_autosummary/dycove.utils.model_loader.DFMMapLoader.html#dycove.utils.model_loader.DFMMapLoader.__init__">[docs]</a>
@@ -424,13 +424,13 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cached_species_index</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># names of variables in DFM netCDF output files</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="s1">&#39;mesh2d_face_x&#39;</span><span class="p">,</span> 
-                              <span class="s1">&#39;Y&#39;</span><span class="p">:</span> <span class="s1">&#39;mesh2d_face_y&#39;</span><span class="p">,</span> 
-                              <span class="s1">&#39;Z&#39;</span><span class="p">:</span> <span class="s1">&#39;mesh2d_flowelem_bl&#39;</span><span class="p">,</span>          <span class="c1"># static bathymetry</span>
-                              <span class="s1">&#39;Bathymetry mor&#39;</span><span class="p">:</span> <span class="s1">&#39;mesh2d_mor_bl&#39;</span><span class="p">}</span>  <span class="c1"># dynamic bathymetry</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;WSE&#39;</span><span class="p">:</span> <span class="s1">&#39;mesh2d_s1&#39;</span><span class="p">,</span> 
-                               <span class="s1">&#39;Velocity&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;mesh2d_ucmag&#39;</span><span class="p">,</span> <span class="s1">&#39;mesh2d_ucx&#39;</span><span class="p">,</span> <span class="s1">&#39;mesh2d_ucy&#39;</span><span class="p">),</span>
-                               <span class="s1">&#39;Max Shear Stress&#39;</span><span class="p">:</span> <span class="s1">&#39;mesh2d_tausmax&#39;</span><span class="p">}</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'X'</span><span class="p">:</span> <span class="s1">'mesh2d_face_x'</span><span class="p">,</span> 
+                              <span class="s1">'Y'</span><span class="p">:</span> <span class="s1">'mesh2d_face_y'</span><span class="p">,</span> 
+                              <span class="s1">'Z'</span><span class="p">:</span> <span class="s1">'mesh2d_flowelem_bl'</span><span class="p">,</span>          <span class="c1"># static bathymetry</span>
+                              <span class="s1">'Bathymetry mor'</span><span class="p">:</span> <span class="s1">'mesh2d_mor_bl'</span><span class="p">}</span>  <span class="c1"># dynamic bathymetry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'WSE'</span><span class="p">:</span> <span class="s1">'mesh2d_s1'</span><span class="p">,</span> 
+                               <span class="s1">'Velocity'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'mesh2d_ucmag'</span><span class="p">,</span> <span class="s1">'mesh2d_ucx'</span><span class="p">,</span> <span class="s1">'mesh2d_ucy'</span><span class="p">),</span>
+                               <span class="s1">'Max Shear Stress'</span><span class="p">:</span> <span class="s1">'mesh2d_tausmax'</span><span class="p">}</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hydro_i</span><span class="p">,</span> <span class="n">ets</span><span class="p">,</span> <span class="n">eco_year</span><span class="p">):</span>
@@ -438,28 +438,28 @@
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># for Pylance...</span>
 
         <span class="c1"># load mesh2d data</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;X&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">&#39;X&#39;</span><span class="p">]]),</span>
-                <span class="s1">&#39;Y&#39;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">&#39;Y&#39;</span><span class="p">]]),</span>
-                <span class="s1">&#39;Cohort Names&#39;</span><span class="p">:</span> <span class="kc">None</span>  <span class="c1"># need this for output consistency</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'X'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">'X'</span><span class="p">]]),</span>
+                <span class="s1">'Y'</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">'Y'</span><span class="p">]]),</span>
+                <span class="s1">'Cohort Names'</span><span class="p">:</span> <span class="kc">None</span>  <span class="c1"># need this for output consistency</span>
                 <span class="p">}</span>
         
-        <span class="c1"># need to handle case where morphology is off, then this variable won&#39;t be present in output file</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">&#39;Bathymetry mor&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Bathymetry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">&#39;Bathymetry mor&#39;</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
+        <span class="c1"># need to handle case where morphology is off, then this variable won't be present in output file</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">'Bathymetry mor'</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">:</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">'Bathymetry'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">'Bathymetry mor'</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Bathymetry&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">&#39;Z&#39;</span><span class="p">]])</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">'Bathymetry'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">mesh_varnames</span><span class="p">[</span><span class="s1">'Z'</span><span class="p">]])</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="o">==</span> <span class="s1">&#39;Bathymetry&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="o">==</span> <span class="s1">'Bathymetry'</span><span class="p">:</span>
             <span class="k">pass</span>
 
         <span class="k">elif</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">eco_plot</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;WSE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="s1">&#39;WSE&#39;</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
-            <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Depth&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;WSE&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Bathymetry&#39;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;WSE&#39;</span><span class="p">,</span> <span class="s1">&#39;Depth&#39;</span><span class="p">]:</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="o">==</span> <span class="s1">&#39;Velocity&#39;</span><span class="p">:</span>
-                    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Velocity&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">][</span><span class="mi">0</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
-                    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Vel_x&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">][</span><span class="mi">1</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
-                    <span class="n">data</span><span class="p">[</span><span class="s1">&#39;Vel_y&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">][</span><span class="mi">2</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">'WSE'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="s1">'WSE'</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
+            <span class="n">data</span><span class="p">[</span><span class="s1">'Depth'</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">'WSE'</span><span class="p">]</span> <span class="o">-</span> <span class="n">data</span><span class="p">[</span><span class="s1">'Bathymetry'</span><span class="p">]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'WSE'</span><span class="p">,</span> <span class="s1">'Depth'</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantity</span> <span class="o">==</span> <span class="s1">'Velocity'</span><span class="p">:</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s1">'Velocity'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">][</span><span class="mi">0</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s1">'Vel_x'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">][</span><span class="mi">1</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s1">'Vel_y'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">][</span><span class="mi">2</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">hydro_varnames</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">quantity</span><span class="p">]][</span><span class="n">hydro_i</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
@@ -472,12 +472,12 @@
         <span class="c1"># Only load hydro outputs if the subdirectory has changed </span>
         <span class="c1"># (for DFM, it will only change in restart mode)</span>
         <span class="k">if</span> <span class="n">subdir</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_subdir</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">subdir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="si">}</span><span class="s1">_map.nc&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cached_map_vars</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">load_dataset</span><span class="p">(</span><span class="n">subdir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">model_name</span><span class="si">}</span><span class="s1">_map.nc'</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">current_subdir</span> <span class="o">=</span> <span class="n">subdir</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_model_subdir</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Needed because DYCOVE-DFM creates a separate folder containing the output</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeldir</span> <span class="o">/</span> <span class="s1">&#39;output&#39;</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">modeldir</span> <span class="o">/</span> <span class="s1">'output'</span></div>
 
 </pre></div>
 

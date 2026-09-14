@@ -96,23 +96,23 @@
 <span class="n">r</span> <span class="o">=</span> <span class="n">Reporter</span><span class="p">()</span>
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_import_bmi</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot; Lazy loading of bmi wrapper to avoid import errors when DFM will not be tested/used. &quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">""" Lazy loading of bmi wrapper to avoid import errors when DFM will not be tested/used. """</span>
     <span class="k">try</span><span class="p">:</span>
          <span class="c1"># need to mock this due to incompatibility with updated setuptools versions (python 3.7+)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">&#39;pkg_resources&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ModuleType</span><span class="p">(</span><span class="s1">&#39;pkg_resources&#39;</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s1">'pkg_resources'</span><span class="p">]</span> <span class="o">=</span> <span class="n">ModuleType</span><span class="p">(</span><span class="s1">'pkg_resources'</span><span class="p">)</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">bmi.wrapper</span><span class="w"> </span><span class="kn">import</span> <span class="n">BMIWrapper</span>
         <span class="k">return</span> <span class="n">BMIWrapper</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;The `bmi` package is not installed. &quot;</span>
-               <span class="s2">&quot;Refer to the documentation for installation instructions.&quot;</span><span class="p">)</span>
-        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"The `bmi` package is not installed. "</span>
+               <span class="s2">"Refer to the documentation for installation instructions."</span><span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"ERROR"</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
     
 
 <div class="viewcode-block" id="DFM">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFM.html#dycove.sim.engines.DFM_hydro.DFM">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DFM</span><span class="p">(</span><span class="n">HydroSimulationBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Hydrodynamic simulation wrapper for the Delft3D FM model.</span>
 
 <span class="sd">    This class connects the generic :class:`~dycove.sim.base.HydroSimulationBase`  </span>
@@ -126,7 +126,7 @@
 <span class="sd">      handled in :class:`~dycove.sim.base.HydroSimulationBase`; all low-level model </span>
 <span class="sd">      interactions are delegated to </span>
 <span class="sd">      :class:`~dycove.sim.base.engines.DFM_hydro.DFMEngine`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="DFM.__init__">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFM.html#dycove.sim.engines.DFM_hydro.DFM.__init__">[docs]</a>
@@ -143,7 +143,7 @@
 <div class="viewcode-block" id="DFMEngine">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">DFMEngine</span><span class="p">(</span><span class="n">HydroEngineBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Engine interface for DFM hydro-morphodynamic model.</span>
 
 <span class="sd">    This engine:</span>
@@ -158,7 +158,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    dfm_path : Path or str</span>
 <span class="sd">        Path to the root Delft3D-FM installation directory. Might look like this:</span>
-<span class="sd">        &#39;C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/plugins/DeltaShell.Dimr/kernels/x64&#39;</span>
+<span class="sd">        'C:/Program Files (x86)/Deltares/Delft3D Flexible Mesh Suite HM (2021.03)/plugins/DeltaShell.Dimr/kernels/x64'</span>
 <span class="sd">    config_path : Path or str</span>
 <span class="sd">        Path to DIMR configuration file ``dimr_config.xml``</span>
 <span class="sd">    mdu_path : Path or str</span>
@@ -172,7 +172,7 @@
 <span class="sd">      if missing.</span>
 <span class="sd">    - Parallel mode is not currently implemented.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="DFMEngine.__init__">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.__init__">[docs]</a>
@@ -183,8 +183,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">BMIWrapper</span> <span class="o">=</span> <span class="n">_import_bmi</span><span class="p">()</span>  <span class="c1"># lazy bmi loading</span>
 
         <span class="c1"># Define paths to Delft3D FM .dll files</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;dflowfm/bin/dflowfm.dll&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimr_path</span>    <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="s2">&quot;dimr/bin/dimr_dll.dll&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="s2">"dflowfm/bin/dflowfm.dll"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimr_path</span>    <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="s2">"dimr/bin/dimr_dll.dll"</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span>     <span class="o">=</span> <span class="n">mdu_path</span>  <span class="c1"># location of MDU file that contains model directions/inputs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span>    <span class="o">=</span> <span class="n">mdu_path</span><span class="o">.</span><span class="n">parent</span>  <span class="c1"># model directory containing MDU and other model files</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config_path</span>  <span class="o">=</span> <span class="n">config_path</span>  <span class="c1"># location of config file used for running DFM using dimr</span>
@@ -198,7 +198,7 @@
 <div class="viewcode-block" id="DFMEngine.add_dll_directories">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.add_dll_directories">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_dll_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dfm_path</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="w">        </span><span class="sd">""" </span>
 <span class="sd">        Add DLL paths to env before calling BMI.</span>
 
 <span class="sd">        Return list to retain handle and avoid accidental garbage collecting.</span>
@@ -208,15 +208,15 @@
 
 <span class="sd">        .. code-block:: python</span>
 
-<span class="sd">           os.environ[&#39;PATH&#39;] = os.path.join(dfm_path, &#39;share&#39;, &#39;bin&#39;) + &quot;;&quot; + </span>
-<span class="sd">                                os.path.join(dfm_path, &#39;dflowfm&#39;, &#39;bin&#39;) + &quot;;&quot; + ... )</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dflowfm/bin&quot;</span><span class="p">)),</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dimr/bin&quot;</span><span class="p">)),</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;share/bin&quot;</span><span class="p">)),</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;dwaves/bin&quot;</span><span class="p">)),</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;esmf/scripts&quot;</span><span class="p">)),</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;swan/scripts&quot;</span><span class="p">)),</span>
+<span class="sd">           os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" + </span>
+<span class="sd">                                os.path.join(dfm_path, 'dflowfm', 'bin') + ";" + ... )</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"dflowfm/bin"</span><span class="p">)),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"dimr/bin"</span><span class="p">)),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"share/bin"</span><span class="p">)),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"dwaves/bin"</span><span class="p">)),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"esmf/scripts"</span><span class="p">)),</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"swan/scripts"</span><span class="p">)),</span>
                 <span class="p">]</span></div>
 
 
@@ -224,7 +224,7 @@
 <div class="viewcode-block" id="DFMEngine.open_bmi_wrappers">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.open_bmi_wrappers">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">open_bmi_wrappers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create BMI wrapper objects for DFM and DIMR &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Create BMI wrapper objects for DFM and DIMR """</span>
         <span class="c1"># BMI wrapper object that interacts with the actual numerical model (e.g., getting and setting variables)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">BMIWrapper</span><span class="p">(</span><span class="n">engine</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm_path</span><span class="p">),</span> <span class="n">configfile</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="p">))</span>
         <span class="c1"># BMI wrapper object that handles the deployment of the model executables</span>
@@ -261,15 +261,15 @@
 <div class="viewcode-block" id="DFMEngine.get_cell_count">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_cell_count">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;ndxi&quot;</span><span class="p">))</span>  <span class="c1"># number of non-boundary boxes, i.e. within-domain boxes</span></div>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">"ndxi"</span><span class="p">))</span>  <span class="c1"># number of non-boundary boxes, i.e. within-domain boxes</span></div>
 
 
 
 <div class="viewcode-block" id="DFMEngine.get_refdate">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_refdate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_refdate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># This input has a line in the MDU file, but most other models probably don&#39;t care what the date is and we can just hardcode the date</span>
-        <span class="n">refdatestr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">&quot;RefDate&quot;</span><span class="p">]</span>
+        <span class="c1"># This input has a line in the MDU file, but most other models probably don't care what the date is and we can just hardcode the date</span>
+        <span class="n">refdatestr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">"RefDate"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">refdatestr</span><span class="p">[:</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">refdatestr</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">refdatestr</span><span class="p">[</span><span class="mi">6</span><span class="p">:]))</span></div>
 
     
@@ -279,7 +279,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">get_elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># DFM returns arrays with boundary values included, slice those out first </span>
         <span class="n">n_cells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cell_count</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;bl&quot;</span><span class="p">))[:</span><span class="n">n_cells</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">"bl"</span><span class="p">))[:</span><span class="n">n_cells</span><span class="p">]</span></div>
 
 
 
@@ -287,8 +287,8 @@
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_velocity_and_depth">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_velocity_and_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">n_cells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cell_count</span><span class="p">()</span>
-        <span class="n">depth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;hs&quot;</span><span class="p">))[:</span><span class="n">n_cells</span><span class="p">]</span>
-        <span class="n">velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;ucmag&quot;</span><span class="p">))[:</span><span class="n">n_cells</span><span class="p">]</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">"hs"</span><span class="p">))[:</span><span class="n">n_cells</span><span class="p">]</span>
+        <span class="n">velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">"ucmag"</span><span class="p">))[:</span><span class="n">n_cells</span><span class="p">]</span>
         <span class="c1"># Ignore velocities where depth is insufficient</span>
         <span class="n">velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">depth</span> <span class="o">&lt;</span> <span class="n">H_LIM_VELOCITY</span><span class="p">,</span> <span class="mf">0.</span><span class="p">,</span> <span class="n">velocity</span><span class="p">)</span>
 
@@ -299,10 +299,10 @@
 <div class="viewcode-block" id="DFMEngine.get_vegetation">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_vegetation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_vegetation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Convert to numpy arrays because DFM returns pointers and we don&#39;t want to accidentally modify them</span>
-        <span class="n">stemdensity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;rnveg&quot;</span><span class="p">))</span>
-        <span class="n">stemdiameter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;diaveg&quot;</span><span class="p">))</span>
-        <span class="n">stemheight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">&quot;stemheight&quot;</span><span class="p">))</span>
+        <span class="c1"># Convert to numpy arrays because DFM returns pointers and we don't want to accidentally modify them</span>
+        <span class="n">stemdensity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">"rnveg"</span><span class="p">))</span>
+        <span class="n">stemdiameter</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">"diaveg"</span><span class="p">))</span>
+        <span class="n">stemheight</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">"stemheight"</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">stemdensity</span><span class="p">,</span> <span class="n">stemdiameter</span><span class="p">,</span> <span class="n">stemheight</span></div>
 
 
@@ -310,28 +310,28 @@
 <div class="viewcode-block" id="DFMEngine.set_vegetation">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_vegetation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stemdensity</span><span class="p">,</span> <span class="n">stemdiameter</span><span class="p">,</span> <span class="n">stemheight</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">set_var</span><span class="p">(</span><span class="s2">&quot;rnveg&quot;</span><span class="p">,</span> <span class="n">stemdensity</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">set_var</span><span class="p">(</span><span class="s2">&quot;diaveg&quot;</span><span class="p">,</span> <span class="n">stemdiameter</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">set_var</span><span class="p">(</span><span class="s2">&quot;stemheight&quot;</span><span class="p">,</span> <span class="n">stemheight</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">set_var</span><span class="p">(</span><span class="s2">"rnveg"</span><span class="p">,</span> <span class="n">stemdensity</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">set_var</span><span class="p">(</span><span class="s2">"diaveg"</span><span class="p">,</span> <span class="n">stemdiameter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">set_var</span><span class="p">(</span><span class="s2">"stemheight"</span><span class="p">,</span> <span class="n">stemheight</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="DFMEngine.check_simulation_inputs">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.check_simulation_inputs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_simulation_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simstate</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Compare DYCOVE simulation time to MDU simulation time.</span>
 
 <span class="sd">        All MDU files (DFM models) will have a simulation time specifed, but DYCOVE will run</span>
 <span class="sd">        DFM for a period of time based on how many veg years we want to simulate. Basically, </span>
 <span class="sd">        the time specified in the MDU needs to be arbitrarily large enough so that we never </span>
 <span class="sd">        run into the issue of the model stopping prematurely.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">simstate</span><span class="o">.</span><span class="n">hydro_sim_days</span><span class="o">*</span><span class="mi">86400</span> <span class="o">&gt;</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">&quot;TStop&quot;</span><span class="p">]):</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Model simulation time specified in MDU file (TStop = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s1">&#39;TStop&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">) not long enough based on &quot;</span>
-                   <span class="s2">&quot;the inputs provided for sim_years, n_ets, and veg_interval, which give simulation length of &quot;</span>
-                   <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">simstate</span><span class="o">.</span><span class="n">hydro_sim_days</span><span class="o">*</span><span class="mi">86400</span><span class="si">}</span><span class="s2">. Please provide an arbitrarily larger number for TStop in MDU file.&quot;</span><span class="p">)</span>
-            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="n">simstate</span><span class="o">.</span><span class="n">hydro_sim_days</span><span class="o">*</span><span class="mi">86400</span> <span class="o">&gt;</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">"TStop"</span><span class="p">]):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"Model simulation time specified in MDU file (TStop = </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s1">'TStop'</span><span class="p">]</span><span class="si">}</span><span class="s2">) not long enough based on "</span>
+                   <span class="s2">"the inputs provided for sim_years, n_ets, and veg_interval, which give simulation length of "</span>
+                   <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">simstate</span><span class="o">.</span><span class="n">hydro_sim_days</span><span class="o">*</span><span class="mi">86400</span><span class="si">}</span><span class="s2">. Please provide an arbitrarily larger number for TStop in MDU file."</span><span class="p">)</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"ERROR"</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
 
@@ -343,12 +343,12 @@
 <div class="viewcode-block" id="DFMEngine.get_model_inputs">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_model_inputs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_model_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Read lines from MDU file into a dictionary &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Read lines from MDU file into a dictionary """</span>
         <span class="n">mdu_lines</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
         <span class="n">mdu_vars</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">mdu_lines</span><span class="p">:</span>
-            <span class="k">if</span> <span class="s2">&quot;=&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                <span class="n">slist</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=|#&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">"="</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">slist</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"=|#"</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
                 <span class="n">mdu_vars</span><span class="p">[</span><span class="n">slist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="n">slist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">mdu_vars</span></div>
 
@@ -356,23 +356,23 @@
 <div class="viewcode-block" id="DFMEngine.get_morphodynamic_inputs">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_morphodynamic_inputs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_morphodynamic_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Read lines from morphology file into a dictionary, if mprph files exist &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Read lines from morphology file into a dictionary, if mprph files exist """</span>
         <span class="c1"># Same filename as MDU, different extension</span>
-        <span class="n">mor_filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s2">&quot;.mor&quot;</span><span class="p">)</span>
+        <span class="n">mor_filepath</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="o">.</span><span class="n">stem</span> <span class="o">+</span> <span class="s2">".mor"</span><span class="p">)</span>
         <span class="n">morph_vars</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">morphology</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">if</span> <span class="n">mor_filepath</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">mor_filepath</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="s2">&quot;=&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
-                        <span class="n">slist</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=|#&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="s2">"="</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                        <span class="n">slist</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"=|#"</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
                         <span class="n">morph_vars</span><span class="p">[</span><span class="n">slist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()]</span> <span class="o">=</span> <span class="n">slist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Morphology file NOT FOUND; proceeding with morphology off.&quot;</span>
-            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;WARNING&quot;</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">"Morphology file NOT FOUND; proceeding with morphology off."</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"WARNING"</span><span class="p">)</span>
             <span class="n">morphology</span> <span class="o">=</span> <span class="kc">False</span>
             <span class="c1"># # If morphology is off, ensure that vegetation mor variable is set to 0 (no burial/scour)</span>
-            <span class="c1"># # I don&#39;t think this is necessary, burial/scour will be zero (nelson)</span>
+            <span class="c1"># # I don't think this is necessary, burial/scour will be zero (nelson)</span>
             <span class="c1"># if self.veg is not None:</span>
             <span class="c1">#     self.veg.mor = 0</span>
         <span class="k">return</span> <span class="n">morphology</span><span class="p">,</span> <span class="n">morph_vars</span></div>
@@ -382,25 +382,25 @@
 <div class="viewcode-block" id="DFMEngine.vegetation_file_check">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.vegetation_file_check">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">vegetation_file_check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        MODIFIES .mdu file if certain vegetation-related lines are not present:</span>
 
-<span class="sd">        - Adds a filename next to &#39;ExtForceFile&#39; if blank, creates the file too</span>
+<span class="sd">        - Adds a filename next to 'ExtForceFile' if blank, creates the file too</span>
 <span class="sd">        - Adds drag coefficient from VegetationAttributes if [veg] block is present</span>
 <span class="sd">        - Adds appropriate Baptist model number (1 if no morph, 2 if morph)</span>
 <span class="sd">        - Adds [veg] block if it is not present, including drag coefficient from VegetationAttributes</span>
 <span class="sd">          and appropriate Baptist model number</span>
 
-<span class="sd">        Creates empty text files for stem density, stem diameter, and stem height, if they don&#39;t </span>
+<span class="sd">        Creates empty text files for stem density, stem diameter, and stem height, if they don't </span>
 <span class="sd">        already exist. </span>
 <span class="sd">        </span>
 <span class="sd">        The filenames are those specified in the vegetation .ext file in the model directory </span>
-<span class="sd">        (e.g., &quot;FlowFM_veg.ext&quot;).</span>
+<span class="sd">        (e.g., "FlowFM_veg.ext").</span>
 
 <span class="sd">        These files can be created beforehand if prior vegetation establishment is desired.</span>
 <span class="sd">        </span>
 <span class="sd">        Otherwise, blank files are required so that DFM knows to store these variables through time.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
@@ -425,49 +425,49 @@
 <div class="viewcode-block" id="DFMEngine.add_extforcefile_to_mdu">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.add_extforcefile_to_mdu">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_extforcefile_to_mdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">        Add ExtForceFile to .mdu line if it&#39;s not there (and if vegetation is active).</span>
+<span class="w">        </span><span class="sd">""" </span>
+<span class="sd">        Add ExtForceFile to .mdu line if it's not there (and if vegetation is active).</span>
 <span class="sd">        </span>
 <span class="sd">        [external forcing]</span>
 <span class="sd">        ExtForceFile = FlowFM.ext  # Old format for external forcings file ...</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># for Pylance...</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">&quot;ExtForceFile&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">"ExtForceFile"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mdu_modified</span> <span class="o">=</span> <span class="kc">True</span>
 
-            <span class="c1"># Get name of model/file based on name of &quot;new&quot; .ext file</span>
+            <span class="c1"># Get name of model/file based on name of "new" .ext file</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="n">replacement</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">&quot;ExtForceFileNew&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_bnd&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">replacement</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">"ExtForceFileNew"</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"_bnd"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
             <span class="k">except</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;Either the &#39;ExtForceFileNew&#39; file name in the .mdu file does not end in the expected &quot;</span>
-                       <span class="s2">&quot;&#39;_bnd.ext&#39;, or there is no &#39;ExtForceFileNew&#39; file defined in the .mdu file. If it was &quot;</span>
-                       <span class="s2">&quot;purposeful that no boundaries were specified for this model, then this method must be &quot;</span>
-                       <span class="s2">&quot;updated: please get in touch with us or create an Issue on GitHub.&quot;</span><span class="p">)</span>
-                <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"Either the 'ExtForceFileNew' file name in the .mdu file does not end in the expected "</span>
+                       <span class="s2">"'_bnd.ext', or there is no 'ExtForceFileNew' file defined in the .mdu file. If it was "</span>
+                       <span class="s2">"purposeful that no boundaries were specified for this model, then this method must be "</span>
+                       <span class="s2">"updated: please get in touch with us or create an Issue on GitHub."</span><span class="p">)</span>
+                <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"ERROR"</span><span class="p">)</span>
                 <span class="k">raise</span> <span class="ne">NameError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">&quot;ExtForceFile&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">replacement</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">"ExtForceFile"</span><span class="p">]</span> <span class="o">=</span> <span class="n">replacement</span>
 
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="p">):</span>
                 <span class="c1"># Replace blank space with name of required .ext file</span>
-                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;ExtForceFile &quot;</span><span class="p">):</span>
-                    <span class="n">slist</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=|#&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"ExtForceFile "</span><span class="p">):</span>
+                    <span class="n">slist</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"=|#"</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
                     <span class="n">n_spaces</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">slist</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">slist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">= </span><span class="si">{</span><span class="n">replacement</span><span class="si">}{</span><span class="s1">&#39; &#39;</span><span class="o">*</span><span class="nb">max</span><span class="p">(</span><span class="n">n_spaces</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">replacement</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">#</span><span class="si">{</span><span class="n">slist</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">slist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">= </span><span class="si">{</span><span class="n">replacement</span><span class="si">}{</span><span class="s1">' '</span><span class="o">*</span><span class="nb">max</span><span class="p">(</span><span class="n">n_spaces</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">replacement</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">#</span><span class="si">{</span><span class="n">slist</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
                 <span class="c1"># Replace drag coefficient value with the one provided in input .json file (if [veg] block is present)</span>
-                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Cdveg&quot;</span><span class="p">):</span>
-                    <span class="n">slist</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;=|#&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"Cdveg"</span><span class="p">):</span>
+                    <span class="n">slist</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"=|#"</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
                     <span class="n">drag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">get_drag</span><span class="p">()</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">slist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">= </span><span class="si">{</span><span class="n">drag</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}{</span><span class="s1">&#39; &#39;</span><span class="o">*</span><span class="mi">13</span><span class="si">}</span><span class="s2">#</span><span class="si">{</span><span class="n">slist</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span></div>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">slist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">= </span><span class="si">{</span><span class="n">drag</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}{</span><span class="s1">' '</span><span class="o">*</span><span class="mi">13</span><span class="si">}</span><span class="s2">#</span><span class="si">{</span><span class="n">slist</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span></div>
 
 
 
 <div class="viewcode-block" id="DFMEngine.add_veg_module_to_mdu">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.add_veg_module_to_mdu">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_veg_module_to_mdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
-<span class="sd">        Add [veg] section to .mdu if it&#39;s not there (and if vegetation is active).</span>
+<span class="w">        </span><span class="sd">""" </span>
+<span class="sd">        Add [veg] section to .mdu if it's not there (and if vegetation is active).</span>
 <span class="sd">        </span>
 <span class="sd">        Format:</span>
 <span class="sd">        [veg]</span>
@@ -475,22 +475,22 @@
 <span class="sd">        Clveg             = 0.8   # Stem distance factor, default=0.8</span>
 <span class="sd">        Cdveg             = 1.1   # Drag coefficient, pulled from input veg.json file</span>
 <span class="sd">        Cbveg             = 0.7   # Stem stiffness coefficient, default=0.7</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># for Pylance...</span>
 
-        <span class="n">veg_block_present</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;[veg]&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="p">)</span>
+        <span class="n">veg_block_present</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"[veg]"</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">veg_block_present</span><span class="p">:</span>
             <span class="n">drag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">get_drag</span><span class="p">()</span>
             <span class="n">veg_model_num</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">mor</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mdu_modified</span> <span class="o">=</span> <span class="kc">True</span>
                  
-            <span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
-                <span class="s2">&quot;[veg]&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;Vegetationmodelnr                 = </span><span class="si">{</span><span class="n">veg_model_num</span><span class="si">}</span><span class="s2">               # 1: Baptist et al. (2007) equation for calculation of vegetation roughness&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Clveg                             = 0.8             # Stem distance factor, default=0.8&quot;</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;Cdveg                             = </span><span class="si">{</span><span class="n">drag</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">             # Stem Cd coefficient, default=0.7&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Cbveg                             = 0.7             # Stem stiffness coefficient, default=0.7&quot;</span><span class="p">,</span>
+                <span class="s2">"[veg]"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"Vegetationmodelnr                 = </span><span class="si">{</span><span class="n">veg_model_num</span><span class="si">}</span><span class="s2">               # 1: Baptist et al. (2007) equation for calculation of vegetation roughness"</span><span class="p">,</span>
+                <span class="s2">"Clveg                             = 0.8             # Stem distance factor, default=0.8"</span><span class="p">,</span>
+                <span class="sa">f</span><span class="s2">"Cdveg                             = </span><span class="si">{</span><span class="n">drag</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">             # Stem Cd coefficient, default=0.7"</span><span class="p">,</span>
+                <span class="s2">"Cbveg                             = 0.7             # Stem stiffness coefficient, default=0.7"</span><span class="p">,</span>
             <span class="p">])</span></div>
 
 
@@ -498,11 +498,11 @@
 <div class="viewcode-block" id="DFMEngine.create_extforcefile">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.create_extforcefile">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_extforcefile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create .ext file in the model directory if it doesn&#39;t exist &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Create .ext file in the model directory if it doesn't exist """</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># for Pylance...</span>
 
-        <span class="n">ext_force_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">&quot;ExtForceFile&quot;</span><span class="p">]</span>
-        <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;QUANTITY=stemdensity</span>
+        <span class="n">ext_force_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">"ExtForceFile"</span><span class="p">]</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="s2">"""QUANTITY=stemdensity</span>
 <span class="s2">FILENAME=stemdensity.xyz</span>
 <span class="s2">FILETYPE=7</span>
 <span class="s2">METHOD=5</span>
@@ -519,20 +519,20 @@
 <span class="s2">FILETYPE=7</span>
 <span class="s2">METHOD=5</span>
 <span class="s2">OPERAND=O</span>
-<span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">"""</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">ext_force_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
         <span class="c1"># It may already exist if other spatially varying parameters are in use; need to append our content</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">lines</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="c1"># If the vegetation blocks are already there, skip this step (could have been copied from previous run dir)</span>
-            <span class="n">quantities</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;stemdensity&quot;</span><span class="p">,</span> <span class="s2">&quot;stemdiameter&quot;</span><span class="p">,</span> <span class="s2">&quot;stemheight&quot;</span><span class="p">]</span>
+            <span class="n">quantities</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"stemdensity"</span><span class="p">,</span> <span class="s2">"stemdiameter"</span><span class="p">,</span> <span class="s2">"stemheight"</span><span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="n">s</span> <span class="ow">in</span> <span class="n">lines</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">quantities</span><span class="p">):</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>         </div>
 
 
@@ -540,24 +540,24 @@
 <div class="viewcode-block" id="DFMEngine.create_veg_xyz_files">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.create_veg_xyz_files">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_veg_xyz_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Create required files for [veg] module to run, even if they are blank &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Create required files for [veg] module to run, even if they are blank """</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># for Pylance...</span>
 
-        <span class="n">req_veg_files</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;stemdensity.xyz&quot;</span><span class="p">,</span> <span class="s2">&quot;stemdiameter.xyz&quot;</span><span class="p">,</span> <span class="s2">&quot;stemheight.xyz&quot;</span><span class="p">]</span>
+        <span class="n">req_veg_files</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"stemdensity.xyz"</span><span class="p">,</span> <span class="s2">"stemdiameter.xyz"</span><span class="p">,</span> <span class="s2">"stemheight.xyz"</span><span class="p">]</span>
         <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">req_veg_files</span><span class="p">:</span>
             <span class="n">veg_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">/</span> <span class="n">filename</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">veg_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">veg_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">veg_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span></div>
 
     
 
 <div class="viewcode-block" id="DFMEngine.write_modified_mdu">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.write_modified_mdu">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">write_modified_mdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Write modified .mdu lines back to file &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;DFM MDU file updated and rewritten to include required inputs for vegetation module.&quot;</span>
+<span class="w">        </span><span class="sd">""" Write modified .mdu lines back to file """</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">"DFM MDU file updated and rewritten to include required inputs for vegetation module."</span>
         <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span></div>
 
 
@@ -591,7 +591,7 @@
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">merge_parallel_veg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">OutputManager</span><span class="p">):</span>
         <span class="c1"># DYCOVE-DFM does not currently support parallel processing in this model, but setting up for future use.</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Parallel mode not currently implemented for Delft3D FM&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"Parallel mode not currently implemented for Delft3D FM"</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

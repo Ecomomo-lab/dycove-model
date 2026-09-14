@@ -94,7 +94,7 @@
 <div class="viewcode-block" id="HydroSimulationBase">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HydroSimulationBase</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Base class for running hydrodynamic simulations.</span>
 
 <span class="sd">    This class is model-agnostic: it is a high-level wrapper that manages the time </span>
@@ -110,7 +110,7 @@
 <span class="sd">    :class:`~dycove.sim.coupler.VegetationCoupler`.</span>
 <span class="sd">    Writing of output files is performed by the </span>
 <span class="sd">    :class:`~dycove.sim.outputs.OutputManager` class.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="HydroSimulationBase.__init__">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase.__init__">[docs]</a>
@@ -134,7 +134,7 @@
                        <span class="n">save_frequency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
                        <span class="n">save_mortality</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                        <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run a full simulation over the specified time period.</span>
 
 <span class="sd">        This method handles the main simulation loop, including:</span>
@@ -150,7 +150,7 @@
 <span class="sd">        sim_time : float</span>
 <span class="sd">            Simulation duration in units of ``sim_time_unit``.</span>
 <span class="sd">        sim_time_unit : str</span>
-<span class="sd">            Either ``&#39;hydrodynamic days&#39;`` or ``&#39;eco-morphodynamic years&#39;``.</span>
+<span class="sd">            Either ``'hydrodynamic days'`` or ``'eco-morphodynamic years'``.</span>
 <span class="sd">            Determines interpretation of ``sim_time``.</span>
 <span class="sd">        n_ets : int, optional</span>
 <span class="sd">            Number of ecological time steps per vegetation year. Default is 14.</span>
@@ -167,16 +167,16 @@
 <span class="sd">            Must equal ``MORFAC`` if Delft3D morphology is enabled. If ``None``,</span>
 <span class="sd">            it is computed automatically.</span>
 <span class="sd">        save_frequency : int, optional</span>
-<span class="sd">            Integer defining an output &quot;skip&quot; interval, e.g., 2 means skip every </span>
+<span class="sd">            Integer defining an output "skip" interval, e.g., 2 means skip every </span>
 <span class="sd">            other ETS when writing output files. Default is 1 (no skip). Currently,</span>
 <span class="sd">            only `1` and `2` are supported.</span>
 <span class="sd">        save_mortality : bool, optional</span>
 <span class="sd">            Flag for saving mortality fractions with vegetation output.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
 
-        <span class="n">eco_args</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n_ets&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">n_ets</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span>  <span class="c1"># actual vs. default arguments</span>
-                    <span class="s2">&quot;veg_interval&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">veg_interval</span><span class="p">,</span> <span class="mi">43200</span><span class="p">),</span>
-                    <span class="s2">&quot;ecofac&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">ecofac</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">eco_args</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"n_ets"</span><span class="p">:</span> <span class="p">(</span><span class="n">n_ets</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span>  <span class="c1"># actual vs. default arguments</span>
+                    <span class="s2">"veg_interval"</span><span class="p">:</span> <span class="p">(</span><span class="n">veg_interval</span><span class="p">,</span> <span class="mi">43200</span><span class="p">),</span>
+                    <span class="s2">"ecofac"</span><span class="p">:</span> <span class="p">(</span><span class="n">ecofac</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                     <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verify_eco_args</span><span class="p">(</span><span class="n">eco_args</span><span class="p">)</span>
 
@@ -185,14 +185,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
 
         <span class="c1"># If engine has save_interval attribute (ANUGA), pass it here</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="s2">&quot;save_interval&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="p">,</span> <span class="s2">"save_interval"</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">save_interval</span> <span class="o">=</span> <span class="n">save_interval</span>
 
         <span class="c1"># Define object to hold all static and dynamic variables related to the simulation time frame</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">simstate</span> <span class="o">=</span> <span class="n">SimulationTimeState</span><span class="p">(</span><span class="n">eco_year</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ets</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">sim_time</span><span class="o">=</span><span class="n">sim_time</span><span class="p">,</span> <span class="n">sim_time_unit</span><span class="o">=</span><span class="n">sim_time_unit</span><span class="p">,</span>
                                             <span class="n">n_ets</span><span class="o">=</span><span class="n">n_ets</span><span class="p">,</span> <span class="n">veg_interval</span><span class="o">=</span><span class="n">veg_interval</span><span class="p">,</span> <span class="n">hydro_interval</span><span class="o">=</span><span class="n">hydro_interval</span><span class="p">,</span>
                                             <span class="n">veg_active</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">veg_active</span><span class="p">,</span>
-                                            <span class="n">morfac</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">morph_vars</span><span class="p">[</span><span class="s2">&quot;MorFac&quot;</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">morphology</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                                            <span class="n">morfac</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">morph_vars</span><span class="p">[</span><span class="s2">"MorFac"</span><span class="p">])</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">morphology</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
                                             <span class="n">ecofac</span><span class="o">=</span><span class="n">ecofac</span><span class="p">,</span>
                                             <span class="n">refdate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">get_refdate</span><span class="p">()</span>
                                             <span class="p">)</span>
@@ -217,11 +217,11 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">verify_eco_args</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="n">non_default_inputs</span> <span class="o">=</span> <span class="p">[</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">inputs</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
         <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">non_default_inputs</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg_active</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;No vegetation object was specified for this simulation but one or more &quot;</span>
-                   <span class="s2">&quot;vegetation-related inputs to run_simulation() were given non-default &quot;</span>
-                   <span class="s2">&quot;values. If the intent was to run a non-vegetation simulation, please &quot;</span>
-                   <span class="s2">&quot;leave vegetation-related inputs as their default values.&quot;</span><span class="p">)</span>
-            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;ERROR&quot;</span><span class="p">)</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"No vegetation object was specified for this simulation but one or more "</span>
+                   <span class="s2">"vegetation-related inputs to run_simulation() were given non-default "</span>
+                   <span class="s2">"values. If the intent was to run a non-vegetation simulation, please "</span>
+                   <span class="s2">"leave vegetation-related inputs as their default values."</span><span class="p">)</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"ERROR"</span><span class="p">)</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>   
         
 
@@ -244,12 +244,12 @@
 <div class="viewcode-block" id="HydroSimulationBase.eco_hydro_loop">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase.eco_hydro_loop">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">eco_hydro_loop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_substeps</span><span class="p">,</span> <span class="n">interval</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Advance hydrodynamics over all substeps within the current vegetation step.</span>
 
 <span class="sd">        Computes min/max water depths, maximum velocities, and flooding</span>
 <span class="sd">        statistics (HydrodynamicStats) required for vegetation updates.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         
         <span class="c1"># Add empty placeholders for hydro stats like hmin, vmax, etc</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hydrostats</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
@@ -271,35 +271,35 @@
 <div class="viewcode-block" id="HydroSimulationBase.hydro_step">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroSimulationBase.html#dycove.sim.base.HydroSimulationBase.hydro_step">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">hydro_step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Advance hydrodynamics by a specified interval &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Advance hydrodynamics by a specified interval """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">step</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="o">.</span><span class="n">advance_time</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span></div>
 
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">finalize_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;Merging outputs, cleaning up, and finalizing simulation...&quot;</span><span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">"Merging outputs, cleaning up, and finalizing simulation..."</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">reconcile_vegetation_output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
-        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;Simulation complete!&quot;</span><span class="p">)</span></div>
+        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">"Simulation complete!"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="HydroEngineBase">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HydroEngineBase</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Abstract interface for hydrodynamic engines.</span>
 <span class="sd">    </span>
 <span class="sd">    All hydrodynamic models must implement this interface to be compatible with the base </span>
 <span class="sd">    hydrodynamic simulation class.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
 <div class="viewcode-block" id="HydroEngineBase.initialize">
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.initialize">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Prepare engine to run (allocate memory, read/check inputs, print start, etc.) &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Prepare engine to run (allocate memory, read/check inputs, print start, etc.) """</span>
         <span class="k">pass</span></div>
 
 
@@ -307,11 +307,11 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.step">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Advance the hydrodynamic model forward by a given number of seconds.</span>
 <span class="sd">        </span>
 <span class="sd">        ANUGA implements this by looping with domain.evolve(), while DFM calls dimr.update().</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span></div>
 
 
@@ -319,7 +319,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.cleanup">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Clean up resources. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Clean up resources. """</span>
         <span class="k">pass</span></div>
 
 
@@ -327,7 +327,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.get_rank">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_rank</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Get current parallel processor/rank. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Get current parallel processor/rank. """</span>
         <span class="k">pass</span></div>
 
 
@@ -335,10 +335,10 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.get_refdate">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_refdate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; </span>
+<span class="w">        </span><span class="sd">""" </span>
 <span class="sd">        Get model reference date as a datetime object. </span>
 <span class="sd">        Required for now, only really used by DFM. </span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span></div>
 
     
@@ -346,7 +346,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.get_cell_count">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_cell_count</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return number of active grid cells in the model. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Return number of active grid cells in the model. """</span>
         <span class="k">pass</span></div>
 
 
@@ -354,7 +354,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.get_elevation">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return array of bed elevations at cell-centers. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Return array of bed elevations at cell-centers. """</span>
         <span class="k">pass</span></div>
 
 
@@ -362,9 +362,9 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.get_velocity_and_depth">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_velocity_and_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Return velocity magnitude and depth arrays at cell-centers.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">pass</span></div>
 
 
@@ -372,7 +372,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.get_vegetation">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_vegetation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return stem dens., diam., and height arrays from numerical model. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Return stem dens., diam., and height arrays from numerical model. """</span>
         <span class="k">pass</span></div>
 
 
@@ -380,7 +380,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.set_vegetation">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_vegetation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stemdens</span><span class="p">,</span> <span class="n">stemdiam</span><span class="p">,</span> <span class="n">stemheight</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Push vegetation arrays back into the numerical model. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Push vegetation arrays back into the numerical model. """</span>
         <span class="k">pass</span></div>
 
 
@@ -388,7 +388,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.check_simulation_inputs">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_simulation_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simstate</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Perform checks on simulation time inputs. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Perform checks on simulation time inputs. """</span>
         <span class="k">pass</span></div>
 
 
@@ -396,7 +396,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.is_parallel">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Return True if model is running in parallel based on number of active processors. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Return True if model is running in parallel based on number of active processors. """</span>
         <span class="k">pass</span></div>
 
 
@@ -404,7 +404,7 @@
 <a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.merge_parallel_veg">[docs]</a>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">merge_parallel_veg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">OutputManager</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot; Merge vegetation output files across MPI subdomains into single files. &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""" Merge vegetation output files across MPI subdomains into single files. """</span>
         <span class="k">pass</span></div>
 </div>
 
