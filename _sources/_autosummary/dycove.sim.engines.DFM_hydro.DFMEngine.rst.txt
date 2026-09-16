@@ -19,21 +19,37 @@
       ~DFMEngine.add_veg_module_to_mdu
       ~DFMEngine.check_simulation_inputs
       ~DFMEngine.cleanup
+      ~DFMEngine.configure_library_paths
+      ~DFMEngine.configure_mpi
       ~DFMEngine.create_extforcefile
       ~DFMEngine.create_veg_xyz_files
+      ~DFMEngine.gather_partition_mappings
+      ~DFMEngine.get_bmi_global_cell_ids
       ~DFMEngine.get_cell_count
       ~DFMEngine.get_elevation
+      ~DFMEngine.get_merged_map_cell_order
       ~DFMEngine.get_model_inputs
       ~DFMEngine.get_morphodynamic_inputs
+      ~DFMEngine.get_owned_global_cell_ids
+      ~DFMEngine.get_partition_net_file
       ~DFMEngine.get_rank
       ~DFMEngine.get_refdate
       ~DFMEngine.get_vegetation
       ~DFMEngine.get_velocity_and_depth
       ~DFMEngine.initialize
       ~DFMEngine.is_parallel
+      ~DFMEngine.load_partition_mapping
+      ~DFMEngine.map_partition_ownership
+      ~DFMEngine.merge_parallel_cohort_file
+      ~DFMEngine.merge_parallel_dfm_map
       ~DFMEngine.merge_parallel_veg
       ~DFMEngine.open_bmi_wrappers
+      ~DFMEngine.parallel_barrier
+      ~DFMEngine.prepare_output_reconciliation
+      ~DFMEngine.raise_parallel_root_error
+      ~DFMEngine.read_partition_cell_metadata
       ~DFMEngine.set_vegetation
+      ~DFMEngine.setup_parallel
       ~DFMEngine.step
       ~DFMEngine.vegetation_file_check
       ~DFMEngine.write_modified_mdu

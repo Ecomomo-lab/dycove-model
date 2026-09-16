@@ -25,6 +25,7 @@
       ~HydroEngineBase.initialize
       ~HydroEngineBase.is_parallel
       ~HydroEngineBase.merge_parallel_veg
+      ~HydroEngineBase.prepare_output_reconciliation
       ~HydroEngineBase.set_vegetation
       ~HydroEngineBase.step
    

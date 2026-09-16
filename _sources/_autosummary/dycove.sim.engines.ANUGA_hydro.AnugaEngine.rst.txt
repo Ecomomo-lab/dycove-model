@@ -26,6 +26,7 @@
       ~AnugaEngine.is_parallel
       ~AnugaEngine.merge_local_to_global
       ~AnugaEngine.merge_parallel_veg
+      ~AnugaEngine.prepare_output_reconciliation
       ~AnugaEngine.set_vegetation
       ~AnugaEngine.step
    

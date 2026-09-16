@@ -92,7 +92,7 @@ There are three general dependencies, which are <a class="reference external" hr
 However, there are additional dependencies depending on the underlying numerical model to be used, and if the <a class="reference internal" href="../_autosummary/dycove.utils.plotting.ModelPlotter.html#dycove.utils.plotting.ModelPlotter" title="dycove.utils.plotting.ModelPlotter"><code class="xref py py-class docutils literal notranslate"><span class="pre">ModelPlotter</span></code></a> will be used.</p>
 <section id="install-anuga">
 <h2>Install ANUGA<a class="headerlink" href="#install-anuga" title="Link to this heading"></a></h2>
-<p>For DYCOVE with ANUGA, <a class="reference external" href="https://github.com/GeoscienceAustralia/anuga_core">anuga</a> <a class="footnote-reference brackets" href="#id4" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> must be installed.
+<p>For DYCOVE with ANUGA, <a class="reference external" href="https://github.com/GeoscienceAustralia/anuga_core">anuga</a> <a class="footnote-reference brackets" href="#id5" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> must be installed.
 ANUGA may have additional dependencies depending on the application, such as <a class="reference external" href="https://pypi.org/project/mpi4py/">mpi4py</a> for running in parallel.
 The easiest way to install ANUGA is to create a new <code class="docutils literal notranslate"><span class="pre">conda</span></code> environment and install via <code class="docutils literal notranslate"><span class="pre">conda-forge</span></code> (from the <a class="reference external" href="https://anuga.readthedocs.io/en/latest/installation/install_anuga.html">ANUGA documentation page</a>):</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">anuga</span> <span class="n">mpi4py</span>
@@ -103,9 +103,9 @@ For now, use Python 3.10, 3.11, or 3.13, and let us know if it starts working ag
 </section>
 <section id="install-delft3d-fm">
 <h2>Install Delft3D FM<a class="headerlink" href="#install-delft3d-fm" title="Link to this heading"></a></h2>
-<p>For DYCOVE with Delft3D FM, the <a class="reference external" href="https://oss.deltares.nl/web/delft3dfm">software itself</a> <a class="footnote-reference brackets" href="#id5" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> will of course need to be licensed and installed locally.
+<p>For DYCOVE with Delft3D FM, the <a class="reference external" href="https://oss.deltares.nl/web/delft3dfm">software itself</a> <a class="footnote-reference brackets" href="#id6" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a> will of course need to be licensed and installed locally.
 DYCOVE has been tested with Delft3D FM Suite 2021 and 2024, and is known to not work with the 2026 version.
-From a Python standpoint, it is recommended to create a new environment to install DYCOVE and its dependency <a class="reference external" href="https://github.com/openearth/bmi-python">bmi-python</a>, which provides a Basic Model Interface <a class="footnote-reference brackets" href="#id6" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> between Python and the Delft3D FM software.
+From a Python standpoint, it is recommended to create a new environment to install DYCOVE and its dependency <a class="reference external" href="https://github.com/openearth/bmi-python">bmi-python</a>, which provides a Basic Model Interface <a class="footnote-reference brackets" href="#id7" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a> between Python and the Delft3D FM software.
 From a dedicated environment, the easiest way to install <code class="docutils literal notranslate"><span class="pre">bmi-python</span></code> is from source:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">openearth</span><span class="o">/</span><span class="n">bmi</span><span class="o">-</span><span class="n">python</span><span class="o">.</span><span class="n">git</span>
 <span class="n">cd</span> <span class="n">bmi</span><span class="o">-</span><span class="n">python</span>
@@ -117,6 +117,7 @@ From a dedicated environment, the easiest way to install <code class="docutils l
 </pre></div>
 </div>
 <p><strong>Update</strong>: The DYCOVE implementation of the DFM <code class="docutils literal notranslate"><span class="pre">bmi</span></code> library is not currently working with Python 3.11 and 3.12.</p>
+<p>For parallel DYCOVE-DFM runs, <a class="reference external" href="https://pypi.org/project/mpi4py/">mpi4py</a> must also be installed, together with an MPI-enabled Delft3D FM installation.</p>
 </section>
 <section id="install-plotting-libraries">
 <h2>Install Plotting Libraries<a class="headerlink" href="#install-plotting-libraries" title="Link to this heading"></a></h2>
@@ -136,15 +137,15 @@ Of course, users will want to have some of these libraries installed whether or 
 <section id="references">
 <h2>References<a class="headerlink" href="#references" title="Link to this heading"></a></h2>
 <aside class="footnote-list brackets">
-<aside class="footnote brackets" id="id4" role="doc-footnote">
+<aside class="footnote brackets" id="id5" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
 <p>Lesser, G. R., Roelvink, J. A., van Kester, J. A. T. M., and Stelling, G. S., 2004. Development and validation of a three-dimensional morphological model. Coastal engineering, 51(8-9), 883–915. <a class="reference external" href="https://doi.org/10.1016/j.coastaleng.2004.07.014">https://doi.org/10.1016/j.coastaleng.2004.07.014</a></p>
 </aside>
-<aside class="footnote brackets" id="id5" role="doc-footnote">
+<aside class="footnote brackets" id="id6" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
 <p>Davies, G., and Roberts, S., 2015. Open source flood simulation with a 2D discontinuous-elevation hydrodynamic model. In Proceedings of MODSIM 2015. <a class="reference external" href="https://doi.org/10.1016/j.coastaleng.2011.03.010">https://doi.org/10.1016/j.coastaleng.2011.03.010</a></p>
 </aside>
-<aside class="footnote brackets" id="id6" role="doc-footnote">
+<aside class="footnote brackets" id="id7" role="doc-footnote">
 <span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
 <p>Hutton, E. W. H., Piper, M. D., and Tucker, G. E., 2020. The Basic Model Interface 2.0: A standard interface for coupling numerical models in the geosciences. Journal of Open Source Software, 5(51), 2317. <a class="reference external" href="https://doi.org/10.21105/joss.02317">https://doi.org/10.21105/joss.02317</a>.</p>
 </aside>

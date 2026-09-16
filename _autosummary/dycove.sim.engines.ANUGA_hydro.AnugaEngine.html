@@ -173,10 +173,13 @@ after simulation; see
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_parallel_veg</span></code></a>(OutputManager)</p></td>
 <td><p>Merge vegetation output files across MPI subdomains into single files.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.set_vegetation" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.set_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vegetation</span></code></a>(stemdensity, stemdiameter, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.prepare_output_reconciliation" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.prepare_output_reconciliation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_output_reconciliation</span></code></a>()</p></td>
+<td><p>Prepare engine-specific outputs before global output reconciliation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.set_vegetation" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.set_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vegetation</span></code></a>(stemdensity, stemdiameter, ...)</p></td>
 <td><p>Push vegetation arrays back into the numerical model.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.step" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(seconds)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.step" title="dycove.sim.engines.ANUGA_hydro.AnugaEngine.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(seconds)</p></td>
 <td><p>Advance the hydrodynamic model forward by a given number of seconds.</p></td>
 </tr>
 </tbody>
@@ -253,6 +256,12 @@ local-to-global index mappings.</p>
 <dt class="sig sig-object py" id="dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg">
 <span class="sig-name descname"><span class="pre">merge_parallel_veg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">OutputManager</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/ANUGA_hydro.html#AnugaEngine.merge_parallel_veg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.merge_parallel_veg" title="Link to this definition"></a></dt>
 <dd><p>Merge vegetation output files across MPI subdomains into single files.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.ANUGA_hydro.AnugaEngine.prepare_output_reconciliation">
+<span class="sig-name descname"><span class="pre">prepare_output_reconciliation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dycove.sim.engines.ANUGA_hydro.AnugaEngine.prepare_output_reconciliation" title="Link to this definition"></a></dt>
+<dd><p>Prepare engine-specific outputs before global output reconciliation.</p>
 </dd></dl>
 
 <dl class="py method">

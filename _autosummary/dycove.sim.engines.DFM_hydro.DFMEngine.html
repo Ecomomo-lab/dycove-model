@@ -124,7 +124,9 @@ with simulation settings.</p></li>
 <ul class="simple">
 <li><p>Vegetation files (.xyz) required by DFM vegetation module are auto-created
 if missing.</p></li>
-<li><p>Parallel mode is not currently implemented.</p></li>
+<li><p>Parallel DFM execution is supported through MPI domain partitioning.</p></li>
+<li><p>Parallel vegetation output is reconstructed using DFM global cell IDs
+and the native merged DFM map ordering.</p></li>
 </ul>
 <dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.__init__">
@@ -152,11 +154,23 @@ if missing.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.cleanup" title="dycove.sim.engines.DFM_hydro.DFMEngine.cleanup"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cleanup</span></code></a>()</p></td>
 <td><p>Clean up resources.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.configure_library_paths" title="dycove.sim.engines.DFM_hydro.DFMEngine.configure_library_paths"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure_library_paths</span></code></a>()</p></td>
+<td><p>Configure DFM and DIMR library paths for the current OS.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.configure_mpi" title="dycove.sim.engines.DFM_hydro.DFMEngine.configure_mpi"><code class="xref py py-obj docutils literal notranslate"><span class="pre">configure_mpi</span></code></a>()</p></td>
+<td><p>Configure MPI state once for serial or parallel DFM execution.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.create_extforcefile" title="dycove.sim.engines.DFM_hydro.DFMEngine.create_extforcefile"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_extforcefile</span></code></a>()</p></td>
 <td><p>Create .ext file in the model directory if it doesn't exist</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.create_veg_xyz_files" title="dycove.sim.engines.DFM_hydro.DFMEngine.create_veg_xyz_files"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_veg_xyz_files</span></code></a>()</p></td>
 <td><p>Create required files for [veg] module to run, even if they are blank</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.gather_partition_mappings" title="dycove.sim.engines.DFM_hydro.DFMEngine.gather_partition_mappings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gather_partition_mappings</span></code></a>()</p></td>
+<td><p>Gather rank-local global-cell and ownership mappings on rank 0.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_bmi_global_cell_ids" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_bmi_global_cell_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_bmi_global_cell_ids</span></code></a>(n_cells, rank)</p></td>
+<td><p>Return DFM global cell IDs in BMI-local array order.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_cell_count" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_cell_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_cell_count</span></code></a>()</p></td>
 <td><p>Return number of active grid cells in the model.</p></td>
@@ -164,38 +178,74 @@ if missing.</p></li>
 <tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_elevation" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_elevation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_elevation</span></code></a>()</p></td>
 <td><p>Return array of bed elevations at cell-centers.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_model_inputs" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_model_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_model_inputs</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_merged_map_cell_order" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_merged_map_cell_order"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_merged_map_cell_order</span></code></a>(owned_global_ids)</p></td>
+<td><p>Return global cell IDs in the native merged DFM map ordering.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_model_inputs" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_model_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_model_inputs</span></code></a>()</p></td>
 <td><p>Read lines from MDU file into a dictionary</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_morphodynamic_inputs" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_morphodynamic_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_morphodynamic_inputs</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_morphodynamic_inputs" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_morphodynamic_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_morphodynamic_inputs</span></code></a>()</p></td>
 <td><p>Read lines from morphology file into a dictionary, if mprph files exist</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_rank" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_rank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_rank</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_owned_global_cell_ids" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_owned_global_cell_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_owned_global_cell_ids</span></code></a>(partition_maps)</p></td>
+<td><p>Return unique global IDs for physical cells owned across all ranks.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_partition_net_file" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_partition_net_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_partition_net_file</span></code></a>(rank)</p></td>
+<td><p>Return the rank-local mesh path from the partition MDU NetFile.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_rank" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_rank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_rank</span></code></a>()</p></td>
 <td><p>Get current parallel processor/rank.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_refdate" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_refdate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_refdate</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_refdate" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_refdate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_refdate</span></code></a>()</p></td>
 <td><p>Get model reference date as a datetime object.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_vegetation" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vegetation</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_vegetation" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_vegetation</span></code></a>()</p></td>
 <td><p>Return stem dens., diam., and height arrays from numerical model.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_velocity_and_depth" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_velocity_and_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_velocity_and_depth</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_velocity_and_depth" title="dycove.sim.engines.DFM_hydro.DFMEngine.get_velocity_and_depth"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_velocity_and_depth</span></code></a>()</p></td>
 <td><p>Return velocity magnitude and depth arrays at cell-centers.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.initialize" title="dycove.sim.engines.DFM_hydro.DFMEngine.initialize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.initialize" title="dycove.sim.engines.DFM_hydro.DFMEngine.initialize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">initialize</span></code></a>()</p></td>
 <td><p>Prepare engine to run (allocate memory, read/check inputs, print start, etc.)</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.is_parallel" title="dycove.sim.engines.DFM_hydro.DFMEngine.is_parallel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_parallel</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.is_parallel" title="dycove.sim.engines.DFM_hydro.DFMEngine.is_parallel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_parallel</span></code></a>()</p></td>
 <td><p>Return True if model is running in parallel based on number of active processors.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg" title="dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_parallel_veg</span></code></a>(OutputManager)</p></td>
-<td><p>Merge vegetation output files across MPI subdomains into single files.</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.load_partition_mapping" title="dycove.sim.engines.DFM_hydro.DFMEngine.load_partition_mapping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_partition_mapping</span></code></a>()</p></td>
+<td><p>Build local DFM cell ownership/global numbering in BMI order.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.open_bmi_wrappers" title="dycove.sim.engines.DFM_hydro.DFMEngine.open_bmi_wrappers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_bmi_wrappers</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.map_partition_ownership" title="dycove.sim.engines.DFM_hydro.DFMEngine.map_partition_ownership"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_partition_ownership</span></code></a>(net_globalnr, ...)</p></td>
+<td><p>Map partition ownership metadata into DFM BMI-local order.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_cohort_file" title="dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_cohort_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_parallel_cohort_file</span></code></a>(OutputManager, ...)</p></td>
+<td><p>Merge one cohort output across all DFM MPI partitions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_dfm_map" title="dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_dfm_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_parallel_dfm_map</span></code></a>()</p></td>
+<td><p>Merge rank-local DFM map files into one global map file using Deltares' native <code class="docutils literal notranslate"><span class="pre">dfmoutput</span> <span class="pre">mapmerge</span></code> utility.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg" title="dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_parallel_veg</span></code></a>(OutputManager)</p></td>
+<td><p>Merge rank-local DYCOVE vegetation files into global files.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.open_bmi_wrappers" title="dycove.sim.engines.DFM_hydro.DFMEngine.open_bmi_wrappers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">open_bmi_wrappers</span></code></a>()</p></td>
 <td><p>Create BMI wrapper objects for DFM and DIMR</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation" title="dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vegetation</span></code></a>(stemdensity, stemdiameter, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.parallel_barrier" title="dycove.sim.engines.DFM_hydro.DFMEngine.parallel_barrier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parallel_barrier</span></code></a>()</p></td>
+<td><p>Synchronize DFM MPI ranks.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.prepare_output_reconciliation" title="dycove.sim.engines.DFM_hydro.DFMEngine.prepare_output_reconciliation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_output_reconciliation</span></code></a>()</p></td>
+<td><p>Prepare parallel DFM output for global vegetation reconstruction.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.raise_parallel_root_error" title="dycove.sim.engines.DFM_hydro.DFMEngine.raise_parallel_root_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">raise_parallel_root_error</span></code></a>(error)</p></td>
+<td><p>Broadcast a rank-0 error to all MPI ranks and raise it consistently.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.read_partition_cell_metadata" title="dycove.sim.engines.DFM_hydro.DFMEngine.read_partition_cell_metadata"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_partition_cell_metadata</span></code></a>(net_file)</p></td>
+<td><p>Read global cell IDs and ownership from a partition mesh.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation" title="dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_vegetation</span></code></a>(stemdensity, stemdiameter, ...)</p></td>
 <td><p>Push vegetation arrays back into the numerical model.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.setup_parallel" title="dycove.sim.engines.DFM_hydro.DFMEngine.setup_parallel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">setup_parallel</span></code></a>()</p></td>
+<td><p>Configure DIMR for MPI parallel execution.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#dycove.sim.engines.DFM_hydro.DFMEngine.step" title="dycove.sim.engines.DFM_hydro.DFMEngine.step"><code class="xref py py-obj docutils literal notranslate"><span class="pre">step</span></code></a>(seconds)</p></td>
 <td><p>Advance the hydrodynamic model forward by a given number of seconds.</p></td>
@@ -258,6 +308,18 @@ run into the issue of the model stopping prematurely.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.configure_library_paths">
+<span class="sig-name descname"><span class="pre">configure_library_paths</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.configure_library_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.configure_library_paths" title="Link to this definition"></a></dt>
+<dd><p>Configure DFM and DIMR library paths for the current OS.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.configure_mpi">
+<span class="sig-name descname"><span class="pre">configure_mpi</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.configure_mpi"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.configure_mpi" title="Link to this definition"></a></dt>
+<dd><p>Configure MPI state once for serial or parallel DFM execution.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.create_extforcefile">
 <span class="sig-name descname"><span class="pre">create_extforcefile</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.create_extforcefile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.create_extforcefile" title="Link to this definition"></a></dt>
 <dd><p>Create .ext file in the model directory if it doesn’t exist</p>
@@ -267,6 +329,18 @@ run into the issue of the model stopping prematurely.</p>
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.create_veg_xyz_files">
 <span class="sig-name descname"><span class="pre">create_veg_xyz_files</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.create_veg_xyz_files"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.create_veg_xyz_files" title="Link to this definition"></a></dt>
 <dd><p>Create required files for [veg] module to run, even if they are blank</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.gather_partition_mappings">
+<span class="sig-name descname"><span class="pre">gather_partition_mappings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.gather_partition_mappings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.gather_partition_mappings" title="Link to this definition"></a></dt>
+<dd><p>Gather rank-local global-cell and ownership mappings on rank 0.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_bmi_global_cell_ids">
+<span class="sig-name descname"><span class="pre">get_bmi_global_cell_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_cells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_bmi_global_cell_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_bmi_global_cell_ids" title="Link to this definition"></a></dt>
+<dd><p>Return DFM global cell IDs in BMI-local array order.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -282,6 +356,14 @@ run into the issue of the model stopping prematurely.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_merged_map_cell_order">
+<span class="sig-name descname"><span class="pre">get_merged_map_cell_order</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">owned_global_ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_merged_map_cell_order"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_merged_map_cell_order" title="Link to this definition"></a></dt>
+<dd><p>Return global cell IDs in the native merged DFM map ordering.</p>
+<p>The merged map order is authoritative for reconstructed DYCOVE
+vegetation output.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_model_inputs">
 <span class="sig-name descname"><span class="pre">get_model_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_model_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_model_inputs" title="Link to this definition"></a></dt>
 <dd><p>Read lines from MDU file into a dictionary</p>
@@ -291,6 +373,18 @@ run into the issue of the model stopping prematurely.</p>
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_morphodynamic_inputs">
 <span class="sig-name descname"><span class="pre">get_morphodynamic_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_morphodynamic_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_morphodynamic_inputs" title="Link to this definition"></a></dt>
 <dd><p>Read lines from morphology file into a dictionary, if mprph files exist</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_owned_global_cell_ids">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_owned_global_cell_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">partition_maps</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_owned_global_cell_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_owned_global_cell_ids" title="Link to this definition"></a></dt>
+<dd><p>Return unique global IDs for physical cells owned across all ranks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.get_partition_net_file">
+<span class="sig-name descname"><span class="pre">get_partition_net_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rank</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.get_partition_net_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.get_partition_net_file" title="Link to this definition"></a></dt>
+<dd><p>Return the rank-local mesh path from the partition MDU NetFile.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -331,9 +425,42 @@ Required for now, only really used by DFM.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.load_partition_mapping">
+<span class="sig-name descname"><span class="pre">load_partition_mapping</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.load_partition_mapping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.load_partition_mapping" title="Link to this definition"></a></dt>
+<dd><p>Build local DFM cell ownership/global numbering in BMI order.</p>
+<p>Global cell IDs are obtained directly from the D-Flow FM BMI
+variable <code class="docutils literal notranslate"><span class="pre">iglobal_s</span></code>. Ownership information is read from this
+rank’s partitioned NetCDF mesh and reordered into BMI-local order.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.map_partition_ownership">
+<span class="sig-name descname"><span class="pre">map_partition_ownership</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_globalnr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">net_domain</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rank</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">net_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.map_partition_ownership"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.map_partition_ownership" title="Link to this definition"></a></dt>
+<dd><p>Map partition ownership metadata into DFM BMI-local order.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_cohort_file">
+<span class="sig-name descname"><span class="pre">merge_parallel_cohort_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">OutputManager</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partition_maps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_to_output</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_global</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.merge_parallel_cohort_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_cohort_file" title="Link to this definition"></a></dt>
+<dd><p>Merge one cohort output across all DFM MPI partitions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_dfm_map">
+<span class="sig-name descname"><span class="pre">merge_parallel_dfm_map</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.merge_parallel_dfm_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_dfm_map" title="Link to this definition"></a></dt>
+<dd><p>Merge rank-local DFM map files into one global map file using
+Deltares’ native <code class="docutils literal notranslate"><span class="pre">dfmoutput</span> <span class="pre">mapmerge</span></code> utility.</p>
+<p>This runs only on rank 0. The merged map provides the authoritative
+global DFM face ordering for reconstruction of DYCOVE vegetation output.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg">
 <span class="sig-name descname"><span class="pre">merge_parallel_veg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">OutputManager</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.merge_parallel_veg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg" title="Link to this definition"></a></dt>
-<dd><p>Merge vegetation output files across MPI subdomains into single files.</p>
+<dd><p>Merge rank-local DYCOVE vegetation files into global files.</p>
+<p>Uses the DFM BMI-order global-cell mappings collected during
+initialization. Only cells owned by each MPI rank are inserted
+into the reconstructed global arrays; ghost-cell copies are ignored.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -343,9 +470,44 @@ Required for now, only really used by DFM.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.parallel_barrier">
+<span class="sig-name descname"><span class="pre">parallel_barrier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.parallel_barrier"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.parallel_barrier" title="Link to this definition"></a></dt>
+<dd><p>Synchronize DFM MPI ranks.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.prepare_output_reconciliation">
+<span class="sig-name descname"><span class="pre">prepare_output_reconciliation</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.prepare_output_reconciliation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.prepare_output_reconciliation" title="Link to this definition"></a></dt>
+<dd><p>Prepare parallel DFM output for global vegetation reconstruction.</p>
+<p>All ranks finish writing partition-local output before rank 0
+reconstructs the global DFM map. The merged map defines the
+authoritative global-cell ordering used by merge_parallel_veg().</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.raise_parallel_root_error">
+<span class="sig-name descname"><span class="pre">raise_parallel_root_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">error</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.raise_parallel_root_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.raise_parallel_root_error" title="Link to this definition"></a></dt>
+<dd><p>Broadcast a rank-0 error to all MPI ranks and raise it consistently.</p>
+<p>This prevents non-root ranks from waiting indefinitely at a later
+synchronization point if a rank-0 output-reconstruction step fails.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.read_partition_cell_metadata">
+<span class="sig-name descname"><span class="pre">read_partition_cell_metadata</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">net_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.read_partition_cell_metadata"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.read_partition_cell_metadata" title="Link to this definition"></a></dt>
+<dd><p>Read global cell IDs and ownership from a partition mesh.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation">
 <span class="sig-name descname"><span class="pre">set_vegetation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stemdensity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stemdiameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stemheight</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.set_vegetation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.set_vegetation" title="Link to this definition"></a></dt>
 <dd><p>Push vegetation arrays back into the numerical model.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dycove.sim.engines.DFM_hydro.DFMEngine.setup_parallel">
+<span class="sig-name descname"><span class="pre">setup_parallel</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dycove/sim/engines/DFM_hydro.html#DFMEngine.setup_parallel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#dycove.sim.engines.DFM_hydro.DFMEngine.setup_parallel" title="Link to this definition"></a></dt>
+<dd><p>Configure DIMR for MPI parallel execution.</p>
 </dd></dl>
 
 <dl class="py method">

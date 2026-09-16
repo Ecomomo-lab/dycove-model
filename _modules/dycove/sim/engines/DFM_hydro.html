@@ -87,6 +87,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.sim.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">HydroSimulationBase</span><span class="p">,</span> <span class="n">HydroEngineBase</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dycove.utils.simulation_reporting</span><span class="w"> </span><span class="kn">import</span> <span class="n">Reporter</span>
@@ -107,7 +108,7 @@
                <span class="s2">"Refer to the documentation for installation instructions."</span><span class="p">)</span>
         <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"ERROR"</span><span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ImportError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-    
+
 
 <div class="viewcode-block" id="DFM">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFM.html#dycove.sim.engines.DFM_hydro.DFM">[docs]</a>
@@ -115,16 +116,16 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Hydrodynamic simulation wrapper for the Delft3D FM model.</span>
 
-<span class="sd">    This class connects the generic :class:`~dycove.sim.base.HydroSimulationBase`  </span>
+<span class="sd">    This class connects the generic :class:`~dycove.sim.base.HydroSimulationBase`</span>
 <span class="sd">    to :class:`~dycove.sim.base.engines.DFM_hydro.DFMEngine`, providing a</span>
-<span class="sd">    consistent Python interface for running D-Flow FM through its BMI and DIMR </span>
+<span class="sd">    consistent Python interface for running D-Flow FM through its BMI and DIMR</span>
 <span class="sd">    interfaces.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
 <span class="sd">    - All higher-level logic that can be abstracted from the engine classes is</span>
-<span class="sd">      handled in :class:`~dycove.sim.base.HydroSimulationBase`; all low-level model </span>
-<span class="sd">      interactions are delegated to </span>
+<span class="sd">      handled in :class:`~dycove.sim.base.HydroSimulationBase`; all low-level model</span>
+<span class="sd">      interactions are delegated to</span>
 <span class="sd">      :class:`~dycove.sim.base.engines.DFM_hydro.DFMEngine`.</span>
 <span class="sd">    """</span>
 
@@ -138,7 +139,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">engine</span><span class="p">)</span></div>
 </div>
 
-    
+
 
 <div class="viewcode-block" id="DFMEngine">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine">[docs]</a>
@@ -147,11 +148,11 @@
 <span class="sd">    Engine interface for DFM hydro-morphodynamic model.</span>
 
 <span class="sd">    This engine:</span>
-<span class="sd">    </span>
+
 <span class="sd">    - Loads and initializes DFM executables (DIMR + D-Flow FM BMI).</span>
 <span class="sd">    - Manages exchange of hydrodynamic and vegetation state variables though</span>
 <span class="sd">      DFM-specific ``BMI-python`` wrapper.</span>
-<span class="sd">    - Ensures that required input files are present and are consistent </span>
+<span class="sd">    - Ensures that required input files are present and are consistent</span>
 <span class="sd">      with simulation settings.</span>
 
 <span class="sd">    Parameters</span>
@@ -168,9 +169,11 @@
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    - Vegetation files (.xyz) required by DFM vegetation module are auto-created </span>
+<span class="sd">    - Vegetation files (.xyz) required by DFM vegetation module are auto-created</span>
 <span class="sd">      if missing.</span>
-<span class="sd">    - Parallel mode is not currently implemented.</span>
+<span class="sd">    - Parallel DFM execution is supported through MPI domain partitioning.</span>
+<span class="sd">    - Parallel vegetation output is reconstructed using DFM global cell IDs</span>
+<span class="sd">      and the native merged DFM map ordering.</span>
 
 <span class="sd">    """</span>
 
@@ -178,37 +181,67 @@
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dfm_path</span><span class="p">,</span> <span class="n">config_path</span><span class="p">,</span> <span class="n">mdu_path</span><span class="p">,</span> <span class="n">vegetation</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">dll_dirs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_dll_directories</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">)</span>  <span class="c1"># do this first to setup PATH before loading</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dfm_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configure_library_paths</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">BMIWrapper</span> <span class="o">=</span> <span class="n">_import_bmi</span><span class="p">()</span>  <span class="c1"># lazy bmi loading</span>
+        <span class="c1"># ---- Verify libraries exist ----</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"D-Flow FM library not found: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm_path</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
 
-        <span class="c1"># Define paths to Delft3D FM .dll files</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="s2">"dflowfm/bin/dflowfm.dll"</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimr_path</span>    <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dfm_path</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="s2">"dimr/bin/dimr_dll.dll"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimr_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"DIMR library not found: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dimr_path</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">BMIWrapper</span> <span class="o">=</span> <span class="n">_import_bmi</span><span class="p">()</span>
+
+
         <span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span>     <span class="o">=</span> <span class="n">mdu_path</span>  <span class="c1"># location of MDU file that contains model directions/inputs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span>    <span class="o">=</span> <span class="n">mdu_path</span><span class="o">.</span><span class="n">parent</span>  <span class="c1"># model directory containing MDU and other model files</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config_path</span>  <span class="o">=</span> <span class="n">config_path</span>  <span class="c1"># location of config file used for running DFM using dimr</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">veg</span> <span class="o">=</span> <span class="n">vegetation</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">configure_mpi</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">open_bmi_wrappers</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="DFMEngine.configure_library_paths">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.configure_library_paths">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure_library_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Configure DFM and DIMR library paths for the current OS."""</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"nt"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dll_dirs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_dll_directories</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dfm_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="s2">"dflowfm/bin/dflowfm.dll"</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimr_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="s2">"dimr/bin/dimr_dll.dll"</span>
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">"posix"</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dll_dirs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="s2">"lib/libdflowfm.so"</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimr_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="s2">"lib/libdimr.so"</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Unsupported operating system for DYCOVE-DFM: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="DFMEngine.add_dll_directories">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.add_dll_directories">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_dll_directories</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dfm_path</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">""" </span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add DLL paths to env before calling BMI.</span>
 
 <span class="sd">        Return list to retain handle and avoid accidental garbage collecting.</span>
 
-<span class="sd">        Note that for versions of python 3.7 and earlier, you would need to set the env </span>
+<span class="sd">        Note that for versions of python 3.7 and earlier, you would need to set the env</span>
 <span class="sd">        variables differently:</span>
 
 <span class="sd">        .. code-block:: python</span>
 
-<span class="sd">           os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" + </span>
+<span class="sd">           os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" +</span>
 <span class="sd">                                os.path.join(dfm_path, 'dflowfm', 'bin') + ";" + ... )</span>
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"dflowfm/bin"</span><span class="p">)),</span>
@@ -218,6 +251,24 @@
                 <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"esmf/scripts"</span><span class="p">)),</span>
                 <span class="n">os</span><span class="o">.</span><span class="n">add_dll_directory</span><span class="p">(</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"swan/scripts"</span><span class="p">)),</span>
                 <span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="DFMEngine.configure_mpi">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.configure_mpi">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">configure_mpi</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Configure MPI state once for serial or parallel DFM execution."""</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
+        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comm</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">comm</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">Get_rank</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span></div>
 
 
 
@@ -232,6 +283,36 @@
 
 
 
+<div class="viewcode-block" id="DFMEngine.setup_parallel">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.setup_parallel">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">setup_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Configure DIMR for MPI parallel execution."""</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimr</span><span class="o">.</span><span class="n">set_var</span><span class="p">(</span>
+            <span class="s2">"useMPI"</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimr</span><span class="o">.</span><span class="n">set_var</span><span class="p">(</span>
+            <span class="s2">"myRank"</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimr</span><span class="o">.</span><span class="n">set_var</span><span class="p">(</span>
+            <span class="s2">"numRanks"</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"DYCOVE DFM parallel setup: "</span>
+            <span class="sa">f</span><span class="s2">"rank=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">rank</span><span class="si">}</span><span class="s2">, size=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel_barrier</span><span class="p">()</span></div>
+
+
+
 <div class="viewcode-block" id="DFMEngine.initialize">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.initialize">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -239,8 +320,15 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_model_inputs</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">morphology</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">morph_vars</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_morphodynamic_inputs</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vegetation_file_check</span><span class="p">()</span>
+
         <span class="c1">### ----- Required for numerical model ----- ###</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dimr</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setup_parallel</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dimr</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+
+        <span class="c1"># Load MPI cell ownership/global numbering in DFM BMI order.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_partition_mapping</span><span class="p">()</span></div>
 
 
 
@@ -248,6 +336,69 @@
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.step">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">step</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">seconds</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dimr</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">seconds</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DFMEngine.parallel_barrier">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.parallel_barrier">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">parallel_barrier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Synchronize DFM MPI ranks."""</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">Barrier</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="DFMEngine.raise_parallel_root_error">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.raise_parallel_root_error">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">raise_parallel_root_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">error</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Broadcast a rank-0 error to all MPI ranks and raise it consistently.</span>
+
+<span class="sd">        This prevents non-root ranks from waiting indefinitely at a later</span>
+<span class="sd">        synchronization point if a rank-0 output-reconstruction step fails.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">bcast</span><span class="p">(</span>
+            <span class="n">error</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">error</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">error</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DFMEngine.prepare_output_reconciliation">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.prepare_output_reconciliation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_output_reconciliation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Prepare parallel DFM output for global vegetation reconstruction.</span>
+
+<span class="sd">        All ranks finish writing partition-local output before rank 0</span>
+<span class="sd">        reconstructs the global DFM map. The merged map defines the</span>
+<span class="sd">        authoritative global-cell ordering used by merge_parallel_veg().</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_parallel</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel_barrier</span><span class="p">()</span>
+
+        <span class="n">error</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">merge_parallel_dfm_map</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="s2">"Parallel DFM map reconstruction failed: "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">raise_parallel_root_error</span><span class="p">(</span><span class="n">error</span><span class="p">)</span></div>
 
 
 
@@ -272,12 +423,12 @@
         <span class="n">refdatestr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">"RefDate"</span><span class="p">]</span>
         <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">refdatestr</span><span class="p">[:</span><span class="mi">4</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">refdatestr</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="mi">6</span><span class="p">]),</span> <span class="nb">int</span><span class="p">(</span><span class="n">refdatestr</span><span class="p">[</span><span class="mi">6</span><span class="p">:]))</span></div>
 
-    
+
 
 <div class="viewcode-block" id="DFMEngine.get_elevation">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_elevation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_elevation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># DFM returns arrays with boundary values included, slice those out first </span>
+        <span class="c1"># DFM returns arrays with boundary values included, slice those out first</span>
         <span class="n">n_cells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cell_count</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">"bl"</span><span class="p">))[:</span><span class="n">n_cells</span><span class="p">]</span></div>
 
@@ -323,8 +474,8 @@
 <span class="sd">        Compare DYCOVE simulation time to MDU simulation time.</span>
 
 <span class="sd">        All MDU files (DFM models) will have a simulation time specifed, but DYCOVE will run</span>
-<span class="sd">        DFM for a period of time based on how many veg years we want to simulate. Basically, </span>
-<span class="sd">        the time specified in the MDU needs to be arbitrarily large enough so that we never </span>
+<span class="sd">        DFM for a period of time based on how many veg years we want to simulate. Basically,</span>
+<span class="sd">        the time specified in the MDU needs to be arbitrarily large enough so that we never</span>
 <span class="sd">        run into the issue of the model stopping prematurely.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="n">simstate</span><span class="o">.</span><span class="n">hydro_sim_days</span><span class="o">*</span><span class="mi">86400</span> <span class="o">&gt;</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_vars</span><span class="p">[</span><span class="s2">"TStop"</span><span class="p">]):</span>
@@ -339,7 +490,7 @@
     <span class="c1"># --------------------------------------------------------</span>
     <span class="c1"># Some additional required, DFM-specific methods</span>
     <span class="c1"># --------------------------------------------------------</span>
-     
+
 <div class="viewcode-block" id="DFMEngine.get_model_inputs">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_model_inputs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_model_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -377,7 +528,7 @@
             <span class="c1">#     self.veg.mor = 0</span>
         <span class="k">return</span> <span class="n">morphology</span><span class="p">,</span> <span class="n">morph_vars</span></div>
 
-    
+
 
 <div class="viewcode-block" id="DFMEngine.vegetation_file_check">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.vegetation_file_check">[docs]</a>
@@ -391,14 +542,14 @@
 <span class="sd">        - Adds [veg] block if it is not present, including drag coefficient from VegetationAttributes</span>
 <span class="sd">          and appropriate Baptist model number</span>
 
-<span class="sd">        Creates empty text files for stem density, stem diameter, and stem height, if they don't </span>
-<span class="sd">        already exist. </span>
-<span class="sd">        </span>
-<span class="sd">        The filenames are those specified in the vegetation .ext file in the model directory </span>
+<span class="sd">        Creates empty text files for stem density, stem diameter, and stem height, if they don't</span>
+<span class="sd">        already exist.</span>
+
+<span class="sd">        The filenames are those specified in the vegetation .ext file in the model directory</span>
 <span class="sd">        (e.g., "FlowFM_veg.ext").</span>
 
 <span class="sd">        These files can be created beforehand if prior vegetation establishment is desired.</span>
-<span class="sd">        </span>
+
 <span class="sd">        Otherwise, blank files are required so that DFM knows to store these variables through time.</span>
 <span class="sd">        """</span>
 
@@ -410,7 +561,7 @@
 
         <span class="c1"># Track for .mdu file modification</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mdu_modified</span> <span class="o">=</span> <span class="kc">False</span>
-        
+
         <span class="c1"># All only execute if self.veg is not None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_extforcefile_to_mdu</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">add_veg_module_to_mdu</span><span class="p">()</span>
@@ -425,9 +576,9 @@
 <div class="viewcode-block" id="DFMEngine.add_extforcefile_to_mdu">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.add_extforcefile_to_mdu">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_extforcefile_to_mdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">""" </span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add ExtForceFile to .mdu line if it's not there (and if vegetation is active).</span>
-<span class="sd">        </span>
+
 <span class="sd">        [external forcing]</span>
 <span class="sd">        ExtForceFile = FlowFM.ext  # Old format for external forcings file ...</span>
 <span class="sd">        """</span>
@@ -466,9 +617,9 @@
 <div class="viewcode-block" id="DFMEngine.add_veg_module_to_mdu">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.add_veg_module_to_mdu">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_veg_module_to_mdu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">""" </span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Add [veg] section to .mdu if it's not there (and if vegetation is active).</span>
-<span class="sd">        </span>
+
 <span class="sd">        Format:</span>
 <span class="sd">        [veg]</span>
 <span class="sd">        Vegetationmodelnr = 2     # 1: Baptist, 2: Baptist with morphology correction factor (lambda)</span>
@@ -483,7 +634,7 @@
             <span class="n">drag</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">get_drag</span><span class="p">()</span>
             <span class="n">veg_model_num</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">veg</span><span class="o">.</span><span class="n">mor</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mdu_modified</span> <span class="o">=</span> <span class="kc">True</span>
-                 
+
             <span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mdu_lines</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
                 <span class="s2">"[veg]"</span><span class="p">,</span>
@@ -533,7 +684,7 @@
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ext_force_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>         </div>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">content</span><span class="p">)</span></div>
 
 
 
@@ -550,7 +701,7 @@
                 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">veg_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">""</span><span class="p">)</span></div>
 
-    
+
 
 <div class="viewcode-block" id="DFMEngine.write_modified_mdu">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.write_modified_mdu">[docs]</a>
@@ -566,32 +717,564 @@
     <span class="c1"># Parallel methods</span>
     <span class="c1"># --------------------------------------------------------</span>
 
+<div class="viewcode-block" id="DFMEngine.get_bmi_global_cell_ids">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_bmi_global_cell_ids">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_bmi_global_cell_ids</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">n_cells</span><span class="p">,</span> <span class="n">rank</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return DFM global cell IDs in BMI-local array order."""</span>
+        <span class="n">bmi_globalnr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dflowfm</span><span class="o">.</span><span class="n">get_var</span><span class="p">(</span><span class="s2">"iglobal_s"</span><span class="p">)</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bmi_globalnr</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">n_cells</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">: iglobal_s length "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">bmi_globalnr</span><span class="p">)</span><span class="si">}</span><span class="s2"> &lt; ndxi </span><span class="si">{</span><span class="n">n_cells</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+            <span class="n">bmi_globalnr</span><span class="p">[:</span><span class="n">n_cells</span><span class="p">],</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DFMEngine.get_partition_net_file">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_partition_net_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_partition_net_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rank</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return the rank-local mesh path from the partition MDU NetFile."""</span>
+        <span class="n">partition_mdu</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span>
+            <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">rank</span><span class="si">:</span><span class="s2">04d</span><span class="si">}</span><span class="s2">.mdu"</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">partition_mdu</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Partition MDU file not found: </span><span class="si">{</span><span class="n">partition_mdu</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+
+        <span class="n">partition_mdu_vars</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">partition_mdu</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">"="</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+                <span class="n">slist</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"=|#"</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">slist</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                    <span class="n">partition_mdu_vars</span><span class="p">[</span>
+                        <span class="n">slist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="n">slist</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="s2">"netfile"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">partition_mdu_vars</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Partition MDU </span><span class="si">{</span><span class="n">partition_mdu</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="s2">"does not contain a NetFile entry."</span>
+            <span class="p">)</span>
+
+        <span class="n">net_file</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span>
+            <span class="o">/</span> <span class="n">partition_mdu_vars</span><span class="p">[</span><span class="s2">"netfile"</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">net_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Partition mesh file not found: </span><span class="si">{</span><span class="n">net_file</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">net_file</span></div>
+
+
+
+<div class="viewcode-block" id="DFMEngine.read_partition_cell_metadata">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.read_partition_cell_metadata">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">read_partition_cell_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">net_file</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Read global cell IDs and ownership from a partition mesh."""</span>
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span>
+            <span class="n">net_file</span><span class="p">,</span>
+            <span class="n">decode_cf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="s2">"mesh2d_netelem_globalnr"</span> <span class="ow">in</span> <span class="n">ds</span>
+                <span class="ow">and</span> <span class="s2">"mesh2d_netelem_domain"</span> <span class="ow">in</span> <span class="n">ds</span>
+            <span class="p">):</span>
+                <span class="n">net_globalnr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                    <span class="n">ds</span><span class="p">[</span><span class="s2">"mesh2d_netelem_globalnr"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="n">net_domain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                    <span class="n">ds</span><span class="p">[</span><span class="s2">"mesh2d_netelem_domain"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="s2">"iglobal_s"</span> <span class="ow">in</span> <span class="n">ds</span>
+                <span class="ow">and</span> <span class="s2">"idomain"</span> <span class="ow">in</span> <span class="n">ds</span>
+            <span class="p">):</span>
+                <span class="n">net_globalnr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                    <span class="n">ds</span><span class="p">[</span><span class="s2">"iglobal_s"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="n">net_domain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                    <span class="n">ds</span><span class="p">[</span><span class="s2">"idomain"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Partition mesh </span><span class="si">{</span><span class="n">net_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> does not contain "</span>
+                    <span class="s2">"a recognized global-cell/ownership metadata pair. "</span>
+                    <span class="s2">"Expected either "</span>
+                    <span class="s2">"'mesh2d_netelem_globalnr' + "</span>
+                    <span class="s2">"'mesh2d_netelem_domain' or "</span>
+                    <span class="s2">"'iglobal_s' + 'idomain'."</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">net_globalnr</span><span class="p">,</span> <span class="n">net_domain</span></div>
+
+
+
+<div class="viewcode-block" id="DFMEngine.map_partition_ownership">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.map_partition_ownership">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_partition_ownership</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">net_globalnr</span><span class="p">,</span>
+        <span class="n">net_domain</span><span class="p">,</span>
+        <span class="n">n_cells</span><span class="p">,</span>
+        <span class="n">rank</span><span class="p">,</span>
+        <span class="n">net_file</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Map partition ownership metadata into DFM BMI-local order."""</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">net_globalnr</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_cells</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">: partition NetCDF contains "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">net_globalnr</span><span class="p">)</span><span class="si">}</span><span class="s2"> cells but ndxi=</span><span class="si">{</span><span class="n">n_cells</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+
+        <span class="n">owner_lookup</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">gid</span><span class="p">):</span> <span class="nb">int</span><span class="p">(</span><span class="n">owner</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">gid</span><span class="p">,</span> <span class="n">owner</span>
+            <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">net_globalnr</span><span class="p">,</span> <span class="n">net_domain</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">partition_domain</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">owner_lookup</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">gid</span><span class="p">)]</span>
+                    <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_globalnr</span>
+                <span class="p">],</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Rank </span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">: BMI global cell </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"not found in local partition mesh </span><span class="si">{</span><span class="n">net_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+        <span class="n">partition_owned</span> <span class="o">=</span> <span class="n">partition_domain</span> <span class="o">==</span> <span class="n">rank</span>
+
+        <span class="k">return</span> <span class="n">partition_domain</span><span class="p">,</span> <span class="n">partition_owned</span></div>
+
+
+
+<div class="viewcode-block" id="DFMEngine.gather_partition_mappings">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.gather_partition_mappings">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">gather_partition_mappings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Gather rank-local global-cell and ownership mappings on rank 0."""</span>
+        <span class="n">local_mapping</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partition_globalnr</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">partition_owned</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parallel_partition_maps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">comm</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span>
+            <span class="n">local_mapping</span><span class="p">,</span>
+            <span class="n">root</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"DYCOVE DFM: collected partition mappings "</span>
+                <span class="sa">f</span><span class="s2">"for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_partition_maps</span><span class="p">)</span><span class="si">}</span><span class="s2"> ranks"</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="DFMEngine.load_partition_mapping">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.load_partition_mapping">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_partition_mapping</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Build local DFM cell ownership/global numbering in BMI order.</span>
+
+<span class="sd">        Global cell IDs are obtained directly from the D-Flow FM BMI</span>
+<span class="sd">        variable ``iglobal_s``. Ownership information is read from this</span>
+<span class="sd">        rank's partitioned NetCDF mesh and reordered into BMI-local order.</span>
+<span class="sd">        """</span>
+        <span class="n">rank</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span>
+        <span class="n">n_cells</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_cell_count</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition_globalnr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bmi_global_cell_ids</span><span class="p">(</span>
+            <span class="n">n_cells</span><span class="p">,</span>
+            <span class="n">rank</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">net_file</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_partition_net_file</span><span class="p">(</span><span class="n">rank</span><span class="p">)</span>
+
+        <span class="n">net_globalnr</span><span class="p">,</span> <span class="n">net_domain</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">read_partition_cell_metadata</span><span class="p">(</span><span class="n">net_file</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">partition_domain</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">partition_owned</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">map_partition_ownership</span><span class="p">(</span>
+                <span class="n">net_globalnr</span><span class="p">,</span>
+                <span class="n">net_domain</span><span class="p">,</span>
+                <span class="n">n_cells</span><span class="p">,</span>
+                <span class="n">rank</span><span class="p">,</span>
+                <span class="n">net_file</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"DYCOVE DFM partition mapping rank=</span><span class="si">{</span><span class="n">rank</span><span class="si">}</span><span class="s2">: "</span>
+            <span class="sa">f</span><span class="s2">"local=</span><span class="si">{</span><span class="n">n_cells</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="sa">f</span><span class="s2">"owned=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">partition_owned</span><span class="p">)</span><span class="si">}</span><span class="s2">, "</span>
+            <span class="sa">f</span><span class="s2">"ghost=</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="o">~</span><span class="bp">self</span><span class="o">.</span><span class="n">partition_owned</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">gather_partition_mappings</span><span class="p">()</span></div>
+
+
+
 <div class="viewcode-block" id="DFMEngine.get_rank">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_rank">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_rank</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># TODO: implement parallel processing for DFM</span>
-        <span class="k">return</span> <span class="mi">0</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rank</span></div>
 
-    
+
 
 <div class="viewcode-block" id="DFMEngine.is_parallel">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.is_parallel">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">is_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">mpi4py</span><span class="w"> </span><span class="kn">import</span> <span class="n">MPI</span>
-            <span class="n">comm</span> <span class="o">=</span> <span class="n">MPI</span><span class="o">.</span><span class="n">COMM_WORLD</span>
-            <span class="n">size</span> <span class="o">=</span> <span class="n">comm</span><span class="o">.</span><span class="n">Get_size</span><span class="p">()</span>
-            <span class="k">return</span> <span class="kc">True</span> <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="kc">False</span>
-        <span class="k">except</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">numprocs</span> <span class="o">&gt;</span> <span class="mi">1</span></div>
 
-        
-        
+
+
+<div class="viewcode-block" id="DFMEngine.merge_parallel_dfm_map">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_dfm_map">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">merge_parallel_dfm_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Merge rank-local DFM map files into one global map file using</span>
+<span class="sd">        Deltares' native ``dfmoutput mapmerge`` utility.</span>
+
+<span class="sd">        This runs only on rank 0. The merged map provides the authoritative</span>
+<span class="sd">        global DFM face ordering for reconstruction of DYCOVE vegetation output.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span> <span class="o">/</span> <span class="s2">"output"</span>
+        <span class="n">dfmoutput</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dfm_path</span> <span class="o">/</span> <span class="s2">"bin/dfmoutput"</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">dfmoutput</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"DFM output utility not found: </span><span class="si">{</span><span class="n">dfmoutput</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+
+        <span class="n">nprocs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parallel_partition_maps</span><span class="p">)</span>
+
+        <span class="n">map_files</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">rank</span><span class="si">:</span><span class="s2">04d</span><span class="si">}</span><span class="s2">_map.nc"</span>
+            <span class="k">for</span> <span class="n">rank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nprocs</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">map_files</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="s2">"Missing parallel DFM map file(s): "</span>
+                <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">merged_map</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">output_dir</span>
+            <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_map.nc"</span>
+        <span class="p">)</span>
+
+        <span class="n">cmd</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">dfmoutput</span><span class="p">),</span>
+            <span class="s2">"mapmerge"</span><span class="p">,</span>
+            <span class="s2">"--infile"</span><span class="p">,</span>
+            <span class="o">*</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">map_files</span><span class="p">],</span>
+            <span class="s2">"--outfile"</span><span class="p">,</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">merged_map</span><span class="p">),</span>
+            <span class="s2">"--force"</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span>
+            <span class="s2">"DYCOVE DFM: merging parallel DFM map files"</span>
+        <span class="p">)</span>
+
+        <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">cmd</span><span class="p">,</span>
+            <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">cwd</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">merged_map</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"DFM map merge did not create </span><span class="si">{</span><span class="n">merged_map</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+
+        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"DYCOVE DFM: merged map created: </span><span class="si">{</span><span class="n">merged_map</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="DFMEngine.get_owned_global_cell_ids">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_owned_global_cell_ids">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_owned_global_cell_ids</span><span class="p">(</span><span class="n">partition_maps</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Return unique global IDs for physical cells owned across all ranks."""</span>
+        <span class="n">all_owned_gids</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">globalnr</span><span class="p">,</span> <span class="n">owned</span> <span class="ow">in</span> <span class="n">partition_maps</span><span class="p">:</span>
+            <span class="n">gids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">globalnr</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+            <span class="n">owned</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">owned</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+            <span class="n">all_owned_gids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gids</span><span class="p">[</span><span class="n">owned</span><span class="p">])</span>
+
+        <span class="n">owned_global_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">all_owned_gids</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">owned_global_ids</span><span class="p">))</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">owned_global_ids</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">"Duplicate owned global DFM cell IDs found during "</span>
+                <span class="s2">"vegetation-output reconstruction."</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">owned_global_ids</span></div>
+
+
+
+<div class="viewcode-block" id="DFMEngine.get_merged_map_cell_order">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.get_merged_map_cell_order">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_merged_map_cell_order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">owned_global_ids</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Return global cell IDs in the native merged DFM map ordering.</span>
+
+<span class="sd">        The merged map order is authoritative for reconstructed DYCOVE</span>
+<span class="sd">        vegetation output.</span>
+<span class="sd">        """</span>
+        <span class="n">merged_map</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_dir</span>
+            <span class="o">/</span> <span class="s2">"output"</span>
+            <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mdu_path</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="s2">_map.nc"</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">merged_map</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Merged DFM map file not found: </span><span class="si">{</span><span class="n">merged_map</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span>
+            <span class="n">merged_map</span><span class="p">,</span>
+            <span class="n">decode_cf</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">"mesh2d_flowelem_globalnr"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ds</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">merged_map</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> does not contain "</span>
+                    <span class="s2">"mesh2d_flowelem_globalnr."</span>
+                <span class="p">)</span>
+
+            <span class="n">target_global_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                <span class="n">ds</span><span class="p">[</span><span class="s2">"mesh2d_flowelem_globalnr"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">n_global</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">owned_global_ids</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">target_global_ids</span><span class="p">)</span> <span class="o">!=</span> <span class="n">n_global</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Merged DFM map contains </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">target_global_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> cells, "</span>
+                <span class="sa">f</span><span class="s2">"but DYCOVE found </span><span class="si">{</span><span class="n">n_global</span><span class="si">}</span><span class="s2"> owned global cells."</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">target_global_ids</span><span class="p">))</span> <span class="o">!=</span> <span class="n">n_global</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">"Merged DFM map contains duplicate global cell IDs."</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">array_equal</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">target_global_ids</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">owned_global_ids</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">"Merged DFM map global IDs do not match the complete "</span>
+                <span class="s2">"set of owned DFM cells."</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">target_global_ids</span></div>
+
+
+
+<div class="viewcode-block" id="DFMEngine.merge_parallel_cohort_file">
+<a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_cohort_file">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">merge_parallel_cohort_file</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">OutputManager</span><span class="p">,</span>
+        <span class="n">fname</span><span class="p">,</span>
+        <span class="n">partition_maps</span><span class="p">,</span>
+        <span class="n">global_to_output</span><span class="p">,</span>
+        <span class="n">n_global</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Merge one cohort output across all DFM MPI partitions."""</span>
+        <span class="n">outputdir</span> <span class="o">=</span> <span class="n">OutputManager</span><span class="o">.</span><span class="n">veg_dir</span>
+        <span class="n">nprocs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">partition_maps</span><span class="p">)</span>
+
+        <span class="n">merged</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">merged_attrs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">processor_files</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">p_rank</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nprocs</span><span class="p">):</span>
+            <span class="n">c_file</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">outputdir</span>
+                <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">_proc</span><span class="si">{</span><span class="n">p_rank</span><span class="si">}</span><span class="s2">.nc"</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">c_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Parallel vegetation file not found: "</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c_file</span><span class="si">}</span><span class="s2">"</span>
+                <span class="p">)</span>
+
+            <span class="n">globalnr</span><span class="p">,</span> <span class="n">owned</span> <span class="o">=</span> <span class="n">partition_maps</span><span class="p">[</span><span class="n">p_rank</span><span class="p">]</span>
+
+            <span class="n">globalnr</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                <span class="n">globalnr</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">owned</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                <span class="n">owned</span><span class="p">,</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">owned_local_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">owned</span><span class="p">)</span>
+
+            <span class="c1"># Map each owned physical DFM cell into the exact face</span>
+            <span class="c1"># ordering of the native merged DFM map.</span>
+            <span class="n">owned_output_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="n">global_to_output</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">gid</span><span class="p">)]</span>
+                    <span class="k">for</span> <span class="n">gid</span> <span class="ow">in</span> <span class="n">globalnr</span><span class="p">[</span><span class="n">owned</span><span class="p">]</span>
+                <span class="p">],</span>
+                <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">with</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">c_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">c_sub</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">merged_attrs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">merged_attrs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">c_sub</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">c_sub</span><span class="o">.</span><span class="n">data_vars</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+                        <span class="n">var</span><span class="o">.</span><span class="n">values</span>
+                    <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">globalnr</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: variable "</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">!r}</span><span class="s2"> has length "</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span><span class="si">}</span><span class="s2">, expected "</span>
+                            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">globalnr</span><span class="p">)</span><span class="si">}</span><span class="s2">."</span>
+                        <span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">merged</span><span class="p">:</span>
+                        <span class="n">merged</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+                            <span class="n">n_global</span><span class="p">,</span>
+                            <span class="n">dtype</span><span class="o">=</span><span class="n">values</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span>
+                        <span class="p">)</span>
+
+                    <span class="n">merged</span><span class="p">[</span><span class="n">key</span><span class="p">][</span>
+                        <span class="n">owned_output_ids</span>
+                    <span class="p">]</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span>
+                        <span class="n">owned_local_ids</span>
+                    <span class="p">]</span>
+
+            <span class="n">processor_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c_file</span><span class="p">)</span>
+
+        <span class="n">OutputManager</span><span class="o">.</span><span class="n">save_netcdf</span><span class="p">(</span>
+            <span class="n">outputdir</span><span class="p">,</span>
+            <span class="n">fname</span><span class="p">,</span>
+            <span class="n">merged</span><span class="p">,</span>
+            <span class="n">saved_attrs</span><span class="o">=</span><span class="n">merged_attrs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">c_file</span> <span class="ow">in</span> <span class="n">processor_files</span><span class="p">:</span>
+            <span class="n">c_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"DYCOVE DFM: merged </span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">.nc"</span>
+        <span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="DFMEngine.merge_parallel_veg">
 <a class="viewcode-back" href="../../../../_autosummary/dycove.sim.engines.DFM_hydro.DFMEngine.html#dycove.sim.engines.DFM_hydro.DFMEngine.merge_parallel_veg">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">merge_parallel_veg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">OutputManager</span><span class="p">):</span>
-        <span class="c1"># DYCOVE-DFM does not currently support parallel processing in this model, but setting up for future use.</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"Parallel mode not currently implemented for Delft3D FM"</span><span class="p">)</span></div>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Merge rank-local DYCOVE vegetation files into global files.</span>
+
+<span class="sd">        Uses the DFM BMI-order global-cell mappings collected during</span>
+<span class="sd">        initialization. Only cells owned by each MPI rank are inserted</span>
+<span class="sd">        into the reconstructed global arrays; ghost-cell copies are ignored.</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_rank</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">file_index</span> <span class="o">=</span> <span class="n">OutputManager</span><span class="o">.</span><span class="n">file_index</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"parallel_partition_maps"</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">"Parallel partition mappings are unavailable on rank 0."</span>
+            <span class="p">)</span>
+
+        <span class="n">partition_maps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parallel_partition_maps</span>
+        <span class="n">nprocs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">partition_maps</span><span class="p">)</span>
+
+        <span class="n">owned_global_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_owned_global_cell_ids</span><span class="p">(</span>
+            <span class="n">partition_maps</span>
+        <span class="p">)</span>
+        <span class="n">n_global</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">owned_global_ids</span><span class="p">)</span>
+
+        <span class="n">target_global_ids</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_merged_map_cell_order</span><span class="p">(</span>
+            <span class="n">owned_global_ids</span>
+        <span class="p">)</span>
+
+        <span class="n">global_to_output</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nb">int</span><span class="p">(</span><span class="n">gid</span><span class="p">):</span> <span class="n">i</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">gid</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">target_global_ids</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"DYCOVE DFM: merging vegetation output from "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">nprocs</span><span class="si">}</span><span class="s2"> ranks onto </span><span class="si">{</span><span class="n">n_global</span><span class="si">}</span><span class="s2"> global cells "</span>
+            <span class="sa">f</span><span class="s2">"in merged DFM map order"</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">file_index</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ets</span> <span class="ow">in</span> <span class="n">file_index</span><span class="p">[</span><span class="n">year</span><span class="p">]:</span>
+                <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">file_index</span><span class="p">[</span><span class="n">year</span><span class="p">][</span><span class="n">ets</span><span class="p">]:</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">merge_parallel_cohort_file</span><span class="p">(</span>
+                        <span class="n">OutputManager</span><span class="p">,</span>
+                        <span class="n">fname</span><span class="p">,</span>
+                        <span class="n">partition_maps</span><span class="p">,</span>
+                        <span class="n">global_to_output</span><span class="p">,</span>
+                        <span class="n">n_global</span><span class="p">,</span>
+                    <span class="p">)</span></div>
 </div>
 
 </pre></div>

@@ -279,6 +279,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">finalize_simulation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">"Merging outputs, cleaning up, and finalizing simulation..."</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">prepare_output_reconciliation</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">outputs</span><span class="o">.</span><span class="n">reconcile_vegetation_output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simstate</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
         <span class="n">r</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">"Simulation complete!"</span><span class="p">)</span></div>
@@ -312,6 +313,13 @@
 <span class="sd">        </span>
 <span class="sd">        ANUGA implements this by looping with domain.evolve(), while DFM calls dimr.update().</span>
 <span class="sd">        """</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="HydroEngineBase.prepare_output_reconciliation">
+<a class="viewcode-back" href="../../../_autosummary/dycove.sim.base.HydroEngineBase.html#dycove.sim.base.HydroEngineBase.prepare_output_reconciliation">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">prepare_output_reconciliation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""Prepare engine-specific outputs before global output reconciliation."""</span>
         <span class="k">pass</span></div>
 
 
