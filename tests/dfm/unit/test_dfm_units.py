@@ -161,3 +161,76 @@ class TestDFMParallelVegetationMerge:
         # Ghost values 9.99 and 8.88 must not appear.
         assert 9.99 not in merged_data["fraction"]
         assert 8.88 not in merged_data["fraction"]
+
+
+class TestDFMPartitionMetadata:
+    """Tests for supported DFM partition ownership metadata conventions."""
+
+    @staticmethod
+    def make_engine():
+        from dycove import DFM_hydro
+        return object.__new__(DFM_hydro.DFMEngine)
+
+
+    @pytest.mark.dfm
+    @pytest.mark.unit
+    def test_reads_mesh2d_partition_metadata(self, tmp_path):
+        engine = self.make_engine()
+
+        net_file = tmp_path / "partition_mesh2d.nc"
+
+        ds = xr.Dataset({
+            "mesh2d_netelem_globalnr": xr.DataArray(
+                np.array([3, 1, 2], dtype=np.int64)
+            ),
+            "mesh2d_netelem_domain": xr.DataArray(
+                np.array([0, 1, 1], dtype=np.int32)
+            ),
+        })
+
+        ds.to_netcdf(net_file, engine="scipy")
+
+        globalnr, domain = engine.read_partition_cell_metadata(
+            net_file
+        )
+
+        assert np.array_equal(
+            globalnr,
+            np.array([3, 1, 2], dtype=np.int64),
+        )
+        assert np.array_equal(
+            domain,
+            np.array([0, 1, 1], dtype=np.int32),
+        )
+
+
+    @pytest.mark.dfm
+    @pytest.mark.unit
+    def test_reads_iglobal_idomain_partition_metadata(self, tmp_path):
+        engine = self.make_engine()
+
+        net_file = tmp_path / "partition_iglobal.nc"
+
+        ds = xr.Dataset({
+            "iglobal_s": xr.DataArray(
+                np.array([8, 4, 6], dtype=np.int64)
+            ),
+            "idomain": xr.DataArray(
+                np.array([0, 0, 1], dtype=np.int32)
+            ),
+        })
+
+        ds.to_netcdf(net_file, engine="scipy")
+
+        globalnr, domain = engine.read_partition_cell_metadata(
+            net_file
+        )
+
+        assert np.array_equal(
+            globalnr,
+            np.array([8, 4, 6], dtype=np.int64),
+        )
+        assert np.array_equal(
+            domain,
+            np.array([0, 0, 1], dtype=np.int32),
+        )

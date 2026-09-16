@@ -157,3 +157,34 @@ class TestHydroSimulationBase:
         assert sim.hydrostats.update.call_count == 3
         sim.hydrostats.reset.assert_called_once()
         assert sim.engine.get_elevation.call_count == 2
+
+    @pytest.mark.unit
+    def test_finalize_simulation_prepares_outputs_before_reconcile_and_cleanup(
+        self,
+    ):
+        """Engine output preparation occurs before reconciliation and cleanup."""
+        engine = self.mock_engine(veg=True)
+        sim = self.make_sim(engine)
+
+        sim.outputs = MagicMock()
+        sim.simstate = MagicMock()
+
+        call_order = []
+
+        engine.prepare_output_reconciliation.side_effect = (
+            lambda: call_order.append("prepare")
+        )
+        sim.outputs.reconcile_vegetation_output.side_effect = (
+            lambda simstate: call_order.append("reconcile")
+        )
+        engine.cleanup.side_effect = (
+            lambda: call_order.append("cleanup")
+        )
+
+        sim.finalize_simulation()
+
+        assert call_order == [
+            "prepare",
+            "reconcile",
+            "cleanup",
+        ]

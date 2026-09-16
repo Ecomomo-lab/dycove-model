@@ -57,52 +57,6 @@ class DFM(HydroSimulationBase):
         super().__init__(engine)
 
 
-    def finalize_simulation(self):
-        """
-        Finalize DFM output and model resources.
-
-        Serial DFM uses the standard DYCOVE finalization path unchanged.
-        Parallel DFM additionally reconstructs global DFM and vegetation
-        outputs, with MPI-safe propagation of rank-0 reconstruction errors.
-        """
-        if not self.engine.is_parallel():
-            return super().finalize_simulation()
-
-        r.report("Merging outputs, cleaning up, and finalizing simulation...")
-
-        # All ranks must finish writing partition-local outputs first.
-        self.engine.parallel_barrier()
-
-        map_error = None
-
-        if self.engine.get_rank() == 0:
-            try:
-                self.engine.merge_parallel_dfm_map()
-            except Exception as exc:
-                map_error = (
-                    "Parallel DFM map reconstruction failed: "
-                    f"{type(exc).__name__}: {exc}"
-                )
-
-        self.engine.raise_parallel_root_error(map_error)
-
-        veg_error = None
-
-        try:
-            self.outputs.reconcile_vegetation_output(self.simstate)
-        except Exception as exc:
-            if self.engine.get_rank() == 0:
-                veg_error = (
-                    "Parallel vegetation-output reconstruction failed: "
-                    f"{type(exc).__name__}: {exc}"
-                )
-
-        self.engine.raise_parallel_root_error(veg_error)
-
-        self.engine.cleanup()
-        r.report("Simulation complete!")
-
-
 class DFMEngine(HydroEngineBase):
     """
     Engine interface for DFM hydro-morphodynamic model.
@@ -140,15 +94,7 @@ class DFMEngine(HydroEngineBase):
     def __init__(self, dfm_path, config_path, mdu_path, vegetation=None):
 
         self.dfm_path = Path(dfm_path)
-
-        if os.name == "nt":
-            self.dll_dirs = self.add_dll_directories(self.dfm_path)
-            self.dflowfm_path = self.dfm_path / "dflowfm/bin/dflowfm.dll"
-            self.dimr_path = self.dfm_path / "dimr/bin/dimr_dll.dll"
-        else:
-            self.dll_dirs = []
-            self.dflowfm_path = self.dfm_path / "lib/libdflowfm.so"
-            self.dimr_path = self.dfm_path / "lib/libdimr.so"
+        self.configure_library_paths()
 
         # ---- Verify libraries exist ----
         if not self.dflowfm_path.exists():
@@ -170,7 +116,24 @@ class DFMEngine(HydroEngineBase):
 
         self.veg = vegetation
 
+        self.configure_mpi()
         self.open_bmi_wrappers()
+
+
+    def configure_library_paths(self):
+        """Configure DFM and DIMR library paths for the current OS."""
+        if os.name == "nt":
+            self.dll_dirs = self.add_dll_directories(self.dfm_path)
+            self.dflowfm_path = self.dfm_path / "dflowfm/bin/dflowfm.dll"
+            self.dimr_path = self.dfm_path / "dimr/bin/dimr_dll.dll"
+        elif os.name == "posix":
+            self.dll_dirs = []
+            self.dflowfm_path = self.dfm_path / "lib/libdflowfm.so"
+            self.dimr_path = self.dfm_path / "lib/libdimr.so"
+        else:
+            raise OSError(
+                f"Unsupported operating system for DYCOVE-DFM: {os.name}"
+            )
 
 
     def add_dll_directories(self, dfm_path):
@@ -196,12 +159,54 @@ class DFMEngine(HydroEngineBase):
                 ]
 
 
+    def configure_mpi(self):
+        """Configure MPI state once for serial or parallel DFM execution."""
+        try:
+            from mpi4py import MPI
+        except ImportError:
+            self.comm = None
+            self.rank = 0
+            self.numprocs = 1
+            return
+
+        self.comm = MPI.COMM_WORLD
+        self.rank = self.comm.Get_rank()
+        self.numprocs = self.comm.Get_size()
+
+
     def open_bmi_wrappers(self):
         """ Create BMI wrapper objects for DFM and DIMR """
         # BMI wrapper object that interacts with the actual numerical model (e.g., getting and setting variables)
         self.dflowfm = self.BMIWrapper(engine=str(self.dflowfm_path), configfile=str(self.mdu_path))
         # BMI wrapper object that handles the deployment of the model executables
         self.dimr = self.BMIWrapper(engine=str(self.dimr_path), configfile=str(self.config_path))
+
+
+    def setup_parallel(self):
+        """Configure DIMR for MPI parallel execution."""
+        if not self.is_parallel():
+            return
+
+        self.dimr.set_var(
+            "useMPI",
+            np.array([1], dtype=np.int32)
+        )
+        self.dimr.set_var(
+            "myRank",
+            np.array([self.rank], dtype=np.int32)
+        )
+        self.dimr.set_var(
+            "numRanks",
+            np.array([self.numprocs], dtype=np.int32)
+        )
+
+        print(
+            f"DYCOVE DFM parallel setup: "
+            f"rank={self.rank}, size={self.numprocs}",
+            flush=True,
+        )
+
+        self.parallel_barrier()
 
 
     def initialize(self):
@@ -211,32 +216,7 @@ class DFMEngine(HydroEngineBase):
         self.vegetation_file_check()
 
         ### ----- Required for numerical model ----- ###
-        if self.is_parallel():
-            from mpi4py import MPI
-
-            comm = MPI.COMM_WORLD
-            rank = comm.Get_rank()
-            size = comm.Get_size()
-
-            self.dimr.set_var(
-                "useMPI",
-                np.array([1], dtype=np.int32)
-            )
-            self.dimr.set_var(
-                "myRank",
-                np.array([rank], dtype=np.int32)
-            )
-            self.dimr.set_var(
-                "numRanks",
-                np.array([size], dtype=np.int32)
-            )
-
-            print(
-                f"DYCOVE DFM parallel setup: rank={rank}, size={size}",
-                flush=True,
-            )
-
-            comm.Barrier()
+        self.setup_parallel()
 
         self.dimr.initialize()
 
@@ -252,8 +232,7 @@ class DFMEngine(HydroEngineBase):
     def parallel_barrier(self):
         """Synchronize DFM MPI ranks."""
         if self.is_parallel():
-            from mpi4py import MPI
-            MPI.COMM_WORLD.Barrier()
+            self.comm.Barrier()
 
 
     def raise_parallel_root_error(self, error):
@@ -268,15 +247,40 @@ class DFMEngine(HydroEngineBase):
                 raise RuntimeError(error)
             return
 
-        from mpi4py import MPI
-
-        error = MPI.COMM_WORLD.bcast(
-            error if MPI.COMM_WORLD.Get_rank() == 0 else None,
+        error = self.comm.bcast(
+            error if self.rank == 0 else None,
             root=0,
         )
 
         if error is not None:
             raise RuntimeError(error)
+
+
+    def prepare_output_reconciliation(self):
+        """
+        Prepare parallel DFM output for global vegetation reconstruction.
+
+        All ranks finish writing partition-local output before rank 0
+        reconstructs the global DFM map. The merged map defines the
+        authoritative global-cell ordering used by merge_parallel_veg().
+        """
+        if not self.is_parallel():
+            return
+
+        self.parallel_barrier()
+
+        error = None
+
+        if self.get_rank() == 0:
+            try:
+                self.merge_parallel_dfm_map()
+            except Exception as exc:
+                error = (
+                    "Parallel DFM map reconstruction failed: "
+                    f"{type(exc).__name__}: {exc}"
+                )
+
+        self.raise_parallel_root_error(error)
 
 
     def cleanup(self):
@@ -546,18 +550,8 @@ OPERAND=O
     # Parallel methods
     # --------------------------------------------------------
 
-    def load_partition_mapping(self):
-        """
-        Build local DFM cell ownership/global numbering in BMI order.
-
-        Global cell IDs are obtained directly from the D-Flow FM BMI
-        variable ``iglobal_s``. Ownership information is read from this
-        rank's partitioned NetCDF mesh and reordered into BMI-local order.
-        """
-        rank = self.get_rank()
-        n_cells = self.get_cell_count()
-
-        # Global cell IDs in the exact ordering used by DFM BMI arrays.
+    def get_bmi_global_cell_ids(self, n_cells, rank):
+        """Return DFM global cell IDs in BMI-local array order."""
         bmi_globalnr = np.asarray(
             self.dflowfm.get_var("iglobal_s")
         ).reshape(-1)
@@ -568,16 +562,14 @@ OPERAND=O
                 f"{len(bmi_globalnr)} < ndxi {n_cells}"
             )
 
-        self.partition_globalnr = np.asarray(
+        return np.asarray(
             bmi_globalnr[:n_cells],
             dtype=np.int64,
         )
 
-        # Read this rank's partition MDU and use its NetFile entry.
-        #
-        # The partition mesh name is not necessarily derived from the
-        # MDU filename. Use the partition MDU as the authoritative source
-        # for the rank-local mesh filename.
+
+    def get_partition_net_file(self, rank):
+        """Return the rank-local mesh path from the partition MDU NetFile."""
         partition_mdu = (
             self.model_dir
             / f"{self.mdu_path.stem}_{rank:04d}.mdu"
@@ -615,12 +607,15 @@ OPERAND=O
                 f"Partition mesh file not found: {net_file}"
             )
 
-        ds = xr.open_dataset(
+        return net_file
+
+
+    def read_partition_cell_metadata(self, net_file):
+        """Read global cell IDs and ownership from a partition mesh."""
+        with xr.open_dataset(
             net_file,
             decode_cf=False,
-        )
-
-        try:
+        ) as ds:
             if (
                 "mesh2d_netelem_globalnr" in ds
                 and "mesh2d_netelem_domain" in ds
@@ -658,9 +653,19 @@ OPERAND=O
                     "'mesh2d_netelem_domain' or "
                     "'iglobal_s' + 'idomain'."
                 )
-        finally:
-            ds.close()
 
+        return net_globalnr, net_domain
+
+
+    def map_partition_ownership(
+        self,
+        net_globalnr,
+        net_domain,
+        n_cells,
+        rank,
+        net_file,
+    ):
+        """Map partition ownership metadata into DFM BMI-local order."""
         if len(net_globalnr) != n_cells:
             raise RuntimeError(
                 f"Rank {rank}: partition NetCDF contains "
@@ -674,7 +679,7 @@ OPERAND=O
         }
 
         try:
-            self.partition_domain = np.asarray(
+            partition_domain = np.asarray(
                 [
                     owner_lookup[int(gid)]
                     for gid in self.partition_globalnr
@@ -687,8 +692,60 @@ OPERAND=O
                 f"not found in local partition mesh {net_file.name}"
             ) from exc
 
-        self.partition_owned = (
-            self.partition_domain == rank
+        partition_owned = partition_domain == rank
+
+        return partition_domain, partition_owned
+
+
+    def gather_partition_mappings(self):
+        """Gather rank-local global-cell and ownership mappings on rank 0."""
+        local_mapping = (
+            self.partition_globalnr.copy(),
+            self.partition_owned.copy(),
+        )
+
+        self.parallel_partition_maps = self.comm.gather(
+            local_mapping,
+            root=0,
+        )
+
+        if self.rank == 0:
+            r.report(
+                f"DYCOVE DFM: collected partition mappings "
+                f"for {len(self.parallel_partition_maps)} ranks"
+            )
+
+
+    def load_partition_mapping(self):
+        """
+        Build local DFM cell ownership/global numbering in BMI order.
+
+        Global cell IDs are obtained directly from the D-Flow FM BMI
+        variable ``iglobal_s``. Ownership information is read from this
+        rank's partitioned NetCDF mesh and reordered into BMI-local order.
+        """
+        rank = self.get_rank()
+        n_cells = self.get_cell_count()
+
+        self.partition_globalnr = self.get_bmi_global_cell_ids(
+            n_cells,
+            rank,
+        )
+
+        net_file = self.get_partition_net_file(rank)
+
+        net_globalnr, net_domain = (
+            self.read_partition_cell_metadata(net_file)
+        )
+
+        self.partition_domain, self.partition_owned = (
+            self.map_partition_ownership(
+                net_globalnr,
+                net_domain,
+                n_cells,
+                rank,
+                net_file,
+            )
         )
 
         print(
@@ -699,43 +756,15 @@ OPERAND=O
             flush=True,
         )
 
-        # Gather each rank's BMI-order global-cell mapping and ownership
-        # metadata on rank 0 for reconstruction of global vegetation output.
-        from mpi4py import MPI
-
-        comm = MPI.COMM_WORLD
-
-        local_mapping = (
-            self.partition_globalnr.copy(),
-            self.partition_owned.copy(),
-        )
-
-        self.parallel_partition_maps = comm.gather(
-            local_mapping,
-            root=0,
-        )
-
-        if rank == 0:
-            r.report(
-                f"DYCOVE DFM: collected partition mappings "
-                f"for {len(self.parallel_partition_maps)} ranks"
-            )
+        self.gather_partition_mappings()
 
 
     def get_rank(self):
-        if self.is_parallel():
-            from mpi4py import MPI
-            return MPI.COMM_WORLD.Get_rank()
-        return 0
+        return self.rank
 
 
     def is_parallel(self):
-        try:
-            from mpi4py import MPI
-        except ImportError:
-            return False
-
-        return MPI.COMM_WORLD.Get_size() > 1
+        return self.numprocs > 1
 
 
     def merge_parallel_dfm_map(self):
@@ -812,35 +841,14 @@ OPERAND=O
             f"DYCOVE DFM: merged map created: {merged_map.name}"
         )
 
-    def merge_parallel_veg(self, OutputManager):
-        """
-        Merge rank-local DYCOVE vegetation files into global files.
-
-        Uses the DFM BMI-order global-cell mappings collected during
-        initialization. Only cells owned by each MPI rank are inserted
-        into the reconstructed global arrays; ghost-cell copies are ignored.
-        """
-        if self.get_rank() != 0:
-            return
-
-        outputdir = OutputManager.veg_dir
-        file_index = OutputManager.file_index
-
-        if not hasattr(self, "parallel_partition_maps"):
-            raise RuntimeError(
-                "Parallel partition mappings are unavailable on rank 0."
-            )
-
-        partition_maps = self.parallel_partition_maps
-        nprocs = len(partition_maps)
-
-        # DFM global cell numbering is 1-based.
+    @staticmethod
+    def get_owned_global_cell_ids(partition_maps):
+        """Return unique global IDs for physical cells owned across all ranks."""
         all_owned_gids = []
 
         for globalnr, owned in partition_maps:
             gids = np.asarray(globalnr, dtype=np.int64)
             owned = np.asarray(owned, dtype=bool)
-
             all_owned_gids.append(gids[owned])
 
         owned_global_ids = np.concatenate(all_owned_gids)
@@ -851,11 +859,16 @@ OPERAND=O
                 "vegetation-output reconstruction."
             )
 
-        n_global = len(owned_global_ids)
+        return owned_global_ids
 
-        # The native Deltares parallel map merge defines the authoritative
-        # global DFM face ordering. DYCOVE vegetation output must follow
-        # this same order so it aligns directly with FlowFM_map.nc.
+
+    def get_merged_map_cell_order(self, owned_global_ids):
+        """
+        Return global cell IDs in the native merged DFM map ordering.
+
+        The merged map order is authoritative for reconstructed DYCOVE
+        vegetation output.
+        """
         merged_map = (
             self.model_dir
             / "output"
@@ -882,6 +895,8 @@ OPERAND=O
                 dtype=np.int64,
             ).reshape(-1)
 
+        n_global = len(owned_global_ids)
+
         if len(target_global_ids) != n_global:
             raise RuntimeError(
                 f"Merged DFM map contains {len(target_global_ids)} cells, "
@@ -902,6 +917,137 @@ OPERAND=O
                 "set of owned DFM cells."
             )
 
+        return target_global_ids
+
+
+    def merge_parallel_cohort_file(
+        self,
+        OutputManager,
+        fname,
+        partition_maps,
+        global_to_output,
+        n_global,
+    ):
+        """Merge one cohort output across all DFM MPI partitions."""
+        outputdir = OutputManager.veg_dir
+        nprocs = len(partition_maps)
+
+        merged = {}
+        merged_attrs = None
+        processor_files = []
+
+        for p_rank in range(nprocs):
+            c_file = (
+                outputdir
+                / f"{fname}_proc{p_rank}.nc"
+            )
+
+            if not c_file.exists():
+                raise FileNotFoundError(
+                    f"Parallel vegetation file not found: "
+                    f"{c_file}"
+                )
+
+            globalnr, owned = partition_maps[p_rank]
+
+            globalnr = np.asarray(
+                globalnr,
+                dtype=np.int64,
+            )
+
+            owned = np.asarray(
+                owned,
+                dtype=bool,
+            )
+
+            owned_local_ids = np.flatnonzero(owned)
+
+            # Map each owned physical DFM cell into the exact face
+            # ordering of the native merged DFM map.
+            owned_output_ids = np.asarray(
+                [
+                    global_to_output[int(gid)]
+                    for gid in globalnr[owned]
+                ],
+                dtype=np.int64,
+            )
+
+            with xr.open_dataset(c_file) as c_sub:
+                if merged_attrs is None:
+                    merged_attrs = dict(c_sub.attrs)
+
+                for key, var in c_sub.data_vars.items():
+                    values = np.asarray(
+                        var.values
+                    ).reshape(-1)
+
+                    if len(values) != len(globalnr):
+                        raise RuntimeError(
+                            f"{c_file.name}: variable "
+                            f"{key!r} has length "
+                            f"{len(values)}, expected "
+                            f"{len(globalnr)}."
+                        )
+
+                    if key not in merged:
+                        merged[key] = np.zeros(
+                            n_global,
+                            dtype=values.dtype,
+                        )
+
+                    merged[key][
+                        owned_output_ids
+                    ] = values[
+                        owned_local_ids
+                    ]
+
+            processor_files.append(c_file)
+
+        OutputManager.save_netcdf(
+            outputdir,
+            fname,
+            merged,
+            saved_attrs=merged_attrs,
+        )
+
+        for c_file in processor_files:
+            c_file.unlink()
+
+        r.report(
+            f"DYCOVE DFM: merged {fname}.nc"
+        )
+
+
+    def merge_parallel_veg(self, OutputManager):
+        """
+        Merge rank-local DYCOVE vegetation files into global files.
+
+        Uses the DFM BMI-order global-cell mappings collected during
+        initialization. Only cells owned by each MPI rank are inserted
+        into the reconstructed global arrays; ghost-cell copies are ignored.
+        """
+        if self.get_rank() != 0:
+            return
+
+        file_index = OutputManager.file_index
+
+        if not hasattr(self, "parallel_partition_maps"):
+            raise RuntimeError(
+                "Parallel partition mappings are unavailable on rank 0."
+            )
+
+        partition_maps = self.parallel_partition_maps
+        nprocs = len(partition_maps)
+
+        owned_global_ids = self.get_owned_global_cell_ids(
+            partition_maps
+        )
+        n_global = len(owned_global_ids)
+
+        target_global_ids = self.get_merged_map_cell_order(
+            owned_global_ids
+        )
+
         global_to_output = {
             int(gid): i
             for i, gid in enumerate(target_global_ids)
@@ -917,90 +1063,10 @@ OPERAND=O
             for ets in file_index[year]:
                 for fname in file_index[year][ets]:
 
-                    merged = {}
-                    merged_attrs = None
-                    processor_files = []
-
-                    for p_rank in range(nprocs):
-
-                        c_file = (
-                            outputdir
-                            / f"{fname}_proc{p_rank}.nc"
-                        )
-
-                        if not c_file.exists():
-                            raise FileNotFoundError(
-                                f"Parallel vegetation file not found: "
-                                f"{c_file}"
-                            )
-
-                        globalnr, owned = partition_maps[p_rank]
-
-                        globalnr = np.asarray(
-                            globalnr,
-                            dtype=np.int64,
-                        )
-
-                        owned = np.asarray(
-                            owned,
-                            dtype=bool,
-                        )
-
-                        owned_local_ids = np.flatnonzero(owned)
-
-                        # Map each owned physical DFM cell into the
-                        # exact face ordering of the native merged DFM map.
-                        owned_output_ids = np.asarray(
-                            [
-                                global_to_output[int(gid)]
-                                for gid in globalnr[owned]
-                            ],
-                            dtype=np.int64,
-                        )
-
-                        with xr.open_dataset(c_file) as c_sub:
-
-                            if merged_attrs is None:
-                                merged_attrs = dict(c_sub.attrs)
-
-                            for key, var in c_sub.data_vars.items():
-
-                                values = np.asarray(
-                                    var.values
-                                ).reshape(-1)
-
-                                if len(values) != len(globalnr):
-                                    raise RuntimeError(
-                                        f"{c_file.name}: variable "
-                                        f"{key!r} has length "
-                                        f"{len(values)}, expected "
-                                        f"{len(globalnr)}."
-                                    )
-
-                                if key not in merged:
-                                    merged[key] = np.zeros(
-                                        n_global,
-                                        dtype=values.dtype,
-                                    )
-
-                                merged[key][
-                                    owned_output_ids
-                                ] = values[
-                                    owned_local_ids
-                                ]
-
-                        processor_files.append(c_file)
-
-                    OutputManager.save_netcdf(
-                        outputdir,
+                    self.merge_parallel_cohort_file(
+                        OutputManager,
                         fname,
-                        merged,
-                        saved_attrs=merged_attrs,
-                    )
-
-                    for c_file in processor_files:
-                        c_file.unlink()
-
-                    r.report(
-                        f"DYCOVE DFM: merged {fname}.nc"
+                        partition_maps,
+                        global_to_output,
+                        n_global,
                     )

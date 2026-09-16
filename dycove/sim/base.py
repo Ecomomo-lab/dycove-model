@@ -187,6 +187,7 @@ class HydroSimulationBase(ABC):
 
     def finalize_simulation(self):
         r.report("Merging outputs, cleaning up, and finalizing simulation...")
+        self.engine.prepare_output_reconciliation()
         self.outputs.reconcile_vegetation_output(self.simstate)
         self.engine.cleanup()
         r.report("Simulation complete!")
@@ -212,6 +213,10 @@ class HydroEngineBase(ABC):
         
         ANUGA implements this by looping with domain.evolve(), while DFM calls dimr.update().
         """
+        pass
+
+    def prepare_output_reconciliation(self):
+        """Prepare engine-specific outputs before global output reconciliation."""
         pass
 
     @abstractmethod
