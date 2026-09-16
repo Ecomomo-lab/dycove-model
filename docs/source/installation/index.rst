@@ -43,6 +43,8 @@ Windows users may also need to install `pypiwin32 <https://pypi.org/project/pypi
 
 **Update**: The DYCOVE implementation of the DFM ``bmi`` library is not currently working with Python 3.11 and 3.12.
 
+For parallel DYCOVE-DFM runs, `mpi4py <https://pypi.org/project/mpi4py/>`_ must also be installed, together with an MPI-enabled Delft3D FM installation.
+
 
 Install Plotting Libraries
 --------------------------

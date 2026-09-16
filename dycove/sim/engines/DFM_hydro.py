@@ -9,6 +9,7 @@ from types import ModuleType
 from datetime import datetime
 from pathlib import Path
 import numpy as np
+import xarray as xr
 
 from dycove.sim.base import HydroSimulationBase, HydroEngineBase
 from dycove.utils.simulation_reporting import Reporter
@@ -29,22 +30,22 @@ def _import_bmi():
                "Refer to the documentation for installation instructions.")
         r.report(msg, level="ERROR")
         raise ImportError(msg)
-    
+
 
 class DFM(HydroSimulationBase):
     """
     Hydrodynamic simulation wrapper for the Delft3D FM model.
 
-    This class connects the generic :class:`~dycove.sim.base.HydroSimulationBase`  
+    This class connects the generic :class:`~dycove.sim.base.HydroSimulationBase`
     to :class:`~dycove.sim.base.engines.DFM_hydro.DFMEngine`, providing a
-    consistent Python interface for running D-Flow FM through its BMI and DIMR 
+    consistent Python interface for running D-Flow FM through its BMI and DIMR
     interfaces.
 
     Notes
     -----
     - All higher-level logic that can be abstracted from the engine classes is
-      handled in :class:`~dycove.sim.base.HydroSimulationBase`; all low-level model 
-      interactions are delegated to 
+      handled in :class:`~dycove.sim.base.HydroSimulationBase`; all low-level model
+      interactions are delegated to
       :class:`~dycove.sim.base.engines.DFM_hydro.DFMEngine`.
     """
 
@@ -54,18 +55,18 @@ class DFM(HydroSimulationBase):
         engine = DFMEngine(dfm_path, config_path, mdu_path, vegetation)
         # pass DFM engine to the base class
         super().__init__(engine)
-    
+
 
 class DFMEngine(HydroEngineBase):
     """
     Engine interface for DFM hydro-morphodynamic model.
 
     This engine:
-    
+
     - Loads and initializes DFM executables (DIMR + D-Flow FM BMI).
     - Manages exchange of hydrodynamic and vegetation state variables though
       DFM-specific ``BMI-python`` wrapper.
-    - Ensures that required input files are present and are consistent 
+    - Ensures that required input files are present and are consistent
       with simulation settings.
 
     Parameters
@@ -82,42 +83,71 @@ class DFMEngine(HydroEngineBase):
 
     Notes
     -----
-    - Vegetation files (.xyz) required by DFM vegetation module are auto-created 
+    - Vegetation files (.xyz) required by DFM vegetation module are auto-created
       if missing.
-    - Parallel mode is not currently implemented.
+    - Parallel DFM execution is supported through MPI domain partitioning.
+    - Parallel vegetation output is reconstructed using DFM global cell IDs
+      and the native merged DFM map ordering.
 
     """
 
     def __init__(self, dfm_path, config_path, mdu_path, vegetation=None):
 
-        self.dll_dirs = self.add_dll_directories(dfm_path)  # do this first to setup PATH before loading
+        self.dfm_path = Path(dfm_path)
+        self.configure_library_paths()
 
-        self.BMIWrapper = _import_bmi()  # lazy bmi loading
+        # ---- Verify libraries exist ----
+        if not self.dflowfm_path.exists():
+            raise FileNotFoundError(
+                f"D-Flow FM library not found: {self.dflowfm_path}"
+            )
 
-        # Define paths to Delft3D FM .dll files
-        self.dflowfm_path = Path(dfm_path) / ("dflowfm/bin/dflowfm.dll")
-        self.dimr_path    = Path(dfm_path) / ("dimr/bin/dimr_dll.dll")
+        if not self.dimr_path.exists():
+            raise FileNotFoundError(
+                f"DIMR library not found: {self.dimr_path}"
+            )
+
+        self.BMIWrapper = _import_bmi()
+
+
         self.mdu_path     = mdu_path  # location of MDU file that contains model directions/inputs
         self.model_dir    = mdu_path.parent  # model directory containing MDU and other model files
         self.config_path  = config_path  # location of config file used for running DFM using dimr
 
         self.veg = vegetation
 
+        self.configure_mpi()
         self.open_bmi_wrappers()
 
 
+    def configure_library_paths(self):
+        """Configure DFM and DIMR library paths for the current OS."""
+        if os.name == "nt":
+            self.dll_dirs = self.add_dll_directories(self.dfm_path)
+            self.dflowfm_path = self.dfm_path / "dflowfm/bin/dflowfm.dll"
+            self.dimr_path = self.dfm_path / "dimr/bin/dimr_dll.dll"
+        elif os.name == "posix":
+            self.dll_dirs = []
+            self.dflowfm_path = self.dfm_path / "lib/libdflowfm.so"
+            self.dimr_path = self.dfm_path / "lib/libdimr.so"
+        else:
+            raise OSError(
+                f"Unsupported operating system for DYCOVE-DFM: {os.name}"
+            )
+
+
     def add_dll_directories(self, dfm_path):
-        """ 
+        """
         Add DLL paths to env before calling BMI.
 
         Return list to retain handle and avoid accidental garbage collecting.
 
-        Note that for versions of python 3.7 and earlier, you would need to set the env 
+        Note that for versions of python 3.7 and earlier, you would need to set the env
         variables differently:
 
         .. code-block:: python
 
-           os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" + 
+           os.environ['PATH'] = os.path.join(dfm_path, 'share', 'bin') + ";" +
                                 os.path.join(dfm_path, 'dflowfm', 'bin') + ";" + ... )
         """
         return [os.add_dll_directory(dfm_path / Path("dflowfm/bin")),
@@ -129,6 +159,21 @@ class DFMEngine(HydroEngineBase):
                 ]
 
 
+    def configure_mpi(self):
+        """Configure MPI state once for serial or parallel DFM execution."""
+        try:
+            from mpi4py import MPI
+        except ImportError:
+            self.comm = None
+            self.rank = 0
+            self.numprocs = 1
+            return
+
+        self.comm = MPI.COMM_WORLD
+        self.rank = self.comm.Get_rank()
+        self.numprocs = self.comm.Get_size()
+
+
     def open_bmi_wrappers(self):
         """ Create BMI wrapper objects for DFM and DIMR """
         # BMI wrapper object that interacts with the actual numerical model (e.g., getting and setting variables)
@@ -137,17 +182,105 @@ class DFMEngine(HydroEngineBase):
         self.dimr = self.BMIWrapper(engine=str(self.dimr_path), configfile=str(self.config_path))
 
 
+    def setup_parallel(self):
+        """Configure DIMR for MPI parallel execution."""
+        if not self.is_parallel():
+            return
+
+        self.dimr.set_var(
+            "useMPI",
+            np.array([1], dtype=np.int32)
+        )
+        self.dimr.set_var(
+            "myRank",
+            np.array([self.rank], dtype=np.int32)
+        )
+        self.dimr.set_var(
+            "numRanks",
+            np.array([self.numprocs], dtype=np.int32)
+        )
+
+        print(
+            f"DYCOVE DFM parallel setup: "
+            f"rank={self.rank}, size={self.numprocs}",
+            flush=True,
+        )
+
+        self.parallel_barrier()
+
+
     def initialize(self):
         ### ----- Required for vegetation module ----- ###
         self.mdu_vars = self.get_model_inputs()
         self.morphology, self.morph_vars = self.get_morphodynamic_inputs()
         self.vegetation_file_check()
+
         ### ----- Required for numerical model ----- ###
+        self.setup_parallel()
+
         self.dimr.initialize()
+
+        # Load MPI cell ownership/global numbering in DFM BMI order.
+        if self.is_parallel():
+            self.load_partition_mapping()
 
 
     def step(self, seconds):
         self.dimr.update(seconds)
+
+
+    def parallel_barrier(self):
+        """Synchronize DFM MPI ranks."""
+        if self.is_parallel():
+            self.comm.Barrier()
+
+
+    def raise_parallel_root_error(self, error):
+        """
+        Broadcast a rank-0 error to all MPI ranks and raise it consistently.
+
+        This prevents non-root ranks from waiting indefinitely at a later
+        synchronization point if a rank-0 output-reconstruction step fails.
+        """
+        if not self.is_parallel():
+            if error is not None:
+                raise RuntimeError(error)
+            return
+
+        error = self.comm.bcast(
+            error if self.rank == 0 else None,
+            root=0,
+        )
+
+        if error is not None:
+            raise RuntimeError(error)
+
+
+    def prepare_output_reconciliation(self):
+        """
+        Prepare parallel DFM output for global vegetation reconstruction.
+
+        All ranks finish writing partition-local output before rank 0
+        reconstructs the global DFM map. The merged map defines the
+        authoritative global-cell ordering used by merge_parallel_veg().
+        """
+        if not self.is_parallel():
+            return
+
+        self.parallel_barrier()
+
+        error = None
+
+        if self.get_rank() == 0:
+            try:
+                self.merge_parallel_dfm_map()
+            except Exception as exc:
+                error = (
+                    "Parallel DFM map reconstruction failed: "
+                    f"{type(exc).__name__}: {exc}"
+                )
+
+        self.raise_parallel_root_error(error)
 
 
     def cleanup(self):
@@ -162,10 +295,10 @@ class DFMEngine(HydroEngineBase):
         # This input has a line in the MDU file, but most other models probably don't care what the date is and we can just hardcode the date
         refdatestr = self.mdu_vars["RefDate"]
         return datetime(int(refdatestr[:4]), int(refdatestr[4:6]), int(refdatestr[6:]))
-    
+
 
     def get_elevation(self):
-        # DFM returns arrays with boundary values included, slice those out first 
+        # DFM returns arrays with boundary values included, slice those out first
         n_cells = self.get_cell_count()
         return np.array(self.dflowfm.get_var("bl"))[:n_cells]
 
@@ -199,8 +332,8 @@ class DFMEngine(HydroEngineBase):
         Compare DYCOVE simulation time to MDU simulation time.
 
         All MDU files (DFM models) will have a simulation time specifed, but DYCOVE will run
-        DFM for a period of time based on how many veg years we want to simulate. Basically, 
-        the time specified in the MDU needs to be arbitrarily large enough so that we never 
+        DFM for a period of time based on how many veg years we want to simulate. Basically,
+        the time specified in the MDU needs to be arbitrarily large enough so that we never
         run into the issue of the model stopping prematurely.
         """
         if simstate.hydro_sim_days*86400 > int(self.mdu_vars["TStop"]):
@@ -214,7 +347,7 @@ class DFMEngine(HydroEngineBase):
     # --------------------------------------------------------
     # Some additional required, DFM-specific methods
     # --------------------------------------------------------
-     
+
     def get_model_inputs(self):
         """ Read lines from MDU file into a dictionary """
         mdu_lines = self.mdu_path.read_text().splitlines()
@@ -246,7 +379,7 @@ class DFMEngine(HydroEngineBase):
             # if self.veg is not None:
             #     self.veg.mor = 0
         return morphology, morph_vars
-    
+
 
     def vegetation_file_check(self):
         """
@@ -258,14 +391,14 @@ class DFMEngine(HydroEngineBase):
         - Adds [veg] block if it is not present, including drag coefficient from VegetationAttributes
           and appropriate Baptist model number
 
-        Creates empty text files for stem density, stem diameter, and stem height, if they don't 
-        already exist. 
-        
-        The filenames are those specified in the vegetation .ext file in the model directory 
+        Creates empty text files for stem density, stem diameter, and stem height, if they don't
+        already exist.
+
+        The filenames are those specified in the vegetation .ext file in the model directory
         (e.g., "FlowFM_veg.ext").
 
         These files can be created beforehand if prior vegetation establishment is desired.
-        
+
         Otherwise, blank files are required so that DFM knows to store these variables through time.
         """
 
@@ -277,7 +410,7 @@ class DFMEngine(HydroEngineBase):
 
         # Track for .mdu file modification
         self.mdu_modified = False
-        
+
         # All only execute if self.veg is not None
         self.add_extforcefile_to_mdu()
         self.add_veg_module_to_mdu()
@@ -289,9 +422,9 @@ class DFMEngine(HydroEngineBase):
 
 
     def add_extforcefile_to_mdu(self):
-        """ 
+        """
         Add ExtForceFile to .mdu line if it's not there (and if vegetation is active).
-        
+
         [external forcing]
         ExtForceFile = FlowFM.ext  # Old format for external forcings file ...
         """
@@ -327,9 +460,9 @@ class DFMEngine(HydroEngineBase):
 
 
     def add_veg_module_to_mdu(self):
-        """ 
+        """
         Add [veg] section to .mdu if it's not there (and if vegetation is active).
-        
+
         Format:
         [veg]
         Vegetationmodelnr = 2     # 1: Baptist, 2: Baptist with morphology correction factor (lambda)
@@ -344,7 +477,7 @@ class DFMEngine(HydroEngineBase):
             drag = self.veg.get_drag()
             veg_model_num = 2 if self.veg.mor == 1 else 1
             self.mdu_modified = True
-                 
+
             self.mdu_lines.append("")
             self.mdu_lines.extend([
                 "[veg]",
@@ -391,7 +524,7 @@ OPERAND=O
                 with open(ext_force_file, "w") as f:
                     f.write(lines)
                     f.write("\n")
-                    f.write(content)         
+                    f.write(content)
 
 
     def create_veg_xyz_files(self):
@@ -404,7 +537,7 @@ OPERAND=O
             if not veg_file.exists():
                 with open(veg_file, "w") as f:
                     f.write("")
-    
+
 
     def write_modified_mdu(self):
         """ Write modified .mdu lines back to file """
@@ -417,21 +550,523 @@ OPERAND=O
     # Parallel methods
     # --------------------------------------------------------
 
+    def get_bmi_global_cell_ids(self, n_cells, rank):
+        """Return DFM global cell IDs in BMI-local array order."""
+        bmi_globalnr = np.asarray(
+            self.dflowfm.get_var("iglobal_s")
+        ).reshape(-1)
+
+        if len(bmi_globalnr) < n_cells:
+            raise RuntimeError(
+                f"Rank {rank}: iglobal_s length "
+                f"{len(bmi_globalnr)} < ndxi {n_cells}"
+            )
+
+        return np.asarray(
+            bmi_globalnr[:n_cells],
+            dtype=np.int64,
+        )
+
+
+    def get_partition_net_file(self, rank):
+        """Return the rank-local mesh path from the partition MDU NetFile."""
+        partition_mdu = (
+            self.model_dir
+            / f"{self.mdu_path.stem}_{rank:04d}.mdu"
+        )
+
+        if not partition_mdu.exists():
+            raise FileNotFoundError(
+                f"Partition MDU file not found: {partition_mdu}"
+            )
+
+        partition_mdu_vars = {}
+
+        for line in partition_mdu.read_text().splitlines():
+            if "=" in line:
+                slist = re.split("=|#", line)
+
+                if len(slist) >= 2:
+                    partition_mdu_vars[
+                        slist[0].strip().lower()
+                    ] = slist[1].strip()
+
+        if "netfile" not in partition_mdu_vars:
+            raise RuntimeError(
+                f"Partition MDU {partition_mdu.name} "
+                "does not contain a NetFile entry."
+            )
+
+        net_file = (
+            self.model_dir
+            / partition_mdu_vars["netfile"]
+        )
+
+        if not net_file.exists():
+            raise FileNotFoundError(
+                f"Partition mesh file not found: {net_file}"
+            )
+
+        return net_file
+
+
+    def read_partition_cell_metadata(self, net_file):
+        """Read global cell IDs and ownership from a partition mesh."""
+        with xr.open_dataset(
+            net_file,
+            decode_cf=False,
+        ) as ds:
+            if (
+                "mesh2d_netelem_globalnr" in ds
+                and "mesh2d_netelem_domain" in ds
+            ):
+                net_globalnr = np.asarray(
+                    ds["mesh2d_netelem_globalnr"].values,
+                    dtype=np.int64,
+                )
+
+                net_domain = np.asarray(
+                    ds["mesh2d_netelem_domain"].values,
+                    dtype=np.int32,
+                )
+
+            elif (
+                "iglobal_s" in ds
+                and "idomain" in ds
+            ):
+                net_globalnr = np.asarray(
+                    ds["iglobal_s"].values,
+                    dtype=np.int64,
+                )
+
+                net_domain = np.asarray(
+                    ds["idomain"].values,
+                    dtype=np.int32,
+                )
+
+            else:
+                raise RuntimeError(
+                    f"Partition mesh {net_file.name} does not contain "
+                    "a recognized global-cell/ownership metadata pair. "
+                    "Expected either "
+                    "'mesh2d_netelem_globalnr' + "
+                    "'mesh2d_netelem_domain' or "
+                    "'iglobal_s' + 'idomain'."
+                )
+
+        return net_globalnr, net_domain
+
+
+    def map_partition_ownership(
+        self,
+        net_globalnr,
+        net_domain,
+        n_cells,
+        rank,
+        net_file,
+    ):
+        """Map partition ownership metadata into DFM BMI-local order."""
+        if len(net_globalnr) != n_cells:
+            raise RuntimeError(
+                f"Rank {rank}: partition NetCDF contains "
+                f"{len(net_globalnr)} cells but ndxi={n_cells}"
+            )
+
+        owner_lookup = {
+            int(gid): int(owner)
+            for gid, owner
+            in zip(net_globalnr, net_domain)
+        }
+
+        try:
+            partition_domain = np.asarray(
+                [
+                    owner_lookup[int(gid)]
+                    for gid in self.partition_globalnr
+                ],
+                dtype=np.int32,
+            )
+        except KeyError as exc:
+            raise RuntimeError(
+                f"Rank {rank}: BMI global cell {exc.args[0]} "
+                f"not found in local partition mesh {net_file.name}"
+            ) from exc
+
+        partition_owned = partition_domain == rank
+
+        return partition_domain, partition_owned
+
+
+    def gather_partition_mappings(self):
+        """Gather rank-local global-cell and ownership mappings on rank 0."""
+        local_mapping = (
+            self.partition_globalnr.copy(),
+            self.partition_owned.copy(),
+        )
+
+        self.parallel_partition_maps = self.comm.gather(
+            local_mapping,
+            root=0,
+        )
+
+        if self.rank == 0:
+            r.report(
+                f"DYCOVE DFM: collected partition mappings "
+                f"for {len(self.parallel_partition_maps)} ranks"
+            )
+
+
+    def load_partition_mapping(self):
+        """
+        Build local DFM cell ownership/global numbering in BMI order.
+
+        Global cell IDs are obtained directly from the D-Flow FM BMI
+        variable ``iglobal_s``. Ownership information is read from this
+        rank's partitioned NetCDF mesh and reordered into BMI-local order.
+        """
+        rank = self.get_rank()
+        n_cells = self.get_cell_count()
+
+        self.partition_globalnr = self.get_bmi_global_cell_ids(
+            n_cells,
+            rank,
+        )
+
+        net_file = self.get_partition_net_file(rank)
+
+        net_globalnr, net_domain = (
+            self.read_partition_cell_metadata(net_file)
+        )
+
+        self.partition_domain, self.partition_owned = (
+            self.map_partition_ownership(
+                net_globalnr,
+                net_domain,
+                n_cells,
+                rank,
+                net_file,
+            )
+        )
+
+        print(
+            f"DYCOVE DFM partition mapping rank={rank}: "
+            f"local={n_cells}, "
+            f"owned={np.count_nonzero(self.partition_owned)}, "
+            f"ghost={np.count_nonzero(~self.partition_owned)}",
+            flush=True,
+        )
+
+        self.gather_partition_mappings()
+
+
     def get_rank(self):
-        # TODO: implement parallel processing for DFM
-        return 0
-    
+        return self.rank
+
 
     def is_parallel(self):
-        try:
-            from mpi4py import MPI
-            comm = MPI.COMM_WORLD
-            size = comm.Get_size()
-            return True if size > 1 else False
-        except:
-            return False
-        
-        
+        return self.numprocs > 1
+
+
+    def merge_parallel_dfm_map(self):
+        """
+        Merge rank-local DFM map files into one global map file using
+        Deltares' native ``dfmoutput mapmerge`` utility.
+
+        This runs only on rank 0. The merged map provides the authoritative
+        global DFM face ordering for reconstruction of DYCOVE vegetation output.
+        """
+        if self.get_rank() != 0:
+            return
+
+        import subprocess
+
+        output_dir = self.model_dir / "output"
+        dfmoutput = self.dfm_path / "bin/dfmoutput"
+
+        if not dfmoutput.exists():
+            raise FileNotFoundError(
+                f"DFM output utility not found: {dfmoutput}"
+            )
+
+        nprocs = len(self.parallel_partition_maps)
+
+        map_files = [
+            output_dir / f"{self.mdu_path.stem}_{rank:04d}_map.nc"
+            for rank in range(nprocs)
+        ]
+
+        missing = [
+            str(f)
+            for f in map_files
+            if not f.exists()
+        ]
+
+        if missing:
+            raise FileNotFoundError(
+                "Missing parallel DFM map file(s): "
+                + ", ".join(missing)
+            )
+
+        merged_map = (
+            output_dir
+            / f"{self.mdu_path.stem}_map.nc"
+        )
+
+        cmd = [
+            str(dfmoutput),
+            "mapmerge",
+            "--infile",
+            *[str(f) for f in map_files],
+            "--outfile",
+            str(merged_map),
+            "--force",
+        ]
+
+        r.report(
+            "DYCOVE DFM: merging parallel DFM map files"
+        )
+
+        subprocess.run(
+            cmd,
+            check=True,
+            cwd=output_dir,
+        )
+
+        if not merged_map.exists():
+            raise RuntimeError(
+                f"DFM map merge did not create {merged_map}"
+            )
+
+        r.report(
+            f"DYCOVE DFM: merged map created: {merged_map.name}"
+        )
+
+    @staticmethod
+    def get_owned_global_cell_ids(partition_maps):
+        """Return unique global IDs for physical cells owned across all ranks."""
+        all_owned_gids = []
+
+        for globalnr, owned in partition_maps:
+            gids = np.asarray(globalnr, dtype=np.int64)
+            owned = np.asarray(owned, dtype=bool)
+            all_owned_gids.append(gids[owned])
+
+        owned_global_ids = np.concatenate(all_owned_gids)
+
+        if len(np.unique(owned_global_ids)) != len(owned_global_ids):
+            raise RuntimeError(
+                "Duplicate owned global DFM cell IDs found during "
+                "vegetation-output reconstruction."
+            )
+
+        return owned_global_ids
+
+
+    def get_merged_map_cell_order(self, owned_global_ids):
+        """
+        Return global cell IDs in the native merged DFM map ordering.
+
+        The merged map order is authoritative for reconstructed DYCOVE
+        vegetation output.
+        """
+        merged_map = (
+            self.model_dir
+            / "output"
+            / f"{self.mdu_path.stem}_map.nc"
+        )
+
+        if not merged_map.exists():
+            raise FileNotFoundError(
+                f"Merged DFM map file not found: {merged_map}"
+            )
+
+        with xr.open_dataset(
+            merged_map,
+            decode_cf=False,
+        ) as ds:
+            if "mesh2d_flowelem_globalnr" not in ds:
+                raise RuntimeError(
+                    f"{merged_map.name} does not contain "
+                    "mesh2d_flowelem_globalnr."
+                )
+
+            target_global_ids = np.asarray(
+                ds["mesh2d_flowelem_globalnr"].values,
+                dtype=np.int64,
+            ).reshape(-1)
+
+        n_global = len(owned_global_ids)
+
+        if len(target_global_ids) != n_global:
+            raise RuntimeError(
+                f"Merged DFM map contains {len(target_global_ids)} cells, "
+                f"but DYCOVE found {n_global} owned global cells."
+            )
+
+        if len(np.unique(target_global_ids)) != n_global:
+            raise RuntimeError(
+                "Merged DFM map contains duplicate global cell IDs."
+            )
+
+        if not np.array_equal(
+            np.sort(target_global_ids),
+            np.sort(owned_global_ids),
+        ):
+            raise RuntimeError(
+                "Merged DFM map global IDs do not match the complete "
+                "set of owned DFM cells."
+            )
+
+        return target_global_ids
+
+
+    def merge_parallel_cohort_file(
+        self,
+        OutputManager,
+        fname,
+        partition_maps,
+        global_to_output,
+        n_global,
+    ):
+        """Merge one cohort output across all DFM MPI partitions."""
+        outputdir = OutputManager.veg_dir
+        nprocs = len(partition_maps)
+
+        merged = {}
+        merged_attrs = None
+        processor_files = []
+
+        for p_rank in range(nprocs):
+            c_file = (
+                outputdir
+                / f"{fname}_proc{p_rank}.nc"
+            )
+
+            if not c_file.exists():
+                raise FileNotFoundError(
+                    f"Parallel vegetation file not found: "
+                    f"{c_file}"
+                )
+
+            globalnr, owned = partition_maps[p_rank]
+
+            globalnr = np.asarray(
+                globalnr,
+                dtype=np.int64,
+            )
+
+            owned = np.asarray(
+                owned,
+                dtype=bool,
+            )
+
+            owned_local_ids = np.flatnonzero(owned)
+
+            # Map each owned physical DFM cell into the exact face
+            # ordering of the native merged DFM map.
+            owned_output_ids = np.asarray(
+                [
+                    global_to_output[int(gid)]
+                    for gid in globalnr[owned]
+                ],
+                dtype=np.int64,
+            )
+
+            with xr.open_dataset(c_file) as c_sub:
+                if merged_attrs is None:
+                    merged_attrs = dict(c_sub.attrs)
+
+                for key, var in c_sub.data_vars.items():
+                    values = np.asarray(
+                        var.values
+                    ).reshape(-1)
+
+                    if len(values) != len(globalnr):
+                        raise RuntimeError(
+                            f"{c_file.name}: variable "
+                            f"{key!r} has length "
+                            f"{len(values)}, expected "
+                            f"{len(globalnr)}."
+                        )
+
+                    if key not in merged:
+                        merged[key] = np.zeros(
+                            n_global,
+                            dtype=values.dtype,
+                        )
+
+                    merged[key][
+                        owned_output_ids
+                    ] = values[
+                        owned_local_ids
+                    ]
+
+            processor_files.append(c_file)
+
+        OutputManager.save_netcdf(
+            outputdir,
+            fname,
+            merged,
+            saved_attrs=merged_attrs,
+        )
+
+        for c_file in processor_files:
+            c_file.unlink()
+
+        r.report(
+            f"DYCOVE DFM: merged {fname}.nc"
+        )
+
+
     def merge_parallel_veg(self, OutputManager):
-        # DYCOVE-DFM does not currently support parallel processing in this model, but setting up for future use.
-        raise NotImplementedError("Parallel mode not currently implemented for Delft3D FM")
+        """
+        Merge rank-local DYCOVE vegetation files into global files.
+
+        Uses the DFM BMI-order global-cell mappings collected during
+        initialization. Only cells owned by each MPI rank are inserted
+        into the reconstructed global arrays; ghost-cell copies are ignored.
+        """
+        if self.get_rank() != 0:
+            return
+
+        file_index = OutputManager.file_index
+
+        if not hasattr(self, "parallel_partition_maps"):
+            raise RuntimeError(
+                "Parallel partition mappings are unavailable on rank 0."
+            )
+
+        partition_maps = self.parallel_partition_maps
+        nprocs = len(partition_maps)
+
+        owned_global_ids = self.get_owned_global_cell_ids(
+            partition_maps
+        )
+        n_global = len(owned_global_ids)
+
+        target_global_ids = self.get_merged_map_cell_order(
+            owned_global_ids
+        )
+
+        global_to_output = {
+            int(gid): i
+            for i, gid in enumerate(target_global_ids)
+        }
+
+        r.report(
+            f"DYCOVE DFM: merging vegetation output from "
+            f"{nprocs} ranks onto {n_global} global cells "
+            f"in merged DFM map order"
+        )
+
+        for year in file_index:
+            for ets in file_index[year]:
+                for fname in file_index[year][ets]:
+
+                    self.merge_parallel_cohort_file(
+                        OutputManager,
+                        fname,
+                        partition_maps,
+                        global_to_output,
+                        n_global,
+                    )
